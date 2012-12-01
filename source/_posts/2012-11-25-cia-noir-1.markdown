@@ -1,7 +1,131 @@
 ---
 layout: post
-title: "cia-noir-1"
+title: "Cojure实战(1)：使用Noir框架开发博客(上)"
 date: 2012-11-25 16:58
 comments: true
-categories: 
+categories: Tutorial
+tags: [clojure, noir]
+published: false
 ---
+
+前言
+----
+
+为什么要学习一门新的语言？每个人都会有不同的解答。开拓眼界，转换思维，看看别人在干些什么，这些都是合理的。对未知的领域保有一份好奇心，我觉得这是技术人员的生命。所以不需要太多理由和动机，感兴趣，那就花点时间学吧！
+
+Clojure已经有一些不错的教程，如[Mark Volkmann][1]的[Clojure - Functional Programming for the JVM][2]，Storm的主要贡献者[徐明明][3]也对这个教程做了[全文翻译][4]。还有一些不错的书籍，像[O'Reilly][5]的[Clojure Programming][6]，都值得一读。我是从Mark的教程开始学起的，对其中没有提到的部分则是参考了Clojure Programming这本书。Clojure的[官方网站][7]上有详尽的[API参考][10]，可以作为工具书查阅。
+
+但是，上面提到的教程都是针对Clojure语言本身的，从 *Hello, world!* 开始，讲解Clojure的各种语法，关键字，结构等等。虽然Clojure的语法已经足够吸引你的眼球，在[REPL][8]中敲击Clojure代码已经是一种莫大的乐趣了，但似乎还有些不够，我们想看到一个用Clojure编写的应用程序！
+
+我接触过不少语言，工作中也会在不同语言之间切换。我最大的感受是开发工程师到达一定阶段后，语言已经不是瓶颈了。我可以上午阅读一下Perl的文档，下午就开始修改别人的脚本。我们更多时候会因为选择工具而选择语言，如选择RoR就要学习Ruby，选择Hadoop就要学习Java等等。成就一门语言的不是它本身，而是围绕其营造的工具链和生态环境。
+
+所以说，我撰写的这份教程不会从`(println "Hello, world!")`开始，而是选择几个开源工具，甚至是基于它们开发的开源项目来作为主线，进行讲解。因为我本身是做Web开发的，周遭也都是搞网站开发的同事，在这方面比较能产生共鸣，所以选择[Noir][9]这个Clojure Web框架，从搭建一个博客开始，领略Clojure的魅力。
+
+一句话概述Clojure
+-----------------
+
+**Clojure是一种运行在JVM平台上的函数式编程语言。**
+
+* [JVM平台][11]：历史悠久，应用广泛，成熟稳定。Clojure可以和Java程序交互，调用各种类库，与现有系统整合。
+* [函数式编程][12]：[Lisp][13]的一种方言，表达力强，是解决高并发问题的利器。
+* 它看起来很帅！
+
+安装Clojure
+-----------
+
+Clojure是以一个Jar包发行的，可以到[官网下载][16]后使用`java -jar`命令运行。而在实际开发中，我们会选择使用[Leiningen][14]或[Maven][15]来管理Clojure项目，本教程将以Leiningen（命令行是`lein`）作为项目管理工具进行讲解。
+
+### 安装Leiningen
+
+`lein`目前有1.x和2.x两个版本，后者还在alpha阶段。使用以下命令安装`lein` 1.x版本：
+
+```bash
+$ cd ~/bin # 假设$HOME/bin目录在系统的$PATH中
+$ wget https://raw.github.com/technomancy/leiningen/stable/bin/lein
+$ chmod 755 lein
+$ lein self-install
+$ lein repl
+REPL started; server listening on localhost port 1096
+user=>
+```
+
+这样就已经安装好了`lein`和Clojure环境，并启动了一个REPL，可以直接运行Clojure代码：
+
+```clojure
+user=> (+ 1 2)
+3
+user=>
+```
+
+这里出现了Clojure的第一个特点：前缀表达式。很快你就会熟悉并爱上这种表达方式。
+
+### 新建项目
+
+```bash
+$ lein new proj
+$ find proj
+proj
+proj/project.clj
+proj/src
+proj/src/proj
+proj/src/proj/core.clj
+$ cat proj/project.clj
+(defproject proj "1.0.0-SNAPSHOT"
+  :description "FIXME: write description"
+  :dependencies [[org.clojure/clojure "1.3.0"]])
+```
+
+`lein new`命令用来创建一个Clojure项目骨架，最重要的文件是`project.clj`，它声明了项目的基本属性以及依赖包。
+
+`lein plugin`命令可以用来管理lein的插件，我们可以通过安装lein-noir插件来生成基于Noir的项目骨架：
+
+```bash
+$ lein plugin install lein-noir 1.2.1
+$ lein noir new blog
+$ find blog
+blog
+blog/project.clj
+blog/resources
+blog/resources/public
+blog/resources/public/css
+blog/resources/public/css/reset.css
+blog/resources/public/img
+blog/resources/public/js
+blog/src
+blog/src/blog
+blog/src/blog/models
+blog/src/blog/server.clj
+blog/src/blog/views
+blog/src/blog/views/common.clj
+blog/src/blog/views/welcome.clj
+```
+
+我们可以直接运行这个项目：
+
+```bash
+$ cd blog
+$ lein run
+Starting server...
+2012-11-29 22:34:39.174:INFO::jetty-6.1.25
+2012-11-29 22:34:39.237:INFO::Started SocketConnector@0.0.0.0:8080
+```
+
+浏览http://localhost:8080，就能看到项目的页面了。
+
+
+[1]: http://java.ociweb.com/mark/
+[2]: http://java.ociweb.com/mark/clojure/article.html
+[3]: http://xumingming.sinaapp.com/
+[4]: http://xumingming.sinaapp.com/302/clojure-functional-programming-for-the-jvm-clojure-tutorial/
+[5]: http://oreilly.com/
+[6]: http://www.amazon.com/Clojure-Programming-Chas-Emerick/dp/1449394701
+[7]: http://clojure.org/
+[8]: http://en.wikipedia.org/wiki/Read-eval-print_loop
+[9]: http://webnoir.org/
+[10]: http://clojure.github.com/clojure/
+[11]: http://en.wikipedia.org/wiki/Jvm
+[12]: http://en.wikipedia.org/wiki/Functional_programming
+[13]: http://en.wikipedia.org/wiki/LISP
+[14]: https://github.com/technomancy/leiningen
+[15]: http://maven.apache.org/
+[16]: http://clojure.org/getting_started
