@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
-  <link href="http://jizhang.github.com/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Translation | My Octopress Blog]]></title>
+  <link href="http://jizhang.github.com/blog/categories/translation/atom.xml" rel="self"/>
   <link href="http://jizhang.github.com/"/>
   <updated>2012-12-01T19:15:45+08:00</updated>
   <id>http://jizhang.github.com/</id>
@@ -153,69 +153,45 @@
 
 <p>首先让我们在本地创建一个Git版本库。在类Unix系统下，我们可以执行以下命令：</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>mkdir testgit
-</span><span class='line'><span class="nv">$ </span><span class="nb">cd </span>testgit
-</span><span class='line'><span class="nv">$ </span>git init
-</span></code></pre></td></tr></table></div></figure>
-
+<p><code>bash
+$ mkdir testgit
+$ cd testgit
+$ git init
+</code></p>
 
 <p>这样我们就在testgit目录中初始化了一个新的版本库。我们可以建立分支、提交、创建里程碑、和远程Git仓库进行交互。我们甚至可以和其他类型的版本控制系统进行交互，只需要借助若干<code>git</code>命令即可。</p>
 
 <p><code>git init</code>命令会在testgit目录下创建一个名为.git的子目录。我们来看一下这个目录的结构：</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>tree .git/
-</span><span class='line'>.git/
-</span><span class='line'>|-- HEAD
-</span><span class='line'>|-- config
-</span><span class='line'>|-- description
-</span><span class='line'>|-- hooks
-</span><span class='line'>|   |-- applypatch-msg.sample
-</span><span class='line'>|   |-- commit-msg.sample
-</span><span class='line'>|   |-- post-commit.sample
-</span><span class='line'>|   |-- post-receive.sample
-</span><span class='line'>|   |-- post-update.sample
-</span><span class='line'>|   |-- pre-applypatch.sample
-</span><span class='line'>|   |-- pre-commit.sample
-</span><span class='line'>|   |-- pre-rebase.sample
-</span><span class='line'>|   |-- prepare-commit-msg.sample
-</span><span class='line'>|   |-- update.sample
-</span><span class='line'>|-- info
-</span><span class='line'>|   |-- exclude
-</span><span class='line'>|-- objects
-</span><span class='line'>|   |-- info
-</span><span class='line'>|   |-- pack
-</span><span class='line'>|-- refs
-</span><span class='line'>    |-- heads
-</span><span class='line'>    |-- tags
-</span></code></pre></td></tr></table></div></figure>
+<p>```
+tree .git/
+.git/
+|-- HEAD
+|-- config
+|-- description
+|-- hooks
+|   |-- applypatch-msg.sample
+|   |-- commit-msg.sample
+|   |-- post-commit.sample
+|   |-- post-receive.sample
+|   |-- post-update.sample
+|   |-- pre-applypatch.sample
+|   |-- pre-commit.sample
+|   |-- pre-rebase.sample
+|   |-- prepare-commit-msg.sample
+|   |-- update.sample
+|-- info
+|   |-- exclude
+|-- objects
+|   |-- info
+|   |-- pack
+|-- refs</p>
 
+<pre><code>|-- heads
+|-- tags
+</code></pre>
+
+<p>```</p>
 
 <p><code>.git</code>目录默认创建在工作区的根目录下，也就是<code>testgit</code>。它包含了以下几种类型的文件和目录：</p>
 
@@ -248,53 +224,37 @@
 
 <p>为了深入挖掘其中的原理，让我们看看<code>.git</code>目录下的文件都发生了哪些变化：</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ GIT_DIR</span><span class="o">=</span><span class="nv">$PWD</span>/.git
-</span><span class='line'><span class="nv">$ </span>cat <span class="nv">$GIT_DIR</span>/HEAD
-</span><span class='line'>
-</span><span class='line'>ref: refs/heads/master
-</span><span class='line'>
-</span><span class='line'><span class="nv">$ MY_CURRENT_BRANCH</span><span class="o">=</span><span class="k">$(</span>cat .git/HEAD | sed <span class="s1">&#39;s/ref: //g&#39;</span><span class="k">)</span>
-</span><span class='line'><span class="nv">$ </span>cat <span class="nv">$GIT_DIR</span>/<span class="nv">$MY_CURRENT_BRANCH</span>
-</span><span class='line'>
-</span><span class='line'>cat: .git/refs/heads/master: No such file or directory
-</span></code></pre></td></tr></table></div></figure>
+<p>```bash
+$ GIT_DIR=$PWD/.git
+$ cat $GIT_DIR/HEAD</p>
 
+<p>ref: refs/heads/master</p>
+
+<p>$ MY_CURRENT_BRANCH=$(cat .git/HEAD | sed 's/ref: //g')
+$ cat $GIT_DIR/$MY_CURRENT_BRANCH</p>
+
+<p>cat: .git/refs/heads/master: No such file or directory
+```</p>
 
 <p>这里会返回一个错误信息，因为我们还没有在Git仓库中进行过任何提交，因此不会存在任何分支，包括默认分支<code>master</code>。</p>
 
 <p>让我们进行一次提交，这时master分支会自动创建：</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>git commit -m <span class="s2">&quot;Initial empty commit&quot;</span> --allow-empty
-</span><span class='line'><span class="nv">$ </span>git branch
-</span><span class='line'>
-</span><span class='line'>* master
-</span><span class='line'>
-</span><span class='line'><span class="nv">$ </span>cat <span class="nv">$GIT_DIR</span>/<span class="nv">$MY_CURRENT_BRANCH</span>
-</span><span class='line'>
-</span><span class='line'>3bce5b130b17b7ce2f98d17b2998e32b1bc29d68
-</span><span class='line'>
-</span><span class='line'><span class="nv">$ </span>git cat-file -p <span class="k">$(</span>cat <span class="nv">$GIT_DIR</span>/<span class="nv">$MY_CURRENT_BRANCH</span><span class="k">)</span>
-</span></code></pre></td></tr></table></div></figure>
+<p>```bash
+$ git commit -m "Initial empty commit" --allow-empty
+$ git branch</p>
 
+<ul>
+<li>master</li>
+</ul>
+
+
+<p>$ cat $GIT_DIR/$MY_CURRENT_BRANCH</p>
+
+<p>3bce5b130b17b7ce2f98d17b2998e32b1bc29d68</p>
+
+<p>$ git cat-file -p $(cat $GIT_DIR/$MY_CURRENT_BRANCH)
+```</p>
 
 <p>输出的内容就是Git对象数据库中保存的信息了。</p>
 
