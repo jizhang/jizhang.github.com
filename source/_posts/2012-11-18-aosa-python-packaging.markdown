@@ -10,7 +10,7 @@ published: false
 
 作者：[Tarek Ziadé](http://www.aosabook.org/en/intro1.html#ziade-tarek)，翻译：[张吉](mailto:zhangji87@gmail.com)
 
-原文：http://www.aosabook.org/en/packaging.html
+原文：[http://www.aosabook.org/en/packaging.html](http://www.aosabook.org/en/packaging.html)
 
 14.1 简介
 ---------
@@ -177,6 +177,124 @@ else:
 ```
 
 但这种做法往往会让事情更糟。要注意，这个脚本是用来将项目的源码包发布到PyPI上的，这样写就说明它向PyPI上传的`Metadata`文件会因为该脚本运行环境的不同而不同。换句话说，这使得我们无法在元信息文件中看出这个项目依赖于特定的平台。
+
+14.3.3 PyPI的架构设计
+---------------------
+
+![图14.3 PyPI工作流](http://www.aosabook.org/images/packaging/pypi-workflow.png)
+
+图14.3 PyPI工作流
+
+如上文所述，PyPI是一个Python项目的中央仓库，人们可以通过不同的类别来搜索已有的项目，也可以创建自己的项目。人们可以上传项目源码和二进制文件，供其他人下载使用或研究。同时，PyPI还提供了相应的Web服务，让安装工具可以调用它来检索和下载文件。
+### 注册项目并上传发布包
+
+我们可以使用`Distutils`的`register`命令在PyPI中注册一个项目。这个命令会根据项目的元信息生成一个POST请求。该请求会包含验证信息，PyPI使用HTTP基本验证来确保所有的项目都和一个注册用户相关联。验证信息保存在`Distutils`的配置文件中，或在每次执行`register`命令时提示用户输入。以下是一个使用示例：
+
+```bash
+$ python setup.py register
+running register
+Registering MPTools to http://pypi.python.org/pypi
+Server response (200): OK
+```
+
+每个注册项目都会产生一个HTML页面，上面包含了它的元信息。开发者可以使用`upload`命令将发布包上传至PyPI：
+
+```bash
+$ python setup.py sdist upload
+running sdist
+…
+running upload
+Submitting dist/mopytools-0.1.tar.gz to http://pypi.python.org/pypi
+Server response (200): OK
+```
+
+如果开发者不想将代码上传至PyPI，可以使用元信息中的`Download-URL`属性来指定一个外部链接，供用户下载。
+
+### 检索PyPI
+
+除了在页面中检索项目，PyPI还提供了两个接口供程序调用：简单索引协议和XML-PRC API。
+
+简单索引协议的地址是`http://pypi.python.org/simple/`，它包含了一个链接列表，指向所有的注册项目：
+
+```html
+<html><head><title>Simple Index</title></head><body>
+⋮    ⋮    ⋮
+<a href='MontyLingua/'>MontyLingua</a><br/>
+<a href='mootiro_web/'>mootiro_web</a><br/>
+<a href='Mopidy/'>Mopidy</a><br/>
+<a href='mopowg/'>mopowg</a><br/>
+<a href='MOPPY/'>MOPPY</a><br/>
+<a href='MPTools/'>MPTools</a><br/>
+<a href='morbid/'>morbid</a><br/>
+<a href='Morelia/'>Morelia</a><br/>
+<a href='morse/'>morse</a><br/>
+⋮    ⋮    ⋮
+</body></html>
+```
+
+如MPTools项目对应的`MPTools/`目录，它所指向的路径会包含以下内容：
+
+* 所有发布包的地址
+* 在`Metadata`中定义的项目网站地址，包含所有版本
+* 下载地址（`Download-URL`），同样包含所有版本
+
+以MPTools项目为例：
+
+```html
+<html><head><title>Links for MPTools</title></head>
+<body><h1>Links for MPTools</h1>
+<a href="../../packages/source/M/MPTools/MPTools-0.1.tar.gz">MPTools-0.1.tar.gz</a><br/>
+<a href="http://bitbucket.org/tarek/mopytools" rel="homepage">0.1 home_page</a><br/>
+</body></html>
+```
+
+安装工具可以通过访问这个索引来查找项目的发布包，或者检查`http://pypi.python.org/simple/PROJECT_NAME/`是否存在。
+
+但是，这个协议主要有两个缺陷。首先，PyPI目前还是单台服务器。虽然很多用户会自己搭建镜像，但过去两年中曾发生过几次PyPI无法访问的情况，用户无法下载依赖包，导致项目构建出现问题。比如说，在构建一个Plone项目时，需要向PyPI发送近百次请求。所以PyPI在这里成为了单点故障。
+
+其次，当项目的发布包没有保存在PyPI中，而是通过`Download-URL`指向了其他地址，安装工具就需要重定向到这个地址下载发布包。这种情况也会增加安装过程的不稳定性。
+
+简单索引协议只是提供给安装工具一个项目列表，并不包含项目元信息。可以通过PyPI的XML-RPC API来获取项目元信息：
+
+```python
+>>> import xmlrpclib
+>>> import pprint
+>>> client = xmlrpclib.ServerProxy('http://pypi.python.org/pypi')
+>>> client.package_releases('MPTools')
+['0.1']
+>>> pprint.pprint(client.release_urls('MPTools', '0.1'))
+[{'comment_text': &rquot;,
+'downloads': 28,
+'filename': 'MPTools-0.1.tar.gz',
+'has_sig': False,
+'md5_digest': '6b06752d62c4bffe1fb65cd5c9b7111a',
+'packagetype': 'sdist',
+'python_version': 'source',
+'size': 3684,
+'upload_time': <DateTime '20110204T09:37:12' at f4da28>,
+'url': 'http://pypi.python.org/packages/source/M/MPTools/MPTools-0.1.tar.gz'}]
+>>> pprint.pprint(client.release_data('MPTools', '0.1'))
+{'author': 'Tarek Ziade',
+'author_email': 'tarek@mozilla.com',
+'classifiers': [],
+'description': 'UNKNOWN',
+'download_url': 'UNKNOWN',
+'home_page': 'http://bitbucket.org/tarek/mopytools',
+'keywords': None,
+'license': 'UNKNOWN',
+'maintainer': None,
+'maintainer_email': None,
+'name': 'MPTools',
+'package_url': 'http://pypi.python.org/pypi/MPTools',
+'platform': 'UNKNOWN',
+'release_url': 'http://pypi.python.org/pypi/MPTools/0.1',
+'requires_python': None,
+'stable_version': None,
+'summary': 'Set of tools to build Mozilla Services apps',
+'version': '0.1'}
+```
+
+这种方式的问题在于，项目元信息原本就能以静态文件的方式在简单索引协议中提供，这样可以简化安装工具的复杂性，也可以减少PyPI服务的请求数。对于诸如下载数量这样的动态数据，可以在其他接口中提供。用两种服务来获取所有的静态内容，显然不太合理。
 
 脚注
 ---
