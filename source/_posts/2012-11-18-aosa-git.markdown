@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "开源软件架构 - 卷2：第6章 Git"
-date: 2012-12-01 18:23
+date: 2012-11-18 00:52
 comments: true
 categories: Translation
 tags: [aosa, git]
@@ -129,7 +129,7 @@ Git工具包分为两个部分：底层命令和上层命令。底层命令提�
 
 首先让我们在本地创建一个Git版本库。在类Unix系统下，我们可以执行以下命令：
 
-```shell
+```bash
 $ mkdir testgit
 $ cd testgit
 $ git init
@@ -192,7 +192,7 @@ Git暂存区里的内容默认保存在单个文件中。版本库、暂存区�
 
 为了深入挖掘其中的原理，让我们看看`.git`目录下的文件都发生了哪些变化：
 
-```shell
+```bash
 $ GIT_DIR=$PWD/.git
 $ cat $GIT_DIR/HEAD
 
