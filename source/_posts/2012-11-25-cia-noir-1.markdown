@@ -57,7 +57,7 @@ user=> (+ 1 2)
 user=>
 ```
 
-这里出现了Clojure的第一个特点：前缀表达式。很快你就会熟悉并爱上这种表达方式。
+这里出现了Clojure的两个特点：圆括号和前缀表达式。Clojure的基本语法是`(fn1 arg1 (fn2 arg2 arg3))`。函数是Clojure中的“一等公民”，它即是可执行的代码，又是一种数据（类似闭包的概念）。以后我们会慢慢熟悉。
 
 ### 新建项目
 
@@ -112,6 +112,30 @@ Starting server...
 
 浏览http://localhost:8080，就能看到项目的页面了。
 
+Noir项目的基本结构
+------------------
+
+### 项目基本信息：project.clj
+
+Clojure文件都是以`.clj`为扩展名的。项目根目录下的project.clj文件包含了一些基本信息，我们逐一分析：
+
+```clojure
+(defproject blog "0.1.0-SNAPSHOT"
+            :description "FIXME: write this!"
+            :dependencies [[org.clojure/clojure "1.3.0"]
+                           [noir "1.2.1"]]
+            :main blog.server)
+```
+
+[defproject][17]是Leiningen定义的一个[宏][18]，用来描述项目的基本信息。宏在Clojure中是一个很重要的语言特性，简单地说，开发者可以用宏创造出新的语法。
+
+:description、:main等是一种直接量(literal)，我们称之为关键字(keyword)，主要用来作为哈希表(map)中的键名，这里则用来表示项目的某种信息，从名称上应该很好理解。
+
+`[1 ["b", false]]`表示一个向量(vector)，它的元素可以是任意类型，元素之间以空格或逗号分隔。这行代码也展示了Clojure中其他几种直接量：数值型、字符串、布尔型。
+
+依赖项的描述也很直观，`[groupId/artifactId "version"]`。Clojure使用了和Maven相似的包命名方式，当groupId和artifactId相同时，可以进行简写，如`[noir "1.2.1"]`等价于`[noir/noir "1.2.1"]`，这也是Clojure鼓励的做法。对依赖项进行修改后，可以运行`lein deps`命令进行安装。lein会先从[Clojars][19]上查找和下载，不存在时再到[Maven中央仓库][20]中搜索。
+
+最后，:main顾名思义指向的是程序入口，它配置的是一个命名空间，其中会包含一个`-main`方法（注意方法名中的`-`）。Leiningen项目的目录结构也是按照命名空间来的，这点和Java一致。
 
 [1]: http://java.ociweb.com/mark/
 [2]: http://java.ociweb.com/mark/clojure/article.html
@@ -129,3 +153,7 @@ Starting server...
 [14]: https://github.com/technomancy/leiningen
 [15]: http://maven.apache.org/
 [16]: http://clojure.org/getting_started
+[17]: http://clojuredocs.org/leiningen/leiningen.core/defproject
+[18]: http://clojure.org/macros
+[19]: https://clojars.org
+[20]: http://search.maven.org/
