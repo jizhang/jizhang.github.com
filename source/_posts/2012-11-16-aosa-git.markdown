@@ -9,7 +9,7 @@ tags: [aosa, git]
 
 作者：[Susan Potter](http://www.aosabook.org/en/intro2.html#potter-susan)，翻译：[张吉](mailto:zhangji87@gmail.com)
 
-原文：http://www.aosabook.org/en/git.html
+原文：[http://www.aosabook.org/en/git.html](http://www.aosabook.org/en/git.html)
 
 6.1 Git概述
 ----------
