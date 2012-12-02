@@ -214,6 +214,65 @@ user=> (refer 'noir.server) ; 将该命名空间下的变量导入当当前命�
 user=> (use 'noir.server) ; 同时完成require和refer。
 ```
 
+### 基本页面：src/blog/views/welcome.clj
+
+入口文件中的`load-views`函数会将指定目录下的所有文件都包含进来，这些文件中定义的是URL路由以及页面内容，以welcome.clj为例：
+
+```clojure
+(ns blog.views.welcome
+  (:require [blog.views.common :as common]
+            [noir.content.getting-started])
+  (:use [noir.core :only [defpage]]
+        [hiccup.core :only [html]]))
+
+(defpage "/welcome" []
+         (common/layout
+           [:p "Welcome to blog"]))
+```
+
+我们先跳过这些代码，来看看如何定义一个新的页面。将以下代码添加到welcome.clj尾部，然后执行`lein run`。
+
+```clojure
+(defpage "/greeting" []
+         (html
+           [:h1 "Hello, world!"]))
+```
+
+访问 http://127.0.0.1:8080/greeting 就能看到一个新的页面了，页面源码是`<h1>Hello, world!</h1>`。
+
+defpage是Noir的一个宏，用来定义URL和它返回的页面内容。URL的定义有很多其他用法，如POST方式、截取参数等，我们稍后都会用到。页面内容方面，可以直接返回字符串，如`(defpage "/greeting" [] "Hello, world!")`，也可以使用Hiccup构建HTML页面。[Hiccup][21]是Noir默认的模板引擎，简单来说就是用Clojure来写HTML。一个完整的页面示例如下：
+
+```clojure
+(ns ...
+  (:use ...
+        [hiccup.page-helpers :only [html4]]))
+        
+(defpage "/greeting" []
+         (html4
+           [:head
+             [:title "Greeting"]]
+           [:body
+             [:h1 "Hello, world!"]]))
+```
+
+生成的HTML是：
+
+```html
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>Greeting</title>
+  </head>
+  <body>
+    <h1>Hello, world!</h1>
+  </body>
+</html>
+```
+
+其中，html和html4都是Hiccup定义的宏。html仅将接收到的参数转换为HTML代码，html4则是会添加相应版本的`<!DOCTYPE>`和`<html>`标签。要使用这些宏需要引入相应的命名空间。:only则表示只引入命名空间中特定的宏。
+
+关于命名空间中出现的`-`，Clojure在编译时会自动转换成`_`，从而确保程序在JVM中运行时不会出现问题。
+
 
 [1]: http://java.ociweb.com/mark/
 [2]: http://java.ociweb.com/mark/clojure/article.html
@@ -235,3 +294,4 @@ user=> (use 'noir.server) ; 同时完成require和refer。
 [18]: http://clojure.org/macros
 [19]: https://clojars.org
 [20]: http://search.maven.org/
+[21]: https://github.com/weavejester/hiccup
