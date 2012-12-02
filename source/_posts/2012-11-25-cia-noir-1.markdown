@@ -301,7 +301,13 @@ defpartial是Noir的一个宏，用来定义一段可复用的HTML代码。当�
 
 `include-css`是一个函数，用来生成`<link>`标签。`[:div#wrapper ...]`会生成`<div id="wrapper">...</div>`。更多Hiccup的语法可以到[这个页面][22]浏览一下。
 
+### 默认首页：noir.content.getting-started
+
 ### 静态资源：src/resources/public
+
+小结
+----
+
 
 [1]: http://java.ociweb.com/mark/
 [2]: http://java.ociweb.com/mark/clojure/article.html
