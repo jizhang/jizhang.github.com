@@ -297,7 +297,11 @@ defpage是Noir的一个宏，用来定义URL和它返回的页面内容。URL的
                 content]]))
 ```
 
-defpartial是Noir的一个宏，用来定义一段可复用的HTML代码。
+defpartial是Noir的一个宏，用来定义一段可复用的HTML代码。当然我们也可以将其定义为一个函数（用`defn`替换掉`defpartial`），不会有什么区别。官方文档的解释是使用defpartial会比较容易辨认。
+
+`include-css`是一个函数，用来生成`<link>`标签。`[:div#wrapper ...]`会生成`<div id="wrapper">...</div>`。更多Hiccup的语法可以到[这个页面][22]浏览一下。
+
+### 静态资源：src/resources/public
 
 [1]: http://java.ociweb.com/mark/
 [2]: http://java.ociweb.com/mark/clojure/article.html
@@ -320,3 +324,4 @@ defpartial是Noir的一个宏，用来定义一段可复用的HTML代码。
 [19]: https://clojars.org
 [20]: http://search.maven.org/
 [21]: https://github.com/weavejester/hiccup
+[22]: http://www.webnoir.org/tutorials/html
