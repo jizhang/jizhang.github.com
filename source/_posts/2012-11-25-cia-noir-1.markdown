@@ -66,8 +66,6 @@ $ lein new proj
 $ find proj
 proj
 proj/project.clj
-proj/src
-proj/src/proj
 proj/src/proj/core.clj
 $ cat proj/project.clj
 (defproject proj "1.0.0-SNAPSHOT"
@@ -85,17 +83,11 @@ $ lein noir new blog
 $ find blog
 blog
 blog/project.clj
-blog/resources
-blog/resources/public
-blog/resources/public/css
 blog/resources/public/css/reset.css
 blog/resources/public/img
 blog/resources/public/js
-blog/src
-blog/src/blog
 blog/src/blog/models
 blog/src/blog/server.clj
-blog/src/blog/views
 blog/src/blog/views/common.clj
 blog/src/blog/views/welcome.clj
 ```
@@ -214,6 +206,19 @@ user=> (refer 'noir.server) ; 将该命名空间下的变量导入当当前命�
 user=> (use 'noir.server) ; 同时完成require和refer。
 ```
 
+**小贴士**
+
+这一节中我们引入了不少Clojure的函数、宏、特殊形式，有时会需要查阅这些函数的用法。除了上网查找API文档，还可以在REPL中使用`doc`和`source`函数来返回某个函数或宏的文档和源码：
+
+```clojure
+user=> (doc first)
+-------------------------
+clojure.core/first
+([coll])
+  Returns the first item in the collection. Calls seq on its
+    argument. If coll is nil, returns nil.
+```
+
 ### 基本页面：src/blog/views/welcome.clj
 
 入口文件中的`load-views`函数会将指定目录下的所有文件都包含进来，这些文件中定义的是URL路由以及页面内容，以welcome.clj为例：
@@ -273,6 +278,26 @@ defpage是Noir的一个宏，用来定义URL和它返回的页面内容。URL的
 
 关于命名空间中出现的`-`，Clojure在编译时会自动转换成`_`，从而确保程序在JVM中运行时不会出现问题。
 
+### 页面模板：src/blog/views/common.clj
+
+回到系统生成的welcome.clj文件，它并没有使用html或html4，而是调用了一个`common/layout`函数。那么让我们看看common.clj中这个函数的定义：
+
+```clojure
+(ns blog.views.common
+  (:use [noir.core :only [defpartial]]
+        [hiccup.page-helpers :only [include-css html5]]))
+
+(defpartial layout [& content]
+            (html5
+              [:head
+               [:title "blog"]
+               (include-css "/css/reset.css")]
+              [:body
+               [:div#wrapper
+                content]]))
+```
+
+defpartial是Noir的一个宏，用来定义一段可复用的HTML代码。
 
 [1]: http://java.ociweb.com/mark/
 [2]: http://java.ociweb.com/mark/clojure/article.html
