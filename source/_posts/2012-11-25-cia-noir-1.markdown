@@ -303,6 +303,8 @@ defpartial是Noir的一个宏，用来定义一段可复用的HTML代码。当�
 
 ### 默认首页：noir.content.getting-started
 
+我们在代码中并没有看到`(defpage "/" [] ...)`这样的定义，那为什么网站根目录会出现一个默认页面呢？答案在`noir.content.getting-started`这个命名空间中，可以[点击这里][23]查看它的源码。要取消这个默认页面，可以在welcome.clj的:require中将其删除。
+
 ### 静态资源：src/resources/public
 
 小结
@@ -331,3 +333,4 @@ defpartial是Noir的一个宏，用来定义一段可复用的HTML代码。当�
 [20]: http://search.maven.org/
 [21]: https://github.com/weavejester/hiccup
 [22]: http://www.webnoir.org/tutorials/html
+[23]: https://github.com/noir-clojure/noir/blob/master/src/noir/content/getting_started.clj
