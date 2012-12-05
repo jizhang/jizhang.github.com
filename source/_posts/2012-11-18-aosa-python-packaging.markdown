@@ -296,6 +296,18 @@ Server response (200): OK
 
 这种方式的问题在于，项目元信息原本就能以静态文件的方式在简单索引协议中提供，这样可以简化安装工具的复杂性，也可以减少PyPI服务的请求数。对于诸如下载数量这样的动态数据，可以在其他接口中提供。用两种服务来获取所有的静态内容，显然不太合理。
 
+14.3.4 Python安装目录的结构
+---------------------------
+
+在使用`python setup.py install`安装一个Python项目后，`Distutils`这一Python核心类库会负责将程序代码复制到目标系统的相应位置。
+
+* *Python包* 和模块会被安装到Python解释器程序所在的目录中，并随解释器启动：Ubuntu系统中会安装到`/usr/local/lib/python2.6/dist-packages/`，Fedora则是`/usr/local/lib/python2.6/sites-packages/`。
+* 项目中的 *数据文件* 可以被安装到任何位置。
+* *可执行文件* 会被安装到系统的`bin`目录下，依平台类型而定，可能是`/usr/local/bin`，或是其它指定的目录。
+
+从Python2.5开始，项目的元信息文件会随模块和包一起发布，名称为`project-version.egg-info`。比如，`virtualenv`项目会有一个`virtualenv-1.4.9.egg-info`文件。这些元信息文件可以被视为一个已安装项目的数据库，因为可以通过遍历其中的内容来获取已安装的项目和版本。但是，`Distutils`并没有记录项目所安装的文件列表，也就是说，我们无法彻底删除安装某个项目后产生的所有文件。可惜的是，`install`命令本身是提供了一个名为`--record`的参数的，可以将已安装的文件列表记录在文本文件中，但是这个参数并没有默认开启，而且`Distutils`的文档中几乎没有提及这个参数。
+
+
 脚注
 ---
 1. 文中引用的Python改进提案（Python Enhancement Proposals，简称PEP）会在本文最后一节整理。
