@@ -307,8 +307,13 @@ defpartial是Noir的一个宏，用来定义一段可复用的HTML代码。当�
 
 ### 静态资源：src/resources/public
 
+Noir默认对src/resources/public目录下的文件做了路由，因此当有一个资源文件位于src/resources/public/css/reset.css时，可以通过http://127.0.0.1:8080/css/reset.css访问。
+
+值得一提的是，Noir项目本身依赖于两个开源项目：[ring][24]和[compojure][25]，前者对HTTP请求进行了封装，提供了一套类似Python WSGI的API；后者则是专门提供URL路由功能的类库。如对静态资源的路由，实质上Noir是调用了compojure提供的resources函数，还书中又调用ring提供的GET、wrap-file-info等函数响应请求。
+
 小结
 ----
+本章讲述了Clojure环境的搭建，特别是项目管理工具`lein`的一般使用。通过对Noir项目骨架的分析，我们一窥Clojure的语法，接触了变量、直接量、函数、宏、命名空间的一些用法，并能结合Noir和Hiccup写出简单的页面来。下一章我们将讲解Clojure如何连接数据库，对博文进行增删改查等操作。
 
 
 [1]: http://java.ociweb.com/mark/
@@ -334,3 +339,5 @@ defpartial是Noir的一个宏，用来定义一段可复用的HTML代码。当�
 [21]: https://github.com/weavejester/hiccup
 [22]: http://www.webnoir.org/tutorials/html
 [23]: https://github.com/noir-clojure/noir/blob/master/src/noir/content/getting_started.clj
+[24]: https://github.com/ring-clojure/ring
+[25]: https://github.com/weavejester/compojure/tree/master/src
