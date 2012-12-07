@@ -390,9 +390,9 @@ N.N[.N]+[{a|b|c|rc}N[.N]+][.postN][.devN]
 * *N* 是一个整数。你可以使用任意数量的N，用点号将它们分隔开来。但至少要有两个N，即“主版本.次版本”。
 * *a, b, c* 分别是 *alpha, beta, release candidate* 的简写，它们后面还有一个整数。预发布版本有两种标记，c和rc，主要是为了和过去兼容，但c更简单些。
 * *dev* 加一个数字表示开发版本。
-* *post* 加一个数字表示已上线版本。
+* *post* 加一个数字表示已发布版本。
 
-根据项目发布周期的不同，开发版本和已上线版本可以作为两个最终版本之间的过渡版本号。大多数项目会使用开发版本。
+根据项目发布周期的不同，开发版本和已发布版本可以作为两个最终版本之间的过渡版本号。大多数项目会使用开发版本。
 
 按照这个形式，PEP 386定义了严格的顺序：
 
@@ -412,7 +412,48 @@ N.N[.N]+[{a|b|c|rc}N[.N]+][.postN][.devN]
 
 #### 依赖
 
+PEP 345定义了三个新的元信息属性，用来替换PEP 314中的`Requires`，`Provides`，和`Obsoletes`，它们是`Requires-Dist`，`Provides-Dist`，`Obsoletes-Dist`。这些属性可以在元信息中出现多次。
 
+`Requires-Dist`中定义了项目所依赖的软件包，使用依赖项目的`Name`元信息，并可以跟上一个版本号。这些依赖项目的名称必须能在PyPI中找到，且版本号命名规则要遵守PEP 386中的定义。以下是一些示例：
+
+```
+Requires-Dist: pkginfo
+Requires-Dist: PasteDeploy
+Requires-Dist: zope.interface (>3.5.0)
+```
+
+`Provides-Dist`用来定义项目中包含的其他项目，常用于合并两个项目的情形。比如，ZODB项目可以包含名为`transaction`的项目，并声明：
+
+```
+Provides-Dist: transaction
+```
+
+`Obsoletes-Dist`主要用于将其它项目标记为本项目的过期版本。
+
+```
+ObsoletesDist: OldName
+```
+
+#### 环境标识
+
+环境标识可以添加在上述三个属性的后面，使用分号分隔，用来标识该属性在什么样的目标环境中生效。以下是一些示例：
+
+```
+Requires-Dist: pywin32 (>1.0); sys.platform == 'win32'
+Obsoletes-Dist: pywin31; sys.platform == 'win32'
+Requires-Dist: foo (1,!=1.3); platform.machine == 'i386'
+Requires-Dist: bar; python_version == '2.4' or python_version == '2.5'
+Requires-External: libxslt; 'linux' in sys.platform
+```
+
+这种简易的语法足以让非Python程序员看懂：它使用`==`或`in`运算符（含`!=`和`not in`），且可以通过逻辑运算符连接。PEP 345中规定以下属性可以使用这种语法：
+
+* `Requires-Python`
+* `Requires-External`
+* `Requires-Dist`
+* `Provides-Dist`
+* `Obsoletes-Dist`
+* `Classifier`
 
 
 脚注
