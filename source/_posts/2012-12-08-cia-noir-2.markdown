@@ -8,3 +8,28 @@ tags: [clojure, noir]
 published: false
 ---
 
+在Eclipse中编写Clojure代码
+--------------------------
+
+从这章起我们就要开始真正的编码了。Vim可能是很多程序员的选择，但如果你像我一样更喜欢GUI界面，那就来看看如何在Eclipse中编写Clojure代码吧。
+
+### 安装Eclipse插件
+
+Eclipse提供了一个Clojure插件：CounterClockwise，可以用来编写Clojure代码，进行语法高亮、调试等操作。打开Eclipse的Market Place，搜索counterclockwise关键字，点击Install即可。
+
+### 将Leiningen项目导入Eclipse
+
+由于CounterClockwise插件并没有默认使用Leiningen来管理项目，因此需要做一些额外的工作。
+
+在使用`lein new`命令创建项目后，在project.clj文件中增加如下一行：
+
+```clojure
+(defproject ...
+            :dev-dependencies [[lein-eclipse "1.0.0"]]
+            ...)
+```
+
+然后依次执行`lein deps`和`lein eclipse`，会看到项目根目录下生成了.project和.classpath文件。然后就可以进入Eclipse导入这个项目了。如果使用Git进行版本控制，`lein`已经为你生成好了.gitignore文件。执行了`git init`后，就能在Eclilpse中选择Share Project菜单项，进行可视化的版本控制。
+
+
+
