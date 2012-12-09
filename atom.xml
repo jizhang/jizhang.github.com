@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://jizhang.github.com/atom.xml" rel="self"/>
   <link href="http://jizhang.github.com/"/>
-  <updated>2012-12-09T22:29:32+08:00</updated>
+  <updated>2012-12-09T22:46:22+08:00</updated>
   <id>http://jizhang.github.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -451,7 +451,7 @@
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[开源软件架构 - 卷2：第14章 Python打包工具]]></title>
+    <title type="html"><![CDATA[开源软件架构 - 卷1：第14章 Python打包工具]]></title>
     <link href="http://jizhang.github.com/blog/2012/11/18/aosa-python-packaging/"/>
     <updated>2012-11-18T19:20:00+08:00</updated>
     <id>http://jizhang.github.com/blog/2012/11/18/aosa-python-packaging</id>
