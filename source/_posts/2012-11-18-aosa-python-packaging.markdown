@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "开源软件架构 - 卷2：第14章 Python打包工具"
+title: "开源软件架构 - 卷1：第14章 Python打包工具"
 date: 2012-11-18 19:20
 comments: true
 categories: Translation
