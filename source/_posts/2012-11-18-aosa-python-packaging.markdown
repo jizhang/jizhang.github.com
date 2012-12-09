@@ -519,6 +519,23 @@ config/mopy.cfg {confdir}/{distribution.name}
 
 只要安装过程中生成了`RESOURCES`文件，这个API就能帮助开发者找到`mopy.cfg`文件。又因为`config/mopy.cfg`是一个相对于项目的路径，我们就能在开发模式下提供一个本地的路径，让`pkgutil`能够找到它。
 
+#### 声明数据文件
+
+实际使用中，我们可以在`setup.cfg`文件中用映射关系来定义数据文件的存放位置。映射关系的形式是`(glob-style pattern, target)`，每个“模式”指向项目中的一个或一组文件，“目标”则表示实际安装位置，可以包含变量名，用花括号括起。例如，`MPTools`的`setup.cfg`文件可以是以下内容：
+
+```
+[files]
+resources =
+        config/mopy.cfg {confdir}/{application.name}/
+        images/*.jpg    {datadir}/{application.name}/
+```
+
+`sysconfig`模块提供了一组可用的变量，并为不同的操作系统提供了默认值。例如，`{confdir}`在Linux下是`/etc`。安装工具就能结合`sysconfig`模块来决定数据文件的存放位置。最后，它会生成一个`RESOURCES`文件，这样`pkgutil`就能找到这些文件了：
+
+![图14.5：安装工具](http://www.aosabook.org/images/packaging/installer.png)
+
+图片14.5：安装工具
+
 脚注
 ---
 1. 文中引用的Python改进提案（Python Enhancement Proposals，简称PEP）会在本文最后一节整理。
