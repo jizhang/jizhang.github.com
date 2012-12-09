@@ -5,7 +5,6 @@ date: 2012-11-18 19:20
 comments: true
 categories: Translation
 tags: [aosa, python]
-published: false
 ---
 
 作者：[Tarek Ziadé](http://www.aosabook.org/en/intro1.html#ziade-tarek)，翻译：[张吉](mailto:zhangji87@gmail.com)
@@ -139,7 +138,7 @@ Building against libxml2/libxslt in the following directory: /usr/lib/lxml
 
 这些信息一般都能移植到其他打包系统中。
 
-Python包目录（Python Package Index，简称PyPI<sup>2</sup>），是一个类似CPAN的中央软件包仓库，可以调用`Distutils`的`register`和`upload`命令来注册和发布项目。`register`命令会构建`Metadata`文件并传送给PyPI，让访问者和安装工具能够浏览和搜索。
+Python项目索引（Python Package Index，简称PyPI<sup>2</sup>），是一个类似CPAN的中央软件包仓库，可以调用`Distutils`的`register`和`upload`命令来注册和发布项目。`register`命令会构建`Metadata`文件并传送给PyPI，让访问者和安装工具能够浏览和搜索。
 
 ![图14.2：PyPI仓库](http://www.aosabook.org/images/packaging/pypi.png)
 
@@ -184,6 +183,7 @@ else:
 图14.3 PyPI工作流
 
 如上文所述，PyPI是一个Python项目的中央仓库，人们可以通过不同的类别来搜索已有的项目，也可以创建自己的项目。人们可以上传项目源码和二进制文件，供其他人下载使用或研究。同时，PyPI还提供了相应的Web服务，让安装工具可以调用它来检索和下载文件。
+
 #### 注册项目并上传发布包
 
 我们可以使用`Distutils`的`register`命令在PyPI中注册一个项目。这个命令会根据项目的元信息生成一个POST请求。该请求会包含验证信息，PyPI使用HTTP基本验证来确保所有的项目都和一个注册用户相关联。验证信息保存在`Distutils`的配置文件中，或在每次执行`register`命令时提示用户输入。以下是一个使用示例：
@@ -534,7 +534,7 @@ resources =
 
 ![图14.5：安装工具](http://www.aosabook.org/images/packaging/installer.png)
 
-图片14.5：安装工具
+图14.5：安装工具
 
 ### 14.4.4 改进PypI
 
@@ -546,7 +546,7 @@ resources =
 
 镜像列表的格式是`X.pypi.python.org`，其中`X`是一个字母序列，如`a,b,c,…,aa,ab,….`，`a.pypi.python.org`是主服务器，b字母开始是从服务器。域名`last.pypi.python.org`的A记录指向这个列表中的最后一个服务器，这样PyPI的使用者就能够根据DNS记录来获取完整的服务器镜像列表了。
 
-比如，以下代码获取到的最后一个镜像地址是`h.pypi.python.org`，表示当前PyPI有六个镜像服务器（b至h）：
+比如，以下代码获取到的最后一个镜像地址是`h.pypi.python.org`，表示当前PyPI有7个镜像服务器（b至h）：
 
 ```python
 >>> import socket
