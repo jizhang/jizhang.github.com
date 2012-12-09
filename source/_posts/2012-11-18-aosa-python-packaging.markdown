@@ -478,6 +478,47 @@ Requires-External: libxslt; 'linux' in sys.platform
 
 如果所有的安装工具都能识别这种格式，我们在管理Python项目时就不需要依赖特定的安装工具和它提供的特性了。此外，PEP 376将元信息设计为一个目录，这样就能方便地扩展。事实上，下一章要描述的`RESOURCES`文件很可能会在不久的将来添加到元信息中，而不用改变PEP 376标准。当事实证明这个文件能被所有的安装工具使用，则会将它修订到PEP中。
 
+### 14.4.3 数据文件的结构
+
+前面已经提到，我们需要能够让打包者来决定项目的数据文件安装在哪个位置，而不用修改代码。同样，也要能够让开发者在开发时不用去考虑数据文件的存放位置。我们的解决方案很普通：重定向。
+
+#### 使用数据文件
+
+假设你的`MPTools`项目需要使用一个配置文件。开发者会将改文件放到Python包安装目录中，并使用`__file__`去引用：
+
+```python
+import os
+
+here = os.path.dirname(__file__)
+cfg = open(os.path.join(here, 'config', 'mopy.cfg'))
+```
+
+这样编写代码意味着该配置文件必须和代码放在相同的位置，一个名为`config`的子目录下。
+
+我们设计的新的数据文件结构以项目为根节点，开发者可以定义任意的文件目录结构，而不用关心根目录是存放在软件安装目录中或是其它目录。开发者可以使用`pkgutil.open`来访问这些数据文件：
+
+```python
+import os
+import pkgutil
+
+# Open the file located in config/mopy.cfg in the MPTools project
+cfg = pkgutil.open('MPTools', 'config/mopy.cfg')
+```
+
+`pkgutil.open`命令会检索项目元信息中的`RESOURCES`文件，该文件保存的是一个简单的映射信息——文件名称和它所存放的位置：
+
+```
+config/mopy.cfg {confdir}/{distribution.name}
+```
+
+其中，`{confdir}`变量指向系统的配置文件目录，`{distribution.name}`变量表示的是Python项目名称。
+
+![图14.4：定位一个文件](http://www.aosabook.org/images/packaging/find-file.png)
+
+图14.4：定位一个文件
+
+只要安装过程中生成了`RESOURCES`文件，这个API就能帮助开发者找到`mopy.cfg`文件。又因为`config/mopy.cfg`是一个相对于项目的路径，我们就能在开发模式下提供一个本地的路径，让`pkgutil`能够找到它。
+
 脚注
 ---
 1. 文中引用的Python改进提案（Python Enhancement Proposals，简称PEP）会在本文最后一节整理。
