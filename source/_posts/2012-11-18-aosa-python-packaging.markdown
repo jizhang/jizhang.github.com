@@ -593,6 +593,77 @@ resources =
 
 这些密钥大约每隔一年会被更新一次。镜像服务器需要重新获取所有的`/serversig`页面内容，使用镜像服务的客户端也需要通过可靠的方式获取新密钥。一种做法是从`https://pypi.python.org/serverkey`下载。为了检测拦截攻击，客户端需要通过CAC认证中心验证服务端的SSL证书。
 
+14.5 实施细节
+-------------
+
+上文提到的大多数改进方案都在`Distutils2`中实现了。`setup.py`文件已经退出历史舞台，取而代之的是`setup.cfg`，一个类似`.ini`类型的文件，它描述了项目的所有信息。这样做可以让打包人员方便地改变软件包的安装方式，而不需要接触Python语言。以下是一个配置文件的示例：
+
+```
+[metadata]
+name = MPTools
+version = 0.1
+author = Tarek Ziade
+author-email = tarek@mozilla.com
+summary = Set of tools to build Mozilla Services apps
+description-file = README
+home-page = http://bitbucket.org/tarek/pypi2rpm
+project-url: Repository, http://hg.mozilla.org/services/server-devtools
+classifier = Development Status :: 3 - Alpha
+    License :: OSI Approved :: Mozilla Public License 1.1 (MPL 1.1)
+    
+[files]
+packages =
+        mopytools
+        mopytools.tests
+
+extra_files =
+        setup.py
+        README
+        build.py
+        _build.py
+
+resources =
+    etc/mopytools.cfg {confdir}/mopytools
+```
+
+`Distutils2`会将这个文件用作于：
+
+* 生成`META-1.2`格式的元信息，可以用作多种用途，如在PyPI上注册项目。
+* 执行任何打包管理命令，如`sdist`。
+* 安装一个以`Distutils2`为基础的项目。
+
+`Distutils2`还通过`version`模块实现了`VERSION`元信息。
+
+对`INSTALL-DB`元信息的实现会被包含在Python3.3的`pkgutil`模块中。在过度版本中，它的功能会由`Distutils2`完成。它所提供的API可以让我们浏览系统中已安装的项目。
+
+以下是`Distutils2`提供的核心功能：
+
+* 安装、卸载
+* 依赖树
+
+14.6 经验教训
+-------------
+
+### 14.6.1 PEP的重要性
+
+要改变像Python打包系统这样庞大和复杂的架构必须通过谨慎地修改PEP标准来进行。据我所知，任何对PEP的修改和添加都要历经一年左右的时间。
+
+社区中一直以来有个错误的做法：为了改善某个问题，就肆意扩展项目元信息，或是修改Python程序的安装方式，而不去尝试修订它所违背的PEP标准。
+
+换句话说，根据你所使用的安装工具的不同，如`Distutils`和`Setuptools`，它们安装应用程序的方式就是不同的。这些工具的确解决了一些问题，但却会引发一连串的新问题。以操作系统的打包工具为例，管理员必须面对多个Python标准：官方文档所描述的标准，`Setuptools`强加给大家的标准。
+
+但是，`Setuptools`能够有机会在实际环境中大范围地（在整个社区中）进行实验，创新的进度很快，得到的反馈信息也是无价的。我们可以据此撰写出更切合实际的PEP新标准。所以，很多时候我们需要能够察觉到某个第三方工具在为Python社区做出贡献，并应该起草一个新的PEP标准来解决它所提出的问题。
+
+### 14.6.2 一个被纳入标准库的项目就已经死亡了一半
+
+这个标题是援引Guido van Rossum的话，而事实上，Python的这种战争式的哲学也的确冲击了我们的努力成果。
+
+`Distutils`是Python标准库之一，将来`Distutils2`也会成为标准库。一个被纳入标准库的项目很难再对其进行改造。虽然我们有正常的项目更新流程，即经过两个Python次版本就可以对某个API进行删改，但一旦某个API被发布，它必定会持续存在多年。
+
+因此，对标准库中某个项目的一次修改并不是简单的bug修复，而很有可能影响整个生态系统。所以，当你需要进行重大更新时，就必须创建一个新的项目。
+
+我之所以深有体会，就是因为在我对`Distutils`进行了超过一年的修改后，还是不得不回滚所有的代码，开启一个新的`Distutils2`项目。将来，如果我们的标准又一次发生了重大改变，很有可能会产生`Distutils3`项目，除非未来某一天标准库会作为独立的项目发行。
+
 脚注
 ---
 1. 文中引用的Python改进提案（Python Enhancement Proposals，简称PEP）会在本文最后一节整理。
