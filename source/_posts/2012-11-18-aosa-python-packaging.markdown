@@ -25,7 +25,7 @@ published: false
 
 在安装程序中包含所有依赖包还有一个优点：便于跨平台。有些项目在这点上做到了极致，它们将所有和操作系统的交互都封装了起来，在一个独立的目录中运行，甚至包括日志文件的记录位置。
 
-Python的打包系统使用的是第二种设计思想，并尽可能地方便开发者、管理员、用户对软件的管理。不幸的是，这种方式导致了种种问题：错综复杂的版本结构、混乱的数据文件、难以重新打包等等。三年前，我和其他一些Python开发者决定研究解决这个问题，我们自称为“Python打包工具小分队”，本文就是讲述我们在这个问题上做出的努力和取得的成果。
+Python的打包系统使用的是第二种设计思想，并尽可能地方便开发者、管理员、用户对软件的管理。不幸的是，这种方式导致了种种问题：错综复杂的版本结构、混乱的数据文件、难以重新打包等等。三年前，我和其他一些Python开发者决定研究解决这个问题，我们自称为“打包别动队”，本文就是讲述我们在这个问题上做出的努力和取得的成果。
 
 ### 术语
 
@@ -663,6 +663,39 @@ resources =
 因此，对标准库中某个项目的一次修改并不是简单的bug修复，而很有可能影响整个生态系统。所以，当你需要进行重大更新时，就必须创建一个新的项目。
 
 我之所以深有体会，就是因为在我对`Distutils`进行了超过一年的修改后，还是不得不回滚所有的代码，开启一个新的`Distutils2`项目。将来，如果我们的标准又一次发生了重大改变，很有可能会产生`Distutils3`项目，除非未来某一天标准库会作为独立的项目发行。
+
+### 14.6.3 向前兼容
+
+要改变Python项目的打包方式，其过程是非常漫长的：Python的生态系统中包含了那么多的项目，它们都采用旧的打包工具管理，一定会遇到诸多阻力。（文中一些章节描述的问题，我们花费了好几年才达成共识，而不是我之前预想的几个月。）对于Python3，可能会花费数年的时间才能将所有的项目都迁移到新的标准中去。
+
+这也是为什么我们做的任何修改都必须兼容旧的打包工具，这是`Distutils2`编写过程中非常棘手的问题。
+
+例如，一个以新标准进行打包的项目可能会依赖一个尚未采用新标准的其它项目，我们不能因此中断安装过程，并告知用户这是一个无法识别的依赖项。
+
+举例来说，`INSTALL-DB`元信息的实现中会包含那些用`Distutils`、`Pip`、`Distribution`、或`Setuptools`安装的项目。`Distutils2`也会为那些使用`Distutils`安装的项目生成新的元信息。
+
+14.7 参考和贡献者
+-----------------
+
+本文的部分章节直接摘自PEP文档，你可以在`http://python.org`中找到原文：
+
+* PEP 241: Metadata for Python Software Packages 1.0: http://python.org/peps/pep-0214.html
+* PEP 314: Metadata for Python Software Packages 1.1: http://python.org/peps/pep-0314.html
+* PEP 345: Metadata for Python Software Packages 1.2: http://python.org/peps/pep-0345.html
+* PEP 376: Database of Installed Python Distributions: http://python.org/peps/pep-0376.html
+* PEP 381: Mirroring infrastructure for PyPI: http://python.org/peps/pep-0381.html
+* PEP 386: Changing the version comparison module in Distutils: http://python.org/peps/pep-0386.html
+
+在这里我想感谢所有为打包标准的制定做出贡献的人们，你可以在PEP中找到他们的名字。我还要特别感谢“打包别动队”的成员们。还要谢谢Alexis Metaireau、Toshio Kuratomi、Holger Krekel、以及Stefane Fermigier，感谢他们对本文提供的反馈。
+
+本章中讨论的项目有：
+
+* Distutils: http://docs.python.org/distutils
+* Distutils2: http://packages.python.org/Distutils2
+* Distribute: http://packages.python.org/distribute
+* Setuptools: http://pypi.python.org/pypi/setuptools
+* Pip: http://pypi.python.org/pypi/pip
+* Virtualenv: http://pypi.python.org/pypi/virtualenv
 
 脚注
 ---
