@@ -78,6 +78,8 @@ nil
 
 `{:size 50}`是个很特别的地方，虽然从字面上就能猜出它是`<input>`标签的`size`属性，用来设置文本框的长度的，但为什么会是这样的语法呢？这是Clojure定义的吗？当然不是。还记得我们之前提过的宏吗？开发者可以用宏来定义新的语法，Hiccup就定义了这样的语法，可以用map的形式传入额外的HTML属性。尝试在REPL中执行`(html [:font {:color "red"} "hi"])`，看看结果是什么吧。
 
+### 接收表单信息
+
 接下来我们再创建一个页面来接收表单信息。Noir可以按照HTTP方式的不同（GET、POST、DELETE等）来进行路由，比如同样是`/blog/add`这个URL，我们可以为它创建一个独立的页面，响应POST请求：
 
 ```clojure
@@ -94,4 +96,23 @@ nil
 
 似乎又多了几个新奇的语法，我们一一来解释：
 
-* `{:as forms}`是一种
+`{:as forms}`是一种解构（destructuring）语法，解构的对象是list或map，将它们包含的元素拆解出来。Noir在调用页面函数时（defpage实质上是创建了一个函数）会将接收到的参数以map的形式传递给该函数，如`title=greeting&content=helloworld`会以`{:title "greeting", :content "helloworld"}的形式传递过来，函数可以通过以下几种方式对map类型进行解构：
+
+* 不接收参数，使用`[]`来表示。
+* 接收指定名称的参数，如`{title :title, content :content}`，它会将map中键名为:title的值赋给title变量，:content的内容赋给content变量，其他的键名会丢弃。
+* 接收整个map，使用`{:as forms}`，其中forms是自定义的，这样就能从forms变量中获取某个键的值。
+* 将以上两者结合，即`{title :title, content :content, :as forms}`，需要注意的是forms中还是包含:title和:content的，不会因为它们已经被赋值给其他变量了而从map中剔除掉。
+
+你可以将上面这段代码中的`{:as forms}`替换成其他形式来进行实验，看看是否真的掌握了解构的用法。至于对list对象的解构，我们以后会遇到。
+
+如何获取map中某个键的值？之前我们在与Java交互时提过有两种方法：`(get forms :title)`和`(.get forms :title)`，这里展示的是第三种：`(:title forms)`，即用关键字作为一个函数，获取map中的值。如果键不存在则返回nil，可以提供默认值：`(:title forms "Default Title")`。
+
+`str`则是一个函数，会将它所接收到的所有参数转换成字符串并拼接起来（中间不会添加空格）。
+
+### 表单验证
+
+“永远不要相信用户输入的信息”，我们必须对表单内容进行验证，比如标题为空时我们应该显示错误信息，并让用户重新填写。Noir提供了表单验证功能，位于noir.validation命名空间下。下面我们就来添加简单的验证功能：
+
+```clojure
+
+```
