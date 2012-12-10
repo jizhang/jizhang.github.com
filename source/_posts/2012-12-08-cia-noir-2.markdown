@@ -31,5 +31,67 @@ Eclipse提供了一个Clojure插件：CounterClockwise，可以用来编写Cloju
 
 然后依次执行`lein deps`和`lein eclipse`，会看到项目根目录下生成了.project和.classpath文件。然后就可以进入Eclipse导入这个项目了。如果使用Git进行版本控制，`lein`已经为你生成好了.gitignore文件。执行了`git init`后，就能在Eclilpse中选择Share Project菜单项，进行可视化的版本控制。
 
+创建表单
+--------
 
+我们现在需要编写一个新建文章的功能，它是一个简单的页面，页面上有“标题”和“内容”两个文本框，并有一个“提交”按钮。
 
+在src/blog/views目录下新建一个文件article.clj，输入以下内容：
+
+```clojure
+(ns blog.views.article
+  (:require [blog.views.common :as common])
+  (:use [noir.core]
+        [hiccup.form-helpers]))
+
+(defpage "/blog/add" []
+  (common/layout
+    [:h1 "新建文章"]
+    (form-to [:post "/blog/add"]
+             (label "title" "标题：")
+             (text-field {:size 50} "title") [:br]
+             (label "content" "内容：")
+             (text-area {:rows 20 :cols 50} "content") [:br]
+             (submit-button "提交"))))
+```
+
+`defpage`和`common/layout`我们之前已经见到过，前者定义了URL`/blog/add`指向的页面，后者则是套用了一个模板。`[:h1 ...]`和`[:br]`也应该熟悉，它们是Hiccup的语法，分别生成`<h1>...</h1>`和`<br>`标签。
+
+`form-to`是一个新的语法，不过从名字上也可以猜到，它用来生成一个`<form>`标签，结合`[:post "/blog/add"]`一起来看就是`<form action="/blog/add" method="post">...</form>`。至于`label`、`text-field`、`text-area`、以及`submit-button`都是用来生成相应的表单标签的，它们包含在hiccup.form-helpers命名空间中，具体用法可以到REPL中查看它们的文档，如：（在项目目录中执行`lein repl`）
+
+```clojure
+blog.server=> (use 'hiccup.form-helpers)
+nil
+blog.server=> (doc label)
+-------------------------
+hiccup.form-helpers/label
+([name text]) ; 这个函数接受两个参数，第一个参数是for属性，第二个是它的文本，即<label for="name">text</label>。
+  Creates a label for an input field with the supplied name.
+nil
+blog.server=> (doc text-field)
+-------------------------
+hiccup.form-helpers/text-field
+([name] [name value]) ; 这个函数可以传一个或两个参数，第一个参数是name属性，第二个参数是value，即<input type="text" name="name" value="value">。
+  Creates a new text input field.
+nil
+```
+
+`{:size 50}`是个很特别的地方，虽然从字面上就能猜出它是`<input>`标签的`size`属性，用来设置文本框的长度的，但为什么会是这样的语法呢？这是Clojure定义的吗？当然不是。还记得我们之前提过的宏吗？开发者可以用宏来定义新的语法，Hiccup就定义了这样的语法，可以用map的形式传入额外的HTML属性。尝试在REPL中执行`(html [:font {:color "red"} "hi"])`，看看结果是什么吧。
+
+接下来我们再创建一个页面来接收表单信息。Noir可以按照HTTP方式的不同（GET、POST、DELETE等）来进行路由，比如同样是`/blog/add`这个URL，我们可以为它创建一个独立的页面，响应POST请求：
+
+```clojure
+(defpage [:post "/blog/add"] []
+  "添加成功")
+```
+
+尝试提交刚才的页面，会发现得到了预期结果：添加成功。那如何接收表单信息呢？
+
+```clojure
+(defpage [:post "/blog/add"] {:as forms}
+  (str "添加成功，文章标题是：" (:title forms)))
+```
+
+似乎又多了几个新奇的语法，我们一一来解释：
+
+* `{:as forms}`是一种
