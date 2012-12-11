@@ -142,6 +142,20 @@ nil
 
 最后，`vali/get-errors`函数可以将验证过程中生成的错误信息按照字段名提取出来。
 
+这里我们还第一次遇到了流程控制语句：`if`，它和`let`一样是一种“特殊形式(Special Form)”。它的一般格式是`(if 布尔型 语句1 语句2)`，如`(if (> 1 2) (println true) (println false))`。如果语句包含多行怎么办？可以使用`do`函数。如果条件分支只有一个，则可以使用`when`和`when-not`，这时可以直接包含多行语句，不需要使用`do`。以下是一些示例：
+
+```clojure
+(if (> 1 2)
+  (do
+    (println 1)
+    (println 2))
+  (println 3)) ;-> 3
+
+(when (< 1 2)
+  (println 1)
+  (println 2)) ;-> 1 \n 2
+```
+
 ### 错误提示
 
 那如何实现这样的需求：如果表单验证不通过，则重新显示表单，加入用户之前提交的内容，并显示出错信息。要做到这一点，就需要使用两个新的函数，`vali/on-error`和`noir.core/render`，并对`/blog/add`页面做一些修改。
