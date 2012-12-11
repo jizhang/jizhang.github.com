@@ -111,8 +111,61 @@ nil
 
 ### 表单验证
 
-“永远不要相信用户输入的信息”，我们必须对表单内容进行验证，比如标题为空时我们应该显示错误信息，并让用户重新填写。Noir提供了表单验证功能，位于noir.validation命名空间下。下面我们就来添加简单的验证功能：
+“永远不要相信用户输入的信息”，我们必须对表单内容进行验证，比如标题为空时我们应该显示错误信息，并让用户重新填写。Noir提供了表单验证的相关函数，位于noir.validation命名空间下。下面我们就来添加简单的验证功能：
 
 ```clojure
+(ns ...
+  (:require [noir.validation :as vali]))
 
+(defn valid? [{:keys [title content]}]
+  (vali/rule (vali/has-value? title)
+             [:title "标题不能为空。"])
+  (vali/rule (vali/min-length? title 10)
+             [:title "标题不能少于10个字符。"])
+  (vali/rule (vali/has-value? content)
+             [:content "内容不能为空。"])
+  (not (vali/errors? :title :content)))
+
+(defpage [:post "/blog/add"] {:as forms}
+  (if (valid? forms)
+    (str "添加成功，文章标题是：" (:title forms))
+    (str (vali/get-errors :title) (vali/get-errors :content))))
+```
+
+这段代码的运行效果是：如果提交的表单中标题和内容都有值，则显示“添加成功”，否则提示“标题不为空”、“内容不为空”等。我们来分析一下这段代码。
+
+`defn`定义一个函数，它的参数使用了前面提到的解构，函数体则是由三条语句构成。`valid?`是合法的函数名吗？前面提过Clojure的变量可以包含特殊字符，所以函数名中是可以存在`?`、`!`等字符的。当然我们也有一些习惯，比如以`?`结尾的函数名一般会返回布尔型。
+
+`vali/rule`函数用来描述一个验证规则，它的第一个参数是一个能够返回布尔型的表达式，第二个参数是一个向量（vector），包含两个元素，分别是字段名和错误提示信息，用于生成一个包含所有错误信息的map。以上面这段代码为例，如果三条验证都不通过，那生成的错误信息会是`{:title ["标题不能为空。" "标题不能少于10个字符。"], :content ["内容不能为空。"]}`。不过，这个map是由`noir.validation`维护的，我们不能直接获取到。
+
+`vali/errors?`接收一个字段列表，如果有一个字段验证不通过（产生了错误信息）则返回真，`not`函数自然就是将这个“真”转换为“假”，从而和`valid?`的语义一致，即不合法（验证不通过）。
+
+最后，`vali/get-errors`函数可以将验证过程中生成的错误信息按照字段名提取出来。
+
+### 错误提示
+
+那如何实现这样的需求：如果表单验证不通过，则重新显示表单，加入用户之前提交的内容，并显示出错信息。要做到这一点，就需要使用两个新的函数，`vali/on-error`和`noir.core/render`，并对`/blog/add`页面做一些修改。
+
+```clojure
+(defpartial error-item [[first-error]]
+  [:span.error first-error])
+
+(defpage "/blog/add" {:as forms}
+  (common/layout
+    [:h1 "新建文章"]
+    (form-to [:post "/blog/add"]
+             (label "title" "标题：")
+             (text-field {:size 50} "title")
+             (vali/on-error :title error-item) [:br]
+             (label "content" "内容：")
+             (text-area {:rows 20 :cols 50} "content")
+             (vali/on-error :content error-item) [:br]
+             (submit-button "提交"))))
+
+; 此处省略valid?函数，它没有变化
+
+(defpage [:post "/blog/add"] {:as forms}
+  (if (valid? forms)
+    (str "添加成功，文章标题是：" (:title forms))
+    (render "/blog/add" forms)))
 ```
