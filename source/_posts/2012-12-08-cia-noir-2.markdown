@@ -155,10 +155,10 @@ nil
     [:h1 "新建文章"]
     (form-to [:post "/blog/add"]
              (label "title" "标题：")
-             (text-field {:size 50} "title")
+             (text-field {:size 50} "title" (:title forms))
              (vali/on-error :title error-item) [:br]
              (label "content" "内容：")
-             (text-area {:rows 20 :cols 50} "content")
+             (text-area {:rows 20 :cols 50} "content" (:content forms))
              (vali/on-error :content error-item) [:br]
              (submit-button "提交"))))
 
@@ -169,3 +169,19 @@ nil
     (str "添加成功，文章标题是：" (:title forms))
     (render "/blog/add" forms)))
 ```
+
+先看`render`，它是Noir提供的一个函数，能够在页面中渲染另一个页面的内容，就像调用一个函数一样。这里我们则是在表单提交的页面里渲染了“新建文章”页面的内容，并将表单参数传递了过去。
+
+对“新建文章”页面我们做了以下修改：
+
+* 接收参数，并作为`forms`变量保存这个map。
+* 为`text-field`和`text-area`两个表单控件添加了默认值。
+* 调用了`vali/on-error`函数，当某个字段包含错误信息时，它会调用第二个参数所指向的函数（这里是`error-item`），并将该字段的错误信息作为参数传递给这个函数。
+
+`error-item`函数的功能很简单，将接受到的错误信息渲染成一个`<span>`标签展示出来。这里的`[:span.error ...]`会被解析成`<span class="error">...</span>`。至于`[[first-error]]`，它是一种对list对象的解构操作。前面我们看到在错误信息中，某个字段即使只有一条错误信息，也会以向量的形式保存。我们这里只需要每个字段的第一条错误信息，所以使用了这种形式。你可以这样重写`error-item`，效果是一样的：
+
+```clojure
+(defpartial error-item [errors]
+  [:span.error (first errors)])
+```
+
