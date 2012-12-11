@@ -99,7 +99,7 @@ nil
 `{:as forms}`是一种解构（destructuring）语法，解构的对象是list或map，将它们包含的元素拆解出来。Noir在调用页面函数时（defpage实质上是创建了一个函数）会将接收到的参数以map的形式传递给该函数，如`title=greeting&content=helloworld`会以`{:title "greeting", :content "helloworld"}的形式传递过来，函数可以通过以下几种方式对map类型进行解构：
 
 * 不接收参数，使用`[]`来表示。
-* 接收指定名称的参数，如`{title :title, content :content}`，它会将map中键名为:title的值赋给title变量，:content的内容赋给content变量，其他的键名会丢弃。
+* 接收指定名称的参数，如`{title :title, content :content}`，它会将map中键名为:title的值赋给title变量，:content的内容赋给content变量，其他的键名会丢弃。如果键名很多，可以用这种缩写形式：`{:keys [title content]}`。
 * 接收整个map，使用`{:as forms}`，其中forms是自定义的，这样就能从forms变量中获取某个键的值。
 * 将以上两者结合，即`{title :title, content :content, :as forms}`，需要注意的是forms中还是包含:title和:content的，不会因为它们已经被赋值给其他变量了而从map中剔除掉。
 
