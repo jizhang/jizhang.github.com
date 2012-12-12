@@ -258,7 +258,7 @@ mysql> CREATE TABLE `article` (
 
 最后，我们只需要在`src/blog/views/article.clj`中调用这个函数即可：
 
-```cojure
+```clojure
 (ns ...
   (:require ...
             [blog.models.blog :as model-blog]))
