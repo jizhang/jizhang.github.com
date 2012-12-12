@@ -5,7 +5,6 @@ date: 2012-12-08 12:09
 comments: true
 categories: Tutorial
 tags: [clojure, noir]
-published: false
 ---
 
 在Eclipse中编写Clojure代码
@@ -31,7 +30,7 @@ Eclipse提供了一个Clojure插件：CounterClockwise，可以用来编写Cloju
 
 然后依次执行`lein deps`和`lein eclipse`，会看到项目根目录下生成了.project和.classpath文件。然后就可以进入Eclipse导入这个项目了。如果使用Git进行版本控制，`lein`已经为你生成好了.gitignore文件。执行了`git init`后，就能在Eclilpse中选择Share Project菜单项，进行可视化的版本控制。
 
-创建表单
+使用表单
 --------
 
 我们现在需要编写一个新建文章的功能，它是一个简单的页面，页面上有“标题”和“内容”两个文本框，并有一个“提交”按钮。
@@ -313,4 +312,4 @@ mysql> CREATE TABLE `article` (
 小结
 ----
 
-这一章我们学习如何配置Eclipse以编写Leiningen项目；如何使用表单和接受参数，特别是表单验证和错误信息的提示；最后我们演示了如何将数据保存到MySQL中，并使用连接池来优化项目。下一节我们将为博客增加用户登录的功能，以讲解Cookie和Session的使用。我还会给出博客其他模块的代码摘要，剩下的则需要读者自己去完成。
+这一章我们学习了如何配置Eclipse以编写Leiningen项目；如何使用表单和接受参数，特别是表单验证和错误信息的提示；最后我们演示了如何将数据保存到MySQL中，并使用连接池来优化项目。下一节我们将为博客增加用户登录的功能，以讲解Cookie和Session的使用。我们还会学习如何对Leiningen项目进行打包和发布，并尝试将我们的博客发布到PaaS平台Heroku上去。
