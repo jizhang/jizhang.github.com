@@ -274,3 +274,43 @@ mysql> CREATE TABLE `article` (
 这里我们见到了`clojure.java.jdbc`命名空间下的两个函数：`with-connection`和`insert-records`。前者用来打开一个数据库连接，它的第一个参数可以是一个map，表示数据库的连接信息，也可以是字符串，还可以直接传递一个DataSource对象，这点我们会在如何使用连接池时讲解。当`with-connection`执行完毕时，数据库连接也会随之关闭。`insert-record`则用于插入一条或多条数据，第一个参数是数据表名，第二个参数开始则是将要插入的记录。这个函数的返回值你应该可以从`(:generated_key ...)`这段代码中猜出来。
 
 注意，我们的数据表中有一个DATETIME类型的字段，它需要使用`java.sql.Timestamp`类型来赋值。Clojure中引入一个类可以使用`import`函数，`ns`宏提供了便捷的方式`:import`。当需要一次导入多个类时，可以使用`(:import (java.sql Timestamp Date Time))`。
+
+### 使用C3P0连接池
+
+在高性能网站中，频繁开关数据库连接不是个好主意，通常的方式是使用连接池。这里我们演示如何使用C3P0连接池。
+
+* 添加依赖项：`[c3p0 "0.9.1.2"]`
+* 修改`src/blog/database.clj`，添加以下代码：
+
+```clojure
+(ns blog.database
+  (:import com.mchange.v2.c3p0.ComboPooledDataSource))
+
+(def db-spec ...) ; db-spec没有变化，此处省略
+
+(def pool
+  (let [cpds (doto (ComboPooledDataSource.)
+               (.setDriverClass (:classname db-spec))
+               (.setJdbcUrl (str "jdbc:" (:subprotocol spec) ":" (:subname db-spec)))
+               (.setUser (:user db-spec))
+               (.setPassword (:password db-spec)))]
+    {:datasource cpds}))
+```
+
+* 更换`src/blog/models/blog.clj`中`with-connection`的参数：
+
+```clojure
+(ns ...
+  (:use [blog.database :only [pool]]))
+
+(defn add! [forms]
+  (sql/with-connection pool
+    ...))
+```
+
+`with-connection`接收到的参数形式是`{:datasource DataSource接口的实例}`，`(ComboPooledDataSource.)`就是这样的一个实例，这种语法和`(new ComboPooledDataSource)`等价。`doto`函数表示连续调用第一个参数所指向的对象的方法，最后返回这个对象。这段代码可以有不同的写法，如`(def pool {:datasource (doto (Combo...))})`。
+
+小结
+----
+
+这一章我们学习如何配置Eclipse以编写Leiningen项目；如何使用表单和接受参数，特别是表单验证和错误信息的提示；最后我们演示了如何将数据保存到MySQL中，并使用连接池来优化项目。下一节我们将为博客增加用户登录的功能，以讲解Cookie和Session的使用。我还会给出博客其他模块的代码摘要，剩下的则需要读者自己去完成。
