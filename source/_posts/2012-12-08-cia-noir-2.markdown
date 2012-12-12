@@ -260,10 +260,17 @@ mysql> CREATE TABLE `article` (
 最后，我们只需要在`src/blog/views/article.clj`中调用这个函数即可：
 
 ```cojure
+(ns ...
+  (:require ...
+            [blog.models.blog :as model-blog]))
+
 (defpage [:post "/blog/add"] {:as forms}
   (if (valid? forms)
-    (do
-      (model-blog/add! forms)
-      (str "添加成功，文章标题是：" (:title forms)))
+    (str "添加成功，文章编号是："
+         (:generated_key (first (model-blog/add! forms))))
     (render "/blog/add" forms)))
 ```
+
+这里我们见到了`clojure.java.jdbc`命名空间下的两个函数：`with-connection`和`insert-records`。前者用来打开一个数据库连接，它的第一个参数可以是一个map，表示数据库的连接信息，也可以是字符串，还可以直接传递一个DataSource对象，这点我们会在如何使用连接池时讲解。当`with-connection`执行完毕时，数据库连接也会随之关闭。`insert-record`则用于插入一条或多条数据，第一个参数是数据表名，第二个参数开始则是将要插入的记录。这个函数的返回值你应该可以从`(:generated_key ...)`这段代码中猜出来。
+
+注意，我们的数据表中有一个DATETIME类型的字段，它需要使用`java.sql.Timestamp`类型来赋值。Clojure中引入一个类可以使用`import`函数，`ns`宏提供了便捷的方式`:import`。当需要一次导入多个类时，可以使用`(:import (java.sql Timestamp Date Time))`。
