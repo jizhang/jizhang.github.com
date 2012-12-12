@@ -199,3 +199,71 @@ nil
   [:span.error (first errors)])
 ```
 
+操作数据库
+----------
+
+Clojure程序连接数据库可以使用`clojure.java.jdbc`这个类库，它能够操作MySQL、PostgreSQL、SQLite、MSSQL等。这里我们将演示如何连接MySQL数据库，因此除了`clojure.java.jdbc`外，还需要添加MySQL Connector依赖项：
+
+```clojure
+(defproject ...
+            :dependencies [...
+                           [org.clojure/java.jdbc "0.2.3"]
+                           [mysql/mysql-connector-java "5.1.6"]]
+            ...)
+```
+
+为了保存博客文章，我们在本地MySQL服务中新建一个`blog_db`数据库，并赋予用户`blog_db`（密码相同）该库的所有权限。然后我们会建立一张article表，用于保存文章：
+
+```mysql
+$ mysql -uroot -p
+mysql> create database blog_db collate utf8_general_ci;
+mysql> grant all on blog_db.* to 'blog_db'@'localhost' identified by 'blog_db';
+mysql> CREATE TABLE `article` (
+    ->   `id` int(11) NOT NULL AUTO_INCREMENT,
+    ->   `title` varchar(500) NOT NULL,
+    ->   `content` text NOT NULL,
+    ->   `user_id` int(11) NOT NULL,
+    ->   `created` datetime NOT NULL,
+    ->   PRIMARY KEY (`id`)
+    -> ) ENGINE=InnoDB;
+```
+
+我们新建一个`src/blog/database.clj`文件，用来存放数据库连接信息：
+
+```clojure
+(ns blog.database)
+
+(def db-spec {:classname "com.mysql.jdbc.Driver"
+              :subprotocol "mysql"
+              :subname "//127.0.0.1:3306/blog_db?useUnicode=true&characterEncoding=UTF-8"
+              :user "blog_db"
+              :password "blog_db"})
+```
+
+接着新建`src/blog/models/blog.clj`文件，编写插入记录的函数：
+
+```clojure
+(ns blog.models.blog
+  (:require [clojure.java.jdbc :as sql])
+  (:use [blog.database :only [db-spec]])
+  (:import java.sql.Timestamp))
+
+(defn add! [forms]
+  (sql/with-connection db-spec
+    (sql/insert-records "article"
+      {:title (:title forms)
+       :content (:content forms)
+       :user_id 0
+       :created (Timestamp. (System/currentTimeMillis))})))
+```
+
+最后，我们只需要在`src/blog/views/article.clj`中调用这个函数即可：
+
+```cojure
+(defpage [:post "/blog/add"] {:as forms}
+  (if (valid? forms)
+    (do
+      (model-blog/add! forms)
+      (str "添加成功，文章标题是：" (:title forms)))
+    (render "/blog/add" forms)))
+```
