@@ -7,3 +7,41 @@ categories: Tutorial
 tags: [clojure, noir]
 published: false
 ---
+
+Session和Cookie
+---------------
+
+做网络编程的人肯定对这两个概念不陌生，因此这里就不介绍它们的定义和作用了。我们要实现的需求也很简单：用户通过一个表单登录，在当前窗口中保持登录状态，并可以选择“记住我”来免去关闭并新开窗口之后的重登录。显然，前者使用Session，后者使用Cookie。下面我们就来看Noir对这两者的支持。
+
+### Session
+
+```clojure
+(require 'noir.session)
+(noir.session/put! :username "john")
+(noir.session/get :username "nobody")
+(noir.session/clear!)
+```
+
+很简单的API。注意`put!`函数中的`!`，和之前遇到的`?`一样，这种特殊字符是合法的函数名，但`!`习惯用来表示该方法会改变某个对象的状态，这里`put!`就表示会改变Session的状态。
+
+Noir还提供了一种“闪信（Flash）”机制，主要用于在页面跳转之间暂存消息。如用户登录后会跳转到首页，如果想在首页显示“登录成功”的信息，就需要用到闪信了。闪信的API也放置在`noir.session`命名空间下：
+
+```clojure
+(noir.session/flash-put! "登录成功")
+(noir.session/flash-get)
+```
+
+闪信的生命周期是一次请求，即在设置了闪信后的下一个请求中，可以多次`flash-get`，但再下一次请求就获取不到值了。
+
+### Cookie
+
+Cookie的API示例如下：
+
+```clojure
+(require 'noir.cookies)
+(noir.cookies/put! :user_id (str 1))
+(noir.cookies/get :user_id)
+(noir.cookies/put! :tracker {:value (str 29649) :path "/" :max-age 3600})
+```
+
+需要注意的是，`put!`函数只支持字符串类型；对于Cookie超时时间的设置，一种是上面所写的多少秒过期，另一种是传入一个DateTime对象。对于时间日期的处理，Java自带的类库可能不太好用，这里推荐[Joda Time](http://joda-time.sourceforge.net/)，它有更丰富的功能和更友善的API。
