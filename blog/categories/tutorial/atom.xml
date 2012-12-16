@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tutorial | Ji ZHANG's Blog]]></title>
   <link href="http://jizhang.github.com/blog/categories/tutorial/atom.xml" rel="self"/>
   <link href="http://jizhang.github.com/"/>
-  <updated>2012-12-12T23:37:55+08:00</updated>
+  <updated>2012-12-16T21:12:00+08:00</updated>
   <id>http://jizhang.github.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -72,6 +72,9 @@
 <p>```</p>
 
 <p><code>defpage</code>和<code>common/layout</code>我们之前已经见到过，前者定义了URL<code>/blog/add</code>指向的页面，后者则是套用了一个模板。<code>[:h1 ...]</code>和<code>[:br]</code>也应该熟悉，它们是Hiccup的语法，分别生成<code>&lt;h1&gt;...&lt;/h1&gt;</code>和<code>&lt;br&gt;</code>标签。</p>
+
+<!-- more -->
+
 
 <p><code>form-to</code>是一个新的语法，不过从名字上也可以猜到，它用来生成一个<code>&lt;form&gt;</code>标签，结合<code>[:post "/blog/add"]</code>一起来看就是<code>&lt;form action="/blog/add" method="post"&gt;...&lt;/form&gt;</code>。至于<code>label</code>、<code>text-field</code>、<code>text-area</code>、以及<code>submit-button</code>都是用来生成相应的表单标签的，它们包含在hiccup.form-helpers命名空间中，具体用法可以到REPL中查看它们的文档，如：（在项目目录中执行<code>lein repl</code>）</p>
 
@@ -402,6 +405,9 @@ mysql&gt; CREATE TABLE</code>article` (</p>
 <p>但是，上面提到的教程都是针对Clojure语言本身的，从 <em>Hello, world!</em> 开始，讲解Clojure的各种语法，关键字，结构等等。虽然Clojure的语法已经足够吸引你的眼球，在<a href="http://en.wikipedia.org/wiki/Read-eval-print_loop">REPL</a>中敲击Clojure代码已经是一种莫大的乐趣了，但似乎还有些不够，我们想看到一个用Clojure编写的应用程序！</p>
 
 <p>因为平时都是做Web开发，所以先从一个Web框架入手会是不错的选择，因此这份教程会从使用<a href="http://webnoir.org/">Noir</a>框架搭建一个博客开始，带你领略Clojure的魅力。</p>
+
+<!-- more -->
+
 
 <h2>一句话概述Clojure</h2>
 

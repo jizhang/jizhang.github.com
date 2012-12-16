@@ -156,6 +156,9 @@
 
 <p><code>defpage</code>和<code>common/layout</code>我们之前已经见到过，前者定义了URL<code>/blog/add</code>指向的页面，后者则是套用了一个模板。<code>[:h1 ...]</code>和<code>[:br]</code>也应该熟悉，它们是Hiccup的语法，分别生成<code>&lt;h1&gt;...&lt;/h1&gt;</code>和<code>&lt;br&gt;</code>标签。</p>
 
+<!-- more -->
+
+
 <p><code>form-to</code>是一个新的语法，不过从名字上也可以猜到，它用来生成一个<code>&lt;form&gt;</code>标签，结合<code>[:post "/blog/add"]</code>一起来看就是<code>&lt;form action="/blog/add" method="post"&gt;...&lt;/form&gt;</code>。至于<code>label</code>、<code>text-field</code>、<code>text-area</code>、以及<code>submit-button</code>都是用来生成相应的表单标签的，它们包含在hiccup.form-helpers命名空间中，具体用法可以到REPL中查看它们的文档，如：（在项目目录中执行<code>lein repl</code>）</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>

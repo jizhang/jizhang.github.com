@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://jizhang.github.com/atom.xml" rel="self"/>
   <link href="http://jizhang.github.com/"/>
-  <updated>2012-12-12T23:37:55+08:00</updated>
+  <updated>2012-12-16T21:12:00+08:00</updated>
   <id>http://jizhang.github.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -81,6 +81,9 @@
 
 
 <p><code>defpage</code>和<code>common/layout</code>我们之前已经见到过，前者定义了URL<code>/blog/add</code>指向的页面，后者则是套用了一个模板。<code>[:h1 ...]</code>和<code>[:br]</code>也应该熟悉，它们是Hiccup的语法，分别生成<code>&lt;h1&gt;...&lt;/h1&gt;</code>和<code>&lt;br&gt;</code>标签。</p>
+
+<!-- more -->
+
 
 <p><code>form-to</code>是一个新的语法，不过从名字上也可以猜到，它用来生成一个<code>&lt;form&gt;</code>标签，结合<code>[:post "/blog/add"]</code>一起来看就是<code>&lt;form action="/blog/add" method="post"&gt;...&lt;/form&gt;</code>。至于<code>label</code>、<code>text-field</code>、<code>text-area</code>、以及<code>submit-button</code>都是用来生成相应的表单标签的，它们包含在hiccup.form-helpers命名空间中，具体用法可以到REPL中查看它们的文档，如：（在项目目录中执行<code>lein repl</code>）</p>
 
@@ -494,6 +497,9 @@
 <p>但是，上面提到的教程都是针对Clojure语言本身的，从 <em>Hello, world!</em> 开始，讲解Clojure的各种语法，关键字，结构等等。虽然Clojure的语法已经足够吸引你的眼球，在<a href="http://en.wikipedia.org/wiki/Read-eval-print_loop">REPL</a>中敲击Clojure代码已经是一种莫大的乐趣了，但似乎还有些不够，我们想看到一个用Clojure编写的应用程序！</p>
 
 <p>因为平时都是做Web开发，所以先从一个Web框架入手会是不错的选择，因此这份教程会从使用<a href="http://webnoir.org/">Noir</a>框架搭建一个博客开始，带你领略Clojure的魅力。</p>
+
+<!-- more -->
+
 
 <h2>一句话概述Clojure</h2>
 
@@ -935,6 +941,9 @@
 <p>以上两种流派各有优劣。高度模块化的系统可以使得更新和替换某个软件包变的非常方便，因为每个类库都只有一份，所有依赖于它的应用程序都能因此受益。比如，修复某个类库的安全漏洞可以立刻应用到所有程序中，而如果应用程序使用了自带的类库，那安全更新就很难应用进去了，特别是在类库版本不一致的情况下更难处理。</p>
 
 <p>不过这种“模块化”也被一些开发者视为缺点，因为他们无法控制应用程序的依赖关系。他们希望提供一个独立和稳定的软件运行环境，这样就不会在系统升级后遭遇各种依赖方面的问题。</p>
+
+<!-- more -->
+
 
 <p>在安装程序中包含所有依赖包还有一个优点：便于跨平台。有些项目在这点上做到了极致，它们将所有和操作系统的交互都封装了起来，在一个独立的目录中运行，甚至包括日志文件的记录位置。</p>
 
@@ -1852,6 +1861,9 @@
 <p>Linux内核开发与其他商业软件项目有很大不同，因为它的开发者众多，且每个开发者的参与程度和对Linux内核代码的理解有很大差异。多年以来，内核代码一直都是以Tar压缩文件以及补丁的形式维护的，而当时的核心开发团队一直在寻找一个能够满足他们各方面需求的版本控制系统。</p>
 
 <p>Git就是在这样的背景下于2005年作为一款开源软件诞生的。当时，Linux内核代码通过两种版本控制系统进行维护，BitKeeper和CVS，分别由两组核心开发团队使用。BitKeeper相较于当时颇为流行的CVS，提供了一种不同的历史展示方式。</p>
+
+<!-- more -->
+
 
 <p>当BitKeeper的所有者BitMover决定收回Linux内核开发人员的使用许可时，Linux Torvalds紧急开启了一个项目，也就是后来的Git。一开始，他通过编写一组Shell脚本来帮助他将邮件中的补丁按顺序应用到代码中。这组原始脚本能够在代码合并过程中迅速中断，让维护者能够进行人工干预，修改代码，然后继续合并。</p>
 
