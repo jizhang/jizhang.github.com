@@ -56,6 +56,8 @@ Eclipse提供了一个Clojure插件：CounterClockwise，可以用来编写Cloju
 
 `defpage`和`common/layout`我们之前已经见到过，前者定义了URL`/blog/add`指向的页面，后者则是套用了一个模板。`[:h1 ...]`和`[:br]`也应该熟悉，它们是Hiccup的语法，分别生成`<h1>...</h1>`和`<br>`标签。
 
+<!-- more -->
+
 `form-to`是一个新的语法，不过从名字上也可以猜到，它用来生成一个`<form>`标签，结合`[:post "/blog/add"]`一起来看就是`<form action="/blog/add" method="post">...</form>`。至于`label`、`text-field`、`text-area`、以及`submit-button`都是用来生成相应的表单标签的，它们包含在hiccup.form-helpers命名空间中，具体用法可以到REPL中查看它们的文档，如：（在项目目录中执行`lein repl`）
 
 ```clojure

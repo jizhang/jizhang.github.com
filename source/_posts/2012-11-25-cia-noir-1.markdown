@@ -18,6 +18,8 @@ Clojure已经有一些不错的教程，如[Mark Volkmann][1]的[Clojure - Funct
 
 因为平时都是做Web开发，所以先从一个Web框架入手会是不错的选择，因此这份教程会从使用[Noir][9]框架搭建一个博客开始，带你领略Clojure的魅力。
 
+<!-- more -->
+
 一句话概述Clojure
 -----------------
 
