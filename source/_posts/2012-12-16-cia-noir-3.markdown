@@ -45,3 +45,21 @@ Cookie的API示例如下：
 ```
 
 需要注意的是，`put!`函数只支持字符串类型；对于Cookie超时时间的设置，一种是上面所写的多少秒过期，另一种是传入一个DateTime对象。对于时间日期的处理，Java自带的类库可能不太好用，这里推荐[Joda Time](http://joda-time.sourceforge.net/)，它有更丰富的功能和更友善的API。
+
+登录页面
+--------
+
+这里我们跳过注册页面，因为它实现的功能和新建一篇文章很相近，所以读者可以自己完成。我们假定用户信息表的格式如下：
+
+```sql
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) NOT NULL,
+  `password` varchar(32) NOT NULL,
+  PRIMARY KEY (`id`)
+)
+```
+
+其中password字段保存的是密码的MD5值（32位16进制字符串）。Clojure中如何进行MD5加密可以参考这个[Gist](https://gist.github.com/4325757)。
+
+我们重点来看对登录页面表单的处理：
