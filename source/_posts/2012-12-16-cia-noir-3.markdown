@@ -60,6 +60,87 @@ CREATE TABLE `user` (
 )
 ```
 
-其中password字段保存的是密码的MD5值（32位16进制字符串）。Clojure中如何进行MD5加密可以参考这个[Gist](https://gist.github.com/4325757)。
+其中password字段保存的是密码的MD5值（32位16进制字符串），下文会贴出它的实现代码。
 
-我们重点来看对登录页面表单的处理：
+我们重点来看对登录页面表单的处理。新建`src/blog/views/login.clj`文件，添加对`/login`的路由，显示一个包含用户名、密码、以及记住我复选框的表单。用户提交后，若验证成功，会跳转至`/whoami`页面，用来显示保存在session或者cookie中的信息。
+
+```clojure
+(ns blog.views.login
+  (:require [blog.views.common :as common]
+            [blog.models.user :as model-user]
+            [noir.session :as session]
+            [noir.cookies :as cookies]
+            [noir.response :as response])
+  (:use [noir.core]
+        [hiccup.form-helpers]))
+        
+(defpage "/login" {:as forms}
+  (common/layout
+    [:h1 "登录"]
+    (form-to [:post "/login"]
+             (label "username" "用户名：")
+             (text-field {:size 20} "username" (:username forms)) [:br]
+             (label "password" "密码：")
+             (password-field {:size 20} "password" (:password forms)) [:br]
+             (check-box "remember-me" false 1)
+             (label "remember-me" "记住我") [:br]
+             (submit-button "登录"))))
+
+(defpage [:post "/login"] {:as forms}
+  (let [userid (model-user/get-id (:username forms) (:password forms))]
+    (if userid
+      (do (session/put! :userid userid)
+          (session/put! :username (:username forms))
+          (when (= (:remember-me forms) "1")
+            (cookies/put! :userid {:value (str userid) :max-age 86400})
+            (cookies/put! :username {:value (:username forms) :max-age 86400}))
+          (response/redirect "/whoami"))
+      (render "/login" forms))))
+
+(defpage "/whoami" []
+  (let [userid (session/get :userid)
+        username (session/get :username)]
+    (if userid
+      username
+      (let [userid (cookies/get :userid)
+            username (cookies/get :username)]
+        (if userid
+          (do
+            (session/put! :userid userid)
+            (session/put! :username username)
+            username)
+          "unknown")))))
+```
+
+对用户表的操作我们放到`src/blog/models/user.clj`文件中：
+
+```clojure
+(ns blog.models.user
+  (:require [clojure.java.jdbc :as sql]
+            [blog.util :as util])
+  (:use [blog.database :only [db-spec]]))
+
+(defn get-id [username password]
+  (let [password-md5 (util/md5 password)]
+    (sql/with-connection db-spec
+      (sql/with-query-results rows
+        ["SELECT `id` FROM `user` WHERE `username` = ? AND `password` = ?"
+         username password-md5]
+        (:id (first rows))))))
+```
+
+最后，我们将MD5加密这类的函数放到`src/blog/util.clj`文件中：
+
+```clojure
+(ns blog.util
+  (:import java.security.MessageDigest
+           java.math.BigInteger))
+
+(defn md5 [s]
+  (let [algorithm (MessageDigest/getInstance "MD5")
+        size (* 2 (.getDigestLength algorithm))
+        raw (.digest algorithm (.getBytes s))
+        sig (.toString (BigInteger. 1 raw) 16)
+        padding (apply str (repeat (- size (count sig)) "0"))]
+    (str padding sig)))
+```
