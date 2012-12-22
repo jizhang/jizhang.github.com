@@ -184,3 +184,37 @@ CREATE TABLE `user` (
 ```
 
 其中，`noir.request/ring-request`用来获得用户的`request`map对象。
+
+程序发布
+--------
+
+这里介绍三种Web应用程序的发布方式。
+
+### 直接使用Leiningen
+
+如果服务器上安装有`lein`环境，则可以直接调用它来启动程序。只有一点需要注意，因为在默认情况下，`lein run`启动的程序会被包装在Leiningen的JVM中，这样会占用一些额外的内存，同时引起一些`stdin`方面的问题。解决方法是使用`lein trampoline run`命令来启动程序，这样Leiningen为程序启动一个独立的JVM，并退出自己的JVM。
+
+### 编译为独立Jar包
+
+`lein uberjar`命令可以将项目编译后的代码及其所有的依赖包打入一个Jar文件中，和Maven的assembly插件类似。需要注意的是，Clojure文件在默认情况下是不会生成类文件的，而是在运行时进行解析。这样一来，当使用`java -jar`命令执行时会提示找不到类定义的错误。解决方法是为包含入口函数的模块生成类文件，需要在`src/blog/server.clj`的`ns`声明中添加`gen-class`标识：
+
+```clojure
+(ns blog.server
+    ...
+    (:gen-class))
+```
+
+然后就能打包运行了：
+
+```bash
+$ lein uberjar
+$ java -jar blog-0.1.0-SNAPSHOT-standalone.jar
+2012-12-23 00:07:47.417:INFO::jetty-6.1.x
+2012-12-23 00:07:47.430:INFO::Started SocketConnector@0.0.0.0:8080
+```
+
+可以在程序前部署一个Nginx代理做转发，配置方法就不在这里赘述了。
+
+### 使用Tomcat
+
+以上两种方法使用的都是Jetty这个Web容器，虽然比较方便，但在生产环境中我们更倾向于使用Tomcat。
