@@ -144,11 +144,14 @@ CREATE TABLE `user` (
 以下是一个空的中间件代码：
 
 ```clojure
+(ns ...
+    (:require [noir.server :as server]))
+
 (defn my-middleware [handler]
   (fn [request]
     (handler request)))
 
-(noir.server/add-middleware my-middleware)
+(erver/add-middleware my-middleware)
 ```
 
 上述代码添加到`src/blog/server.clj`中可以直接运行，只是这个中间件没有做任何工作。中间件是一个函数，返回值是一个匿名函数（`defn`是基于`fn`的，详情可见`(doc defn)`）。`handler`参数则是前一个中间件返回的匿名函数，`request`是用户发送过来的请求（map形式）。这些中间件组合起来就成为了一条处理链。`add-middleware`则是Noir定义的函数，将用户自定义的中间件添加到处理链中。
@@ -177,13 +180,16 @@ CREATE TABLE `user` (
 这样我们就能将`/whoami`的代码修改为：
 
 ```clojure
+(ns ...
+    (:require [noir.request :as request]))
+
 (defpage "/whoami" []
-         (if-let [user (:user (noir.request/ring-request))]
+         (if-let [user (:user (request/ring-request))]
            (:username user)
            "unkown"))
 ```
 
-其中，`noir.request/ring-request`用来获得用户的`request`map对象。
+其中，`ring-request`用来获得用户的`request`map对象。
 
 程序发布
 --------
