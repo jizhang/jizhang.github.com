@@ -224,3 +224,37 @@ $ java -jar blog-0.1.0-SNAPSHOT-standalone.jar
 ### 使用Tomcat
 
 以上两种方法使用的都是Jetty这个Web容器，虽然比较方便，但在生产环境中我们更倾向于使用Tomcat。
+
+对于Tomcat的安装这里不做讲解，读者可以到[Tomcat官网](http://tomcat.apache.org/)查阅。
+
+Clojure代码也需要做一些修改，我们需要提供一个接口供Tomcat调用，也就是`Handler`。在`src/blog/server.clj`中添加以下代码：
+
+```clojure
+(def handler (server/gen-handler
+               {:mode :prod,
+                :ns 'blog}))
+```
+
+`gen-handler`是Noir的函数，用来生成一个`Handler`。`'blog`前的单引号大家应该还有印象，它表示命名空间。
+
+`server.clj`还有一项内容需要修改：删除`load-views`，改为显式的`require`，这样才能保证在编译期间就加载路由配置，Tomcat才会认可。代码如下：
+
+```clojure
+(ns ...
+    (:require [blog.views welcome article]))
+
+; (server/load-views "src/blog/views")
+```
+
+和`uberjar`类似，我们需要使用`uberwar`来打包成一个包含所有依赖项的war包。不过这个工具是由一个Leiningen插件提供的：`lein-ring`，安装过程和`lein-noir`类似，首先在`project.clj`添加dev依赖，然后执行`lein deps`安装。要使上述`handler`生效，`project.clj`中还需要增加一项名为`:ring`的配置：
+
+```clojure
+(defproject blog ...
+            ...
+            :dev-dependencies [...
+                               [lein-ring "0.7.5"]]
+            ...
+            :ring {:handler blog.server/handler})
+```
+
+执行`lein ring uberwar`命令，将生成的war包放置到Tomcat的webapps目录中，命名为ROOT.war，也可以设置[Virtual Hosting](http://tomcat.apache.org/tomcat-7.0-doc/virtual-hosting-howto.html)。片刻后，Tomcat会应用这个新的程序，我们就能在浏览器中访问了。
