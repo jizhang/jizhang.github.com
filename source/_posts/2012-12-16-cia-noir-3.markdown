@@ -88,6 +88,15 @@ CREATE TABLE `user` (
       "unknown")))
 ```
 
+其中`if-let`和以下代码是等价的，类似的有`when-let`。
+
+```clojure
+(let [userid (session/get :userid)]
+  (if userid
+    (do ...)
+    "unkown"))
+```
+
 对用户表的操作我们放到`src/blog/models/user.clj`文件中：
 
 ```clojure
@@ -124,3 +133,54 @@ CREATE TABLE `user` (
 `padding`的作用是当计算得到的MD5字符串不足32位时做补零的操作。如何得到一个包含N个"0"的字符串？这就是`(apply...)`那串代码做的工作。简单来说，`repeat`函数会返回一个序列，`apply`函数首先使用第1、第2个元素作为参数调用`str`函数，然后将执行结果和第3个元素作为参数调用`str`，依此类推。因此，`(apply str [1 2 3])`等价于`(str (str 1 2) 3)`。`clojure.string/join`提供了将序列连接为字符串的功能，用法是`(clojure.string/join (repeat ...))`，查看它的源码`(source clojure.string/join)`可以发现，它实质上也是采用了`apply`函数。
 
 序列是Clojure的一个很重要的数据结构，有多种函数和惯用法，需要逐步积累这些知识。
+
+中间件
+------
+
+如果需要在程序的多个地方获取用户的登录状态，可以将上述`/whoami`中的方法封装成函数，但是每次都要执行一次似乎有些冗余，因此我们可以将它放到中间件（Middleware）中。
+
+中间件是[WSGI](http://en.wikipedia.org/wiki/Web_Server_Gateway_Interface)类的网站程序中很重要的特性。如果将用户的一次访问分解成`请求->处理1->处理2->应答`，那么中间件就是其中的“处理”部分，可以增加任意多个。Noir的很多功能，像路由、Session等，都是通过中间件的形式进行组织的。
+
+以下是一个空的中间件代码：
+
+```clojure
+(defn my-middleware [handler]
+  (fn [request]
+    (handler request)))
+
+(noir.server/add-middleware my-middleware)
+```
+
+上述代码添加到`src/blog/server.clj`中可以直接运行，只是这个中间件没有做任何工作。中间件是一个函数，返回值是一个匿名函数（`defn`是基于`fn`的，详情可见`(doc defn)`）。`handler`参数则是前一个中间件返回的匿名函数，`request`是用户发送过来的请求（map形式）。这些中间件组合起来就成为了一条处理链。`add-middleware`则是Noir定义的函数，将用户自定义的中间件添加到处理链中。
+
+下面我们就写这样一个中间件，每次请求时都去检测Session和Cookie中是否包含用户的登录信息，并将该信息放到`request`的map中：
+
+```clojure
+(defn authenticate [handler]
+  (fn [request]
+    (let [user (if-let [userid (session/get :userid)]
+                [userid (session/get :username)]
+                (when-let [userid (cookies/get :userid)]
+                  (let [username (cookies/get :username)]
+                    (do
+                      (session/put! :userid userid)
+                      (session/put! :username username)
+                      [userid username]))))
+          req (if user
+                (assoc request :user (zipmap [:userid :username] user))
+                request)]
+      (handler req))))
+```
+
+这段代码中对于session和cookies的调用和上面没有差异，比较陌生的可能是`assoc`和`zipmap`方法，他们都是用来操作map数据类型的：前者会向一个map对象添加键值，并返回一个新的map；后者则会接收两个序列作为参数，两两组合成一个map并返回。
+
+这样我们就能将`/whoami`的代码修改为：
+
+```clojure
+(defpage "/whoami" []
+         (if-let [user (:user (noir.request/ring-request))]
+           (:username user)
+           "unkown"))
+```
+
+其中，`noir.request/ring-request`用来获得用户的`request`map对象。
