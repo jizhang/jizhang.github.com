@@ -77,18 +77,15 @@ CREATE TABLE `user` (
       (render "/login" forms))))
 
 (defpage "/whoami" [] ; 先检测Session，再检测Cookie。
-  (let [userid (session/get :userid)
-        username (session/get :username)]
-    (if userid
-      username
-      (let [userid (cookies/get :userid)
-            username (cookies/get :username)]
-        (if userid
-          (do
-            (session/put! :userid userid)
-            (session/put! :username username)
-            username)
-          "unknown")))))
+  (if-let [userid (session/get :userid)]
+    (session/get :username)
+    (if-let [userid (cookies/get :userid)]
+      (do
+        (session/put! :userid userid)
+        (let [username (cookies/get :username)]
+          (session/put! :username username)
+          username))
+      "unknown")))
 ```
 
 对用户表的操作我们放到`src/blog/models/user.clj`文件中：
