@@ -60,44 +60,23 @@ CREATE TABLE `user` (
 )
 ```
 
-其中password字段保存的是密码的MD5值（32位16进制字符串），下文会贴出它的实现代码。
+其中password字段保存的是密码的MD5值（32位16进制字符串）。Clojure中没有提供专门的类库，因此需要调用Java来实现。下文会贴出它的实现代码。
 
-我们重点来看对登录页面表单的处理。新建`src/blog/views/login.clj`文件，添加对`/login`的路由，显示一个包含用户名、密码、以及记住我复选框的表单。用户提交后，若验证成功，会跳转至`/whoami`页面，用来显示保存在session或者cookie中的信息。
+我们重点来看对登录页面表单的处理。新建`src/blog/views/login.clj`文件，添加对`/login`的路由，显示一个包含用户名、密码、以及“记住我”复选框的表单。用户提交后，若验证成功，会跳转至`/whoami`页面，用来显示保存在session或者cookie中的信息。以下是关键代码：
 
 ```clojure
-(ns blog.views.login
-  (:require [blog.views.common :as common]
-            [blog.models.user :as model-user]
-            [noir.session :as session]
-            [noir.cookies :as cookies]
-            [noir.response :as response])
-  (:use [noir.core]
-        [hiccup.form-helpers]))
-        
-(defpage "/login" {:as forms}
-  (common/layout
-    [:h1 "登录"]
-    (form-to [:post "/login"]
-             (label "username" "用户名：")
-             (text-field {:size 20} "username" (:username forms)) [:br]
-             (label "password" "密码：")
-             (password-field {:size 20} "password" (:password forms)) [:br]
-             (check-box "remember-me" false 1)
-             (label "remember-me" "记住我") [:br]
-             (submit-button "登录"))))
-
 (defpage [:post "/login"] {:as forms}
   (let [userid (model-user/get-id (:username forms) (:password forms))]
     (if userid
       (do (session/put! :userid userid)
           (session/put! :username (:username forms))
-          (when (= (:remember-me forms) "1")
-            (cookies/put! :userid {:value (str userid) :max-age 86400})
+          (when (= (:remember-me forms) "1") ; “记住我”复选框
+            (cookies/put! :userid {:value (str userid) :max-age 86400}) ; 保存登录状态，时限1天。
             (cookies/put! :username {:value (:username forms) :max-age 86400}))
-          (response/redirect "/whoami"))
+          (response/redirect "/whoami")) ; noir.response/redirect 302跳转
       (render "/login" forms))))
 
-(defpage "/whoami" []
+(defpage "/whoami" [] ; 先检测Session，再检测Cookie。
   (let [userid (session/get :userid)
         username (session/get :username)]
     (if userid
@@ -125,7 +104,7 @@ CREATE TABLE `user` (
     (sql/with-connection db-spec
       (sql/with-query-results rows
         ["SELECT `id` FROM `user` WHERE `username` = ? AND `password` = ?"
-         username password-md5]
+         username password-md5] ; 不要采用直接拼接字符串的方式，有SQL注入的危险。
         (:id (first rows))))))
 ```
 
@@ -144,3 +123,7 @@ CREATE TABLE `user` (
         padding (apply str (repeat (- size (count sig)) "0"))]
     (str padding sig)))
 ```
+
+`padding`的作用是当计算得到的MD5字符串不足32位时做补零的操作。如何得到一个包含N个"0"的字符串？这就是`(apply...)`那串代码做的工作。简单来说，`repeat`函数会返回一个序列，`apply`函数首先使用第1、第2个元素作为参数调用`str`函数，然后将执行结果和第3个元素作为参数调用`str`，依此类推。因此，`(apply str [1 2 3])`等价于`(str (str 1 2) 3)`。`clojure.string/join`提供了将序列连接为字符串的功能，用法是`(clojure.string/join (repeat ...))`，查看它的源码`(source clojure.string/join)`可以发现，它实质上也是采用了`apply`函数。
+
+序列是Clojure的一个很重要的数据结构，有多种函数和惯用法，需要逐步积累这些知识。
