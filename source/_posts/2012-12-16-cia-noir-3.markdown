@@ -5,7 +5,6 @@ date: 2012-12-16 20:20
 comments: true
 categories: Tutorial
 tags: [clojure, noir]
-published: false
 ---
 
 Session和Cookie
@@ -253,8 +252,31 @@ Clojure代码也需要做一些修改，我们需要提供一个接口供Tomcat�
             ...
             :dev-dependencies [...
                                [lein-ring "0.7.5"]]
-            ...
             :ring {:handler blog.server/handler})
 ```
 
 执行`lein ring uberwar`命令，将生成的war包放置到Tomcat的webapps目录中，命名为ROOT.war，也可以设置[Virtual Hosting](http://tomcat.apache.org/tomcat-7.0-doc/virtual-hosting-howto.html)。片刻后，Tomcat会应用这个新的程序，我们就能在浏览器中访问了。
+
+发布至云端Heroku
+----------------
+
+最后，我们来尝试将这个博客程序部署到线上环境中。如今云计算已经非常流行，有许多优秀的[PaaS](http://en.wikipedia.org/wiki/Platform_as_a_service)平台，[Heroku](http://www.heroku.com)就是其中之一。在Heroku上部署一个小型的应用是完全免费的，这里我们简述一下步骤，更详细的操作方法可以参考它的[帮助文档](https://devcenter.heroku.com/articles/clojure)。
+
+* 登录Heroku网站并注册账号；
+* 安装[Tookbelt](https://toolbelt.heroku.com/)，从而能在命令行中使用`heroku`命令；
+* 执行`heroku login`命令，输入账号密码，完成验证；
+* 新建`src/Procfile`文件，输入`web: lein trampoline run blog.server`；
+* 执行`foreman start`命令，可以在本地测试程序；
+* 执行`heroku create`，Heroku会为你分配一个空间；
+* 执行`git push heroku master`，将本地代码推送至云端，可以看到编译信息，并得到一个URL，通过它就能访问我们的应用程序了。
+
+以上步骤省略了数据库的配置，读者可以自行到[Heroku ClearDB](https://addons.heroku.com/cleardb)页面查看配置方法。
+
+小结
+----
+
+至此我们完成了对Noir网站开发框架的简介，也完成了对Clojure这门语言的入门介绍。不过《Clojure实战》系列还远没有结束，下一章开始我们会进入Clojure语言更擅长的领域——计算。我们会陆续介绍如何使用Clojure编写[Hadoop](http://hadoop.apache.org) MapReduce脚本、编写[Storm](http://www.storm-project.net) Topology、以及如何使用[Incanter](http://incanter.org/)进行可视化数据分析。不过在此之前，我强烈建议读者能够回头看看第一章中提到的几个Clojure教程，这样能对Clojure语言的整体架构有一个印象，接下来的学习才会更为顺畅。
+
+### PS
+
+在撰写这份Noir框架教程时，Noir作者宣布停止对Noir的开发和维护，鼓励开发者转而使用Ring+Compojure+lib-noir的方式进行开发。这对我们并无太大影响，毕竟我们只是利用Noir来学习Clojure，而且前文提过Noir本身就是基于Ring和Compojure这两个类库的，迁移起来非常方便，我会为此再写一篇博客的。
