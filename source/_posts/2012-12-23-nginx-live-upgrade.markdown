@@ -5,7 +5,7 @@ date: 2012-12-23 22:11
 comments: true
 categories: Ops
 tags: [nginx]
-published: false
+published: true
 ---
 
 Nginx热升级
@@ -22,11 +22,38 @@ Nginx热升级
 
 3、向主进程发送`USR2`信号，Nginx会启动一个新版本的master进程和工作进程，和旧版一起处理请求：
 
+```bash
+prey:~ root# ps -ef|grep nginx
+ 127     1   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+ 129   127   nginx: worker process
+prey:~ root# kill -USR2 127
+prey:~ root# ps -ef|grep nginx
+ 127     1   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+ 129   127   nginx: worker process  
+5180   127   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+5182  5180   nginx: worker process  
+```
+
 4、向原Nginx主进程发送`WINCH`信号，它会逐步关闭旗下的工作进程（主进程不退出），这时所有请求都会由新版Nginx处理：
+
+```bash
+prey:~ root# kill -WINCH 127
+prey:~ root# ps -ef|grep nginx
+ 127     1   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx 
+5180   127   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+5182  5180   nginx: worker process 
+```
 
 5、如果这时需要回退，可向原Nginx主进程发送`HUP`信号，它会重新启动工作进程， **仍使用旧版配置文件** 。尔后可以将新版Nginx进程杀死（使用`QUIT`、`TERM`、或者`KILL`）：
 
 6、如果不需要回滚，可以将原Nginx主进程杀死，至此完成热升级。
+
+```bash
+prey:~ root# kill 127
+prey:~ root# ps -ef|grep nginx
+5180     1   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+5182  5180   nginx: worker process  
+```
 
 切换过程中，Nginx会将旧的`.pid`文件重命名为`.pid.oldbin`文件，并在旧进程退出后删除。
 
