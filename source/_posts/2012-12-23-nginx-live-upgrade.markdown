@@ -124,3 +124,35 @@ sbin/dso_tool --add-module=/home/dso/lua-nginx-module
 Nginx信号汇总
 -------------
 
+以下内容译自：http://wiki.nginx.org/CommandLine
+
+### 主进程支持的信号
+
+* `TERM`, `INT`: 立刻退出
+* `QUIT`: 等待工作进程结束后再退出
+* `KILL`: 强制终止进程
+* `HUP`: 重新加载配置文件，使用新的配置启动工作进程，并逐步关闭旧进程。
+* `USR1`: 重新打开日志文件
+* `USR2`: 启动新的主进程，实现热升级
+* `WINCH`: 逐步关闭工作进程
+
+### 工作进程支持的信号
+
+* `TERM`, `INT`: 立刻退出
+* `QUIT`: 等待请求处理结束后再退出
+* `USR1`: 重新打开日志文件
+
+### nginx -s signal 支持的信号
+
+* `stop`: 等价于`TERM`, `INT`
+* `quit`: `QUIT`
+* `reopen`: `USR1`
+* `reload`: `HUP`
+
+### 使用方法
+
+```bash
+$ sbin/nginx -s reload
+$ kill -HUP $(cat logs/nginx.pid)
+```
+
