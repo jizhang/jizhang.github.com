@@ -37,6 +37,45 @@ Nginx热升级
 
 Nginx默认工作在多进程模式下，即主进程（master process）启动后完成配置加载和端口绑定等动作，`fork`出指定数量的工作进程（worker process），这些子进程会持有监听端口的文件描述符（fd），并通过在该描述符上添加监听事件来接受连接（accept）。
 
+### 信号的接收和处理
+
+Nginx主进程在启动完成后会进入等待状态，负责响应各类系统消息，如SIGCHLD、SIGHUP、SIGUSR2等。
+
+```c
+// src/os/unix/ngx_process_cycle.c
+void
+ngx_master_process_cycle(ngx_cycle_t *cycle)
+{
+    sigset_t           set;
+
+    sigemptyset(&set);
+    sigaddset(&set, SIGCHLD);
+    sigaddset(&set, ngx_signal_value(NGX_RECONFIGURE_SIGNAL));
+    sigaddset(&set, ngx_signal_value(NGX_CHANGEBIN_SIGNAL));
+
+    if (sigprocmask(SIG_BLOCK, &set, NULL) == -1) {
+        ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
+                      "sigprocmask() failed");
+    }
+
+    for ( ;; ) {
+
+        sigsuspend(&set); // 等待信号
+
+        // 信号回调函数定义在 src/os/unix/ngx_process.c 中，
+        // 它只负责设置全局变量，实际处理逻辑在本文件中。
+        if (ngx_change_binary) { 
+            ngx_change_binary = 0;
+            ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "changing binary");
+            ngx_new_binary = ngx_exec_new_binary(cycle, ngx_argv);
+        }
+        
+    }
+}
+```
+
+上述代码中的`ngx_exec_new_binary`函数会调用`execve`系统函数运行一个新的Nginx主进程，并将当前监听端口的文件描述符通过环境变量的方式传递给新的主进程，这样新的主进程`fork`出的子进程就同样能够对监听端口添加事件回调，接受连接，从而使得新老Nginx共同处理用户请求。
+
 其它方式
 --------
 
