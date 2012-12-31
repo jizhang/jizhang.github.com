@@ -63,7 +63,7 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
         sigsuspend(&set); // 等待信号
 
         // 信号回调函数定义在 src/os/unix/ngx_process.c 中，
-        // 它只负责设置全局变量，实际处理逻辑在本文件中。
+        // 它只负责设置全局变量，实际处理逻辑在这里。
         if (ngx_change_binary) { 
             ngx_change_binary = 0;
             ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "changing binary");
@@ -88,6 +88,38 @@ Nginx用作LB时一般会用[Keepalived](http://www.keepalived.org/)做热备，
 在进行热升级时就可以使用这种方式，在Slave上进行Nginx升级，然后关闭Master的Keepalived进程，完成VIP的漂移。测试完成后可以对继续对Master进行升级操作，或选择回滚。
 
 ### Tengine动态模块
+
+当需要增加Nginx模块时，必须对Nginx源码进行重新编译，然后采用上面提到的方式进行热升级。Nginx官网上说未来并无打算增加动态模块加载的功能，至少1.x中不会。
+
+如果你愿意使用[Tengine](http://tengine.taobao.org/)，淘宝开发的一个Nginx分支，它提供了动态模块加载（DSO）功能。这里简单介绍一下使用方法：
+
+#### 动态添加内部模块
+
+以`http_sub_module`为例，到Nginx源码目录执行以下命令：
+
+```bash
+$ ./configure --with-http_sub_module=shared
+$ make
+$ sudo make dso_install
+```
+
+它会将编译好的`ngx_http_sub_filter_module.so`文件复制到`/usr/local/nginx/modules`目录下。随后在Nginx配置文件中的最外层添加以下内容：
+
+```
+dso {
+    load ngx_http_sub_filter_module.so;
+}
+```
+
+执行`sbin/nginx -s reload`，就能完成模块的加载。
+
+#### 第三方模块
+
+对于第三方模块，Tengine提供了`dso_tool`命令，能够一步安装：
+
+```bash
+sbin/dso_tool --add-module=/home/dso/lua-nginx-module
+```
 
 Nginx信号汇总
 -------------
