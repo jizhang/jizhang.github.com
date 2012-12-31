@@ -79,7 +79,13 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
 其它方式
 --------
 
+除了使用上述方式进行Nginx热升级，还可以选择以下两种方式：
+
 ### Keepalived主备切换
+
+Nginx用作LB时一般会用[Keepalived](http://www.keepalived.org/)做热备，即DNS解析指向一个虚拟IP（VIP），主备服务器上分别启动Keepalived进程，当Master健康检查失败，Slave会自动抢夺VIP，完成切换。
+
+在进行热升级时就可以使用这种方式，在Slave上进行Nginx升级，然后关闭Master的Keepalived进程，完成VIP的漂移。测试完成后可以对继续对Master进行升级操作，或选择回滚。
 
 ### Tengine动态模块
 
