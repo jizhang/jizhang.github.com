@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="Nginx热升级 系统管理员可以使用Nginx提供的信号机制来对其进行维护，比较常用的是kill -HUP &lt;master pid&gt;命令，它能通知Nginx使用新的配置文件启动工作进程，并逐个关闭旧进程，完成平滑切换。当需要对Nginx进行版本升级或增减模块时，为了不丢失请求， &hellip;">
+  <meta name="description" content="系统管理员可以使用Nginx提供的信号机制来对其进行维护，比较常用的是kill -HUP &lt;master pid&gt;命令，它能通知Nginx使用新的配置文件启动工作进程，并逐个关闭旧进程，完成平滑切换。当需要对Nginx进行版本升级或增减模块时，为了不丢失请求，可以结合使用USR2、 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -104,9 +104,7 @@
   </header>
 
 
-<div class="entry-content"><h1>Nginx热升级</h1>
-
-<p>系统管理员可以使用Nginx提供的信号机制来对其进行维护，比较常用的是<code>kill -HUP &lt;master pid&gt;</code>命令，它能通知Nginx使用新的配置文件启动工作进程，并逐个关闭旧进程，完成平滑切换。当需要对Nginx进行版本升级或增减模块时，为了不丢失请求，可以结合使用<code>USR2</code>、<code>WINCH</code>等信号进行平滑过度，达到热升级的目的。如果中途遇到问题，也能立刻回退至原版本。</p>
+<div class="entry-content"><p>系统管理员可以使用Nginx提供的信号机制来对其进行维护，比较常用的是<code>kill -HUP &lt;master pid&gt;</code>命令，它能通知Nginx使用新的配置文件启动工作进程，并逐个关闭旧进程，完成平滑切换。当需要对Nginx进行版本升级或增减模块时，为了不丢失请求，可以结合使用<code>USR2</code>、<code>WINCH</code>等信号进行平滑过度，达到热升级的目的。如果中途遇到问题，也能立刻回退至原版本。</p>
 
 <h2>操作步骤</h2>
 
@@ -135,6 +133,11 @@
 </span><span class='line'>5180   127   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
 </span><span class='line'>5182  5180   nginx: worker process
 </span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!-- more -->
 
 
 <p>4、向原Nginx主进程发送<code>WINCH</code>信号，它会逐步关闭旗下的工作进程（主进程不退出），这时所有请求都会由新版Nginx处理：</p>
