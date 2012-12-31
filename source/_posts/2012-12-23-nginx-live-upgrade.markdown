@@ -8,9 +8,6 @@ tags: [nginx]
 published: true
 ---
 
-Nginx热升级
-===========
-
 系统管理员可以使用Nginx提供的信号机制来对其进行维护，比较常用的是`kill -HUP <master pid>`命令，它能通知Nginx使用新的配置文件启动工作进程，并逐个关闭旧进程，完成平滑切换。当需要对Nginx进行版本升级或增减模块时，为了不丢失请求，可以结合使用`USR2`、`WINCH`等信号进行平滑过度，达到热升级的目的。如果中途遇到问题，也能立刻回退至原版本。
 
 操作步骤
@@ -33,6 +30,8 @@ prey:~ root# ps -ef|grep nginx
 5180   127   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
 5182  5180   nginx: worker process  
 ```
+
+<!-- more -->
 
 4、向原Nginx主进程发送`WINCH`信号，它会逐步关闭旗下的工作进程（主进程不退出），这时所有请求都会由新版Nginx处理：
 
