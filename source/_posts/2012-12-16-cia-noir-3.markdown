@@ -265,7 +265,7 @@ Clojure代码也需要做一些修改，我们需要提供一个接口供Tomcat�
 最后，我们来尝试将这个博客程序部署到线上环境中。如今云计算已经非常流行，有许多优秀的[PaaS](http://en.wikipedia.org/wiki/Platform_as_a_service)平台，[Heroku](http://www.heroku.com)就是其中之一。在Heroku上部署一个小型的应用是完全免费的，这里我们简述一下步骤，更详细的操作方法可以参考它的[帮助文档](https://devcenter.heroku.com/articles/clojure)。
 
 * 登录Heroku网站并注册账号；
-* 安装[Tookbelt](https://toolbelt.heroku.com/)，从而能在命令行中使用`heroku`命令；
+* 安装[Toolbelt](https://toolbelt.heroku.com/)，从而能在命令行中使用`heroku`命令；
 * 执行`heroku login`命令，输入账号密码，完成验证；
 * 新建`src/Procfile`文件，输入`web: lein trampoline run blog.server`；
 * 执行`foreman start`命令，可以在本地测试程序；
