@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tutorial | Ji ZHANG's Blog]]></title>
   <link href="http://jizhang.github.com/blog/categories/tutorial/atom.xml" rel="self"/>
   <link href="http://jizhang.github.com/"/>
-  <updated>2013-01-03T22:09:18+08:00</updated>
+  <updated>2013-02-09T13:40:11+08:00</updated>
   <id>http://jizhang.github.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -315,7 +315,7 @@ $ java -jar blog-0.1.0-SNAPSHOT-standalone.jar
 
 <ul>
 <li>登录Heroku网站并注册账号；</li>
-<li>安装<a href="https://toolbelt.heroku.com/">Tookbelt</a>，从而能在命令行中使用<code>heroku</code>命令；</li>
+<li>安装<a href="https://toolbelt.heroku.com/">Toolbelt</a>，从而能在命令行中使用<code>heroku</code>命令；</li>
 <li>执行<code>heroku login</code>命令，输入账号密码，完成验证；</li>
 <li>新建<code>src/Procfile</code>文件，输入<code>web: lein trampoline run blog.server</code>；</li>
 <li>执行<code>foreman start</code>命令，可以在本地测试程序；</li>
