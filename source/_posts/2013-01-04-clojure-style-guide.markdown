@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Clojure 代码规范"
-date: 2012-01-04 20:49
+date: 2013-01-04 20:49
 comments: true
 categories: Translation
 tags: [clojure]
@@ -17,6 +17,8 @@ published: true
 这些规则并不是我凭空想象的，它们出自于我作为一个专业软件开发工程师长久以来的工作积累，以及Clojure社区成员们的反馈和建议，还有各种广为流传的Clojure编程学习资源，如[《Clojure Programming》](http://www.clojurebook.com/)、[《The Joy of Clojure》](http://joyofclojure.com/)等。
 
 这份规范还处于编写阶段，部分章节有所缺失，内容并不完整；部分规则没有示例，或者示例还不能完全将其描述清楚。未来这些问题都会得到改进，只是请你了解这一情况。
+
+<!-- more -->
 
 你可以使用[Transmuter](https://github.com/TechnoGate/transmuter)生成一份本规范的PDF或HTML格式的文档。
 
@@ -42,7 +44,7 @@ published: true
 
 * 使用两个 **空格** 进行缩进，不使用制表符。
 
-    ```Clojure
+```clojure
     ;; 正确
     (when something
       (something-else))
@@ -50,11 +52,11 @@ published: true
     ;; 错误 - 四个空格
     (when something
         (something-else))
-    ```
+```
 
 * 纵向对齐函数参数。
 
-    ```Clojure
+```clojure
     ;; 正确
     (filter even?
             (range 1 10))
@@ -62,11 +64,11 @@ published: true
     ;; 错误
     (filter even?
       (range 1 10))
-    ```
+```
 
 * 对齐let绑定，以及map类型中的关键字。
 
-    ```Clojure
+```clojure
     ;; 正确
     (let [thing1 "some stuff"
           thing2 "other stuff"]
@@ -78,11 +80,11 @@ published: true
       thing2 "other stuff"]
       {:thing1 thing1
       :thing2 thing2})
-    ```
+```
 
 * 当`defn`没有文档字符串时，可以选择省略函数名和参数列表之间的空行。
 
-    ```Clojure
+```clojure
     ;; 正确
     (defn foo
       [x]
@@ -95,11 +97,11 @@ published: true
     ;; 错误
     (defn foo
       [x] (bar x))
-    ```
+```
 
 * 当函数体较简短时，可以选择忽略参数列表和函数体之间的空行。
 
-    ```Clojure
+```clojure
     ;; 正确
     (defn foo [x]
       (bar x))
@@ -120,11 +122,11 @@ published: true
       [x] (if (predicate? x)
             (bar x)
             (baz x)))
-    ```
+```
 
 * 跨行的文档说明字符串每行都要缩进。
 
-    ```Clojure
+```clojure
     ;; 正确
     (defn foo
       "Hello there. This is
@@ -138,28 +140,28 @@ published: true
     a multi-line docstring."
       []
       (bar))
-    ```
+```
 * 使用Unix风格的换行符（*BSD、Solaris、Linux、OSX用户无需设置，Windows用户则需要格外注意了）
     * 如果你使用Git，为了防止项目中意外引入Windows风格的换行符，不妨添加如下设置：
 
-        ```bash
+```bash
         $ git config --global core.autocrlf true
-        ```
+```
 
 * 在括号`(`、`{`、`[`、`]`、`}`、`)`的外部添加空格，括号内部不要添加。
 
-    ```Clojure
+```clojure
     ;; 正确
     (foo (bar baz) quux)
 
     ;; 错误
     (foo(bar baz)quux)
     (foo ( bar baz ) quux)
-    ```
+```
 
 * 避免在集合中使用逗号分隔符。
 
-    ```Clojure
+```clojure
     ;; 正确
     [1 2 3]
     (1 2 3)
@@ -167,11 +169,11 @@ published: true
     ;; 错误
     [1, 2, 3]
     (1, 2, 3)
-    ```
+```
 
 * 可以考虑在map中适当使用逗号和换行以增强可读性。
 
-    ```Clojure
+```clojure
     ;; 正确
     {:name "Bruce Wayne" :alter-ego "Batman"}
 
@@ -181,11 +183,11 @@ published: true
 
     ;; 正确，且较为紧凑
     {:name "Bruce Wayne", :alter-ego "Batman"}
-    ```
+```
 
 * 将所有的反括号放在一行中。
 
-    ```Clojure
+```clojure
     ;; 正确
     (when something
       (something-else))
@@ -194,11 +196,11 @@ published: true
     (when something
       (something-else)
     )
-    ```
+```
 
 * 顶层函数之间空出一行。
 
-    ```Clojure
+```clojure
     ;; 正确
     (def x ...)
 
@@ -207,7 +209,7 @@ published: true
     ;; 错误
     (def x ...)
     (defn foo ...)
-    ```
+```
 
 * 函数或宏的定义体中不要添加空行。
 * 每行尽量不超过80个字符。
@@ -215,7 +217,7 @@ published: true
 * 为每个命名空间创建单独的文件。
 * 使用一个完整的`ns`指令来声明命名空间，其包含`import`、`require`、`refer`、以及`use`。
 
-    ```Clojure
+```clojure
     (ns examples.ns
       (:refer-clojure :exclude [next replace remove])
       (:require (clojure [string :as string]
@@ -226,17 +228,17 @@ published: true
                java.text.SimpleDateFormat
                (java.util.concurrent Executors
                                      LinkedBlockingQueue)))
-    ```
+```
 
 * 避免使用只有一个元素的命名空间名。
 
-    ```Clojure
+```clojure
     ;; 正确
     (ns example.ns)
 
     ;; 错误
     (ns example)
-    ```
+```
 
 * 避免使用过长的命名空间（不超过五个元素）。
 
@@ -252,7 +254,7 @@ published: true
 
 * 优先使用前置、后置条件来检测函数参数和返回值：
 
-    ```Clojure
+```clojure
     ;; 正确
     (defn foo [x]
       {:pre [(pos? x)]}
@@ -263,28 +265,28 @@ published: true
       (if (pos? x)
         (bar x)
         (throw (IllegalArgumentException "x must be a positive number!")))
-    ```
+```
 
 * 不要在函数中定义变量：
 
-    ```Clojure
+```clojure
     ;; 非常糟糕
     (defn foo []
       (def x 5)
       ...)
-    ```
+```
 
 * 本地变量名不应覆盖`clojure.core`中定义的函数：
 
-    ```Clojure
+```clojure
     ;; 错误——这样一来函数中调用`map`时就需要指定完整的命名空间了。
     (defn foo [map]
       ...)
-    ```
+```
 
 * 使用`seq`来判断一个序列是否为空（空序列等价于nil）。
 
-    ```Clojure
+```clojure
     ;; 正确
     (defn print-seq [s]
       (when (seq s)
@@ -296,11 +298,11 @@ published: true
       (when-not (empty? s)
         (prn (first s))
         (recur (rest s))))
-    ```
+```
 
 * 使用`when`替代`(if ... (do ...)`。
 
-    ```Clojure
+```clojure
     ;; 正确
     (when pred
       (foo)
@@ -311,11 +313,11 @@ published: true
       (do
         (foo)
         (bar)))
-    ```
+```
 
 * 使用`if-let`替代`let` + `if`。
 
-    ```Clojure
+```clojure
     ;; 正确
     (if-let [result :foo]
       (something-with result)
@@ -326,11 +328,11 @@ published: true
       (if result
         (something-with result)
         (something-else)))
-    ```
+```
 
 * 使用`when-let`替代`let` + `when`。
 
-    ```Clojure
+```clojure
     ;; 正确
     (when-let [result :foo]
       (do-something-with result)
@@ -341,11 +343,11 @@ published: true
       (when result
         (do-something-with result)
         (do-something-more-with result)))
-    ```
+```
 
 * 使用`if-not`替代`(if (not ...) ...)`。
 
-    ```Clojure
+```clojure
     ;; 正确
     (if-not (pred)
       (foo))
@@ -353,11 +355,11 @@ published: true
     ;; 错误
     (if (not pred)
       (foo))
-    ```
+```
 
 * 使用`when-not`替代`(when (not ...) ...)`。
 
-    ```Clojure
+```clojure
     ;; 正确
     (when-not pred
       (foo)
@@ -367,51 +369,51 @@ published: true
     (when (not pred)
       (foo)
       (bar))
-    ```
+```
 
 * 使用`not=`替代`(not (= ...))`。
 
-    ```Clojure
+```clojure
     ;; 正确
     (not= foo bar)
 
     ;; 错误
     (not (= foo bar))
-    ```
+```
 
 * 当匿名函数只有一个参数时，优先使用`%`，而非`%1`。
 
-    ```Clojure
+```clojure
     ;; 正确
     #(Math/round %)
 
     ;; 错误
     #(Math/round %1)
-    ```
+```
 
 * 当匿名函数有多个参数时，优先使用`%1`，而非`%`。
 
-    ```Clojure
+```clojure
     ;; 正确
     #(Math/pow %1 %2)
 
     ;; 错误
     #(Math/pow % %2)
-    ```
+```
 
 * 只有在必要的时候才使用匿名函数。
 
-    ```Clojure
+```clojure
     ;; 正确
     (filter even? (range 1 10))
 
     ;; 错误
     (filter #(even? %) (range 1 10))
-    ```
+```
 
 * 当匿名函数包含多行语句时，使用`fn`来定义，而非`#(do ...)`。
 
-    ```Clojure
+```clojure
     ;; 正确
     (fn [x]
       (println x)
@@ -420,43 +422,43 @@ published: true
     ;; 错误（你不得不使用`do`）
     #(do (println %)
          (* % 2))
-    ```
+```
 
 * 在特定情况下优先使用`complement`，而非匿名函数。
 
-    ```Clojure
+```clojure
     ;; 正确
     (filter (complement some-pred?) coll)
 
     ;; 错误
     (filter #(not (some-pred? %)) coll)
-    ```
+```
 
 当函数已存在对应的求反函数时，则应使用该求反函数（如`even?`和`odd?`）。
 
 * 某些情况下可以用`comp`使代码更简洁。
 
-    ```Clojure
+```clojure
     ;; 正确
     (map #(capitalize (trim %)) ["top " " test "])
 
     ;; 更好
     (map (comp capitalize trim) ["top " " test "])
-    ```
+```
 
 * 某些情况下可以用`partial`使代码更简洁。
 
-    ```Clojure
+```clojure
     ;; 正确
     (map #(+ 5 %) (range 1 10))
 
     ;; 或许更好
     (map (partial + 5) (range 1 10))
-    ```
+```
 
 * 当遇到嵌套调用时，建议使用`->`宏和`->>`宏。
 
-    ```Clojure
+```clojure
     ;; 正确
     (-> [1 2 3]
         reverse
@@ -475,21 +477,21 @@ published: true
     ;; 不够好
     (map (partial * 2)
          (filter even? (range 1 10)))
-    ```
+```
 
 * 当需要连续调用Java类的方法时，优先使用`..`，而非`->`。
 
-    ```Clojure
+```clojure
     ;; 正确
     (-> (System/getProperties) (.get "os.name"))
 
     ;; 更好
     (.. System getProperties (get "os.name"))
-    ```
+```
 
 * 在`cond`和`condp`中，使用`:else`来处理不满足条件的情况。
 
-    ```Clojure
+```clojure
     ;; 正确
     (cond
       (< n 0) "negative"
@@ -501,11 +503,11 @@ published: true
       (< n 0) "negative"
       (> n 0) "positive"
       true "zero"))
-    ```
+```
 
 * 当比较的变量和方式相同时，优先使用`condp`，而非`cond`。
 
-    ```Clojure
+```clojure
     ;; 正确
     (cond
       (= x 10) :ten
@@ -519,11 +521,11 @@ published: true
       20 :twenty
       30 :forty
       :dunno)
-    ```
+```
 
 * 当条件是常量时，优先使用`case`，而非`cond`或`condp`。
 
-    ```Clojure
+```clojure
     ;; 正确
     (cond
       (= x 10) :ten
@@ -544,11 +546,11 @@ published: true
       20 :twenty
       30 :forty
       :dunno)
-    ```
+```
 
 * 某些情况下，使用`set`作为判断条件。
 
-    ```Clojure
+```clojure
     ;; 错误
     (remove #(= % 0) [0 1 2 3 4 5])
 
@@ -565,7 +567,7 @@ published: true
 
     ;; 正确
     (count (filter #{\a \e \i \o \u} "mary had a little lamb"))
-    ```
+```
 
 * 使用`(inc x)`和`(dec x)`替代`(+ x 1)`和`(- x 1)`。
 
@@ -573,7 +575,7 @@ published: true
 
 * 进行Java操作时，优先使用Clojure提供的语法糖。
 
-    ```Clojure
+```clojure
     ;;; 创建对象
     ;; 正确
     (java.util.ArrayList. 100)
@@ -608,7 +610,7 @@ published: true
 
     ;; 错误
     (. some-object some-field)
-    ```
+```
 
 ## <a name="naming"></a>命名
 
@@ -625,13 +627,13 @@ published: true
 * 当方法或宏不能在STM中安全使用时，须以感叹号结尾，如`reset!`。
 * 命名类型转换函数时使用`->`，而非`to`。
 
-    ```Clojure
+```clojure
     ;; 正确
     (defn f->c ...)
 
     ;; 不够好
     (defn f-to-c ...)
-    ```
+```
 
 * 对于可供重绑定的变量（即动态变量），使用星号括起，如`*earmuffs*`。
 * 无需对常量名进行特殊的标识，因为所有的变量都应该是常量，除非有特别说明。
@@ -659,17 +661,17 @@ published: true
 * 避免使用列表（list）来存储数据（除非它真的就是你想要的）。
 * 优先使用关键字（keyword），而非普通的哈希键：
 
-    ```Clojure
+```clojure
     ;; 正确
     {:name "Bruce" :age 30}
 
     ;; 错误
     {"name" "Bruce" "age" 30}
-    ```
+```
 
 * 编写集合时，优先使用内置的语法形式，而非构造函数。但是，在定义唯一值集合（set）时，只有当元素都是常量时才可使用内置语法，否则应使用构造函数，如下所示：
 
-    ```Clojure
+```clojure
     ;; 正确
     [1 2 3]
     #{1 2 3}
@@ -679,13 +681,13 @@ published: true
     (vector 1 2 3)
     (hash-set 1 2 3)
     #{(func1) (func2)} ; 若(func1)和(func2)的值相等，则会抛出运行时异常。
-    ```
+```
 
 * 避免使用数值索引来访问集合元素。
 
 * 优先使用关键字来获取哈希表（map）中的值。
 
-    ```Clojure
+```clojure
     (def m {:name "Bruce" :age 30})
 
     ;; 正确
@@ -696,22 +698,22 @@ published: true
 
     ;; 错误——可能抛出空指针异常
     (m :name)
-    ```
+```
 
 * 集合可以被用作函数：
 
-    ```Clojure
+```clojure
     ;; 正确
     (filter #{\a \e \o \i \u} "this is a test")
 
     ;; 缺点——不够美观
-    ```
+```
 
 * 关键字可以被用作函数：
 
-    ```Clojure
+```clojure
     ((juxt :a :b) {:a "ala" :b "bala"})
-    ```
+```
 
 * 只有在非常强调性能的情况下才可使用瞬时集合（transient collection）。
 
@@ -742,13 +744,13 @@ published: true
 
 * 优先使用`clojure.string`中提供的字符串操作函数，而不是Java中提供的或是自己编写的函数。
 
-    ```Clojure
+```clojure
     ;; 正确
     (clojure.string/upper-case "bruce")
 
     ;; 错误
     (.toUpperCase "bruce")
-    ```
+```
 
 ## <a name="exceptions"></a>异常
 
@@ -784,7 +786,7 @@ published: true
 
 * 分号后面要有一个空格。
 
-    ```Clojure
+```clojure
     ;;;; Frob Grovel
 
     ;;; 这段代码有以下前提：
@@ -797,20 +799,20 @@ published: true
       (quux zot
             mumble             ; Zibblefrotz.
             frotz))
-    ```
+```
 
 * 对于成句的注释，句首字母应该大写，[句与句之间用一个空格分隔](http://en.wikipedia.org/wiki/Sentence_spacing)。
 * 避免冗余的注释：
 
-    ```Clojure
+```clojure
     ;; 错误
     (inc counter) ; counter变量的值加1
-    ```
+```
 
 * 注释要和代码同步更新。过期的注释还不如没有注释。
 * 有时，使用`#_`宏要优于普通的注释：
 
-    ```Clojure
+```clojure
     ;; 正确
     (+ foo #_(bar x) delta)
 
@@ -818,7 +820,7 @@ published: true
     (+ foo
        ;; (bar x)
        delta)
-    ```
+```
 
 > 好的代码和好的笑话一样，不需要额外的解释。
 > ——Russ Olsen
@@ -832,21 +834,21 @@ published: true
 * 如果标识的描述文字超过一行，则第二行需要进行缩进。
 * 将自己姓名的首字母以及当前日期附加到标识描述文字中：
 
-    ```Clojure
+```clojure
     (defn some-fun
       []
       ;; FIXME: 这段代码在v1.2.3之后偶尔会崩溃，
       ;;        这可能和升级BarBazUtil有关。（xz 13-1-31）
       (baz))
-    ```
+```
 
 * 对于功能非常明显，实在无需添加注释的情况，可以在行尾添加一个标识：
 
-    ```Clojure
+```clojure
     (defn bar
       []
       (sleep 100)) ; OPTIMIZE
-    ```
+```
 
 * 使用`TODO`来表示需要后期添加的功能或特性。
 * 使用`FIXME`来表示需要修复的问题。
