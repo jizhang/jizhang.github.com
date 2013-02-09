@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Tutorial | Ji ZHANG's Blog]]></title>
-  <link href="http://jizhang.github.com/blog/categories/tutorial/atom.xml" rel="self"/>
-  <link href="http://jizhang.github.com/"/>
-  <updated>2013-02-09T13:57:17+08:00</updated>
-  <id>http://jizhang.github.com/</id>
+  <link href="http://blog.shzhangji.com/blog/categories/tutorial/atom.xml" rel="self"/>
+  <link href="http://blog.shzhangji.com/"/>
+  <updated>2013-02-09T14:02:44+08:00</updated>
+  <id>http://blog.shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Clojure实战(3)：使用Noir框架开发博客(下)]]></title>
-    <link href="http://jizhang.github.com/blog/2012/12/16/cia-noir-3/"/>
+    <link href="http://blog.shzhangji.com/blog/2012/12/16/cia-noir-3/"/>
     <updated>2012-12-16T20:20:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2012/12/16/cia-noir-3</id>
+    <id>http://blog.shzhangji.com/blog/2012/12/16/cia-noir-3</id>
     <content type="html"><![CDATA[<h2>Session和Cookie</h2>
 
 <p>做网络编程的人肯定对这两个概念不陌生，因此这里就不介绍它们的定义和作用了。我们要实现的需求也很简单：用户通过一个表单登录，在当前窗口中保持登录状态，并可以选择“记住我”来免去关闭并新开窗口之后的重登录。显然，前者使用Session，后者使用Cookie。下面我们就来看Noir对这两者的支持。</p>
@@ -338,9 +338,9 @@ $ java -jar blog-0.1.0-SNAPSHOT-standalone.jar
   
   <entry>
     <title type="html"><![CDATA[Clojure实战(2)：使用Noir框架开发博客(中)]]></title>
-    <link href="http://jizhang.github.com/blog/2012/12/08/cia-noir-2/"/>
+    <link href="http://blog.shzhangji.com/blog/2012/12/08/cia-noir-2/"/>
     <updated>2012-12-08T12:09:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2012/12/08/cia-noir-2</id>
+    <id>http://blog.shzhangji.com/blog/2012/12/08/cia-noir-2</id>
     <content type="html"><![CDATA[<h2>在Eclipse中编写Clojure代码</h2>
 
 <p>从这章起我们就要开始真正的编码了。Vim可能是很多程序员的选择，但如果你像我一样更喜欢GUI界面，那就来看看如何在Eclipse中编写Clojure代码吧。</p>
@@ -716,9 +716,9 @@ mysql&gt; CREATE TABLE</code>article` (</p>
   
   <entry>
     <title type="html"><![CDATA[Clojure实战(1)：使用Noir框架开发博客(上)]]></title>
-    <link href="http://jizhang.github.com/blog/2012/11/25/cia-noir-1/"/>
+    <link href="http://blog.shzhangji.com/blog/2012/11/25/cia-noir-1/"/>
     <updated>2012-11-25T16:58:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2012/11/25/cia-noir-1</id>
+    <id>http://blog.shzhangji.com/blog/2012/11/25/cia-noir-1</id>
     <content type="html"><![CDATA[<h2>前言</h2>
 
 <p>为什么要学习一门新的语言？我的想法很简单，平时OO、PO代码写多了，却从未接触过函数式编程，不免有些遗憾。考察下来，Clojure可以用来尝尝鲜，所以就决定学一学。为了给自己的学习留下些记录，就有了这样一份教程。</p>
