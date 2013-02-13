@@ -66,9 +66,13 @@ MapReduce，简称mapred，是Hadoop的核心概念之一。可以将其理解�
 在本示例中，我们处理的原始数据是文本文件，Hadoop会逐行读取并调用Map函数。Map函数会接收到两个参数：`key`是一个长整型，表示该行在整个文件中的偏移量，很少使用；`value`则是该行的内容。以下是将一行文字拆分成单词的Map函数：
 
 ```clojure
-(ns ...
+;; src/cia_hadoop/wordcount.clj
+
+(ns cia-hadoop.wordcount
+  (:require [clojure-hadoop.wrap :as wrap]
+            [clojure-hadoop.defjob :as defjob])
   (:import [java.util StringTokenizer])
-  ...)
+  (:use clojure-hadoop.job))
 
 (defn my-map [key value]
   (map (fn [token] [token 1])
@@ -118,6 +122,66 @@ MapReduce，简称mapred，是Hadoop的核心概念之一。可以将其理解�
 ```
 
 和Map函数相同，Reduce函数的返回值也是一个序列，其元素是一个个`[key value]`。注意，函数体中的`(reduce f coll)`是Clojure的内置函数，其作用是：取`coll`序列的第1、2个元素作为参数执行函数`f`，将结果和`coll`序列的第3个元素作为参数执行函数`f`，依次类推。因此`(reduce + [1 2 3])`等价于`(+ (+ 1 2) 3)`。
+
+#### 定义脚本
+
+有了Map和Reduce函数，我们就可以定义一个完整的脚本了：
+
+```clojure
+(defjob/defjob job
+  :map my-map
+  :map-reader wrap/int-string-map-reader
+  :reduce my-reduce
+  :input-format :text
+  :output-format :text
+  :compress-output false
+  :replace true
+  :input "README.md"
+  :output "out-wordcount")
+```
+
+简单说明一下这些配置参数：`:map`和`:reduce`分别指定Map和Reduce函数；`map-reader`表示读取数据文件时采用键为`int`、值为`string`的形式；`:input-format`至`compress-output`指定了输入输出的文件格式，这里采用非压缩的文本形式，方便阅览；`:replace`表示每次执行时覆盖上一次的结果；`:input`和`:output`则是输入的文件和输出的目录。
+
+#### 执行脚本
+
+我们可以采用Clojure的测试功能来执行脚本：
+
+```clojure
+;; test/cia_hadoop/wordcount_test.clj
+
+(ns cia-hadoop.wordcount-test
+  (:use clojure.test
+        clojure-hadoop.job
+        cia-hadoop.wordcount))
+
+(deftest test-wordcount
+  (is (run job)))
+```
+
+尔后执行：
+
+```bash
+$ lein test cia-hadoop.wordcount-test
+...
+13/02/14 00:25:52 INFO mapred.JobClient:  map 0% reduce 0%
+..
+13/02/14 00:25:58 INFO mapred.JobClient:  map 100% reduce 100%
+...
+$ cat out-wordcount/part-r-00000
+...
+"java"  1
+"lein"	3
+"locally"	2
+"on"	1
+...
+```
+
+如果想要将MapReduce脚本放到Hadoop集群中执行，可以采用以下命令：
+
+```bash
+$ lein uberjar
+$ hadoop jar target/cia-hadoop-0.1.0-SNAPSHOT-standalone.jar clojure_hadoop.job -job cia-hadoop.wordcount/job
+```
 
 示例：统计浏览器类型
 --------------------
