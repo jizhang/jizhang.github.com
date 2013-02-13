@@ -131,7 +131,7 @@ CREATE TABLE `user` (
     (str padding sig)))
 ```
 
-`padding`的作用是当计算得到的MD5字符串不足32位时做补零的操作。如何得到一个包含N个"0"的字符串？这就是`(apply...)`那串代码做的工作。简单来说，`repeat`函数会返回一个序列，`apply`函数首先使用第1、第2个元素作为参数调用`str`函数，然后将执行结果和第3个元素作为参数调用`str`，依此类推。因此，`(apply str [1 2 3])`等价于`(str (str 1 2) 3)`。`clojure.string/join`提供了将序列连接为字符串的功能，用法是`(clojure.string/join (repeat ...))`，查看它的源码`(source clojure.string/join)`可以发现，它实质上也是采用了`apply`函数。
+`padding`的作用是当计算得到的MD5字符串不足32位时做补零的操作。如何得到一个包含N个"0"的字符串？这就是`(apply...)`那串代码做的工作。简单来说，`(repeat n x)`函数会返回一个包含`n`个`x`元素的序列；`(apply f coll)`函数则是将`coll`序列所包含的元素作为参数传递给`f`函数，即`(apply str ["0" "0" "0"])`等价于`(str "0" "0" "0")`。`clojure.string/join`提供了将序列连接为字符串的功能，用法是`(clojure.string/join (repeat ...))`，查看它的源码`(source clojure.string/join)`可以发现，它实质上也是采用了`apply`函数。
 
 序列是Clojure的一个很重要的数据结构，有多种函数和惯用法，需要逐步积累这些知识。
 
