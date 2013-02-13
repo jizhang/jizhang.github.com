@@ -110,12 +110,14 @@ MapReduce，简称mapred，是Hadoop的核心概念之一。可以将其理解�
 
 #### 编写Reduce函数
 
+从上文的图表中可以看到，Map函数处理完成后，Hadoop会对结果按照键进行排序，并使用`key, [value1 value2 ...]`的形式调用Reduce函数。在clojure-hadoop中，Reduce函数的第二个参数是一个函数，其返回结果才是值的序列：
+
 ```clojure
 (defn my-reduce [key values-fn]
   [[key (reduce + (values-fn))]])
 ```
 
-
+和Map函数相同，Reduce函数的返回值也是一个序列，其元素是一个个`[key value]`。注意，函数体中的`(reduce f coll)`是Clojure的内置函数，其作用是：取`coll`序列的第1、2个元素作为参数执行函数`f`，将结果和`coll`序列的第3个元素作为参数执行函数`f`，依次类推。因此`(reduce + [1 2 3])`等价于`(+ (+ 1 2) 3)`。
 
 示例：统计浏览器类型
 --------------------
