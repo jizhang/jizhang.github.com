@@ -61,6 +61,49 @@ MapReduce，简称mapred，是Hadoop的核心概念之一。可以将其理解�
 
 中间Shuffle部分的功能是将Map输出的数据按键排序，交由Reduce处理。整个过程全部由Hadoop把控，开发者只需编写`Map`和`Reduce`函数，这也是Hadoop强大之处。
 
+#### 编写Map函数
+
+在本示例中，我们处理的原始数据是文本文件，Hadoop会逐行读取并调用Map函数。Map函数会接收到两个参数：`key`是一个长整型，表示该行在整个文件中的偏移量，很少使用；`value`则是该行的内容。以下是将一行文字拆分成单词的Map函数：
+
+```clojure
+(ns ...
+  (:import [java.util StringTokenizer])
+  ...)
+
+(defn my-map [key value]
+  (map (fn [token] [token 1])
+       (enumeration-seq (StringTokenizer. value))))
+```
+
+可以看到，这是一个纯粹的Clojure函数，并没有调用Hadoop的API。函数体虽然只有两行，但还是包含了很多知识点的：
+
+`(map f coll)`函数的作用是将函数`f`应用到序列`coll`的每个元素上，并返回一个新的序列。如`(map inc [1 2 3])`会对每个元素做加1操作（参考`(doc inc)`），返回`[2 3 4]`。值得一提的是，`map`函数返回的是一个惰性序列（lazy sequence），即序列元素不会一次性完全生成，而是在遍历过程中逐个生成，这在处理元素较多的序列时很有优势。
+
+`map`函数接收的参数自然不会只限于Clojure内部函数，我们可以将自己定义的函数传递给它：
+
+```clojure
+(defn my-inc [x]
+  (+ x 1))
+
+(map my-inc [1 2 3]) ; -> [2 3 4]
+```
+
+我们更可以传递一个匿名函数给`map`。上一章提过，定义匿名函数的方式是使用`fn`，另外还可使用`#(...)`简写：
+
+```clojure
+(map (fn [x] (+ x 1)) [1 2 3])
+(map #(+ % 1) [1 2 3])
+```
+
+对于含有多个参数的情况：
+
+```clojure
+((fn [x y] (+ x y)) 1 2) ; -> 3
+(#(+ %1 %2) 1 2) ; -> 3
+```
+
+`my-map`中的`(fn [token] [token 1])`即表示接收参数`token`，返回一个向量`[token 1]`，其作用等价于`#(vector % 1)`。为何是`[token 1]`，是因为Hadoop的数据传输都是以键值对的形式进行的，如`["apple" 1]`即表示“apple”这个单词出现一次。
+
 示例：统计浏览器类型
 --------------------
 
