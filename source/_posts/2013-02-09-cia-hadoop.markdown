@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Clojure实战(1)：编写Hadoop MapReduce脚本"
+title: "Clojure实战(4)：编写Hadoop MapReduce脚本"
 date: 2013-02-09 16:43
 comments: true
 categories: Tutorial
@@ -55,9 +55,11 @@ $ lein new cia-hadoop
 
 MapReduce，简称mapred，是Hadoop的核心概念之一。可以将其理解为处理问题的一种方式，即将大问题拆分成多个小问题来分析和解决，最终合并成一个结果。其中拆分的过程就是Map，合并的过程就是Reduce。
 
-以Wordcount为例，将一段段文字划分成一个个单词的过程就是Map。这个过程是可以并行执行的，即将文章拆分成多个段落，每个段落分别在不同的节点上执行划分单词的操作。这个过程结束后，我们便可以统计各个单词出现的次数，这也就是Reduce的过程。同样，Reduce也是可以并发执行的，先将部分单词计算出中间结果，之后汇总成最终结果。整个过程如下图所示：
+以Wordcount为例，将一段文字划分成一个个单词的过程就是Map。这个过程是可以并行执行的，即将文章拆分成多个段落，每个段落分别在不同的节点上执行划分单词的操作。这个过程结束后，我们便可以统计各个单词出现的次数，这也就是Reduce的过程。同样，Reduce也是可以并发执行的。整个过程如下图所示：
 
+![Wordcount](/images/cia-hadoop/wordcount.png)
 
+中间Shuffle部分的功能是将Map输出的数据按键排序，交由Reduce处理。整个过程全部由Hadoop把控，开发者只需编写`Map`和`Reduce`函数，这也是Hadoop强大之处。
 
 示例：统计浏览器类型
 --------------------
