@@ -5,7 +5,6 @@ date: 2013-02-09 16:43
 comments: true
 categories: Tutorial
 tags: [clojure, hadoop]
-published: false
 ---
 
 Hadoop简介
