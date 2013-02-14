@@ -17,10 +17,12 @@ Hadoop简介
 
 Hadoop项目是由Java语言编写的，运行在JVM之上，因此我们可以直接使用Clojure来编写MapReduce脚本，这也是本文的主题。Hadoop集群的搭建不在本文讨论范围内，而且运行MapReduce脚本也无需搭建测试环境。
 
+<!-- more -->
+
 clojure-hadoop类库
 ------------------
 
-Hadoop提供的API是面向Java语言的，如果不想在Clojure中过多地操作Java对象，那就需要对API进行包装（wrapper），好在已经有人为我们写好了，它就是[clojure-hadoop]（https://github.com/alexott/clojure-hadoop）。
+Hadoop提供的API是面向Java语言的，如果不想在Clojure中过多地操作Java对象，那就需要对API进行包装（wrapper），好在已经有人为我们写好了，它就是[clojure-hadoop](https://github.com/alexott/clojure-hadoop)。
 
 从clojure-hadoop的项目介绍中可以看到，它提供了不同级别的包装，你可以选择完全规避对Hadoop类型和对象的操作，使用纯Clojure语言来编写脚本；也可以部分使用Hadoop对象，以提升性能（因为省去了类型转换过程）。这里我们选择前一种，即完全使用Clojure语言。
 
@@ -213,7 +215,41 @@ $ hadoop jar target/cia-hadoop-0.1.0-SNAPSHOT-standalone.jar clojure_hadoop.job 
 
 ### 解析JSON字符串
 
+Clojure除了内置函数之外，周边还有一个名为`clojure.contrib`的类库，其中囊括了各类常用功能，包括JSON处理。目前`clojure.contrib`中的各个组件已经分开发行，读者可以到 https://github.com/clojure 中浏览。
+
+处理JSON字符串时，首先在项目声明文件中添加依赖项`[org.clojure/data.json "0.2.1"]`，然后就能使用了：
+
+```clojure
+user=> (require '[clojure.data.json :as json])
+user=> (json/read-str "{\"a\":1,\"b\":2}")
+{"a" 1, "b" 2}
+user=> (json/write-str [1 2 3])
+"[1,2,3]"
+```
+
 ### 正则表达式
+
+Clojure提供了一系列的内置函数来使用正则表达式，其实质上是对`java.util.regex`命名空间的包装。
+
+```clojure
+user=> (def ptrn #"[0-9]+") ; #"..."是定义正则表达式对象的简写形式
+user=> (def ptrn (re-pattern "[0-9]+")) ; 和上式等价
+user=> (re-matches ptrn "123") ; 完全匹配
+"123"
+user=> (re-find ptrn "a123") ; 返回第一个匹配项
+"123"
+user=> (re-seq ptrn "a123b456") ; 返回匹配项序列（惰性序列）
+("123" "456")
+user=> (re-find #"([a-z]+)/([0-9]+)" "a/1") ; 子模式
+["a/1" "a" "1"]
+user=> (def m (re-matcher #"([a-z]+)/([0-9]+)" "a/1 b/2")) ; 返回一个Matcher对象
+user=> (re-find m) ; 返回第一个匹配
+["a/1" "a" "1"]
+user=> (re-groups m) ; 获取当前匹配
+["a/1" "a" "1"]
+user=> (re-find m) ; 返回下一个匹配，或nil
+["b/2" "b" "2"]
+```
 
 ### Map函数
 
