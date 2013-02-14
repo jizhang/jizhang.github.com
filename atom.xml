@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://blog.shzhangji.com/atom.xml" rel="self"/>
   <link href="http://blog.shzhangji.com/"/>
-  <updated>2013-02-09T14:02:44+08:00</updated>
+  <updated>2013-02-14T11:07:48+08:00</updated>
   <id>http://blog.shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -1954,7 +1954,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><code>padding</code>的作用是当计算得到的MD5字符串不足32位时做补零的操作。如何得到一个包含N个&#8221;0&#8221;的字符串？这就是<code>(apply...)</code>那串代码做的工作。简单来说，<code>repeat</code>函数会返回一个序列，<code>apply</code>函数首先使用第1、第2个元素作为参数调用<code>str</code>函数，然后将执行结果和第3个元素作为参数调用<code>str</code>，依此类推。因此，<code>(apply str [1 2 3])</code>等价于<code>(str (str 1 2) 3)</code>。<code>clojure.string/join</code>提供了将序列连接为字符串的功能，用法是<code>(clojure.string/join (repeat ...))</code>，查看它的源码<code>(source clojure.string/join)</code>可以发现，它实质上也是采用了<code>apply</code>函数。</p>
+<p><code>padding</code>的作用是当计算得到的MD5字符串不足32位时做补零的操作。如何得到一个包含N个&#8221;0&#8221;的字符串？这就是<code>(apply...)</code>那串代码做的工作。简单来说，<code>(repeat n x)</code>函数会返回一个包含<code>n</code>个<code>x</code>元素的序列；<code>(apply f coll)</code>函数则是将<code>coll</code>序列所包含的元素作为参数传递给<code>f</code>函数，即<code>(apply str ["0" "0" "0"])</code>等价于<code>(str "0" "0" "0")</code>。<code>clojure.string/join</code>提供了将序列连接为字符串的功能，用法是<code>(clojure.string/join (repeat ...))</code>，查看它的源码<code>(source clojure.string/join)</code>可以发现，它实质上也是采用了<code>apply</code>函数。</p>
 
 <p>序列是Clojure的一个很重要的数据结构，有多种函数和惯用法，需要逐步积累这些知识。</p>
 
