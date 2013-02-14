@@ -24,7 +24,7 @@ Hadoop提供的API是面向Java语言的，如果不想在Clojure中过多地操
 
 从clojure-hadoop的项目介绍中可以看到，它提供了不同级别的包装，你可以选择完全规避对Hadoop类型和对象的操作，使用纯Clojure语言来编写脚本；也可以部分使用Hadoop对象，以提升性能（因为省去了类型转换过程）。这里我们选择前一种，即完全使用Clojure语言。
 
-示例：Wordcount
+示例1：Wordcount
 ---------------
 
 Wordcount，统计文本文件中每个单词出现的数量，可以说是数据处理领域的“Hello, world!”。这一节我们就通过它来学习如何编写MapReduce脚本。
@@ -183,8 +183,41 @@ $ lein uberjar
 $ hadoop jar target/cia-hadoop-0.1.0-SNAPSHOT-standalone.jar clojure_hadoop.job -job cia-hadoop.wordcount/job
 ```
 
-示例：统计浏览器类型
+示例2：统计浏览器类型
 --------------------
+
+下面我们再来看一个更为实际的示例：从用户的访问日志中统计浏览器类型。
+
+### 需求概述
+
+用户访问网站时，页面中会有段JS请求，将用户的IP、User-Agent等信息发送回服务器，并记录成文本文件的形式：
+
+```text
+{"stamp": "1346376858286", "ip": "58.22.113.189", "agent": "Mozilla/5.0 (iPad; CPU OS 5_0_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A405 Safari/7534.48.3"}
+{"stamp": "1346376858354", "ip": "116.233.51.2", "agent": "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)"}
+{"stamp": "1346376858365", "ip": "222.143.28.2", "agent": "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)"}
+{"stamp": "1346376858423", "ip": "123.151.144.40", "agent": "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11"}
+```
+
+我们要做的是从User-Agent中统计用户使用的浏览器类型所占比例，包括IE、Firefox、Chrome、Opera、Safari、以及其它。
+
+### User-Agent中的浏览器类型
+
+由于一些[历史原因](http://webaim.org/blog/user-agent-string-history/)，User-Agent中的信息是比较凌乱的，浏览器厂商会随意添加信息，甚至仿造其它浏览器的内容。因此在过滤时，我们需要做些额外的处理。Mozilla的[这篇文章](https://developer.mozilla.org/en-US/docs/Browser_detection_using_the_user_agent)很好地概括了如何从User-Agent中获取浏览器类型，大致如下：
+
+* IE: MSIE xyz
+* Firefox: Firefox/xyz
+* Chrome: Chrome/xyz
+* Opera: Opera/xyz
+* Safari: Safari/xyz, 且不包含 Chrome/xyz 和 Chromium/xyz
+
+### 解析JSON字符串
+
+### 正则表达式
+
+### Map函数
 
 小结
 ----
+
+本章我们简单介绍了Hadoop这一用于大数据处理的开源项目，以及如何借助clojure-hadoop类库编写MapReduce脚本，并在本地和集群上运行。Hadoop已经将大数据处理背后的种种细节都包装了起来，用户只需编写Map和Reduce函数，而借助Clojure语言，这一步也变的更为轻松和高效。Apache Hadoop是一个生态圈，其周边有很多开源项目，像Hive、HBase等，这里再推荐一个使用Clojure语言在Hadoop上执行查询的工具：[cascalog](https://github.com/nathanmarz/cascalog)。它的作者是[Nathan Marz](http://nathanmarz.com/)，也是我们下一章的主题——Storm实时计算框架——的作者。
