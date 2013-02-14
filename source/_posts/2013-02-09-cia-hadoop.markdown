@@ -253,6 +253,64 @@ user=> (re-find m) ; 返回下一个匹配，或nil
 
 ### Map函数
 
+```clojure
+(defn json-decode [s]
+  (try
+    (json/read-str s)
+    (catch Exception e)))
+
+(def rule-set {"ie" (partial re-find #"(?i)MSIE [0-9]+")
+               "chrome" (partial re-find #"(?i)Chrome/[0-9]+")
+               "firefox" (partial re-find #"(?i)Firefox/[0-9]+")
+               "opera" (partial re-find #"(?i)Opera/[0-9]+")
+               "safari" #(and (re-find #"(?i)Safari/[0-9]+" %)
+                              (not (re-find #"(?i)Chrom(e|ium)/[0-9]+" %)))
+               })
+
+(defn get-type [ua]
+  (if-let [rule (first (filter #((second %) ua) rule-set))]
+    (first rule)
+    "other"))
+
+(defn my-map [key value]
+  (when-let [ua (get (json-decode value) "agent")]
+    [[(get-type ua) 1]]))
+```
+
+`json-decode`函数是对`json/read-str`的包装，当JSON字符串无法正确解析时返回`nil`，而非异常终止。
+
+`rule-set`是一个`map`类型，键是浏览器名称，值是一个函数，这里都是匿名函数。`partial`用于构造新的函数，`(partial + 1)`和`#(+ 1 %)`、`(fn [x] (+ 1 x))`是等价的，可以将其看做是为函数`+`的第一个参数定义了默认值。正则表达式中的`(?i)`表示匹配时不区分大小写。
+
+`get-type`函数中，`(filter #((second %) ua) rule-set)`会用`rule-set`中的正则表达式逐一去和User-Agent字符串进行匹配，并返回第一个匹配项，也就是浏览器类型；没有匹配到的则返回`other`。
+
+### 单元测试
+
+我们可以编写一组单元测试来检验上述`my-map`函数是否正确：
+
+```clojure
+;; test/cia_hadoop/browser_test.clj
+
+(ns cia-hadoop.browser-test
+  (:use clojure.test
+        clojure-hadoop.job
+        cia-hadoop.browser))
+
+(deftest test-my-map
+  (is (= [["ie" 1]] (my-map 0 "{\"agent\":\"MSIE 6.0\"}")))
+  (is (= [["chrome" 1]] (my-map 0 "{\"agent\":\"Chrome/20.0 Safari/6533.2\"}")))
+  (is (= [["other" 1]] (my-map 0 "{\"agent\":\"abc\"}")))
+  (is (nil? (my-map 0 "{"))))
+
+(deftest test-browser
+  (is (run job)))
+```
+
+其中`deftest`和`is`都是`clojure.test`命名空间下定义的。
+
+```bash
+$ lein test cia-hadoop.browser-test
+```
+
 小结
 ----
 
