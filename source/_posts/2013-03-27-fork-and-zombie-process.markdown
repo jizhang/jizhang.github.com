@@ -5,7 +5,6 @@ date: 2013-03-27 20:18
 comments: true
 categories: Notes
 tags: [programming]
-published: false
 ---
 
 使用fork()函数派生出多个子进程来并行执行程序的不同代码块，是一种常用的编程泛型。特别是在网络编程中，父进程初始化后派生出指定数量的子进程，共同监听网络端口并处理请求，从而达到扩容的目的。
