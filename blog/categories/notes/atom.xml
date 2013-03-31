@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Notes | Ji ZHANG's Blog]]></title>
   <link href="http://blog.shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
   <link href="http://blog.shzhangji.com/"/>
-  <updated>2013-03-31T20:41:41+08:00</updated>
+  <updated>2013-03-31T20:48:02+08:00</updated>
   <id>http://blog.shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -238,7 +238,7 @@ exit;
 <li><a href="http://linux.die.net/man/2/fork">fork(2) - Linux man page</a></li>
 <li><a href="http://linux.die.net/man/2/waitpid">waitpid(2) - Linux man page</a></li>
 <li><a href="http://book.jd.com/10137688.html">UNIX环境高级编程（英文版）（第2版）</a></li>
-<li><a href="http://wangxiaoyu.blog.51cto.com/922065/367589">关于理解Perl的fork函数的一个范例</a></li>
+<li><a href="http://tech.idv2.com/2006/10/14/linux-multiprocess-info/">Linux多进程相关内容</a></li>
 </ul>
 
 ]]></content>
