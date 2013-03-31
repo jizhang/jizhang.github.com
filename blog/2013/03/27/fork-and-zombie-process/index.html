@@ -156,6 +156,11 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
+
+
+<!-- more -->
+
+
 <p>调用fork()函数后，系统会将当前进程的绝大部分资源拷贝一份（其中的copy-on-write技术这里不详述），该函数的返回值有三种情况，分别是：</p>
 
 <ul>
@@ -388,6 +393,16 @@
 
 
 <p>其思路和C语言基本是一致的。如果想要忽略SIGCHLD，可使用<code>$SIG{CHLD} = 'IGNORE';</code>，但还是要考虑BSD系统上的限制。</p>
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="http://linux.die.net/man/2/fork">fork(2) - Linux man page</a></li>
+<li><a href="http://linux.die.net/man/2/waitpid">waitpid(2) - Linux man page</a></li>
+<li><a href="http://book.jd.com/10137688.html">UNIX环境高级编程（英文版）（第2版）</a></li>
+<li><a href="http://wangxiaoyu.blog.51cto.com/922065/367589">关于理解Perl的fork函数的一个范例</a></li>
+</ul>
+
 </div>
 
 
