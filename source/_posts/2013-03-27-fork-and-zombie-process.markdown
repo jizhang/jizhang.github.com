@@ -199,5 +199,5 @@ if ($pid > 0) {
 * [fork(2) - Linux man page](http://linux.die.net/man/2/fork)
 * [waitpid(2) - Linux man page](http://linux.die.net/man/2/waitpid)
 * [UNIX环境高级编程（英文版）（第2版）](http://book.jd.com/10137688.html)
-* [关于理解Perl的fork函数的一个范例](http://wangxiaoyu.blog.51cto.com/922065/367589)
+* [Linux多进程相关内容](http://tech.idv2.com/2006/10/14/linux-multiprocess-info/)
 
