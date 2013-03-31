@@ -39,6 +39,8 @@ int main(int argc, char **argv) {
 }
 ```
 
+<!-- more -->
+
 调用fork()函数后，系统会将当前进程的绝大部分资源拷贝一份（其中的copy-on-write技术这里不详述），该函数的返回值有三种情况，分别是：
 
 * 大于0，表示当前进程为父进程，返回值是子进程号；
@@ -190,3 +192,12 @@ if ($pid > 0) {
 ```
 
 其思路和C语言基本是一致的。如果想要忽略SIGCHLD，可使用`$SIG{CHLD} = 'IGNORE';`，但还是要考虑BSD系统上的限制。
+
+参考资料
+--------
+
+* [fork(2) - Linux man page](http://linux.die.net/man/2/fork)
+* [waitpid(2) - Linux man page](http://linux.die.net/man/2/waitpid)
+* [UNIX环境高级编程（英文版）（第2版）](http://book.jd.com/10137688.html)
+* [关于理解Perl的fork函数的一个范例](http://wangxiaoyu.blog.51cto.com/922065/367589)
+
