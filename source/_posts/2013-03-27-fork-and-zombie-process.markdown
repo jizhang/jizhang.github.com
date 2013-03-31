@@ -58,7 +58,7 @@ vagrant  14877 14860  0 06:09 pts/0    00:00:00 [myfork] <defunct>
 vagrant  14879  2784  0 06:09 pts/1    00:00:00 grep fork
 ```
 
-可以看到子进程创建成功了，进程号也有对应关系。但是每个子进程后面都跟有“<defunct>”标识，即表示该进程是一个僵尸进程。
+可以看到子进程创建成功了，进程号也有对应关系。但是每个子进程后面都跟有“defunct”标识，即表示该进程是一个僵尸进程。
 
 这段程序会每五秒创建一个新的子进程，如果不加以回收，那就会占满进程表，使得系统再无法创建进程。这也是僵尸进程最大的危害。
 
@@ -76,6 +76,76 @@ if (pid > 0) {
 } else ...
 ```
 
-编译执行后会发现进程表中不再出现<defunct>进程了，即子进程已被完全回收。因此上文中的“等待”指的是主进程等待子进程结束，获取子进程的结束状态信息，这时内核才会回收子进程。
+编译执行后会发现进程表中不再出现defunct进程了，即子进程已被完全回收。因此上文中的“等待”指的是主进程等待子进程结束，获取子进程的结束状态信息，这时内核才会回收子进程。
 
 除了通过“等待”来回收子进程，主进程退出也会回收子进程。这是因为主进程退出后，init进程（PID=1）会接管这些僵尸进程，该进程一定会调用wait()函数（或其他类似函数），从而保证僵尸进程得以回收。
+
+SIGCHLD信号
+-----------
+
+通常，父进程不会始终处于等待状态，它还需要执行其它代码，因此“等待”的工作会使用信号机制来完成。
+
+在子进程终止时，内核会发送SIGCHLD信号给父进程，因此父进程可以添加信号处理函数，并在该函数中调用wait()函数，以防止僵尸进程的产生。
+
+```c
+// myfork2.c
+
+#include <unistd.h>
+#include <stdio.h>
+#include <signal.h>
+#include <time.h>
+#include <sys/wait.h>
+
+void signal_handler(int signo) {
+    if (signo == SIGCHLD) {
+        pid_t pid;
+        while ((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
+            printf("SIGCHLD pid %d\n", pid);
+        }
+    }
+}
+
+void mysleep(int sec) {
+    time_t start = time(NULL), elapsed = 0;
+    while (elapsed < sec) {
+        sleep(sec - elapsed);
+        elapsed = time(NULL) - start;
+    }
+}
+
+int main(int argc, char **argv) {
+
+    signal(SIGCHLD, signal_handler);
+
+    while (1) {
+        pid_t pid = fork();
+        if (pid > 0) {
+            // parent process
+            mysleep(5);
+        } else if (pid == 0) {
+            // child process
+            printf("child pid %d\n", getpid());
+            return 0;
+        } else {
+            fprintf(stderr, "fork error\n");
+            return 2;
+        }
+    }
+}
+```
+
+代码执行结果：
+
+```bash
+$ gcc myfork2.c -o myfork2 && ./myfork2
+child pid 17422
+SIGCHLD pid 17422
+child pid 17423
+SIGCHLD pid 17423
+```
+
+其中，signal()用于注册信号处理函数，该处理函数接收一个signo参数，用来标识信号的类型。
+
+waitpid()的功能和wait()类似，但提供了额外的选项。`wait(NULL)`等价于`waitpid(-1, NULL, 0)`。
+
+最后，由于默认的sleep()函数会在接收到信号时立即返回，因此为了方便演示，这里定义了mysleep()函数。
