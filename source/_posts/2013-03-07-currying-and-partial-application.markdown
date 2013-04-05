@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "柯里化与偏应用"
+title: "柯里化与偏应用（JavaScript描述）"
 date: 2013-03-07 20:59
 comments: true
 categories: Translation
@@ -24,3 +24,71 @@ published: false
 
 <!-- more -->
 
+偏应用
+------
+
+偏应用的概念很容易理解，我们可以使用加法函数来做简单的演示，但如果你不介意的话，我想引用[allong.es](http://allong.es/)这一JavaScript类库中的代码来做演示，而且它也是会在日常开发中用到的代码。
+
+作为铺垫，我们首先实现一个`map`函数，用来将某个函数应用到数组的每个元素上：
+
+```javascript
+var __map = [].map;
+
+function map (list, unaryFn) {
+  return __map.call(list, unaryFn);
+};
+
+function square (n) {
+  return n * n;
+};
+
+map([1, 2, 3], square);
+  //=> [1, 4, 9]
+```
+
+显然，`map`是二元函数，`square`是一元函数。当我们使用`[1, 2, 3]`和`square`作为参数来调用`map`时，我们是将这两个参数 *应用（Apply）* 到`map`函数，并获得结果。
+
+由于`map`函数接收两个参数，我们也提供了两个参数，所以说这是一次 *完整应用* 。那何谓偏应用（或部分应用）呢？即提供少于指定数量的参数。如，仅提供一个参数来调用`map`。
+
+如果我们只提供一个参数来调用`map`会怎么样？我们无法得到所要的结果，只能得到一个新的一元函数，通过调用这个函数并传递缺失的参数后，才能获得结果。
+
+假设现在我们只提供一个参数给`map`，这个参数是`unaryFn`。我们从后往前来逐步实现，首先为`map`函数创建一个包装函数：
+
+```javascript
+function mapWrapper (list, unaryFn) {
+  return map(list, unaryFn);
+};
+```
+
+然后，我们将这个二元函数分割成两个嵌套的一元函数：
+
+```javascript
+function mapWrapper (unaryFn) {
+  return function (list) {
+    return map(list, unaryFn);
+  };
+};
+```
+
+这样一来，我们就能每次仅传递一个参数来进行调用了：
+
+```javascript
+mapWrapper(square)([1, 2, 3]);
+  //=> [1, 4, 9]
+```
+
+和之前的`map`函数相较，新的函数`mapWrapper`是一元函数，它的返回值是另一个一元函数，需要再次调用它才能获得返回值。那么偏应用要从何体现？让我们从第二个一元函数着手：
+
+```javascript
+var squareAll = mapWrapper(square);
+  //=> [function]
+
+squareAll([1, 2, 3]);
+  //=> [1, 4, 9]
+squareAll([5, 7, 5]);
+  //=> [25, 49, 25]
+```
+
+我们首先将`square`这个参数部分应用到了`map`函数，并获得一个一元函数`squareAll`，它能实现我们需要的功能。偏应用后的`map`函数十分便捷，而[allong.es](http://allong.es/)库中提供的`splat`函数做的也是相同的事情。
+
+如果每次想要使用偏应用都需要手动编写这样一个包装函数，程序员显然会想到要自动化实现它。这就是下一节的内容：柯里化。
