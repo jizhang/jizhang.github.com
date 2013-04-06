@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Notes | Ji ZHANG's Blog]]></title>
-  <link href="http://blog.shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
-  <link href="http://blog.shzhangji.com/"/>
-  <updated>2013-04-06T12:47:37+08:00</updated>
-  <id>http://blog.shzhangji.com/</id>
+  <link href="http://shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
+  <link href="http://shzhangji.com/"/>
+  <updated>2013-04-06T12:51:36+08:00</updated>
+  <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[fork()与僵尸进程]]></title>
-    <link href="http://blog.shzhangji.com/blog/2013/03/27/fork-and-zombie-process/"/>
+    <link href="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/"/>
     <updated>2013-03-27T20:18:00+08:00</updated>
-    <id>http://blog.shzhangji.com/blog/2013/03/27/fork-and-zombie-process</id>
+    <id>http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process</id>
     <content type="html"><![CDATA[<p>使用fork()函数派生出多个子进程来并行执行程序的不同代码块，是一种常用的编程泛型。特别是在网络编程中，父进程初始化后派生出指定数量的子进程，共同监听网络端口并处理请求，从而达到扩容的目的。</p>
 
 <p>但是，在使用fork()函数时若处理不当，很容易产生僵尸进程。根据UNIX系统的定义，僵尸进程是指子进程退出后，它的父进程没有“等待”该子进程，这样的子进程就会成为僵尸进程。何谓“等待”？僵尸进程的危害是什么？以及要如何避免？这就是本文将要阐述的内容。</p>
