@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="原文：http://raganwald.com/2013/03/07/currying-and-partial-application.html 作者：Reginald Braithwaite 上周末我参加了wroc_love.rb大会，其间Steve Klabnik的一张PPT中提到了偏应用（ &hellip;">
+  <meta name="description" content="原文：http://raganwald.com/2013/03/07/currying-and-partial-application.html 上周末我参加了wroc_love.rb大会，其间Steve Klabnik的一张PPT中提到了偏应用（Partial Application）和柯里化（ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -108,8 +108,6 @@
 
 <div class="entry-content"><p>原文：<a href="http://raganwald.com/2013/03/07/currying-and-partial-application.html">http://raganwald.com/2013/03/07/currying-and-partial-application.html</a></p>
 
-<p>作者：<a href="http://raganwald.com/">Reginald Braithwaite</a></p>
-
 <p>上周末我参加了<a href="http://wrocloverb.com/">wroc_love.rb大会</a>，其间<a href="http://steveklabnik.com/">Steve Klabnik</a>的一张PPT中提到了<a href="https://en.wikipedia.org/wiki/Partial_application">偏应用（Partial Application）</a>和<a href="https://en.wikipedia.org/wiki/Currying">柯里化（Currying）</a>，并说这两者之间的区别如今已经不重要了。但是我不这么认为。</p>
 
 <p>在这周发布的博文中，我用五种方式对<code>this</code>和闭包做了解释，但只有三到四种提到了柯里化。所以这篇博文就重点来谈谈这个。</p>
@@ -158,7 +156,7 @@
 
 <p>显然，<code>map</code>是二元函数，<code>square</code>是一元函数。当我们使用<code>[1, 2, 3]</code>和<code>square</code>作为参数来调用<code>map</code>时，我们是将这两个参数 <em>应用（Apply）</em> 到<code>map</code>函数，并获得结果。</p>
 
-<p>由于<code>map</code>函数接收两个参数，我们也提供了两个参数，所以说这是一次 <em>完整应用</em> 。那何谓偏应用（或部分应用）呢？即提供少于指定数量的参数。如，仅提供一个参数来调用<code>map</code>。</p>
+<p>由于<code>map</code>函数接收两个参数，我们也提供了两个参数，所以说这是一次 <em>完整应用</em> 。那何谓偏应用（或部分应用）呢？其实就是提供少于指定数量的参数。如，仅提供一个参数来调用<code>map</code>。</p>
 
 <p>如果我们只提供一个参数来调用<code>map</code>会怎么样？我们无法得到所要的结果，只能得到一个新的一元函数，通过调用这个函数并传递缺失的参数后，才能获得结果。</p>
 

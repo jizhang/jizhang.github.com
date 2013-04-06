@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Translation | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/translation/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2013-04-06T20:24:56+08:00</updated>
+  <updated>2013-04-06T20:31:33+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -19,8 +19,6 @@
     <updated>2013-03-07T20:59:00+08:00</updated>
     <id>http://shzhangji.com/blog/2013/03/07/currying-and-partial-application</id>
     <content type="html"><![CDATA[<p>原文：<a href="http://raganwald.com/2013/03/07/currying-and-partial-application.html">http://raganwald.com/2013/03/07/currying-and-partial-application.html</a></p>
-
-<p>作者：<a href="http://raganwald.com/">Reginald Braithwaite</a></p>
 
 <p>上周末我参加了<a href="http://wrocloverb.com/">wroc_love.rb大会</a>，其间<a href="http://steveklabnik.com/">Steve Klabnik</a>的一张PPT中提到了<a href="https://en.wikipedia.org/wiki/Partial_application">偏应用（Partial Application）</a>和<a href="https://en.wikipedia.org/wiki/Currying">柯里化（Currying）</a>，并说这两者之间的区别如今已经不重要了。但是我不这么认为。</p>
 
@@ -58,7 +56,7 @@ var __map = [].map;</p>
 
 <p>显然，<code>map</code>是二元函数，<code>square</code>是一元函数。当我们使用<code>[1, 2, 3]</code>和<code>square</code>作为参数来调用<code>map</code>时，我们是将这两个参数 <em>应用（Apply）</em> 到<code>map</code>函数，并获得结果。</p>
 
-<p>由于<code>map</code>函数接收两个参数，我们也提供了两个参数，所以说这是一次 <em>完整应用</em> 。那何谓偏应用（或部分应用）呢？即提供少于指定数量的参数。如，仅提供一个参数来调用<code>map</code>。</p>
+<p>由于<code>map</code>函数接收两个参数，我们也提供了两个参数，所以说这是一次 <em>完整应用</em> 。那何谓偏应用（或部分应用）呢？其实就是提供少于指定数量的参数。如，仅提供一个参数来调用<code>map</code>。</p>
 
 <p>如果我们只提供一个参数来调用<code>map</code>会怎么样？我们无法得到所要的结果，只能得到一个新的一元函数，通过调用这个函数并传递缺失的参数后，才能获得结果。</p>
 
