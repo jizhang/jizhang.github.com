@@ -280,3 +280,7 @@ PS：你可能会对另一篇文章也感兴趣：[Practical Applicaitons for Pa
 脚注
 ----
 
+1. <a name="fn:birds"></a>当Raymond Smullyan为组合子逻辑撰写介绍时，他称之为“嘲鸟的模仿者”（To Mock a Mockingbird）。他通篇使用树林和小鸟来做比喻，以表达对Schönfinkel的敬意。Schön意为“美丽”，Fink则指德语中的Finch（燕雀），也指犹太语中的Finkl（火花）。所以他的名字可以理解为“美丽的燕雀”或“美丽的火花”。
+2. <a name="fn:caveat"></a>本文的示例都异常简单。完整的实现应该能够接收任意元的函数，并依调用情况返回恰当的值。
+3. <a name="fn:also"></a>柯里化还有很多其它应用，只是本文着重讲述的是柯里化和偏应用的区别，而不是组合子逻辑和函数式编程。
+4. <a name="fn:tao"></a>一位道教人士向街边小贩购买一个素食热狗，并说道：“我要全套。”
