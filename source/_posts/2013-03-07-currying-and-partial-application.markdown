@@ -141,7 +141,7 @@ squareAll([5, 7, 5]);
   //=> [25, 49, 25]
 ```
 
-将一个多元函数转换成一系列一元函数的嵌套调用，这种转换称之为 **柯里化** 。它的名称取自其发明者Haskell Curry，他也重新定义了由[Moses Schönfinkel](https://en.wikipedia.org/wiki/Moses_Sch%C3%B6nfinkel)提出的组合子逻辑（Combinatory Logic）。[注1](#fn:birds)
+将一个多元函数转换成一系列一元函数的嵌套调用，这种转换称之为 **柯里化** 。它的名称取自其发明者Haskell Curry，他也重新定义了由[Moses Schönfinkel](https://en.wikipedia.org/wiki/Moses_Sch%C3%B6nfinkel)提出的组合子逻辑（Combinatory Logic）。（[注1](#fn:birds)）
 
 `rightmostCurry`函数可以将任意二元函数转换为一组一元函数，从传递第二个参数开始，因此才称其为“右起柯里化”。
 
@@ -174,3 +174,81 @@ oneToThreeEach(double);
 看到`squareAll([1, 2, 3])`时，我们会理解为“将数组[1, 2, 3]中的每个元素做平方运算”。使用“右起柯里化”，我们使平方运算成为主体，数组成为客体。而当使用一般的柯里化时，则是让数组作为主体，平方运算作为客体。
 
 另一种理解的方式是看你需要重用哪一部分。通过不同的柯里化方式，你可以选择重用函数还是重用列表。
+
+再谈偏应用
+----------
+
+上文谈了那么多柯里化，那偏应用呢？事实上，当你有了柯里化，你就不需要偏应用了。同样地，当你使用了偏应用，也不会需要柯里化。所以当你需要为此撰写一篇文章时，最便捷的做法是先描述其中的一个，然后建立在其基础之上来描述另外一个。
+
+首先让我们回顾一下右起柯里化：
+
+```javascript
+function rightmostCurry (binaryFn) {
+  return function (secondArg) {
+    return function (firstArg) {
+      return binaryFn(firstArg, secondArg);
+    };
+  };
+};
+```
+
+你会发现在实际使用过程中会一直出现以下代码：
+
+```javascript
+var squareAll = rightmostCurry(map)(square),
+    doubleAll = rightmostCurry(map)(double);
+```
+
+这种创建了柯里化函数后立刻调用的情况很常见，因此好事的人们就为它起了一个名字，称之为 *map函数的右起一元偏应用* 。
+
+名字很长，我们分解开来看：
+
+1. 右起：从最右边的参数开始；
+2. 一元：一个参数；
+3. 偏应用：只应用部分函数；
+4. map：即`map`函数。
+
+所以我们实际上是想为`map`函数预先指定一个参数。它是一个二元函数，指定参数后便成了一元函数。在函数式编程语言或类库中，都提供了相应的方式来支持这种用法。
+
+我们可以用柯里化来实现这样的功能：
+
+```javascript
+function rightmostUnaryPartialApplication (binaryFn, secondArg) {
+  return rightmostCurry(binaryFn)(secondArg);
+};
+```
+
+但更多时候我们会使用更为直接的方式：（[注2](#fn:caveat)）
+
+```javascript
+function rightmostUnaryPartialApplication (binaryFn, secondArg) {
+  return function (firstArg) {
+    return binaryFn(firstArg, secondArg);
+  };
+};
+```
+
+`rightmostUnaryPartialApplication`有些过长了，我们将其称为`applyLast`：
+
+```javascript
+var applyLast = rightmostUnaryPartialApplication;
+```
+
+这样，我们的`squareAll`和`doubleAll`函数就可以写为：
+
+```javascript
+var squareAll = applyLast(map, square),
+    doubleAll = applyLast(map, double);
+```
+
+你同样可以实现一个`applyFirst`函数（我们就不提`leftmostUnaryPartialApplication`这种叫法了）：
+
+```javascript
+function applyFirst (binaryFn, firstArg) {
+  return function (secondArg) {
+    return binaryFn(firstArg, secondArg);
+  };
+};
+```
+
+和“左起/右起柯里化”一样，你应该在工具箱中保留这两种偏应用的方式，以便在实际使用过程中选择。
