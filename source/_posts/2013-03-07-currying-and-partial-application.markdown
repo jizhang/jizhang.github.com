@@ -252,3 +252,31 @@ function applyFirst (binaryFn, firstArg) {
 ```
 
 和“左起/右起柯里化”一样，你应该在工具箱中保留这两种偏应用的方式，以便在实际使用过程中选择。
+
+柯里化和偏应用的区别
+--------------------
+
+“柯里化是将一个多元函数分解为一系列嵌套调用的一元函数。分解后，你可以部分应用一个或多个参数（[注3](#fn:also)）。柯里化的过程不会向函数传递参数。”
+
+“偏应用是为一个多元函数预先提供部分参数，从而在调用时可以省略这些参数。”
+
+这就是全部吗？
+--------------
+
+是，但又不是。以下这些还请读者自行探索和实现：
+
+1. 上文中，我们用柯里化实现了偏应用，那偏应用可以实现柯里化吗？为什么？（[注4](#fn:tao)）
+2. 所有的示例都是将二元函数转换为一元函数，尝试写出一个更为通用的`applyFirst`和`applyLast`函数，能够为任意元的函数提供一个参数。如，假设有一个函数接收四个参数，那在使用了`applyFirst`后会返回一个接收三个参数的函数。
+3. 第2步完成后，再实现一组`applyLeft`和`applyRight`函数，它能为任意元的函数预先指定任意数量的参数，如，假设向`applyLeft`传递了一个三元函数和两个参数，那就会返回一个一元函数。
+4. 重写`curry`和`rightmostCurry`这两个函数，使其能够接收任意元的函数。一个三元函数柯里化后会产生三个嵌套调用的一元函数。
+5. 阅读[allong.es](http://allong.es/)的代码，这是一个从[JavaScript Allongé](http://leanpub.com/javascript-allonge)中提取的函数式编程类库。重点阅读它的partial_application.js文件。
+
+感谢你的阅读，如果你在代码中发现了Bug，请[克隆这个镜像](https://github.com/raganwald/raganwald.github.com)，提交合并申请，或者[在Github上提交一个事务](https://github.com/raganwald/raganwald.github.com/issues)。
+
+PS：你可能会对另一篇文章也感兴趣：[Practical Applicaitons for Partial Application](http://raganwald.com/2013/01/05/practical-applications-of-partial-application.html)。
+
+（[讨论](http://www.reddit.com/r/javascript/comments/19urej/whats_the_difference_between_currying_and_partial/)）
+
+脚注
+----
+
