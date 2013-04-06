@@ -9,8 +9,6 @@ tags: [fp, javascript]
 
 原文：[http://raganwald.com/2013/03/07/currying-and-partial-application.html](http://raganwald.com/2013/03/07/currying-and-partial-application.html)
 
-作者：[Reginald Braithwaite](http://raganwald.com/)
-
 上周末我参加了[wroc_love.rb大会](http://wrocloverb.com/)，其间[Steve Klabnik](http://steveklabnik.com/)的一张PPT中提到了[偏应用（Partial Application）](https://en.wikipedia.org/wiki/Partial_application)和[柯里化（Currying）](https://en.wikipedia.org/wiki/Currying)，并说这两者之间的区别如今已经不重要了。但是我不这么认为。
 
 在这周发布的博文中，我用五种方式对`this`和闭包做了解释，但只有三到四种提到了柯里化。所以这篇博文就重点来谈谈这个。
@@ -48,7 +46,7 @@ map([1, 2, 3], square);
 
 显然，`map`是二元函数，`square`是一元函数。当我们使用`[1, 2, 3]`和`square`作为参数来调用`map`时，我们是将这两个参数 *应用（Apply）* 到`map`函数，并获得结果。
 
-由于`map`函数接收两个参数，我们也提供了两个参数，所以说这是一次 *完整应用* 。那何谓偏应用（或部分应用）呢？即提供少于指定数量的参数。如，仅提供一个参数来调用`map`。
+由于`map`函数接收两个参数，我们也提供了两个参数，所以说这是一次 *完整应用* 。那何谓偏应用（或部分应用）呢？其实就是提供少于指定数量的参数。如，仅提供一个参数来调用`map`。
 
 如果我们只提供一个参数来调用`map`会怎么样？我们无法得到所要的结果，只能得到一个新的一元函数，通过调用这个函数并传递缺失的参数后，才能获得结果。
 
