@@ -5,10 +5,10 @@ date: 2013-03-07 20:59
 comments: true
 categories: Translation
 tags: [fp, javascript]
-published: false
 ---
 
 原文：[http://raganwald.com/2013/03/07/currying-and-partial-application.html](http://raganwald.com/2013/03/07/currying-and-partial-application.html)
+
 作者：[Reginald Braithwaite](http://raganwald.com/)
 
 上周末我参加了[wroc_love.rb大会](http://wrocloverb.com/)，其间[Steve Klabnik](http://steveklabnik.com/)的一张PPT中提到了[偏应用（Partial Application）](https://en.wikipedia.org/wiki/Partial_application)和[柯里化（Currying）](https://en.wikipedia.org/wiki/Currying)，并说这两者之间的区别如今已经不重要了。但是我不这么认为。
