@@ -92,3 +92,85 @@ squareAll([5, 7, 5]);
 我们首先将`square`这个参数部分应用到了`map`函数，并获得一个一元函数`squareAll`，它能实现我们需要的功能。偏应用后的`map`函数十分便捷，而[allong.es](http://allong.es/)库中提供的`splat`函数做的也是相同的事情。
 
 如果每次想要使用偏应用都需要手动编写这样一个包装函数，程序员显然会想到要自动化实现它。这就是下一节的内容：柯里化。
+
+柯里化
+------
+
+首先，我们可以编写一个函数来返回包装器。我们仍然以二元函数为例：
+
+```javascript
+function wrapper (unaryFn) {
+  return function (list) {
+    return map(list, unaryFn);
+  };
+};
+```
+
+将函数`map`和参数名称替换掉：
+
+```javascript
+function wrapper (secondArg) {
+  return function (firstArg) {
+    return binaryFn(firstArg, secondArg);
+  };
+};
+```
+
+最后，我们再包装一层：
+
+```javascript
+function rightmostCurry (binaryFn) {
+  return function (secondArg) {
+    return function (firstArg) {
+      return binaryFn(firstArg, secondArg);
+    };
+  };
+};
+```
+
+这样一来，我们之前使用的“模式”就抽象出来了。这个函数的用法是：
+
+```javascript
+var rightmostCurriedMap = rightmostCurry(map);
+
+var squareAll = rightmostCurriedMap(square);
+
+squareAll([1, 4, 9]);
+  //=> [1, 4, 9]
+squareAll([5, 7, 5]);
+  //=> [25, 49, 25]
+```
+
+将一个多元函数转换成一系列一元函数的嵌套调用，这种转换称之为 **柯里化** 。它的名称取自其发明者Haskell Curry，他也重新定义了由[Moses Schönfinkel](https://en.wikipedia.org/wiki/Moses_Sch%C3%B6nfinkel)提出的组合子逻辑（Combinatory Logic）。[注1](#fn:birds)
+
+`rightmostCurry`函数可以将任意二元函数转换为一组一元函数，从传递第二个参数开始，因此才称其为“右起柯里化”。
+
+和它相反的自然是“左起柯里化”，大多数逻辑学家使用“左起柯里化”，所以人们常说的柯里化指的也是左起柯里化：
+
+```javascript
+function curry (binaryFn) {
+  return function (firstArg) {
+    return function (secondArg) {
+      return binaryFn(firstArg, secondArg);
+    };
+  };
+};
+
+var curriedMap = curry(map),
+    double = function (n) { n + n; };
+
+var oneToThreeEach = curriedMap([1, 2, 3]);
+
+oneToThreeEach(square);
+  //=> [1, 4, 9]
+oneToThreeEach(double);
+  //=> [2, 4, 6]
+```
+
+那这两种柯里化方式应该如何选择呢？这就要看你的用途了。在上述二元函数的示例中，我们模拟的是一种“主体-客体”（Subject-Object）的语法。第一个参数表示主体，第二个参数表示客体。
+
+当我们使用“右起柯里化”的`map`函数时，我们即假定主体是那个将被调用多次的函数（unaryFn）。
+
+看到`squareAll([1, 2, 3])`时，我们会理解为“将数组[1, 2, 3]中的每个元素做平方运算”。使用“右起柯里化”，我们使平方运算成为主体，数组成为客体。而当使用一般的柯里化时，则是让数组作为主体，平方运算作为客体。
+
+另一种理解的方式是看你需要重用哪一部分。通过不同的柯里化方式，你可以选择重用函数还是重用列表。
