@@ -5,7 +5,6 @@ date: 2013-03-28 15:28
 comments: true
 categories: Tutorial
 tags: [perl]
-published: false
 ---
 
 套接字
