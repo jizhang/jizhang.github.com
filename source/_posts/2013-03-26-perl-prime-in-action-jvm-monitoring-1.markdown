@@ -172,3 +172,79 @@ map { s/^\s+|\s+$// } @jstat;
 ```
 
 `map`函数会对数组中的每个元素应用第一个参数指向的函数（这里是一个匿名函数），当需要处理的数组元素很多时，这种是首选做法。具体内容读者可以自己去了解。
+
+函数
+----
+
+我们可以用以下命令来获取指定进程的CPU和内存使用率：
+
+```bash
+$ ps -o pcpu,rss -p 2017
+%CPU   RSS
+ 0.1 21632
+```
+
+格式和`jstat`是一样的，为了不再写一遍上文中的代码，我们可以将其封装为函数。
+
+```perl
+sub kv_parse {
+
+    my @kv_data = @_;
+
+    map { s/^\s+|\s+$// } @kv_data;
+    
+    my @kv_keys = split(/\s+/, $kv_data[0]);
+    my @kv_vals = split(/\s+/, $kv_data[1]);
+    
+    my $result = '';
+    for my $i (0 .. $#kv_keys) {
+        $result .= "$kv_keys[$i] $kv_vals[$i]\n";
+    }
+
+    return $result;
+
+}
+
+my $pid = 2017;
+my @jstat = `jstat -gc $pid`;
+my @ps = `ps -o pcpu,rss -p $pid`;
+
+print kv_parse(@jstat);
+print kv_parse(@ps);
+```
+
+`sub`表示定义一个函数（subroutine），和其他语言不同的是，它没有参数列表，获取参数使用的是魔术变量`@_`：
+
+```perl
+sub hello {
+    my $name1 = $_[0];
+    $name1 = shift @_;
+    my $name2 = shift(@_);
+    my $name3 = shift;
+}
+
+hello('111', '222', '333');
+hello '111', '222', '333';
+&hello('111', '222', '333');
+```
+
+* `$_[0]`和`shift @_`返回的都是第一参数。不同的是，`shift`函数会将这个参数从`@_`数组中移除；
+* `shift @_`和`shift(@_)`是等价的，因为调用函数时参数列表可以不加括号；
+* `shift @_`和只写`shift`也是等价的，该函数若不指定参数，则默认使用`@_`数组。
+* `&`符号也是比较特别的，主要作用有两个：一是告诉Perl解释器`hello`将是一个用户定义的函数，这样就不会和Perl原生关键字冲突；二是忽略函数原型（prototype）。具体可以参考这篇文章：[Subroutines Called With The Ampersand](https://www.socialtext.net/perl5/subroutines_called_with_the_ampersand)
+
+当传递一个数组给函数时，该数组不会被作为`@_`的第一元素，而是作为`@_`本身。这也是很特别的地方。当传递多个数组，Perl会将这些数组进行拼接：
+
+```perl
+sub hello {
+    for my $i (@_) {
+        print $i;
+    }
+}
+
+my @arr1 = (1, 2); # 使用圆括号定义一个数组，元素以逗号分隔。
+my @arr2 = (3, 4);
+
+hello @arr1, @arr2; # 输出 1234
+```
+
