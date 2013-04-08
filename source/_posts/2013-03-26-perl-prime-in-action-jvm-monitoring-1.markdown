@@ -255,3 +255,5 @@ hello @arr1, @arr2; # 输出 1234
 Perl文化的特色是“不只一种做法来完成一件事情”，所以我们可以看到很多不同的写法。但也有一些是大家普遍接受的写法，所以也算是一种规范吧。
 
 下一章我们会继续完成这个监控脚本。
+
+PS：本文的示例代码可以从[Github](https://github.com/jizhang/perl-jvm-monitoring-example)中下载。
