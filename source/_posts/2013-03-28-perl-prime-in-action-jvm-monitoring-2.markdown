@@ -91,4 +91,70 @@ RECV 2181
 ERROR hello
 ```
 
-至于客户端，还请读者自行完成，可参考[相关文档](http://perldoc.perl.org/IO/Socket/INET.html);
+至于客户端，还请读者自行完成，可参考[相关文档](http://perldoc.perl.org/IO/Socket/INET.html)。
+
+子进程
+------
+
+上述代码中有这样一个问题：当客户端建立了连接，但迟迟没有发送内容，那么服务端就会阻塞在`$line = <$client>`这条语句，无法接收其他请求。有三种解决方案：
+
+1. 服务端读取信息时采用一定的超时机制，如果3秒内还不能读到完整的一行就断开连接。可惜Perl中并没有提供边界的方法来实现这一机制，需要自行使用`IO::Select`这样的模块来编写，比较麻烦。
+2. 接受新的连接后打开一个子进程或线程来处理连接，这样就不会因为一个连接挂起而使整个服务不可用。
+3. 使用非阻塞事件机制，当有读写操作时才会去处理。
+
+这里我们使用第二种方案，即打开子进程来处理请求。
+
+```perl
+use IO::Socket::INET;
+
+sub REAPER {
+    my $pid;
+    while (($pid = waitpid(-1, 'WNOHANG')) > 0) {
+        print "SIGCHLD $pid\n";
+    }
+}
+
+my $interrupted = 0;
+sub INTERRUPTER {
+    $interrupted = 1;
+}
+
+$SIG{CHLD} = \&REAPER;
+$SIG{TERM} = \&INTERRUPTER;
+$SIG{INT} = \&INTERRUPTER;
+
+my $server = ...;
+
+while (!$interrupted) {
+
+    if (my $client = $server->accept()) {
+
+        my $pid = fork();
+
+        if ($pid > 0) {
+            close($client);
+            print "PID $pid\n";
+        } elsif ($pid == 0) {
+            close($server);
+
+            my $line = <$client>;
+            ...
+            close($client);
+            exit;
+
+        } else {
+            print "fork()调用失败\n";
+        }
+    }
+}
+
+close($server);
+```
+
+我们先看下半部分的代码。系统执行`fork()`函数后，会将当前进程的所有内容拷贝一份，以新的进程号来运行，即子进程。通过`fork()`的返回值可以知道当前进程是父进程还是子进程：大于0的是父进程；等于0的是子进程。子进程中的代码做了省略，执行完后直接`exit`。
+
+上半部分的信号处理是做什么用的呢？这就是在多进程模型中需要特别注意的问题：僵尸进程。具体可以参考[这篇文章](http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/)。
+
+而`$interrupted`变量则是用来控制程序是否继续执行的。当进程收到`SIGTERM`或`SIGINT`信号时，该变量就会置为真，使进程自然退出。
+
+为何不直接使用`while (my $client = $server->accept()) {...}`呢？因为子进程退出时会向父进程发送`SIGCHLD`信号，而`accept()`函数在接收到任何信号后都会中断并返回空，使得`while`语句退出。
