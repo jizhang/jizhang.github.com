@@ -158,3 +158,68 @@ close($server);
 而`$interrupted`变量则是用来控制程序是否继续执行的。当进程收到`SIGTERM`或`SIGINT`信号时，该变量就会置为真，使进程自然退出。
 
 为何不直接使用`while (my $client = $server->accept()) {...}`呢？因为子进程退出时会向父进程发送`SIGCHLD`信号，而`accept()`函数在接收到任何信号后都会中断并返回空，使得`while`语句退出。
+
+命令行参数
+----------
+
+这个服务脚本所监听的端口后是固写在脚本中的，如果想通过命令行指定呢？我们可以使用Perl的内置模块`Getopt::Long`。
+
+```perl
+use Getopt::Long;
+use Pod::Usage;
+
+my $help = 0;
+my $port = 10060;
+
+GetOptions(
+    'help|?' => \$help,
+    'port=i' => \$port
+) || pod2usage(2);
+pod2usage(1) if $help;
+
+print "PORT $port\n";
+
+__END__
+
+=head1 NAME
+
+getopt
+
+=head1 SYNOPSIS
+
+getopt.pl [options]
+
+ Options:
+   -help brief help message
+   -port bind to tcp port
+
+=cut
+```
+
+使用方法是：
+
+```bash
+$ ./getopt.pl -h
+Usage:
+    getopt.pl [options]
+    ...
+$ ./getopt.pl
+PORT 10060
+$ ./getopt.pl -p 12345
+PORT 12345
+```
+
+`'port=i' => \$port`表示从命令行中接收名为`-port`的参数，并将接收到的值转换为整数（`i`指整数）。`\$`又是一种引用传递了，这里暂不详述。
+
+至于`||`运算符，之前在建立`$server`时也遇到过，它实际上是一种逻辑运算符，表示“或”的关系。这里的作用则是“如果GetOptions返回的值不为真，则程序退出”。
+
+`pod2usage(1) if $help`表示如果`$help`为真则执行`pod2usage(1)`。你也可以写为`$help && pod2usage(1)`。
+
+我们再来看看`__END__`之后的代码，它是一种Pod文档（Plain Old Documentation），可以是单独的文件，也可以像这样直接附加到Perl脚本末尾。具体格式可以参考[perlpod](http://perldoc.perl.org/perlpod.html)。`pod2usage()`函数顾名思义是将附加的Pod文档转化成帮助信息显示在控制台上。
+
+小结
+----
+
+完整的脚本可以见这个链接[jvm-service.pl](https://github.com/jizhang/zabbix-templates/blob/master/jvm/jvm-service.pl)。调用该服务的脚本可以见[jvm-check.pl](https://github.com/jizhang/zabbix-templates/blob/master/jvm/jvm-check.pl)。
+
+Perl语言历史悠久，语法丰富，还需多使用、多积累才行。
