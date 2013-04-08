@@ -5,7 +5,6 @@ date: 2013-03-26 23:00
 comments: true
 categories: Tutorial
 tags: [perl]
-published: false
 ---
 
 由于最近在搭建Zabbix监控服务，需要制作各类监控的模板，如iostat、Nginx、MySQL等，因此会写一些脚本来完成数据采集的工作。又因为近期对Perl语言比较感兴趣，因此决定花些时间学一学，写一个脚本来练练手，于是就有了这样一份笔记。
@@ -231,9 +230,9 @@ hello '111', '222', '333';
 * `$_[0]`和`shift @_`返回的都是第一参数。不同的是，`shift`函数会将这个参数从`@_`数组中移除；
 * `shift @_`和`shift(@_)`是等价的，因为调用函数时参数列表可以不加括号；
 * `shift @_`和只写`shift`也是等价的，该函数若不指定参数，则默认使用`@_`数组。
-* `&`符号也是比较特别的，主要作用有两个：一是告诉Perl解释器`hello`将是一个用户定义的函数，这样就不会和Perl原生关键字冲突；二是忽略函数原型（prototype）。具体可以参考这篇文章：[Subroutines Called With The Ampersand](https://www.socialtext.net/perl5/subroutines_called_with_the_ampersand)
+* `&`符号也是比较特别的，主要作用有两个：一是告诉Perl解释器`hello`将是一个用户定义的函数，这样就不会和Perl原生关键字冲突；二是忽略函数原型（prototype）。具体可以参考这篇文章：[Subroutines Called With The Ampersand](https://www.socialtext.net/perl5/subroutines_called_with_the_ampersand)。
 
-当传递一个数组给函数时，该数组不会被作为`@_`的第一元素，而是作为`@_`本身。这也是很特别的地方。当传递多个数组，Perl会将这些数组进行拼接：
+当传递一个数组给函数时，该数组不会被作为`@_`的第一个元素，而是作为`@_`本身。这也是很特别的地方。当传递多个数组，Perl会将这些数组进行拼接：
 
 ```perl
 sub hello {
@@ -248,3 +247,11 @@ my @arr2 = (3, 4);
 hello @arr1, @arr2; # 输出 1234
 ```
 
+小结
+----
+
+对于初学者来讲，本文的信息量可能有些大了。但如果你已经有一定的编程经验（包括Bash），应该可以理解这些内容。
+
+Perl文化的特色是“不只一种做法来完成一件事情”，所以我们可以看到很多不同的写法。但也有一些是大家普遍接受的写法，所以也算是一种规范吧。
+
+下一章我们会继续完成这个监控脚本。
