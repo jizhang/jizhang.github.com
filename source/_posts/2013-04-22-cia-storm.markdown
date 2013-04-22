@@ -24,3 +24,30 @@ Storm的主要贡献者[Nathan Marz](https://github.com/nathanmarz)和[徐明明
 Storm集群的安装配置这里不会讲述，具体请参考[这篇文档](https://github.com/nathanmarz/storm/wiki/Setting-up-a-Storm-cluster)。下文的脚本都运行在“本地模式”之下，因此即使不搭建集群也可以运行和调试。
 
 <!-- more -->
+
+Storm脚本的组件
+---------------
+
+<img src="http://storm-project.net/images/topology.png" height="200">
+
+Storm脚本的英文名称叫做“Storm Topology”，直译过来是“拓扑结构”。这个脚本由两大类组建构成，`Spout`和`Bolt`，分别可以有任意多个。他们之间以“数据流”的方式连接起来，因此整体看来就像一张拓扑网络，因此得名`Topology`。
+
+### Spout
+
+数据源节点，是整个脚本的入口。Storm会不断调用该节点的`nextTuple()`方法来获取数据，分发给下游`Bolt`节点。`nextTuple()`方法中可以用各种方式从外部获取数据，如逐行读取一个文件、从消息队列（ZeroMQ、Kafka）中获取消息等。一个Storm脚本可以包含多个`Spout`节点，从而将多个数据流汇聚到一起进行处理。
+
+### Bolt
+
+数据处理节点，它是脚本的核心逻辑。它含有一个`execute()`方法，当接收到消息时，Storm会调用这个函数，并将消息传递给它。我们可以在`execute()`中对消息进行过滤（只接收符合条件的数据），或者进行聚合（统计某个条件的数据出现的次数）等。处理完毕后，这个节点可以选择将处理后的消息继续传递下去，或是持久化到数据库中。
+
+`Bolt`同样是可以有多个的，且能够前后组合。`Bolt C`可以同时收取`Bolt A`和`Bolt B`的数据，并将处理结果继续传递给`Bolt D`。
+
+此外， *一个Bolt可以产生多个实例* ，如某个`Bolt`包含复杂耗时的计算，那在运行时可以调高其并发数量（实例的个数），从而达到并行处理的目的。
+
+### Tuple
+
+`Tuple`是消息传输的基本单元，一条消息即一个`Tuple`。可以将其看做是一个`HashMap`对象，它能够包含任何可序列化的数据内容。对于简单的数据类型，如整型、字符串、Map等，Storm提供了内置的序列化支持。而用户自定义的数据类型，可以通过指定序列化/反序列化函数来处理。
+
+### Stream Grouping
+
+想象一个`Spout`连接了两个`Bolt`（或一个`Bolt`的两个实例），那数据应该如何分发呢？你可以选择轮询（`ShuffleGrouping`），或是广播（`GlobalGrouping`）、亦或是按照某一个字段进行哈希分组（`FieldGrouping`），这些都称作为[`Stream Grouping`](https://github.com/nathanmarz/storm/wiki/Concepts#stream-groupings)。
