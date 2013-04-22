@@ -17,9 +17,10 @@ Storm简介
 
 Storm的官网是：[storm-project.net](http://storm-project.net/)，它的[Wiki](https://github.com/nathanmarz/storm/wiki)上有非常详尽的说明文档。
 
-Storm与Clojure
---------------
+### Storm与Clojure
 
 Storm的主要贡献者[Nathan Marz](https://github.com/nathanmarz)和[徐明明](https://github.com/xumingming)都是活跃的Clojure开发者，因此在Storm框架中也提供了原生的[Clojure DSL](https://github.com/nathanmarz/storm/wiki/Clojure-DSL)。本文就将介绍如何使用这套DSL来编写Storm处理脚本。
+
+Storm集群的安装配置这里不会讲述，具体请参考[这篇文档](https://github.com/nathanmarz/storm/wiki/Setting-up-a-Storm-cluster)。下文的脚本都运行在“本地模式”之下，因此即使不搭建集群也可以运行和调试。
 
 <!-- more -->
