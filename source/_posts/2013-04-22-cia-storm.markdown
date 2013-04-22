@@ -7,3 +7,12 @@ categories: Tutorial
 tags: [clojure, storm]
 published: false
 ---
+
+Storm简介
+---------
+
+上一章介绍的Hadoop工具能够对海量数据进行批量处理，采用分布式的并行计算架构，只需使用其提供的MapReduce API编写脚本即可。但随着人们对数据实时性的要求越来越高，如实时日志分析、实时推荐系统等，Hadoop就无能为力了。
+
+这时，Storm诞生了。它的设计初衷就是提供一套分布式的实时计算框架，实现低延迟、高并发的海量数据处理，被誉为“Realtime Hadoop”。它提供了简单易用的API接口用于编写实时处理脚本；能够和现有各类消息系统整合；提供了HA、容错、事务、RPC等高级特性。
+
+Storm的官网是：[http://storm-project.net/ http://storm-project.net/]，它的[Wiki](https://github.com/nathanmarz/storm/wiki)上有非常详尽的说明文档。
