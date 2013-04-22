@@ -15,4 +15,11 @@ Storm简介
 
 这时，Storm诞生了。它的设计初衷就是提供一套分布式的实时计算框架，实现低延迟、高并发的海量数据处理，被誉为“Realtime Hadoop”。它提供了简单易用的API接口用于编写实时处理脚本；能够和现有各类消息系统整合；提供了HA、容错、事务、RPC等高级特性。
 
-Storm的官网是：[http://storm-project.net/ http://storm-project.net/]，它的[Wiki](https://github.com/nathanmarz/storm/wiki)上有非常详尽的说明文档。
+Storm的官网是：[storm-project.net](http://storm-project.net/)，它的[Wiki](https://github.com/nathanmarz/storm/wiki)上有非常详尽的说明文档。
+
+Storm与Clojure
+--------------
+
+Storm的主要贡献者[Nathan Marz](https://github.com/nathanmarz)和[徐明明](https://github.com/xumingming)都是活跃的Clojure开发者，因此在Storm框架中也提供了原生的[Clojure DSL](https://github.com/nathanmarz/storm/wiki/Clojure-DSL)。本文就将介绍如何使用这套DSL来编写Storm处理脚本。
+
+<!-- more -->
