@@ -25,3 +25,47 @@ published: false
 
 <!--more-->
 
+好，下面就让我们开始Cascalog的学习之旅！我会用一系列的示例来介绍Cascalog。这些示例会使用到项目本身提供的“试验场”数据集。我建议你立刻下载Cascalog，一边阅读本文一边在REPL中操作。（安装启动过程只有几分钟，README中有步骤）
+
+## 基本查询
+
+首先让我们启动REPL，并加载“试验场”数据集：
+
+```clojure
+lein repl
+user=> (use 'cascalog.playground) (bootstrap)
+```
+
+以上语句会加载本文用到的所有模块和数据。你可以阅读项目中的`playground.clj`文件来查看这些数据。下面让我们执行第一个查询语句，找出年龄为25岁的人：
+
+```clojure
+user=> (?<- (stdout) [?person] (age ?person 25))
+```
+
+这条查询语句可以这样阅读：找出所有`age`等于25的`?person`。执行过程中你可以看到Hadoop输出的日志信息，几秒钟后就能看到查询结果。
+
+好，让我们尝试稍复杂的例子。我们来做一个范围查询，找出年龄小于30的人：
+
+```clojure
+user=> (?<- (stdout) [?person] (age ?person ?age) (< ?age 30))
+```
+
+看起来也不复杂。这条语句中，我们将人的年龄绑定到了`?age`变量中，并对该变量做出了“小于30”的限定。
+
+我们重新执行这条语句，只是这次会将人的年龄也输出出来：
+
+```clojure
+user=> (?<- (stdout) [?person ?age] (age ?person ?age)
+            (< ?age 30))
+```
+
+我们要做的仅仅是将`?age`添加到向量中去。
+
+让我们执行另一条查询，找出艾米丽关注的所有男性：
+
+```clojure
+user=> (?<- (stdout) [?person] (follows "emily" ?person)
+            (gender ?person "m"))
+```
+
+可能你没有注意到，这条语句使用了联合查询。各个数据集中的`?person`值都必须对应，而`follows`和`gender`分属于不同的数据集，Cascalog便会使用联合查询。
