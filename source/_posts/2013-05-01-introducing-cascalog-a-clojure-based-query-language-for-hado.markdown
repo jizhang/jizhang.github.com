@@ -112,3 +112,59 @@ user=> (?<- [stdout] [?person ?a2] (age ?person ?age)
 那么`<`约束会将“年龄是否小于30”作为一个布尔值传递给`?young`变量。
 
 约束之间的顺序不重要，因为Cascalog是声明式语言。
+
+## 变量替换为常量
+
+变量是以`?`或`!`起始的标识。有时你不在意变量的值，可以直接用`_`代替。其他的变量则会在解析时替换成常量。我们已经在很多示例中用到这一特性了。下面这个示例中，我们将输出变量作为一种过滤条件：
+
+```clojure
+(* 4 ?v2 :> 100)
+```
+
+这里使用了两个常量：4和100。4是一个输入变量，100则是作为一个过滤条件，只有满足`?v2`乘以4等于100的记录才会被筛选出来。字符串、数字、以及其他基本类型和对象类型，只要在Hadoop有对应的序列化操作，都可以被作为常量使用。
+
+让我们回到示例中。找出所有关注了比自己年龄小的用户的列表：
+
+```clojure
+user=> (?<- (stdout) [?person1 ?person2]
+            (age ?person1 ?age1) (follows ?person1 ?person2)
+            (age ?person2 ?age2) (< ?age2 ?age1))
+```
+
+同时，我们将年龄差异也输出出来：
+
+```clojure
+user=> (?<- (stdout) [?person1 ?person2 ?delta]
+            (age ?person1 ?age1) (follows ?person1 ?person2)
+            (age ?person2 ?age2) (- ?age2 ?age1 :> ?delta)
+            (< ?delta 0))
+```
+
+## 聚合
+
+下面让我们看看聚合查询的使用方法。统计所有年龄小于30的用户人数：
+
+```clojure
+user=> (?<- (stdout) [?count] (age _ ?a) (< ?a 30)
+            (c/count ?count))
+```
+
+这条查询会统计所有的记录。我们也可以只聚合部分记录。比如，让我们找出每个人所关注的用户的数量：
+
+```clojure
+user=> (?<- (stdout) [?person ?count] (follows ?person _)
+            (c/count ?count))
+```
+
+因为我们在输出结果中指定了`?person`这个变量，所以Cascalog会将数据记录按照用户来分组，然后使用`c/count`进行聚合运算。
+
+你可以在单个查询中使用多个聚合条件，它们的分组方式是一致的。例如，我们可以计算每个国家的用户的平均年龄，使用计数和求和这两种聚合方式：
+
+```clojure
+user=> (?<- (stdout) [?country ?avg]
+            (location ?person ?country _ _) (age ?person ?age)
+            (c/count ?count) (c/sum ?age :> ?sum)
+            (div ?sum ?count :> ?avg))
+```
+
+可以看到，我们对`?sum`和`?count`这两个聚合结果执行了`div`操作，该操作会在聚合过程结束后进行。
