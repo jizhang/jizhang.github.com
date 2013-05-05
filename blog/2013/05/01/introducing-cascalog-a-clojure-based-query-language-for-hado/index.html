@@ -1,0 +1,595 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Cascalog：基于Clojure的Hadoop查询语言 - Ji ZHANG's Blog</title>
+  <meta name="author" content="Ji ZHANG">
+
+  
+  <meta name="description" content="原文：http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html 我非常兴奋地告诉大家，Cascalog开源了！Cascalog受Datalog启发， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-37223379-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ji ZHANG's Blog</a></h1>
+  
+    <h2>If I rest, I rust.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:shzhangji.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/categories/tutorial">Tutorial</a></li>
+  <li><a href="/blog/categories/translation">Translation</a></li>
+  <li><a href="/blog/categories/ops">Ops</a></li>
+  <li><a href="/blog/categories/notes">Notes</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Cascalog：基于Clojure的Hadoop查询语言</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-01T18:01:00+08:00" pubdate data-updated="true">May 1<span>st</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>原文：<a href="http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html">http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html</a></p>
+
+<p>我非常兴奋地告诉大家，<a href="http://github.com/nathanmarz/cascalog">Cascalog</a>开源了！Cascalog受<a href="http://en.wikipedia.org/wiki/Datalog">Datalog</a>启发，是一种基于Clojure、运行于Hadoop平台上的查询语言。</p>
+
+<h2>特点</h2>
+
+<ul>
+<li><strong>简单</strong> - 使用相同的语法编写函数、过滤规则、聚合运算；数据联合（join）变得简单而自然。</li>
+<li><strong>表达能力强</strong> - 强大的逻辑组合条件，你可以在查询语句中任意编写Clojure函数。</li>
+<li><strong>交互性</strong> - 可以在Clojure REPL中执行查询语句。</li>
+<li><strong>可扩展</strong> - Cascalog的查询语句是一组MapReduce脚本。</li>
+<li><strong>任意数据源</strong> - HDFS、数据库、本地数据、以及任何能够使用Cascading的<code>Tap</code>读取的数据。</li>
+<li><strong>正确处理空值</strong> - 空值往往让事情变得棘手。Cascalog提供了内置的“非空变量”来自动过滤空值。</li>
+<li><strong>与Cascading结合</strong> - 使用Cascalog定义的流程可以在Cascading中直接使用，反之亦然。</li>
+<li><strong>与Clojure结合</strong> - 能够使用普通的Clojure函数来编写操作流程、过滤规则，又因为Cascalog是一种Clojure DSL，因此也能在其他Clojure代码中使用。</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>好，下面就让我们开始Cascalog的学习之旅！我会用一系列的示例来介绍Cascalog。这些示例会使用到项目本身提供的“试验场”数据集。我建议你立刻下载Cascalog，一边阅读本文一边在REPL中操作。（安装启动过程只有几分钟，README中有步骤）</p>
+
+<h2>基本查询</h2>
+
+<p>首先让我们启动REPL，并加载“试验场”数据集：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">lein</span> <span class="nv">repl</span>
+</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">use</span> <span class="ss">&#39;cascalog.playground</span><span class="p">)</span> <span class="p">(</span><span class="nf">bootstrap</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>以上语句会加载本文用到的所有模块和数据。你可以阅读项目中的<code>playground.clj</code>文件来查看这些数据。下面让我们执行第一个查询语句，找出年龄为25岁的人：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span><span class="p">]</span> <span class="p">(</span><span class="nf">age</span> <span class="nv">?person</span> <span class="mi">25</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这条查询语句可以这样阅读：找出所有<code>age</code>等于25的<code>?person</code>。执行过程中你可以看到Hadoop输出的日志信息，几秒钟后就能看到查询结果。</p>
+
+<p>好，让我们尝试稍复杂的例子。我们来做一个范围查询，找出年龄小于30的人：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span><span class="p">]</span> <span class="p">(</span><span class="nf">age</span> <span class="nv">?person</span> <span class="nv">?age</span><span class="p">)</span> <span class="p">(</span><span class="nb">&lt; </span><span class="nv">?age</span> <span class="mi">30</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>看起来也不复杂。这条语句中，我们将人的年龄绑定到了<code>?age</code>变量中，并对该变量做出了“小于30”的限定。</p>
+
+<p>我们重新执行这条语句，只是这次会将人的年龄也输出出来：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span> <span class="nv">?age</span><span class="p">]</span> <span class="p">(</span><span class="nf">age</span> <span class="nv">?person</span> <span class="nv">?age</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nb">&lt; </span><span class="nv">?age</span> <span class="mi">30</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>我们要做的仅仅是将<code>?age</code>添加到向量中去。</p>
+
+<p>让我们执行另一条查询，找出艾米丽关注的所有男性：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span><span class="p">]</span> <span class="p">(</span><span class="nf">follows</span> <span class="s">&quot;emily&quot;</span> <span class="nv">?person</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">gender</span> <span class="nv">?person</span> <span class="s">&quot;m&quot;</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可能你没有注意到，这条语句使用了联合查询。各个数据集中的<code>?person</code>值都必须对应，而<code>follows</code>和<code>gender</code>分属于不同的数据集，Cascalog便会使用联合查询。</p>
+
+<h2>查询语句的结构</h2>
+
+<p>让我们分析一下查询语句的结构，以下面这条语句为例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">[</span><span class="nv">stdout</span><span class="p">]</span> <span class="p">[</span><span class="nv">?person</span> <span class="nv">?a2</span><span class="p">]</span> <span class="p">(</span><span class="nf">age</span> <span class="nv">?person</span> <span class="nv">?age</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nb">&lt; </span><span class="nv">?age</span> <span class="mi">30</span><span class="p">)</span> <span class="p">(</span><span class="nb">* </span><span class="mi">2</span> <span class="nv">?age</span> <span class="ss">:&gt;</span> <span class="nv">?a2</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>?&lt;-</code>操作符出现的频率很高，它能同时定义并执行一条查询。<code>?&lt;-</code>实际上是对<code>&lt;-</code>和<code>?-</code>的包装。我们之后会看到如何使用这些操作符编写更为复杂的查询语句。</p>
+
+<p>首先，我们指定了查询结果的输出目的地，就是这里的<code>(stdout)</code>。<code>(stdout)</code>会创建一个Cascading的<code>tap</code>组件，它会在查询结束后将结果打印到标准输出中。我们可以使用任意一种Cascading的<code>tap</code>组件，也就是说输出结果的格式可以是序列文件（Sequence file）、文本文件等等；也可以输出到任何地方，如本地磁盘、HDFS、数据库等。</p>
+
+<p>在定义了输出目的地后，我们使用Clojure的向量结构来定义输出结果所包含的内容。本例中，我们定义的是<code>?person</code>和<code>?a2</code>。</p>
+
+<p>接下来，我们定义了一系列的约束条件。Cascalog有三种约束条件：</p>
+
+<ol>
+<li>生成器（Generator）：表示一个数据源，可以是以下两种类型：
+
+<ul>
+<li>Cascading Tap：如HDFS上某个路径中的文件；</li>
+<li>一个已经使用<code>&lt;-</code>定义的查询。</li>
+</ul>
+</li>
+<li>操作器（Operation）：引入预定义的变量，将其绑定至新的变量，或是设定一个过滤条件。</li>
+<li>集合器（Aggregator）：计数、求和、最小值、最大值等等。</li>
+</ol>
+
+
+<p>约束条件由名称、一组输入变量、以及一组输出变量构成。上述查询中的约束条件有：</p>
+
+<ul>
+<li>(age ?person ?age)</li>
+<li>(&lt; ?age 30)</li>
+<li>(* 2 ?age :> ?a2)</li>
+</ul>
+
+
+<p>其中，<code>:&gt;</code>关键字用于将输入变量和输出变量隔开。如果没有这个关键字，那么该变量在操作器中就会被识别为输入变量，在生成器和集合器中会被认为是输出变量。</p>
+
+<p><code>age</code>约束指向<code>playground.clj</code>中定义的一个<code>tap</code>，所以它是一个生成器，会输出<code>?person</code>和<code>?age</code>这两个数据。</p>
+
+<p><code>&lt;</code>约束是一个Clojure函数，因为没有指定输出变量，所以这条约束会构成一个过滤器，将<code>?age</code>小于30的记录筛选出来。如果我们这样写：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="nb">&lt; </span><span class="nv">?age</span> <span class="mi">30</span> <span class="ss">:&gt;</span> <span class="nv">?young</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>那么<code>&lt;</code>约束会将“年龄是否小于30”作为一个布尔值传递给<code>?young</code>变量。</p>
+
+<p>约束之间的顺序不重要，因为Cascalog是声明式语言。</p>
+
+<h2>变量替换为常量</h2>
+
+<p>变量是以<code>?</code>或<code>!</code>起始的标识。有时你不在意变量的值，可以直接用<code>_</code>代替。其他的变量则会在解析时替换成常量。我们已经在很多示例中用到这一特性了。下面这个示例中，我们将输出变量作为一种过滤条件：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="nb">* </span><span class="mi">4</span> <span class="nv">?v2</span> <span class="ss">:&gt;</span> <span class="mi">100</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里使用了两个常量：4和100。4是一个输入变量，100则是作为一个过滤条件，只有满足<code>?v2</code>乘以4等于100的记录才会被筛选出来。字符串、数字、以及其他基本类型和对象类型，只要在Hadoop有对应的序列化操作，都可以被作为常量使用。</p>
+
+<p>让我们回到示例中。找出所有关注了比自己年龄小的用户的列表：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person1</span> <span class="nv">?person2</span><span class="p">]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">age</span> <span class="nv">?person1</span> <span class="nv">?age1</span><span class="p">)</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?person1</span> <span class="nv">?person2</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">age</span> <span class="nv">?person2</span> <span class="nv">?age2</span><span class="p">)</span> <span class="p">(</span><span class="nb">&lt; </span><span class="nv">?age2</span> <span class="nv">?age1</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>同时，我们将年龄差异也输出出来：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person1</span> <span class="nv">?person2</span> <span class="nv">?delta</span><span class="p">]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">age</span> <span class="nv">?person1</span> <span class="nv">?age1</span><span class="p">)</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?person1</span> <span class="nv">?person2</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">age</span> <span class="nv">?person2</span> <span class="nv">?age2</span><span class="p">)</span> <span class="p">(</span><span class="nb">- </span><span class="nv">?age2</span> <span class="nv">?age1</span> <span class="ss">:&gt;</span> <span class="nv">?delta</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nb">&lt; </span><span class="nv">?delta</span> <span class="mi">0</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>聚合</h2>
+
+<p>下面让我们看看聚合查询的使用方法。统计所有年龄小于30的用户人数：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?count</span><span class="p">]</span> <span class="p">(</span><span class="nf">age</span> <span class="nv">_</span> <span class="nv">?a</span><span class="p">)</span> <span class="p">(</span><span class="nb">&lt; </span><span class="nv">?a</span> <span class="mi">30</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?count</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这条查询会统计所有的记录。我们也可以只聚合部分记录。比如，让我们找出每个人所关注的用户的数量：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span> <span class="nv">?count</span><span class="p">]</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?person</span> <span class="nv">_</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?count</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>因为我们在输出结果中指定了<code>?person</code>这个变量，所以Cascalog会将数据记录按照用户来分组，然后使用<code>c/count</code>进行聚合运算。</p>
+
+<p>你可以在单个查询中使用多个聚合条件，它们的分组方式是一致的。例如，我们可以计算每个国家的用户的平均年龄，使用计数和求和这两种聚合方式：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?country</span> <span class="nv">?avg</span><span class="p">]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">location</span> <span class="nv">?person</span> <span class="nv">?country</span> <span class="nv">_</span> <span class="nv">_</span><span class="p">)</span> <span class="p">(</span><span class="nf">age</span> <span class="nv">?person</span> <span class="nv">?age</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?count</span><span class="p">)</span> <span class="p">(</span><span class="nf">c/sum</span> <span class="nv">?age</span> <span class="ss">:&gt;</span> <span class="nv">?sum</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">div</span> <span class="nv">?sum</span> <span class="nv">?count</span> <span class="ss">:&gt;</span> <span class="nv">?avg</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以看到，我们对<code>?sum</code>和<code>?count</code>这两个聚合结果执行了<code>div</code>操作，该操作会在聚合过程结束后进行。</p>
+
+<h2>自定义操作</h2>
+
+<p>下面我们来编写一个查询，统计几句话中每个单词的出现次数。首先，我们编写一个自定义操作：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">defmapcatop</span> <span class="nv">split</span> <span class="p">[</span><span class="nv">sentence</span><span class="p">]</span>
+</span><span class='line'>         <span class="p">(</span><span class="nb">seq </span><span class="p">(</span><span class="nf">.split</span> <span class="nv">sentence</span> <span class="s">&quot;\\s+&quot;</span><span class="p">)))</span>
+</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?word</span> <span class="nv">?count</span><span class="p">]</span> <span class="p">(</span><span class="nf">sentence</span> <span class="nv">?s</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">split</span> <span class="nv">?s</span> <span class="ss">:&gt;</span> <span class="nv">?word</span><span class="p">)</span> <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?count</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>defmapcatop split</code>定义了一个方法，这个方法接收一个参数<code>sentence</code>，并会输出0个或多个元组（tuple）。<code>deffilterop</code>可以用来定义一个返回布尔型的方法，用来筛选记录；<code>defmapop</code>定义的函数会返回一个元组；<code>defaggregateop</code>定义一个聚合函数。这些函数都能在Cascalog工作流API中使用，我会在另一篇博客中叙述。</p>
+
+<p>在上述查询中，如果单词字母大小写不一致，会被分别统计。我们用以下方法来修复这个问题：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="kd">defn </span><span class="nv">lowercase</span> <span class="p">[</span><span class="nv">w</span><span class="p">]</span> <span class="p">(</span><span class="nf">.toLowerCase</span> <span class="nv">w</span><span class="p">))</span>
+</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?word</span> <span class="nv">?count</span><span class="p">]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">sentence</span> <span class="nv">?s</span><span class="p">)</span> <span class="p">(</span><span class="nf">split</span> <span class="nv">?s</span> <span class="ss">:&gt;</span> <span class="nv">?word1</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">lowercase</span> <span class="nv">?word1</span> <span class="ss">:&gt;</span> <span class="nv">?word</span><span class="p">)</span> <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?count</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以看到，这里直接使用了纯Clojure编写的函数。当这个函数不包含输出变量时，会被作为过滤条件来执行；当包含一个返回值时，则会作为<code>defmapop</code>来解析。而对于返回0个或多个元组的函数，则必须使用<code>defmapcatop</code>来定义。</p>
+
+<p>下面这个查询会按照性别和年龄范围来统计用户数量：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="kd">defn </span><span class="nv">agebucket</span> <span class="p">[</span><span class="nv">age</span><span class="p">]</span>
+</span><span class='line'>         <span class="p">(</span><span class="nf">find-first</span> <span class="p">(</span><span class="nb">partial &lt;= </span><span class="nv">age</span><span class="p">)</span> <span class="p">[</span><span class="mi">17</span> <span class="mi">25</span> <span class="mi">35</span> <span class="mi">45</span> <span class="mi">55</span> <span class="mi">65</span> <span class="mi">100</span> <span class="mi">200</span><span class="p">]))</span>
+</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?bucket</span> <span class="nv">?gender</span> <span class="nv">?count</span><span class="p">]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">age</span> <span class="nv">?person</span> <span class="nv">?age</span><span class="p">)</span> <span class="p">(</span><span class="nf">gender</span> <span class="nv">?person</span> <span class="nv">?gender</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">agebucket</span> <span class="nv">?age</span> <span class="ss">:&gt;</span> <span class="nv">?bucket</span><span class="p">)</span> <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?count</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>非空变量</h2>
+
+<p>Cascalog提供了“非空变量”这样的机制来帮助用户处理空值的情况。其实我们每个示例中都在使用这一特性。以<code>?</code>开头的变量都是非空变量，而以<code>!</code>开头的则是可空变量。Cascalog会在执行过程中将空值排除在外。</p>
+
+<p>为了体验非空变量的效果，让我们对比下面这两条查询语句：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span> <span class="nv">?city</span><span class="p">]</span> <span class="p">(</span><span class="nf">location</span> <span class="nv">?person</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">?city</span><span class="p">)</span>
+</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span> <span class="nv">!city</span><span class="p">]</span> <span class="p">(</span><span class="nf">location</span> <span class="nv">?person</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">!city</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>第二组查询结果中会包含空值。</p>
+
+<h2>子查询</h2>
+
+<p>最后，我们来看看更为复杂的查询，我们会用到子查询这一特性。让我们找出关注了两人以上的用户列表，并找出这些用户之间的关注关系：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">many-follows</span> <span class="p">(</span><span class="nf">&lt;-</span> <span class="p">[</span><span class="nv">?person</span><span class="p">]</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?person</span> <span class="nv">_</span><span class="p">)</span>
+</span><span class='line'>                              <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?c</span><span class="p">)</span> <span class="p">(</span><span class="nb">&gt; </span><span class="nv">?c</span> <span class="mi">2</span><span class="p">))]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person1</span> <span class="nv">?person2</span><span class="p">]</span> <span class="p">(</span><span class="nf">many-follows</span> <span class="nv">?person1</span><span class="p">)</span>
+</span><span class='line'>                 <span class="p">(</span><span class="nf">many-follows</span> <span class="nv">?person2</span><span class="p">)</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?person1</span> <span class="nv">?person2</span><span class="p">)))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里，我们使用<code>let</code>来定义了一个子查询<code>many-follows</code>。这个子查询是用<code>&lt;-</code>定义的。之后，我们便可以在后续查询中使用这个子查询了。</p>
+
+<p>我们还可以在一个查询中指定多个输出目的地。比如我们想要同时得到<code>many-follows</code>的查询结果：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">many-follows</span> <span class="p">(</span><span class="nf">&lt;-</span> <span class="p">[</span><span class="nv">?person</span><span class="p">]</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?person</span> <span class="nv">_</span><span class="p">)</span>
+</span><span class='line'>                              <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?c</span><span class="p">)</span> <span class="p">(</span><span class="nb">&gt; </span><span class="nv">?c</span> <span class="mi">2</span><span class="p">))</span>
+</span><span class='line'>             <span class="nv">active-follows</span> <span class="p">(</span><span class="nf">&lt;-</span> <span class="p">[</span><span class="nv">?p1</span> <span class="nv">?p2</span><span class="p">]</span> <span class="p">(</span><span class="nf">many-follows</span> <span class="nv">?p1</span><span class="p">)</span>
+</span><span class='line'>                                <span class="p">(</span><span class="nf">many-follows</span> <span class="nv">?p2</span><span class="p">)</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?p1</span> <span class="nv">?p2</span><span class="p">))]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">?-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="nv">many-follows</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="nv">active-follows</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里我们分别定义了两个查询，没有立刻执行它们，而是在后续的<code>?-</code>中将两个查询分别绑定到了两个<code>tap</code>上，并同时执行。</p>
+
+<h2>小结</h2>
+
+<p>Cascalog目前在还不断的改进中，未来会增加更多查询特性，以及对查询过程的优化。</p>
+
+<p>我非常希望能够得到你对Cascalog的反馈，如果你有任何评论、问题、或是顾虑，请留言，或者在<a href="http://twitter.com/nathanmarz">Twitter</a>上联系我，给我发送邮件<a href="nathan.marz@gmail.com">nathan.marz@gmail.com</a>，或是在freenode的#cascading频道和我聊天。</p>
+
+<p><a href="http://nathanmarz.com/blog/new-cascalog-features">下一篇博客</a>会介绍Cascalog的外联合、排序、组合等特性。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ji ZHANG</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-01T18:01:00+08:00" pubdate data-updated="true">May 1<span>st</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/translation/'>Translation</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/" title="Previous Post: Perl入门实战：JVM监控脚本（下）">&laquo; Perl入门实战：JVM监控脚本（下）</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/">Cascalog：基于Clojure的Hadoop查询语言</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/">Perl入门实战：JVM监控脚本（下）</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/27/fork-and-zombie-process/">fork()与僵尸进程</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1/">Perl入门实战：JVM监控脚本（上）</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/07/currying-and-partial-application/">柯里化与偏应用（JavaScript描述）</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section>
+  <h1>On Delicious</h1>
+  <div id="delicious"></div>
+  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/zjerryj?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
+  <p><a href="http://delicious.com/zjerryj">My Delicious Bookmarks &raquo;</a></p>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/zhangji87@gmail.com?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Ji ZHANG -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jizhang';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/';
+        var disqus_url = 'http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

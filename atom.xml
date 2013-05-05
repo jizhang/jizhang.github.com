@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2013-04-06T20:31:33+08:00</updated>
+  <updated>2013-05-05T15:15:54+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,683 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cascalog：基于Clojure的Hadoop查询语言]]></title>
+    <link href="http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/"/>
+    <updated>2013-05-01T18:01:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado</id>
+    <content type="html"><![CDATA[<p>原文：<a href="http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html">http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html</a></p>
+
+<p>我非常兴奋地告诉大家，<a href="http://github.com/nathanmarz/cascalog">Cascalog</a>开源了！Cascalog受<a href="http://en.wikipedia.org/wiki/Datalog">Datalog</a>启发，是一种基于Clojure、运行于Hadoop平台上的查询语言。</p>
+
+<h2>特点</h2>
+
+<ul>
+<li><strong>简单</strong> - 使用相同的语法编写函数、过滤规则、聚合运算；数据联合（join）变得简单而自然。</li>
+<li><strong>表达能力强</strong> - 强大的逻辑组合条件，你可以在查询语句中任意编写Clojure函数。</li>
+<li><strong>交互性</strong> - 可以在Clojure REPL中执行查询语句。</li>
+<li><strong>可扩展</strong> - Cascalog的查询语句是一组MapReduce脚本。</li>
+<li><strong>任意数据源</strong> - HDFS、数据库、本地数据、以及任何能够使用Cascading的<code>Tap</code>读取的数据。</li>
+<li><strong>正确处理空值</strong> - 空值往往让事情变得棘手。Cascalog提供了内置的“非空变量”来自动过滤空值。</li>
+<li><strong>与Cascading结合</strong> - 使用Cascalog定义的流程可以在Cascading中直接使用，反之亦然。</li>
+<li><strong>与Clojure结合</strong> - 能够使用普通的Clojure函数来编写操作流程、过滤规则，又因为Cascalog是一种Clojure DSL，因此也能在其他Clojure代码中使用。</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>好，下面就让我们开始Cascalog的学习之旅！我会用一系列的示例来介绍Cascalog。这些示例会使用到项目本身提供的“试验场”数据集。我建议你立刻下载Cascalog，一边阅读本文一边在REPL中操作。（安装启动过程只有几分钟，README中有步骤）</p>
+
+<h2>基本查询</h2>
+
+<p>首先让我们启动REPL，并加载“试验场”数据集：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">lein</span> <span class="nv">repl</span>
+</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">use</span> <span class="ss">&#39;cascalog.playground</span><span class="p">)</span> <span class="p">(</span><span class="nf">bootstrap</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>以上语句会加载本文用到的所有模块和数据。你可以阅读项目中的<code>playground.clj</code>文件来查看这些数据。下面让我们执行第一个查询语句，找出年龄为25岁的人：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span><span class="p">]</span> <span class="p">(</span><span class="nf">age</span> <span class="nv">?person</span> <span class="mi">25</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这条查询语句可以这样阅读：找出所有<code>age</code>等于25的<code>?person</code>。执行过程中你可以看到Hadoop输出的日志信息，几秒钟后就能看到查询结果。</p>
+
+<p>好，让我们尝试稍复杂的例子。我们来做一个范围查询，找出年龄小于30的人：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span><span class="p">]</span> <span class="p">(</span><span class="nf">age</span> <span class="nv">?person</span> <span class="nv">?age</span><span class="p">)</span> <span class="p">(</span><span class="nb">&lt; </span><span class="nv">?age</span> <span class="mi">30</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>看起来也不复杂。这条语句中，我们将人的年龄绑定到了<code>?age</code>变量中，并对该变量做出了“小于30”的限定。</p>
+
+<p>我们重新执行这条语句，只是这次会将人的年龄也输出出来：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span> <span class="nv">?age</span><span class="p">]</span> <span class="p">(</span><span class="nf">age</span> <span class="nv">?person</span> <span class="nv">?age</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nb">&lt; </span><span class="nv">?age</span> <span class="mi">30</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>我们要做的仅仅是将<code>?age</code>添加到向量中去。</p>
+
+<p>让我们执行另一条查询，找出艾米丽关注的所有男性：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span><span class="p">]</span> <span class="p">(</span><span class="nf">follows</span> <span class="s">&quot;emily&quot;</span> <span class="nv">?person</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">gender</span> <span class="nv">?person</span> <span class="s">&quot;m&quot;</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可能你没有注意到，这条语句使用了联合查询。各个数据集中的<code>?person</code>值都必须对应，而<code>follows</code>和<code>gender</code>分属于不同的数据集，Cascalog便会使用联合查询。</p>
+
+<h2>查询语句的结构</h2>
+
+<p>让我们分析一下查询语句的结构，以下面这条语句为例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">[</span><span class="nv">stdout</span><span class="p">]</span> <span class="p">[</span><span class="nv">?person</span> <span class="nv">?a2</span><span class="p">]</span> <span class="p">(</span><span class="nf">age</span> <span class="nv">?person</span> <span class="nv">?age</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nb">&lt; </span><span class="nv">?age</span> <span class="mi">30</span><span class="p">)</span> <span class="p">(</span><span class="nb">* </span><span class="mi">2</span> <span class="nv">?age</span> <span class="ss">:&gt;</span> <span class="nv">?a2</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>?&lt;-</code>操作符出现的频率很高，它能同时定义并执行一条查询。<code>?&lt;-</code>实际上是对<code>&lt;-</code>和<code>?-</code>的包装。我们之后会看到如何使用这些操作符编写更为复杂的查询语句。</p>
+
+<p>首先，我们指定了查询结果的输出目的地，就是这里的<code>(stdout)</code>。<code>(stdout)</code>会创建一个Cascading的<code>tap</code>组件，它会在查询结束后将结果打印到标准输出中。我们可以使用任意一种Cascading的<code>tap</code>组件，也就是说输出结果的格式可以是序列文件（Sequence file）、文本文件等等；也可以输出到任何地方，如本地磁盘、HDFS、数据库等。</p>
+
+<p>在定义了输出目的地后，我们使用Clojure的向量结构来定义输出结果所包含的内容。本例中，我们定义的是<code>?person</code>和<code>?a2</code>。</p>
+
+<p>接下来，我们定义了一系列的约束条件。Cascalog有三种约束条件：</p>
+
+<ol>
+<li>生成器（Generator）：表示一个数据源，可以是以下两种类型：
+
+<ul>
+<li>Cascading Tap：如HDFS上某个路径中的文件；</li>
+<li>一个已经使用<code>&lt;-</code>定义的查询。</li>
+</ul>
+</li>
+<li>操作器（Operation）：引入预定义的变量，将其绑定至新的变量，或是设定一个过滤条件。</li>
+<li>集合器（Aggregator）：计数、求和、最小值、最大值等等。</li>
+</ol>
+
+
+<p>约束条件由名称、一组输入变量、以及一组输出变量构成。上述查询中的约束条件有：</p>
+
+<ul>
+<li>(age ?person ?age)</li>
+<li>(&lt; ?age 30)</li>
+<li>(* 2 ?age :> ?a2)</li>
+</ul>
+
+
+<p>其中，<code>:&gt;</code>关键字用于将输入变量和输出变量隔开。如果没有这个关键字，那么该变量在操作器中就会被识别为输入变量，在生成器和集合器中会被认为是输出变量。</p>
+
+<p><code>age</code>约束指向<code>playground.clj</code>中定义的一个<code>tap</code>，所以它是一个生成器，会输出<code>?person</code>和<code>?age</code>这两个数据。</p>
+
+<p><code>&lt;</code>约束是一个Clojure函数，因为没有指定输出变量，所以这条约束会构成一个过滤器，将<code>?age</code>小于30的记录筛选出来。如果我们这样写：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="nb">&lt; </span><span class="nv">?age</span> <span class="mi">30</span> <span class="ss">:&gt;</span> <span class="nv">?young</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>那么<code>&lt;</code>约束会将“年龄是否小于30”作为一个布尔值传递给<code>?young</code>变量。</p>
+
+<p>约束之间的顺序不重要，因为Cascalog是声明式语言。</p>
+
+<h2>变量替换为常量</h2>
+
+<p>变量是以<code>?</code>或<code>!</code>起始的标识。有时你不在意变量的值，可以直接用<code>_</code>代替。其他的变量则会在解析时替换成常量。我们已经在很多示例中用到这一特性了。下面这个示例中，我们将输出变量作为一种过滤条件：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="nb">* </span><span class="mi">4</span> <span class="nv">?v2</span> <span class="ss">:&gt;</span> <span class="mi">100</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里使用了两个常量：4和100。4是一个输入变量，100则是作为一个过滤条件，只有满足<code>?v2</code>乘以4等于100的记录才会被筛选出来。字符串、数字、以及其他基本类型和对象类型，只要在Hadoop有对应的序列化操作，都可以被作为常量使用。</p>
+
+<p>让我们回到示例中。找出所有关注了比自己年龄小的用户的列表：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person1</span> <span class="nv">?person2</span><span class="p">]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">age</span> <span class="nv">?person1</span> <span class="nv">?age1</span><span class="p">)</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?person1</span> <span class="nv">?person2</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">age</span> <span class="nv">?person2</span> <span class="nv">?age2</span><span class="p">)</span> <span class="p">(</span><span class="nb">&lt; </span><span class="nv">?age2</span> <span class="nv">?age1</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>同时，我们将年龄差异也输出出来：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person1</span> <span class="nv">?person2</span> <span class="nv">?delta</span><span class="p">]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">age</span> <span class="nv">?person1</span> <span class="nv">?age1</span><span class="p">)</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?person1</span> <span class="nv">?person2</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">age</span> <span class="nv">?person2</span> <span class="nv">?age2</span><span class="p">)</span> <span class="p">(</span><span class="nb">- </span><span class="nv">?age2</span> <span class="nv">?age1</span> <span class="ss">:&gt;</span> <span class="nv">?delta</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nb">&lt; </span><span class="nv">?delta</span> <span class="mi">0</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>聚合</h2>
+
+<p>下面让我们看看聚合查询的使用方法。统计所有年龄小于30的用户人数：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?count</span><span class="p">]</span> <span class="p">(</span><span class="nf">age</span> <span class="nv">_</span> <span class="nv">?a</span><span class="p">)</span> <span class="p">(</span><span class="nb">&lt; </span><span class="nv">?a</span> <span class="mi">30</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?count</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这条查询会统计所有的记录。我们也可以只聚合部分记录。比如，让我们找出每个人所关注的用户的数量：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span> <span class="nv">?count</span><span class="p">]</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?person</span> <span class="nv">_</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?count</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>因为我们在输出结果中指定了<code>?person</code>这个变量，所以Cascalog会将数据记录按照用户来分组，然后使用<code>c/count</code>进行聚合运算。</p>
+
+<p>你可以在单个查询中使用多个聚合条件，它们的分组方式是一致的。例如，我们可以计算每个国家的用户的平均年龄，使用计数和求和这两种聚合方式：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?country</span> <span class="nv">?avg</span><span class="p">]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">location</span> <span class="nv">?person</span> <span class="nv">?country</span> <span class="nv">_</span> <span class="nv">_</span><span class="p">)</span> <span class="p">(</span><span class="nf">age</span> <span class="nv">?person</span> <span class="nv">?age</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?count</span><span class="p">)</span> <span class="p">(</span><span class="nf">c/sum</span> <span class="nv">?age</span> <span class="ss">:&gt;</span> <span class="nv">?sum</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">div</span> <span class="nv">?sum</span> <span class="nv">?count</span> <span class="ss">:&gt;</span> <span class="nv">?avg</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以看到，我们对<code>?sum</code>和<code>?count</code>这两个聚合结果执行了<code>div</code>操作，该操作会在聚合过程结束后进行。</p>
+
+<h2>自定义操作</h2>
+
+<p>下面我们来编写一个查询，统计几句话中每个单词的出现次数。首先，我们编写一个自定义操作：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">defmapcatop</span> <span class="nv">split</span> <span class="p">[</span><span class="nv">sentence</span><span class="p">]</span>
+</span><span class='line'>         <span class="p">(</span><span class="nb">seq </span><span class="p">(</span><span class="nf">.split</span> <span class="nv">sentence</span> <span class="s">&quot;\\s+&quot;</span><span class="p">)))</span>
+</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?word</span> <span class="nv">?count</span><span class="p">]</span> <span class="p">(</span><span class="nf">sentence</span> <span class="nv">?s</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">split</span> <span class="nv">?s</span> <span class="ss">:&gt;</span> <span class="nv">?word</span><span class="p">)</span> <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?count</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>defmapcatop split</code>定义了一个方法，这个方法接收一个参数<code>sentence</code>，并会输出0个或多个元组（tuple）。<code>deffilterop</code>可以用来定义一个返回布尔型的方法，用来筛选记录；<code>defmapop</code>定义的函数会返回一个元组；<code>defaggregateop</code>定义一个聚合函数。这些函数都能在Cascalog工作流API中使用，我会在另一篇博客中叙述。</p>
+
+<p>在上述查询中，如果单词字母大小写不一致，会被分别统计。我们用以下方法来修复这个问题：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="kd">defn </span><span class="nv">lowercase</span> <span class="p">[</span><span class="nv">w</span><span class="p">]</span> <span class="p">(</span><span class="nf">.toLowerCase</span> <span class="nv">w</span><span class="p">))</span>
+</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?word</span> <span class="nv">?count</span><span class="p">]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">sentence</span> <span class="nv">?s</span><span class="p">)</span> <span class="p">(</span><span class="nf">split</span> <span class="nv">?s</span> <span class="ss">:&gt;</span> <span class="nv">?word1</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">lowercase</span> <span class="nv">?word1</span> <span class="ss">:&gt;</span> <span class="nv">?word</span><span class="p">)</span> <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?count</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以看到，这里直接使用了纯Clojure编写的函数。当这个函数不包含输出变量时，会被作为过滤条件来执行；当包含一个返回值时，则会作为<code>defmapop</code>来解析。而对于返回0个或多个元组的函数，则必须使用<code>defmapcatop</code>来定义。</p>
+
+<p>下面这个查询会按照性别和年龄范围来统计用户数量：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="kd">defn </span><span class="nv">agebucket</span> <span class="p">[</span><span class="nv">age</span><span class="p">]</span>
+</span><span class='line'>         <span class="p">(</span><span class="nf">find-first</span> <span class="p">(</span><span class="nb">partial &lt;= </span><span class="nv">age</span><span class="p">)</span> <span class="p">[</span><span class="mi">17</span> <span class="mi">25</span> <span class="mi">35</span> <span class="mi">45</span> <span class="mi">55</span> <span class="mi">65</span> <span class="mi">100</span> <span class="mi">200</span><span class="p">]))</span>
+</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?bucket</span> <span class="nv">?gender</span> <span class="nv">?count</span><span class="p">]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">age</span> <span class="nv">?person</span> <span class="nv">?age</span><span class="p">)</span> <span class="p">(</span><span class="nf">gender</span> <span class="nv">?person</span> <span class="nv">?gender</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">agebucket</span> <span class="nv">?age</span> <span class="ss">:&gt;</span> <span class="nv">?bucket</span><span class="p">)</span> <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?count</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>非空变量</h2>
+
+<p>Cascalog提供了“非空变量”这样的机制来帮助用户处理空值的情况。其实我们每个示例中都在使用这一特性。以<code>?</code>开头的变量都是非空变量，而以<code>!</code>开头的则是可空变量。Cascalog会在执行过程中将空值排除在外。</p>
+
+<p>为了体验非空变量的效果，让我们对比下面这两条查询语句：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span> <span class="nv">?city</span><span class="p">]</span> <span class="p">(</span><span class="nf">location</span> <span class="nv">?person</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">?city</span><span class="p">)</span>
+</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person</span> <span class="nv">!city</span><span class="p">]</span> <span class="p">(</span><span class="nf">location</span> <span class="nv">?person</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">!city</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>第二组查询结果中会包含空值。</p>
+
+<h2>子查询</h2>
+
+<p>最后，我们来看看更为复杂的查询，我们会用到子查询这一特性。让我们找出关注了两人以上的用户列表，并找出这些用户之间的关注关系：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">many-follows</span> <span class="p">(</span><span class="nf">&lt;-</span> <span class="p">[</span><span class="nv">?person</span><span class="p">]</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?person</span> <span class="nv">_</span><span class="p">)</span>
+</span><span class='line'>                              <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?c</span><span class="p">)</span> <span class="p">(</span><span class="nb">&gt; </span><span class="nv">?c</span> <span class="mi">2</span><span class="p">))]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">?&lt;-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="p">[</span><span class="nv">?person1</span> <span class="nv">?person2</span><span class="p">]</span> <span class="p">(</span><span class="nf">many-follows</span> <span class="nv">?person1</span><span class="p">)</span>
+</span><span class='line'>                 <span class="p">(</span><span class="nf">many-follows</span> <span class="nv">?person2</span><span class="p">)</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?person1</span> <span class="nv">?person2</span><span class="p">)))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里，我们使用<code>let</code>来定义了一个子查询<code>many-follows</code>。这个子查询是用<code>&lt;-</code>定义的。之后，我们便可以在后续查询中使用这个子查询了。</p>
+
+<p>我们还可以在一个查询中指定多个输出目的地。比如我们想要同时得到<code>many-follows</code>的查询结果：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">many-follows</span> <span class="p">(</span><span class="nf">&lt;-</span> <span class="p">[</span><span class="nv">?person</span><span class="p">]</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?person</span> <span class="nv">_</span><span class="p">)</span>
+</span><span class='line'>                              <span class="p">(</span><span class="nf">c/count</span> <span class="nv">?c</span><span class="p">)</span> <span class="p">(</span><span class="nb">&gt; </span><span class="nv">?c</span> <span class="mi">2</span><span class="p">))</span>
+</span><span class='line'>             <span class="nv">active-follows</span> <span class="p">(</span><span class="nf">&lt;-</span> <span class="p">[</span><span class="nv">?p1</span> <span class="nv">?p2</span><span class="p">]</span> <span class="p">(</span><span class="nf">many-follows</span> <span class="nv">?p1</span><span class="p">)</span>
+</span><span class='line'>                                <span class="p">(</span><span class="nf">many-follows</span> <span class="nv">?p2</span><span class="p">)</span> <span class="p">(</span><span class="nf">follows</span> <span class="nv">?p1</span> <span class="nv">?p2</span><span class="p">))]</span>
+</span><span class='line'>            <span class="p">(</span><span class="nf">?-</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="nv">many-follows</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span> <span class="nv">active-follows</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里我们分别定义了两个查询，没有立刻执行它们，而是在后续的<code>?-</code>中将两个查询分别绑定到了两个<code>tap</code>上，并同时执行。</p>
+
+<h2>小结</h2>
+
+<p>Cascalog目前在还不断的改进中，未来会增加更多查询特性，以及对查询过程的优化。</p>
+
+<p>我非常希望能够得到你对Cascalog的反馈，如果你有任何评论、问题、或是顾虑，请留言，或者在<a href="http://twitter.com/nathanmarz">Twitter</a>上联系我，给我发送邮件<a href="nathan.marz@gmail.com">nathan.marz@gmail.com</a>，或是在freenode的#cascading频道和我聊天。</p>
+
+<p><a href="http://nathanmarz.com/blog/new-cascalog-features">下一篇博客</a>会介绍Cascalog的外联合、排序、组合等特性。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Perl入门实战：JVM监控脚本（下）]]></title>
+    <link href="http://shzhangji.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/"/>
+    <updated>2013-03-28T15:28:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2</id>
+    <content type="html"><![CDATA[<h2>套接字</h2>
+
+<p>使用套接字（Socket）进行网络通信的基本流程是：</p>
+
+<ul>
+<li>服务端：监听端口、等待连接、接收请求、发送应答；</li>
+<li>客户端：连接服务端、发送请求、接收应答。</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">use</span> <span class="nn">IO::Socket::</span><span class="n">INET</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">my</span> <span class="nv">$server</span> <span class="o">=</span> <span class="nn">IO::Socket::</span><span class="n">INET</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span>
+</span><span class='line'>    <span class="n">LocalPort</span> <span class="o">=&gt;</span> <span class="mi">10060</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">Type</span> <span class="o">=&gt;</span> <span class="n">SOCK_STREAM</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">Reuse</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">Listen</span> <span class="o">=&gt;</span> <span class="n">SOMAXCONN</span>
+</span><span class='line'><span class="p">)</span> <span class="o">||</span> <span class="nb">die</span> <span class="s">&quot;服务创建失败\n&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">while</span> <span class="p">(</span><span class="k">my</span> <span class="nv">$client</span> <span class="o">=</span> <span class="nv">$server</span><span class="o">-&gt;</span><span class="nb">accept</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">my</span> <span class="nv">$line</span> <span class="o">=</span> <span class="sr">&lt;$client&gt;</span><span class="p">;</span>
+</span><span class='line'>    <span class="nb">chomp</span><span class="p">(</span><span class="nv">$line</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nv">$line</span> <span class="o">=~</span><span class="sr"> /^JVMPORT ([0-9]+)$/</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;RECV $1\n&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">print</span> <span class="nv">$client</span> <span class="s">&quot;OK\n&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;ERROR $line\n&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">print</span> <span class="nv">$client</span> <span class="s">&quot;ERROR\n&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">close</span><span class="p">(</span><span class="nv">$client</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">close</span><span class="p">(</span><span class="nv">$server</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<ul>
+<li><code>IO::Socket::INET</code>是一个内置模块，<code>::</code>符号用来分隔命名空间。</li>
+<li><code>-&gt;new</code>运算符是用来创建一个类的实例的，这涉及到面向对象编程，我们暂且忽略。</li>
+<li><code>(key1 =&gt; value1, key2 =&gt; value2)</code>是用来定义一个哈希表的，也就是键值对。这里是将哈系表作为参数传递给了<code>new</code>函数。请看以下示例。对于哈系表的进一步操作，我们这里暂不详述。</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">sub </span><span class="nf">hello</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">my</span> <span class="nv">%params</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;Hello, $params{&#39;name&#39;}!\n&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">hello</span><span class="p">(</span><span class="s">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s">&#39;Jerry&#39;</span><span class="p">);</span> <span class="c1"># 输出 Hello, Jerry!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><code>while (...) {...}</code>是另一种循环结构，当圆括号的表达式为真就会执行大括号中的语句。</li>
+<li><code>$server-&gt;accept()</code>表示调用<code>$server</code>对象的<code>accept()</code>函数，用来接受一个连接。执行这个函数时进程会阻塞（进入睡眠），当有连接过来时才会唤醒，并将该连接赋值给<code>$client</code>变量。</li>
+<li><code>&lt;...&gt;</code>运算符表示从文件中读取一行，如：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="nb">open</span> <span class="k">my</span> <span class="nv">$fd</span><span class="p">,</span> <span class="s">&#39;&lt;&#39;</span><span class="p">,</span> <span class="s">&#39;/proc/diskstats&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="k">while</span> <span class="p">(</span><span class="k">my</span> <span class="nv">$line</span> <span class="o">=</span> <span class="sr">&lt;$fd&gt;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">print</span> <span class="nv">$line</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>由于套接字也可以作为文件来看待，所以就能使用<code>&lt;...&gt;</code>运算符。关于<code>open</code>函数和其他文件操作，读者可参考<a href="http://perl5maven.com/open-and-read-from-files">这篇文章</a>。</p>
+
+<ul>
+<li><code>chomp()</code>函数用来将字符串末尾的换行符去掉。它的用法也比较奇特，不是<code>$line = chomp($line)</code>，而是<code>chomp($line)</code>，这里<code>$line</code>是一次引用传递。</li>
+<li>细心的读者会发现，第二句<code>print</code>增加了<code>$client</code>，可以猜到它是用来指定<code>print</code>的输出目标。默认情况下是标准输出。</li>
+</ul>
+
+
+<p>我们打开两个终端，一个终端执行服务端，另一个终端直接用Bash去调用。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># 客户端</span>
+</span><span class='line'><span class="nv">$ </span><span class="nb">echo</span> <span class="s1">&#39;JVMPORT 2181&#39;</span> | nc 127.0.0.1 10060
+</span><span class='line'>OK
+</span><span class='line'><span class="nv">$ </span><span class="nb">echo</span> <span class="s1">&#39;hello&#39;</span> | nc 127.0.0.1 10060
+</span><span class='line'>ERROR
+</span><span class='line'>
+</span><span class='line'><span class="c"># 服务端</span>
+</span><span class='line'><span class="nv">$ </span>./socket-server.pl
+</span><span class='line'>RECV 2181
+</span><span class='line'>ERROR hello
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>至于客户端，还请读者自行完成，可参考<a href="http://perldoc.perl.org/IO/Socket/INET.html">相关文档</a>。</p>
+
+<h2>子进程</h2>
+
+<p>上述代码中有这样一个问题：当客户端建立了连接，但迟迟没有发送内容，那么服务端就会阻塞在<code>$line = &lt;$client&gt;</code>这条语句，无法接收其他请求。有三种解决方案：</p>
+
+<ol>
+<li>服务端读取信息时采用一定的超时机制，如果3秒内还不能读到完整的一行就断开连接。可惜Perl中并没有提供边界的方法来实现这一机制，需要自行使用<code>IO::Select</code>这样的模块来编写，比较麻烦。</li>
+<li>接受新的连接后打开一个子进程或线程来处理连接，这样就不会因为一个连接挂起而使整个服务不可用。</li>
+<li>使用非阻塞事件机制，当有读写操作时才会去处理。</li>
+</ol>
+
+
+<p>这里我们使用第二种方案，即打开子进程来处理请求。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">use</span> <span class="nn">IO::Socket::</span><span class="n">INET</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">sub </span><span class="nf">REAPER</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">my</span> <span class="nv">$pid</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">while</span> <span class="p">((</span><span class="nv">$pid</span> <span class="o">=</span> <span class="nb">waitpid</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;WNOHANG&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;SIGCHLD $pid\n&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">my</span> <span class="nv">$interrupted</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="k">sub </span><span class="nf">INTERRUPTER</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nv">$interrupted</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$SIG</span><span class="p">{</span><span class="n">CHLD</span><span class="p">}</span> <span class="o">=</span> <span class="o">\&amp;</span><span class="n">REAPER</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$SIG</span><span class="p">{</span><span class="n">TERM</span><span class="p">}</span> <span class="o">=</span> <span class="o">\&amp;</span><span class="n">INTERRUPTER</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$SIG</span><span class="p">{</span><span class="n">INT</span><span class="p">}</span> <span class="o">=</span> <span class="o">\&amp;</span><span class="n">INTERRUPTER</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">my</span> <span class="nv">$server</span> <span class="o">=</span> <span class="o">...</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="nv">$interrupted</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="k">my</span> <span class="nv">$client</span> <span class="o">=</span> <span class="nv">$server</span><span class="o">-&gt;</span><span class="nb">accept</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">my</span> <span class="nv">$pid</span> <span class="o">=</span> <span class="nb">fork</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nv">$pid</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nb">close</span><span class="p">(</span><span class="nv">$client</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">print</span> <span class="s">&quot;PID $pid\n&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span> <span class="k">elsif</span> <span class="p">(</span><span class="nv">$pid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nb">close</span><span class="p">(</span><span class="nv">$server</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">my</span> <span class="nv">$line</span> <span class="o">=</span> <span class="sr">&lt;$client&gt;</span><span class="p">;</span>
+</span><span class='line'>            <span class="o">...</span>
+</span><span class='line'>            <span class="nb">close</span><span class="p">(</span><span class="nv">$client</span><span class="p">);</span>
+</span><span class='line'>            <span class="nb">exit</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">print</span> <span class="s">&quot;fork()调用失败\n&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">close</span><span class="p">(</span><span class="nv">$server</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>我们先看下半部分的代码。系统执行<code>fork()</code>函数后，会将当前进程的所有内容拷贝一份，以新的进程号来运行，即子进程。通过<code>fork()</code>的返回值可以知道当前进程是父进程还是子进程：大于0的是父进程；等于0的是子进程。子进程中的代码做了省略，执行完后直接<code>exit</code>。</p>
+
+<p>上半部分的信号处理是做什么用的呢？这就是在多进程模型中需要特别注意的问题：僵尸进程。具体可以参考<a href="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/">这篇文章</a>。</p>
+
+<p>而<code>$interrupted</code>变量则是用来控制程序是否继续执行的。当进程收到<code>SIGTERM</code>或<code>SIGINT</code>信号时，该变量就会置为真，使进程自然退出。</p>
+
+<p>为何不直接使用<code>while (my $client = $server-&gt;accept()) {...}</code>呢？因为子进程退出时会向父进程发送<code>SIGCHLD</code>信号，而<code>accept()</code>函数在接收到任何信号后都会中断并返回空，使得<code>while</code>语句退出。</p>
+
+<h2>命令行参数</h2>
+
+<p>这个服务脚本所监听的端口后是固写在脚本中的，如果想通过命令行指定呢？我们可以使用Perl的内置模块<code>Getopt::Long</code>。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">use</span> <span class="nn">Getopt::</span><span class="n">Long</span><span class="p">;</span>
+</span><span class='line'><span class="k">use</span> <span class="nn">Pod::</span><span class="n">Usage</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">my</span> <span class="nv">$help</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="k">my</span> <span class="nv">$port</span> <span class="o">=</span> <span class="mi">10060</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">GetOptions</span><span class="p">(</span>
+</span><span class='line'>    <span class="s">&#39;help|?&#39;</span> <span class="o">=&gt;</span> <span class="o">\</span><span class="nv">$help</span><span class="p">,</span>
+</span><span class='line'>    <span class="s">&#39;port=i&#39;</span> <span class="o">=&gt;</span> <span class="o">\</span><span class="nv">$port</span>
+</span><span class='line'><span class="p">)</span> <span class="o">||</span> <span class="n">pod2usage</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="n">pod2usage</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="nv">$help</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;PORT $port\n&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">__END__</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">=head1 NAME</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">getopt</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">=head1 SYNOPSIS</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">getopt.pl [options]</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp"> Options:</span>
+</span><span class='line'><span class="cp">   -help brief help message</span>
+</span><span class='line'><span class="cp">   -port bind to tcp port</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">=cut</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>使用方法是：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>./getopt.pl -h
+</span><span class='line'>Usage:
+</span><span class='line'>    getopt.pl <span class="o">[</span>options<span class="o">]</span>
+</span><span class='line'>    ...
+</span><span class='line'><span class="nv">$ </span>./getopt.pl
+</span><span class='line'>PORT 10060
+</span><span class='line'><span class="nv">$ </span>./getopt.pl -p 12345
+</span><span class='line'>PORT 12345
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>'port=i' =&gt; \$port</code>表示从命令行中接收名为<code>-port</code>的参数，并将接收到的值转换为整数（<code>i</code>指整数）。<code>\$</code>又是一种引用传递了，这里暂不详述。</p>
+
+<p>至于<code>||</code>运算符，之前在建立<code>$server</code>时也遇到过，它实际上是一种逻辑运算符，表示“或”的关系。这里的作用则是“如果GetOptions返回的值不为真，则程序退出”。</p>
+
+<p><code>pod2usage(1) if $help</code>表示如果<code>$help</code>为真则执行<code>pod2usage(1)</code>。你也可以写为<code>$help &amp;&amp; pod2usage(1)</code>。</p>
+
+<p>我们再来看看<code>__END__</code>之后的代码，它是一种Pod文档（Plain Old Documentation），可以是单独的文件，也可以像这样直接附加到Perl脚本末尾。具体格式可以参考<a href="http://perldoc.perl.org/perlpod.html">perlpod</a>。<code>pod2usage()</code>函数顾名思义是将附加的Pod文档转化成帮助信息显示在控制台上。</p>
+
+<h2>小结</h2>
+
+<p>完整的脚本可以见这个链接<a href="https://github.com/jizhang/zabbix-templates/blob/master/jvm/jvm-service.pl">jvm-service.pl</a>。调用该服务的脚本可以见<a href="https://github.com/jizhang/zabbix-templates/blob/master/jvm/jvm-check.pl">jvm-check.pl</a>。</p>
+
+<p>Perl语言历史悠久，语法丰富，还需多使用、多积累才行。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[fork()与僵尸进程]]></title>
@@ -316,6 +993,386 @@
 <li><a href="http://tech.idv2.com/2006/10/14/linux-multiprocess-info/">Linux多进程相关内容</a></li>
 </ul>
 
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Perl入门实战：JVM监控脚本（上）]]></title>
+    <link href="http://shzhangji.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1/"/>
+    <updated>2013-03-26T23:00:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1</id>
+    <content type="html"><![CDATA[<p>由于最近在搭建Zabbix监控服务，需要制作各类监控的模板，如iostat、Nginx、MySQL等，因此会写一些脚本来完成数据采集的工作。又因为近期对Perl语言比较感兴趣，因此决定花些时间学一学，写一个脚本来练练手，于是就有了这样一份笔记。</p>
+
+<h2>需求描述</h2>
+
+<p>我们将编写一个获取JVM虚拟机状态信息的脚本：</p>
+
+<ol>
+<li>启动一个服务进程，通过套接字接收形如“JVMPORT 2181”的请求；</li>
+<li>执行<code>netstat</code>命令，根据端口获取进程号；</li>
+<li>执行<code>jstat</code>命令获取JVM的GC信息；<code>jstack</code>获取线程信息；<code>ps -o pcpu,rss</code>获取CPU和内存使用情况；</li>
+<li>将以上信息返回给客户端；</li>
+</ol>
+
+
+<p>之所以需要这样一个服务是因为Zabbix Agent会运行在zabbix用户下，无法获取运行在其他用户下的JVM信息。</p>
+
+<p>此外，Zabbix Agent也需要编写一个脚本来调用上述服务，这个在文章末尾会给出范例代码。</p>
+
+<!-- more -->
+
+
+<h2>Hello, world!</h2>
+
+<p>还是要不免俗套地来一个helloworld，不过我们的版本会稍稍丰富些：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="c1">#!/usr/bin/perl</span>
+</span><span class='line'><span class="k">use</span> <span class="n">strict</span><span class="p">;</span>
+</span><span class='line'><span class="k">my</span> <span class="nv">$name</span> <span class="o">=</span> <span class="s">&#39;Jerry&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;Hello, $name!\n&quot;</span><span class="p">;</span> <span class="c1"># 输出 Hello, Jerry!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>将该文件保存为<code>hello.pl</code>，可以用两种方式执行：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>perl hello.pl
+</span><span class='line'>Hello, Jerry!
+</span><span class='line'><span class="nv">$ </span>chmod 755 hello.pl
+</span><span class='line'><span class="nv">$ </span>./hello.pl
+</span><span class='line'>Hello, Jerry!
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>所有的语句都以分号结尾，因此一行中可以有多条语句，但并不提倡这样做。</li>
+<li><code>use</code>表示加载某个模块，加载<a href="http://search.cpan.org/~rjbs/perl-5.16.3/lib/strict.pm"><code>strict</code>模块</a>表示会对当前文件的语法做出一些规范和约束。比如将<code>my $name ...</code>前的<code>my</code>去掉，执行后Perl解释器会报错。建议坚持使用该模块。</li>
+<li><code>$name</code>，一个Perl变量。<code>$</code>表示该变量是一个标量，可以存放数值、字符串等基本类型。其它符号有<code>@</code>和<code>%</code>，分别对应数组和哈希表。</li>
+<li><code>my</code>表示声明一个变量，类似的有<code>our</code>、<code>local</code>等，将来接触到变量作用域时会了解。</li>
+<li>字符串可以用单引号或双引号括起来，区别是双引号中的变量会被替换成实际值以及进行转移，单引号则不会。如<code>'Hello, $name!\n'</code>中的<code>$name</code>和<code>\n</code>会按原样输出，而不是替换为“Jerry”和换行符。</li>
+<li><code>print</code>语句用于将字符串输出到标准输出上。</li>
+<li><code>#</code>表示注释。</li>
+</ul>
+
+
+<h2>正则表达式</h2>
+
+<p>我们第一个任务是从“JVMPORT 2181”这样的字符串中提取“2181”这个端口号。解决方案当然是使用正则，而且Perl的强项之一正是文本处理：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">my</span> <span class="nv">$line</span> <span class="o">=</span> <span class="s">&#39;JVMPORT 2181&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$line</span> <span class="o">=~</span><span class="sr"> /^JVMPORT ([0-9]+)$/</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">print</span> <span class="nv">$1</span><span class="p">,</span> <span class="s">&quot;\n&quot;</span><span class="p">;</span> <span class="c1"># 输出 2181</span>
+</span><span class='line'><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&#39;匹配失败&#39;</span><span class="p">,</span> <span class="s">&quot;\n&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里假设你知道如何使用正则表达式。</p>
+
+<ul>
+<li><code>=~</code>运算符表示将变量和正则表达式进行匹配，如果匹配成功则返回真，失败则返回假。</li>
+<li>匹配成功后，Perl会对全局魔术变量——<code>$0</code>至<code>$9</code>进行赋值，分别表示正则表达式完全匹配到的字符串、第一个子模式匹配到的字符串、第二个子模式，依此类推。</li>
+<li><code>if...else...</code>是条件控制语句，其中<code>...} else if (...</code>可以简写为<code>...} elsif (...</code>。</li>
+</ul>
+
+
+<h2>调用命令行</h2>
+
+<p>使用反引号（即大键盘数字1左边的按键）：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">my</span> <span class="nv">$uname</span> <span class="o">=</span> <span class="sb">`uname`</span><span class="p">;</span>
+</span><span class='line'><span class="k">print</span> <span class="nv">$uname</span><span class="p">;</span> <span class="c1"># 输出 Linux</span>
+</span><span class='line'><span class="k">my</span> <span class="nv">$pid</span> <span class="o">=</span> <span class="s">&#39;1234&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$line</span> <span class="o">=</span> <span class="sb">`ps -ef | grep $pid`</span><span class="p">;</span> <span class="c1"># 支持管道符和变量替换</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>对于返回多行结果的命令，我们需要对每一行的内容进行遍历，因此会使用数组和<code>foreach</code>语句：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">my</span> <span class="nv">$pid</span><span class="p">;</span>
+</span><span class='line'><span class="k">my</span> <span class="nv">$jvmport</span> <span class="o">=</span> <span class="s">&#39;2181&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="k">my</span> <span class="nv">@netstat</span> <span class="o">=</span> <span class="sb">`netstat -lntp 2&gt;/dev/null`</span><span class="p">;</span>
+</span><span class='line'><span class="k">foreach</span> <span class="k">my</span> <span class="nv">$line</span> <span class="p">(</span><span class="nv">@netstat</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nv">$line</span> <span class="o">=~</span><span class="sr"> /.*?:$jvmport\s.*?([0-9]+)\/java\s*$/</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$pid</span> <span class="o">=</span> <span class="nv">$1</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">last</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$pid</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">print</span> <span class="nv">$pid</span><span class="p">,</span> <span class="s">&quot;\n&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&#39;端口不存在&#39;</span><span class="p">,</span> <span class="s">&quot;\n&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><code>$pid</code>变量的结果是2181端口对应的进程号。</li>
+<li>这个正则可能稍难理解，但对照<code>netstat</code>的输出结果来看就可以了。</li>
+<li><code>foreach</code>是循环语句的一种，用来遍历一个数组的元素，这里则是遍历<code>netstat</code>命令每一行的内容。注意，<code>foreach</code>可以直接用<code>for</code>代替，即<code>for my $line (@netstat) { ... }</code>。</li>
+<li><code>last</code>表示退出循环。如果要进入下一次循环，可使用<code>next</code>语句。</li>
+</ul>
+
+
+<h2>数组</h2>
+
+<p>下面我们要根据进程号来获取JVM的GC信息：（“2017”为上文获取到的进程号）</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>jstat -gc 2017
+</span><span class='line'> S0C    S1C    S0U    S1U      EC       EU        OC         OU       PC     PU    YGC     YGCT    FGC    FGCT     GCT
+</span><span class='line'>192.0  192.0   0.0    50.1   1792.0   682.8     4480.0     556.3    21248.0 9483.2      3    0.008   0      0.000    0.008
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如何将以上输出结果转换为以下形式？</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>s0c 192.0
+</span><span class='line'>s1c 192.0
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这时我们就需要更多地使用数组这一数据结构：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">my</span> <span class="nv">$pid</span> <span class="o">=</span> <span class="mi">2017</span><span class="p">;</span>
+</span><span class='line'><span class="k">my</span> <span class="nv">@jstat</span> <span class="o">=</span> <span class="sb">`jstat -gc $pid`</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$jstat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=~</span> <span class="sr">s/^\s+|\s+$//</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$jstat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=~</span> <span class="sr">s/^\s+|\s+$//</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">my</span> <span class="nv">@kv_keys</span> <span class="o">=</span> <span class="nb">split</span><span class="p">(</span><span class="sr">/\s+/</span><span class="p">,</span> <span class="nv">$jstat</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span><span class='line'><span class="k">my</span> <span class="nv">@kv_vals</span> <span class="o">=</span> <span class="nb">split</span><span class="p">(</span><span class="sr">/\s+/</span><span class="p">,</span> <span class="nv">$jstat</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">my</span> <span class="nv">$result</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="k">for</span> <span class="k">my</span> <span class="nv">$i</span> <span class="p">(</span><span class="mi">0</span> <span class="o">..</span> <span class="nv">$#kv_keys</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nv">$result</span> <span class="o">.=</span> <span class="s">&quot;$kv_keys[$i] $kv_vals[$i]\n&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">print</span> <span class="nv">$result</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>使用<code>$jstat[0]</code>获取数组的第一个元素，数组的下标从0开始，注意这里的<code>$</code>符号，而非<code>@</code>。</li>
+<li><code>$#kv_keys</code>返回的是数组最大的下标，而非数组的长度。</li>
+<li><code>for my $i (0 .. 10) {}</code>则是另一种循环结构，<code>$i</code>的值从0到10（含0和10）。</li>
+</ul>
+
+
+<p>对于正则表达式，这里也出现了两个新的用法：</p>
+
+<ul>
+<li><code>s/A/B/</code>表示将A的值替换为B，上述代码中是将首尾的空格去除；</li>
+<li><code>split(A, B)</code>函数表示将字符串B按照正则A进行分割，并返回一个数组。</li>
+</ul>
+
+
+<p>另外在学习过程中还发现了这样一种写法：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">my</span> <span class="nv">@jstat</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$jstat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=~</span> <span class="sr">s/^\s+|\s+$//</span><span class="p">;</span>
+</span><span class='line'><span class="nv">$jstat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=~</span> <span class="sr">s/^\s+|\s+$//</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">map</span> <span class="p">{</span> <span class="sr">s/^\s+|\s+$//</span> <span class="p">}</span> <span class="nv">@jstat</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>map</code>函数会对数组中的每个元素应用第一个参数指向的函数（这里是一个匿名函数），当需要处理的数组元素很多时，这种是首选做法。具体内容读者可以自己去了解。</p>
+
+<h2>函数</h2>
+
+<p>我们可以用以下命令来获取指定进程的CPU和内存使用率：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>ps -o pcpu,rss -p 2017
+</span><span class='line'>%CPU   RSS
+</span><span class='line'> 0.1 21632
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>格式和<code>jstat</code>是一样的，为了不再写一遍上文中的代码，我们可以将其封装为函数。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">sub </span><span class="nf">kv_parse</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">my</span> <span class="nv">@kv_data</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">map</span> <span class="p">{</span> <span class="sr">s/^\s+|\s+$//</span> <span class="p">}</span> <span class="nv">@kv_data</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">my</span> <span class="nv">@kv_keys</span> <span class="o">=</span> <span class="nb">split</span><span class="p">(</span><span class="sr">/\s+/</span><span class="p">,</span> <span class="nv">$kv_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span><span class='line'>    <span class="k">my</span> <span class="nv">@kv_vals</span> <span class="o">=</span> <span class="nb">split</span><span class="p">(</span><span class="sr">/\s+/</span><span class="p">,</span> <span class="nv">$kv_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">my</span> <span class="nv">$result</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">for</span> <span class="k">my</span> <span class="nv">$i</span> <span class="p">(</span><span class="mi">0</span> <span class="o">..</span> <span class="nv">$#kv_keys</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nv">$result</span> <span class="o">.=</span> <span class="s">&quot;$kv_keys[$i] $kv_vals[$i]\n&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="nv">$result</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">my</span> <span class="nv">$pid</span> <span class="o">=</span> <span class="mi">2017</span><span class="p">;</span>
+</span><span class='line'><span class="k">my</span> <span class="nv">@jstat</span> <span class="o">=</span> <span class="sb">`jstat -gc $pid`</span><span class="p">;</span>
+</span><span class='line'><span class="k">my</span> <span class="nv">@ps</span> <span class="o">=</span> <span class="sb">`ps -o pcpu,rss -p $pid`</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">print</span> <span class="n">kv_parse</span><span class="p">(</span><span class="nv">@jstat</span><span class="p">);</span>
+</span><span class='line'><span class="k">print</span> <span class="n">kv_parse</span><span class="p">(</span><span class="nv">@ps</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>sub</code>表示定义一个函数（subroutine），和其他语言不同的是，它没有参数列表，获取参数使用的是魔术变量<code>@_</code>：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">sub </span><span class="nf">hello</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">my</span> <span class="nv">$name1</span> <span class="o">=</span> <span class="nv">$_</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'>    <span class="nv">$name1</span> <span class="o">=</span> <span class="nb">shift</span> <span class="nv">@_</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">my</span> <span class="nv">$name2</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">(</span><span class="nv">@_</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">my</span> <span class="nv">$name3</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">hello</span><span class="p">(</span><span class="s">&#39;111&#39;</span><span class="p">,</span> <span class="s">&#39;222&#39;</span><span class="p">,</span> <span class="s">&#39;333&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="n">hello</span> <span class="s">&#39;111&#39;</span><span class="p">,</span> <span class="s">&#39;222&#39;</span><span class="p">,</span> <span class="s">&#39;333&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="o">&amp;</span><span class="n">hello</span><span class="p">(</span><span class="s">&#39;111&#39;</span><span class="p">,</span> <span class="s">&#39;222&#39;</span><span class="p">,</span> <span class="s">&#39;333&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><code>$_[0]</code>和<code>shift @_</code>返回的都是第一参数。不同的是，<code>shift</code>函数会将这个参数从<code>@_</code>数组中移除；</li>
+<li><code>shift @_</code>和<code>shift(@_)</code>是等价的，因为调用函数时参数列表可以不加括号；</li>
+<li><code>shift @_</code>和只写<code>shift</code>也是等价的，该函数若不指定参数，则默认使用<code>@_</code>数组。</li>
+<li><code>&amp;</code>符号也是比较特别的，主要作用有两个：一是告诉Perl解释器<code>hello</code>将是一个用户定义的函数，这样就不会和Perl原生关键字冲突；二是忽略函数原型（prototype）。具体可以参考这篇文章：<a href="https://www.socialtext.net/perl5/subroutines_called_with_the_ampersand">Subroutines Called With The Ampersand</a>。</li>
+</ul>
+
+
+<p>当传递一个数组给函数时，该数组不会被作为<code>@_</code>的第一个元素，而是作为<code>@_</code>本身。这也是很特别的地方。当传递多个数组，Perl会将这些数组进行拼接：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">sub </span><span class="nf">hello</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">for</span> <span class="k">my</span> <span class="nv">$i</span> <span class="p">(</span><span class="nv">@_</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">print</span> <span class="nv">$i</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">my</span> <span class="nv">@arr1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span> <span class="c1"># 使用圆括号定义一个数组，元素以逗号分隔。</span>
+</span><span class='line'><span class="k">my</span> <span class="nv">@arr2</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">hello</span> <span class="nv">@arr1</span><span class="p">,</span> <span class="nv">@arr2</span><span class="p">;</span> <span class="c1"># 输出 1234</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>小结</h2>
+
+<p>对于初学者来讲，本文的信息量可能有些大了。但如果你已经有一定的编程经验（包括Bash），应该可以理解这些内容。</p>
+
+<p>Perl文化的特色是“不只一种做法来完成一件事情”，所以我们可以看到很多不同的写法。但也有一些是大家普遍接受的写法，所以也算是一种规范吧。</p>
+
+<p>下一章我们会继续完成这个监控脚本。</p>
+
+<p>PS：本文的示例代码可以从<a href="https://github.com/jizhang/perl-jvm-monitoring-example">Github</a>中下载。</p>
 ]]></content>
   </entry>
   
