@@ -5,7 +5,7 @@ date: 2013-05-01 18:01
 comments: true
 categories: Translation
 tags: [clojure]
-published: false
+published: true
 ---
 
 原文：[http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html](http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html)
@@ -240,3 +240,11 @@ user=> (let [many-follows (<- [?person] (follows ?person _)
 ```
 
 这里我们分别定义了两个查询，没有立刻执行它们，而是在后续的`?-`中将两个查询分别绑定到了两个`tap`上，并同时执行。
+
+## 小结
+
+Cascalog目前在还不断的改进中，未来会增加更多查询特性，以及对查询过程的优化。
+
+我非常希望能够得到你对Cascalog的反馈，如果你有任何评论、问题、或是顾虑，请留言，或者在[Twitter](http://twitter.com/nathanmarz)上联系我，给我发送邮件[nathan.marz@gmail.com](nathan.marz@gmail.com)，或是在freenode的#cascading频道和我聊天。
+
+[下一篇博客](http://nathanmarz.com/blog/new-cascalog-features)会介绍Cascalog的外联合、排序、组合等特性。
