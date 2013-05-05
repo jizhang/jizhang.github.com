@@ -168,3 +168,37 @@ user=> (?<- (stdout) [?country ?avg]
 ```
 
 可以看到，我们对`?sum`和`?count`这两个聚合结果执行了`div`操作，该操作会在聚合过程结束后进行。
+
+## 自定义操作
+
+下面我们来编写一个查询，统计几句话中每个单词的出现次数。首先，我们编写一个自定义操作：
+
+```clojure
+user=> (defmapcatop split [sentence]
+         (seq (.split sentence "\\s+")))
+user=> (?<- (stdout) [?word ?count] (sentence ?s)
+            (split ?s :> ?word) (c/count ?count))
+```
+
+`defmapcatop split`定义了一个方法，这个方法接收一个参数`sentence`，并会输出0个或多个元组（tuple）。`deffilterop`可以用来定义一个返回布尔型的方法，用来筛选记录；`defmapop`定义的函数会返回一个元组；`defaggregateop`定义一个聚合函数。这些函数都能在Cascalog工作流API中使用，我会在另一篇博客中叙述。
+
+在上述查询中，如果单词字母大小写不一致，会被分别统计。我们用以下方法来修复这个问题：
+
+```clojure
+user=> (defn lowercase [w] (.toLowerCase w))
+user=> (?<- (stdout) [?word ?count]
+            (sentence ?s) (split ?s :> ?word1)
+            (lowercase ?word1 :> ?word) (c/count ?count))
+```
+
+可以看到，这里直接使用了纯Clojure编写的函数。当这个函数不包含输出变量时，会被作为过滤条件来执行；当包含一个返回值时，则会作为`defmapop`来解析。而对于返回0个或多个元组的函数，则必须使用`defmapcatop`来定义。
+
+下面这个查询会按照性别和年龄范围来统计用户数量：
+
+```clojure
+user=> (defn agebucket [age]
+         (find-first (partial <= age) [17 25 35 45 55 65 100 200]))
+user=> (?<- (stdout) [?bucket ?gender ?count]
+            (age ?person ?age) (gender ?person ?gender)
+            (agebucket ?age :> ?bucket) (c/count ?count))
+```
