@@ -202,3 +202,41 @@ user=> (?<- (stdout) [?bucket ?gender ?count]
             (age ?person ?age) (gender ?person ?gender)
             (agebucket ?age :> ?bucket) (c/count ?count))
 ```
+
+## 非空变量
+
+Cascalog提供了“非空变量”这样的机制来帮助用户处理空值的情况。其实我们每个示例中都在使用这一特性。以`?`开头的变量都是非空变量，而以`!`开头的则是可空变量。Cascalog会在执行过程中将空值排除在外。
+
+为了体验非空变量的效果，让我们对比下面这两条查询语句：
+
+```clojure
+user=> (?<- (stdout) [?person ?city] (location ?person _ _ ?city)
+user=> (?<- (stdout) [?person !city] (location ?person _ _ !city)
+```
+
+第二组查询结果中会包含空值。
+
+## 子查询
+
+最后，我们来看看更为复杂的查询，我们会用到子查询这一特性。让我们找出关注了两人以上的用户列表，并找出这些用户之间的关注关系：
+
+```clojure
+user=> (let [many-follows (<- [?person] (follows ?person _)
+                              (c/count ?c) (> ?c 2))]
+            (?<- (stdout) [?person1 ?person2] (many-follows ?person1)
+                 (many-follows ?person2) (follows ?person1 ?person2)))
+```
+
+这里，我们使用`let`来定义了一个子查询`many-follows`。这个子查询是用`<-`定义的。之后，我们便可以在后续查询中使用这个子查询了。
+
+我们还可以在一个查询中指定多个输出目的地。比如我们想要同时得到`many-follows`的查询结果：
+
+```clojure
+user=> (let [many-follows (<- [?person] (follows ?person _)
+                              (c/count ?c) (> ?c 2))
+             active-follows (<- [?p1 ?p2] (many-follows ?p1)
+                                (many-follows ?p2) (follows ?p1 ?p2))]
+            (?- (stdout) many-follows (stdout) active-follows))
+```
+
+这里我们分别定义了两个查询，没有立刻执行它们，而是在后续的`?-`中将两个查询分别绑定到了两个`tap`上，并同时执行。
