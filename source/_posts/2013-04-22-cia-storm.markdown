@@ -51,3 +51,31 @@ Storm脚本的英文名称叫做“Storm Topology”，直译过来是“拓扑�
 ### Stream Grouping
 
 想象一个`Spout`连接了两个`Bolt`（或一个`Bolt`的两个实例），那数据应该如何分发呢？你可以选择轮询（`ShuffleGrouping`），或是广播（`GlobalGrouping`）、亦或是按照某一个字段进行哈希分组（`FieldGrouping`），这些都称作为[`Stream Grouping`](https://github.com/nathanmarz/storm/wiki/Concepts#stream-groupings)。
+
+## 示例：WordCount
+
+下面我们就来实现一个实时版的WordCount脚本，它由以下几个组件构成：
+
+* sentence-spout：从已知的一段文字中随机选取一句话发送出来；
+* split-bolt：将这句话按空格分割成单词；
+* count-bolt：统计每个单词出现的次数，每五秒钟打印一次，并清零。
+
+### 依赖项和配置文件
+
+首先使用`lein new`新建一个项目，并修改`project.clj`文件：
+
+```clojure
+(defproject cia-storm "0.1.0-SNAPSHOT"
+  ...
+  :dependencies [[org.clojure/clojure "1.4.0"]
+                 [org.clojure/tools.logging "0.2.6"]]
+  :profiles {:dev {:dependencies [[storm "0.8.2"]]}}
+  :plugins [[lein2-eclipse "2.0.0"]]
+  :aot [cia-storm.wordcount])
+```
+
+其中`:profiles`表示定义不同的用户配置文件。Leiningen有类似于Maven的配置文件体系（profile），每个配置文件中可以定义`project.clj`所支持的各种属性，执行时会进行合并。`lein`命令默认调用`:dev`、`:user`等配置文件，可以使用`lein with-profiles prod run`来指定配置文件。具体可以参考[这份文档](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md)。
+
+这里将`[storm "0.8.2"]`依赖项定义在了`:dev`配置下，如果直接定义在外层的`:dependencies`下，那在使用`lein uberjar`进行打包时，会将`storm.jar`包含在最终的Jar包中，提交到Storm集群运行时就会报冲突。而`lein uberjar`默认会跳过`:dev`配置，所以才这样定义。
+
+`:aot`表示`Ahead Of Time`，即预编译。我们在[Clojure实战（3）](http://shzhangji.com/blog/2012/12/16/cia-noir-3/)中提过`:gen-class`这个标识表示为当前`.clj`文件生成一个`.class`文件，从而能够作为`main`函数使用，因此也需要在`project.clj`中添加`:main`标识，指向这个`.clj`文件的命名空间。如果想为其它的命名空间也生成对应的`.class`文件，就需要用到`:aot`了。它的另一个用处是加速Clojure程序的启动速度。
