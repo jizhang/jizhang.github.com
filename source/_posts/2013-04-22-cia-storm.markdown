@@ -79,3 +79,33 @@ Storm脚本的英文名称叫做“Storm Topology”，直译过来是“拓扑�
 这里将`[storm "0.8.2"]`依赖项定义在了`:dev`配置下，如果直接定义在外层的`:dependencies`下，那在使用`lein uberjar`进行打包时，会将`storm.jar`包含在最终的Jar包中，提交到Storm集群运行时就会报冲突。而`lein uberjar`默认会跳过`:dev`配置，所以才这样定义。
 
 `:aot`表示`Ahead Of Time`，即预编译。我们在[Clojure实战（3）](http://shzhangji.com/blog/2012/12/16/cia-noir-3/)中提过`:gen-class`这个标识表示为当前`.clj`文件生成一个`.class`文件，从而能够作为`main`函数使用，因此也需要在`project.clj`中添加`:main`标识，指向这个`.clj`文件的命名空间。如果想为其它的命名空间也生成对应的`.class`文件，就需要用到`:aot`了。它的另一个用处是加速Clojure程序的启动速度。
+
+### sentence-spout
+
+```clojure
+(ns cia-storm.wordcount
+  ...
+  (:use [backtype.storm clojure config]))
+
+(defspout sentence-spout ["sentence"]
+  [conf context collector]
+  (let [sentences ["a little brown dog"
+                   "the man petted the dog"
+                   "four score and seven years ago"
+                   "an apple a day keeps the doctor away"]]
+    (spout
+      (nextTuple []
+        (Thread/sleep 1000)
+        (emit-spout! collector [(rand-nth sentences)])))))
+```
+
+`defspout`是定义在`backtype.storm.clojure`命名空间下的宏，可以[点此](https://github.com/nathanmarz/storm/blob/master/storm-core/src/clj/backtype/storm/clojure.clj#L93)查看源码。以下是各个部分的说明：
+
+* `sentence-spout`是该组件的名称。
+* `["sentence"]`表示该组件输出一个字段，名称为“sentence”。
+* `[conf context collector]`用于接收Storm框架传入的参数，如配置对象、上下文对象、下游消息收集器等。
+* `spout`表示开始定义数据源组件需要用到的各类方法。它实质上是生成一个实现了ISpout接口的对象，从而能够被Storm框架调用。
+* `nextTuple`是ISpout接口必须实现的方法之一，Storm会不断调用这个方法，获取数据。这里使用Thread#sleep函数来控制调用的频率。
+* `emit-spout!`是一个函数，用于向下游发送消息。
+
+ISpout还有open、ack、fail等函数，分别表示初始化、消息处理成功的回调、消息处理失败的回调。这里我们暂不深入讨论。
