@@ -109,3 +109,40 @@ Storm脚本的英文名称叫做“Storm Topology”，直译过来是“拓扑�
 * `emit-spout!`是一个函数，用于向下游发送消息。
 
 ISpout还有open、ack、fail等函数，分别表示初始化、消息处理成功的回调、消息处理失败的回调。这里我们暂不深入讨论。
+
+### split-bolt
+
+```clojure
+(defbolt split-bolt ["word"] {:prepare true}
+  [conf context collector]
+  (bolt
+    (execute [tuple]
+      (let [words (.split (.getString tuple 0) " ")]
+        (doseq [w words]
+          (emit-bolt! collector [w])))
+      (ack! collector tuple))))
+```
+
+`defbolt`用于定义一个Bolt组件。整段代码的结构和`defspout`是比较相似的。`bolt`宏会实现为一个IBolt对象，`execute`是该接口的方法之一，其它还有`prepare`和`cleanup`。`execute`方法接收一个参数`tuple`，用于接收上游消息。
+
+`ack!`是`execute`中必须调用的一个方法。Storm会对每一个组件发送出来的消息进行追踪，上游组件发出的消息需要得到下游组件的“确认”（ACKnowlege），否则会一直堆积在内存中。对于Spout而言，如果消息得到确认，会触发ISpout#ack函数，否则会触发ISpout#fail函数，这时Spout可以选择重发或报错。
+
+代码中比较怪异的是`{:prepare true}`。`defspout`和`defbolt`有两种定义方式，即`prepare`和非`prepare`。两者的区别在于：
+
+* 参数不同，`prepare`方式下接收的参数是`[conf context collector]`，非`prepare`方式下，`defspout`接收的是`[collector]`，`defbolt`是[tuple collector]`。
+* `prepare`方式下需要调用`spout`和`bolt`宏来编写组件代码，而非`prepare`方式则不需要——`defspout`会默认生成`nextTuple()`函数，`defbolt`默认生成`execute(tuple)`。
+* 只有`prepare`方式下才能指定ISpout#open、IBolt#prepare等函数，非`prepare`不能。
+* `defspout`默认使用`prepare`方式，`defbolt`默认使用非`prepare`方式。
+
+因此，`split-bolt`可以按如下方式重写：
+
+```clojure
+(defbolt split-bolt ["word"]
+  [tuple collector]
+  (let [words (.split (.getString tuple 0) " ")]
+    (doseq [w words]
+      (emit-bolt! collector [w]))
+    (ack! collector tuple)))
+```
+
+`prepare`方式可以用于在组件中保存状态，具体请看下面的计数Bolt。
