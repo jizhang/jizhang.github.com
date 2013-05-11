@@ -228,7 +228,7 @@ true
 
 `logging`命名空间对应的依赖是`[org.clojure/tools.logging "0.2.6"]`，需要将其添加到`project.clj`中，它是对log4j组件的包装。这里之所以没有使用`println`输出到标准输出，是为了将该脚本上传到Storm集群中运行时也能查看到日志输出。
 
-### Topology
+### 定义和执行Topology
 
 各个组件已经定义完毕，下面让我们用它们组成一个Topology：
 
@@ -249,3 +249,60 @@ true
 `spout-spec`和`bolt-spec`则定义了组件在Topology中更具体的参数。如"split"使用的是`split-bolt`这个组件，它的上游是"sentence"，使用shuffleGrouping来对消息进行分配，`:p 3`表示会启动3个`split-bolt`实例。
 
 "count"使用`count-bolt`组件，上游是"split"，但聚合方式采用了fieldGrouping，因此列出了执行哈希运算时使用的消息字段（word）。为何要使用fieldGrouping？因为我们会开启两个`count-bolt`，如果采用shuffleGrouping，那单词“a”第一次出现的消息会发送给一个`count-bolt`，第二次出现会发送给另一个`count-bolt`，这样统计结果就会错乱。如果指定了`:p 1`，即只开启一个`count-bolt`实例，就不会有这样的问题。
+
+#### 本地模式和Cluster模式
+
+```clojure
+(ns cia-storm.wordcount
+  (:import [backtype.storm StormSubmitter LocalCluster])
+  ...
+  (:gen-class))
+
+(defn run-local! []
+  (let [cluster (LocalCluster.)]
+    (.submitTopology cluster
+      "wordcount" {} (mk-topology))
+    (Thread/sleep 30000)
+    (.shutdown cluster)))
+
+(defn submit-topology! [name]
+  (StormSubmitter/submitTopology
+    name {TOPOLOGY-WORKERS 3} (mk-topology)))
+
+(defn -main
+  ([]
+    (run-local!))
+  ([name]
+    (submit-topology! name)))
+```
+
+我们为WordCount生成一个类，它的`main`函数在没有命令行参数时会以本地模式执行Topology，若传递了参数（即指定了脚本在Cluster运行时的名称），则提交至Cluster。
+
+这里直接使用了Storm的Java类，对参数有疑惑的可以参考[Javadoc](http://nathanmarz.github.io/storm/doc-0.8.1/)。`TOPOLOGY-WORKERS`是在`backtype.storm.config`命名空间中定义的，我们在前面的代码中`:use`过了。Storm这个项目是用Java和Clojure混写的，所以查阅代码时还需仔细一些。
+
+#### 运行结果
+
+首先我们直接用`lein`以本地模式运行该Topology：
+
+```bash
+$ lein run -m cia-storm.wordcount
+6996 [Thread-18] INFO  cia-storm.wordcount  - doctor: 17, the: 31, a: 29, an: 17, ago: 13, seven: 13, and: 13
+6998 [Thread-21] INFO  cia-storm.wordcount  - four: 13, keeps: 17, away: 17, score: 13, petted: 7, brown: 12, little: 12, years: 13, man: 7, apple: 17, dog: 19, day: 17
+11997 [Thread-18] INFO  cia-storm.wordcount  - ago: 6, seven: 6, and: 6, doctor: 7, an: 7, the: 39, a: 28
+11998 [Thread-21] INFO  cia-storm.wordcount  - four: 6, keeps: 7, away: 7, score: 6, petted: 16, brown: 21, little: 21, years: 6, man: 16, apple: 7, dog: 37, day: 7
+```
+
+Cluster模式需要搭建本地集群，可以参考[这篇文档](https://github.com/nathanmarz/storm/wiki/Setting-up-a-Storm-cluster)。下文使用的`storm`命令则需要配置`~/.storm/storm.yaml`文件，具体请参考[这篇文章](https://github.com/nathanmarz/storm/wiki/Setting-up-development-environment#starting-and-stopping-topologies-on-a-remote-cluster)。
+
+```bash
+$ lein do clean, compile, uberjar
+$ storm jar target/cia-storm-0.1.0-SNAPSHOT-standalone.jar cia_storm.wordcount wordcount
+$ cd /path/to/storm/logs
+$ tail worker-6700.log
+2013-05-11 21:26:15 wordcount [INFO] four: 9, keeps: 15, away: 15, score: 9, petted: 16, brown: 9, little: 9, years: 9, man: 16, apple: 15, dog: 25, day: 15
+2013-05-11 21:26:20 wordcount [INFO] four: 10, keeps: 9, away: 9, score: 10, petted: 18, brown: 13, little: 13, years: 10, man: 18, apple: 9, dog: 31, day: 9
+$ tail worker-6701.log
+2013-05-11 21:27:10 wordcount [INFO] ago: 12, seven: 12, and: 12, doctor: 11, a: 31, an: 11, the: 25
+2013-05-11 21:27:15 wordcount [INFO] ago: 14, seven: 14, and: 14, doctor: 11, the: 43, a: 19, an: 11
+```
+
