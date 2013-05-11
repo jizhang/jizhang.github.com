@@ -213,3 +213,17 @@ user=> (add-5 10)
                              (Thread/sleep 5000)))))))
 ...
 ```
+
+这段代码的功能是：在Bolt开始处理消息之前启动一个线程，每隔5秒钟将`(atom counts)`中的单词出现次数打印出来，并对其进行清零操作。
+
+这里我们直接使用了Java的Thread类型。读者可能会觉得好奇，Thread类型的构造函数只接收实现Runnable接口的对象，Clojure的匿名函数直接支持吗？我们做一个简单测试：
+
+```clojure
+user=> (defn greet [name] (println "Hi" name))
+user=> (instance? Runnable greet)
+true
+user=> (instance? Runnable #(+ 1 %))
+true
+```
+
+`logging`命名空间对应的依赖是`[org.clojure/tools.logging "0.2.6"]`，需要将其添加到`project.clj`中，它是对log4j组件的包装。这里之所以没有使用`println`输出到标准输出，是为了将该脚本上传到Storm集群中运行时也能查看到日志输出。
