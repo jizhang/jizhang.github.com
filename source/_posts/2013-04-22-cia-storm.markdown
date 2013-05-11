@@ -227,3 +227,25 @@ true
 ```
 
 `logging`命名空间对应的依赖是`[org.clojure/tools.logging "0.2.6"]`，需要将其添加到`project.clj`中，它是对log4j组件的包装。这里之所以没有使用`println`输出到标准输出，是为了将该脚本上传到Storm集群中运行时也能查看到日志输出。
+
+### Topology
+
+各个组件已经定义完毕，下面让我们用它们组成一个Topology：
+
+```clojure
+(defn mk-topology []
+  (topology
+    {"sentence" (spout-spec sentence-spout)}
+    {"split" (bolt-spec {"sentence" :shuffle}
+                        split-bolt
+                        :p 3)
+     "count" (bolt-spec {"split" ["word"]}
+                         count-bolt
+                         :p 2)}))
+```
+
+`topology`同样是Clojure DSL定义的宏，它接收两个map作为参数，一个用于定义使用到的Spout，一个则是Bolt。该map的键是组件的名称，该名称用于确定各组件之间的关系。
+
+`spout-spec`和`bolt-spec`则定义了组件在Topology中更具体的参数。如"split"使用的是`split-bolt`这个组件，它的上游是"sentence"，使用shuffleGrouping来对消息进行分配，`:p 3`表示会启动3个`split-bolt`实例。
+
+"count"使用`count-bolt`组件，上游是"split"，但聚合方式采用了fieldGrouping，因此列出了执行哈希运算时使用的消息字段（word）。为何要使用fieldGrouping？因为我们会开启两个`count-bolt`，如果采用shuffleGrouping，那单词“a”第一次出现的消息会发送给一个`count-bolt`，第二次出现会发送给另一个`count-bolt`，这样统计结果就会错乱。如果指定了`:p 1`，即只开启一个`count-bolt`实例，就不会有这样的问题。
