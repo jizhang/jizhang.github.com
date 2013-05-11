@@ -5,7 +5,7 @@ date: 2013-04-22 12:11
 comments: true
 categories: Tutorial
 tags: [clojure, storm]
-published: false
+published: true
 ---
 
 Storm简介
@@ -306,3 +306,8 @@ $ tail worker-6701.log
 2013-05-11 21:27:15 wordcount [INFO] ago: 14, seven: 14, and: 14, doctor: 11, the: 43, a: 19, an: 11
 ```
 
+## 小结
+
+这一章我们简单介绍了Storm的设计初衷，它是如何通过分布式并行运算解决实时数据分析问题的。Storm目前已经十分稳定，且仍处于活跃的开发状态。它的一些高级特性如DRPC、Trident等，还请感兴趣的读者自行研究。
+
+本文使用的WordCount示例代码：[https://github.com/jizhang/cia-storm](https://github.com/jizhang/cia-storm)。
