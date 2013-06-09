@@ -5,7 +5,7 @@ date: 2013-04-30 16:16
 comments: true
 categories: Notes
 tags: [clojure]
-published: false
+published: true
 ---
 
 In Maven projects, we tend to use `.properties` files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:
@@ -114,3 +114,22 @@ Another thing I want to mention in this approach is that, I suggest using an env
 
 As for really big corporations, a central configuration server is necessary. One popular option is to use ZooKeeper. Or your companies have some service-discovery mechanism. These are really advanced topics, and I'll leave them to the readers.
 
+## Manage Configs in Application
+
+Lastly, I'll share a snippet that'll manage the configs, it's actually quite easy:
+
+```
+(def ^:private config (atom {}))
+
+(defn get-config
+
+  ([section]
+    (if-let [config-section (get @config section)]
+      config-section
+      (let [config-section (read-config section)]
+        (swap! config assoc section config-section)
+        config-section)))
+
+  ([section item]
+    (get (get-config section) item)))
+```
