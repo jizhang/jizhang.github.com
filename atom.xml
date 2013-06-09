@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2013-06-09T22:35:27+08:00</updated>
+  <updated>2013-06-09T22:40:13+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -480,7 +480,7 @@
 
 <p>We could simply replace the <code>override</code> directory with an absolute path, such as <code>/home/www/config</code>. The pros are that we don&#8217;t need to recompile the jar files when config changes, and some of the configs could be shared between different projects.</p>
 
-<p>But in such approach, you&#8217;ll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it&#8217;s probably not practical to have such a directory on every compute nodes.</p>
+<p>But in such approach, you&#8217;ll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it&#8217;s probably not practical to have such a directory on every compute node.</p>
 
 <p>Another thing I want to mention in this approach is that, I suggest using an environment variable to indicate the path to config directory, not hard-coded in application. As a matter of fact, you could even place all configs into env vars, as suggested by <a href="http://www.12factor.net/config">12-factor apps</a>.</p>
 
@@ -505,19 +505,19 @@
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='text'><span class='line'>(def ^:private config (atom {}))
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="k">def </span><span class="o">^</span><span class="ss">:private</span> <span class="nv">config</span> <span class="p">(</span><span class="nf">atom</span> <span class="p">{}))</span>
 </span><span class='line'>
-</span><span class='line'>(defn get-config
+</span><span class='line'><span class="p">(</span><span class="kd">defn </span><span class="nv">get-config</span>
 </span><span class='line'>
-</span><span class='line'>  ([section]
-</span><span class='line'>    (if-let [config-section (get @config section)]
-</span><span class='line'>      config-section
-</span><span class='line'>      (let [config-section (read-config section)]
-</span><span class='line'>        (swap! config assoc section config-section)
-</span><span class='line'>        config-section)))
+</span><span class='line'>  <span class="p">([</span><span class="nv">section</span><span class="p">]</span>
+</span><span class='line'>    <span class="p">(</span><span class="nb">if-let </span><span class="p">[</span><span class="nv">config-section</span> <span class="p">(</span><span class="nb">get </span><span class="err">@</span><span class="nv">config</span> <span class="nv">section</span><span class="p">)]</span>
+</span><span class='line'>      <span class="nv">config-section</span>
+</span><span class='line'>      <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">config-section</span> <span class="p">(</span><span class="nf">read-config</span> <span class="nv">section</span><span class="p">)]</span>
+</span><span class='line'>        <span class="p">(</span><span class="nf">swap!</span> <span class="nv">config</span> <span class="nb">assoc </span><span class="nv">section</span> <span class="nv">config-section</span><span class="p">)</span>
+</span><span class='line'>        <span class="nv">config-section</span><span class="p">)))</span>
 </span><span class='line'>
-</span><span class='line'>  ([section item]
-</span><span class='line'>    (get (get-config section) item)))
+</span><span class='line'>  <span class="p">([</span><span class="nv">section</span> <span class="nv">item</span><span class="p">]</span>
+</span><span class='line'>    <span class="p">(</span><span class="nb">get </span><span class="p">(</span><span class="nf">get-config</span> <span class="nv">section</span><span class="p">)</span> <span class="nv">item</span><span class="p">)))</span>
 </span></code></pre></td></tr></table></div></figure>
 
 ]]></content>

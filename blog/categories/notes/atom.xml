@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Notes | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2013-06-09T22:35:27+08:00</updated>
+  <updated>2013-06-09T22:40:13+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -131,7 +131,7 @@ test-project/
 
 <p>We could simply replace the <code>override</code> directory with an absolute path, such as <code>/home/www/config</code>. The pros are that we don't need to recompile the jar files when config changes, and some of the configs could be shared between different projects.</p>
 
-<p>But in such approach, you'll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it's probably not practical to have such a directory on every compute nodes.</p>
+<p>But in such approach, you'll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it's probably not practical to have such a directory on every compute node.</p>
 
 <p>Another thing I want to mention in this approach is that, I suggest using an environment variable to indicate the path to config directory, not hard-coded in application. As a matter of fact, you could even place all configs into env vars, as suggested by <a href="http://www.12factor.net/config">12-factor apps</a>.</p>
 
@@ -143,7 +143,7 @@ test-project/
 
 <p>Lastly, I'll share a snippet that'll manage the configs, it's actually quite easy:</p>
 
-<p>```
+<p>```clojure
 (def ^:private config (atom {}))</p>
 
 <p>(defn get-config</p>
