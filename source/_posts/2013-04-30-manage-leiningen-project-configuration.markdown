@@ -106,7 +106,7 @@ In production, there's typically a 'compiling server', which can be used to stor
 
 We could simply replace the `override` directory with an absolute path, such as `/home/www/config`. The pros are that we don't need to recompile the jar files when config changes, and some of the configs could be shared between different projects. 
 
-But in such approach, you'll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it's probably not practical to have such a directory on every compute nodes.
+But in such approach, you'll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it's probably not practical to have such a directory on every compute node.
 
 Another thing I want to mention in this approach is that, I suggest using an environment variable to indicate the path to config directory, not hard-coded in application. As a matter of fact, you could even place all configs into env vars, as suggested by [12-factor apps](http://www.12factor.net/config).
 
@@ -118,7 +118,7 @@ As for really big corporations, a central configuration server is necessary. One
 
 Lastly, I'll share a snippet that'll manage the configs, it's actually quite easy:
 
-```
+```clojure
 (def ^:private config (atom {}))
 
 (defn get-config
