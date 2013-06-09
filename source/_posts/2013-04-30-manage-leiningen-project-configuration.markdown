@@ -83,9 +83,9 @@ And the `database.clj`s are like:
 
 The `.clj` files simply contains a `map` object, and we use `read-string` facility to parse the map. Since the latter map is merged into the former one, we can include some default settings without worrying about whether they'll be available.
 
-## Other Places to Put 'Outter Configuration'
+## Places to Put 'Outter Configuration'
 
-Here I use the word 'outter', which properly describes the situation here -- the outter configuration will override the default ones. Then how about the other places to put these outter configurations? What's the difference? Let's begin with the one I wrote above.
+Here I use the word 'outter', which means those configs are related to environments, and will override the default settings. In this section, I'll introduce some typical places to put these outter configs and how to use them.
 
 ### A 'resources/override/' Directory
 
@@ -103,4 +103,14 @@ And then, developers can put production or local configuration files in this dir
 In production, there's typically a 'compiling server', which can be used to store production configs. After compiling, the Jar file will include the proper configs and are ready to be deployed.
 
 ### A Dedicated Directory on Every Server
+
+We could simply replace the `override` directory with an absolute path, such as `/home/www/config`. The pros are that we don't need to recompile the jar files when config changes, and some of the configs could be shared between different projects. 
+
+But in such approach, you'll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it's probably not practical to have such a directory on every compute nodes.
+
+Another thing I want to mention in this approach is that, I suggest using an environment variable to indicate the path to config directory, not hard-coded in application. As a matter of fact, you could even place all configs into env vars, as suggested by [12-factor apps](http://www.12factor.net/config).
+
+### A Central Configuration Server
+
+As for really big corporations, a central configuration server is necessary. One popular option is to use ZooKeeper. Or your companies have some service-discovery mechanism. These are really advanced topics, and I'll leave them to the readers.
 
