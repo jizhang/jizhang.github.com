@@ -64,9 +64,43 @@ test-project/
 ├── resources
 │   ├── database.clj
 │   └── override
-│   └── database.clj
+│       └── database.clj
 └── src
     └── test_project
         └── core.clj
 ```
+
+And the `database.clj`s are like:
+
+```clojure
+; resources/database.clj
+{:charset "utf-8"
+ :mydb {:host "127.0.0.1"}}
+
+; resources/override/database.clj
+{:mydb {:host "10.0.2.15"}}
+```
+
+The `.clj` files simply contains a `map` object, and we use `read-string` facility to parse the map. Since the latter map is merged into the former one, we can include some default settings without worrying about whether they'll be available.
+
+## Other Places to Put 'Outter Configuration'
+
+Here I use the word 'outter', which properly describes the situation here -- the outter configuration will override the default ones. Then how about the other places to put these outter configurations? What's the difference? Let's begin with the one I wrote above.
+
+### A 'resources/override/' Directory
+
+First of all, this directory should be removed from version control, such as `.gitignore`:
+
+```text
+/.project
+/.settings
+
+/resources/override
+```
+
+And then, developers can put production or local configuration files in this directory.
+
+In production, there's typically a 'compiling server', which can be used to store production configs. After compiling, the Jar file will include the proper configs and are ready to be deployed.
+
+### A Dedicated Directory on Every Server
 
