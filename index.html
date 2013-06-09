@@ -143,6 +143,95 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2013/04/30/manage-leiningen-project-configuration/">Manage Leiningen Project Configuration</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-30T16:16:00+08:00" pubdate data-updated="true">Apr 30<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'># database.properties
+</span><span class='line'>mydb.jdbcUrl=${mydb.jdbcUrl}
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="c">&lt;!-- pom.xml --&gt;</span>
+</span><span class='line'><span class="nt">&lt;profiles&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;profile&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;id&gt;</span>development<span class="nt">&lt;/id&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;activation&gt;&lt;activeByDefault&gt;</span>true<span class="nt">&lt;/activeByDefault&gt;&lt;/activation&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;properties&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;mydb.jdbcUrl&gt;</span>jdbc:mysql://127.0.0.1:3306/mydb<span class="nt">&lt;/mydb.jdbcUrl&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/properties&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/profile&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;profile&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;id&gt;</span>production<span class="nt">&lt;/id&gt;</span>
+</span><span class='line'>        <span class="c">&lt;!-- This profile could be moved to ~/.m2/settings.xml to increase security. --&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;properties&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;mydb.jdbcUrl&gt;</span>jdbc:mysql://10.0.2.15:3306/mydb<span class="nt">&lt;/mydb.jdbcUrl&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/properties&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/profile&gt;</span>
+</span><span class='line'><span class="nt">&lt;/profiles&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As for Leiningen projects, there&#8217;s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/04/30/manage-leiningen-project-configuration/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2013/04/22/cia-storm/">Clojure实战(5)：Storm实时计算框架</a></h1>
     
     
@@ -665,75 +754,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/12/16/cia-noir-3/">Clojure实战(3)：使用Noir框架开发博客(下)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-12-16T20:20:00+08:00" pubdate data-updated="true">Dec 16<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>Session和Cookie</h2>
-
-<p>做网络编程的人肯定对这两个概念不陌生，因此这里就不介绍它们的定义和作用了。我们要实现的需求也很简单：用户通过一个表单登录，在当前窗口中保持登录状态，并可以选择“记住我”来免去关闭并新开窗口之后的重登录。显然，前者使用Session，后者使用Cookie。下面我们就来看Noir对这两者的支持。</p>
-
-<h3>Session</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="nf">require</span> <span class="ss">&#39;noir.session</span><span class="p">)</span>
-</span><span class='line'><span class="p">(</span><span class="nf">noir.session/put!</span> <span class="ss">:username</span> <span class="s">&quot;john&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="p">(</span><span class="nf">noir.session/get</span> <span class="ss">:username</span> <span class="s">&quot;nobody&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="p">(</span><span class="nf">noir.session/clear!</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>很简单的API。注意<code>put!</code>函数中的<code>!</code>，和之前遇到的<code>?</code>一样，这种特殊字符是合法的函数名，但<code>!</code>习惯用来表示该方法会改变某个对象的状态，这里<code>put!</code>就表示会改变Session的状态。</p>
-
-<p>Noir还提供了一种“闪信（Flash）”机制，主要用于在页面跳转之间暂存消息。如用户登录后会跳转到首页，如果想在首页显示“登录成功”的信息，就需要用到闪信了。闪信的API也放置在<code>noir.session</code>命名空间下：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="nf">noir.session/flash-put!</span> <span class="s">&quot;登录成功&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="p">(</span><span class="nf">noir.session/flash-get</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>闪信的生命周期是一次请求，即在设置了闪信后的下一个请求中，可以多次<code>flash-get</code>，但再下一次请求就获取不到值了。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2012/12/16/cia-noir-3/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -753,6 +773,10 @@
       </li>
     
       <li class="post">
+        <a href="/blog/2013/04/30/manage-leiningen-project-configuration/">Manage Leiningen Project Configuration</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/04/22/cia-storm/">Clojure实战(5)：Storm实时计算框架</a>
       </li>
     
@@ -762,10 +786,6 @@
     
       <li class="post">
         <a href="/blog/2013/03/27/fork-and-zombie-process/">fork()与僵尸进程</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1/">Perl入门实战：JVM监控脚本（上）</a>
       </li>
     
   </ul>

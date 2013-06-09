@@ -1,0 +1,481 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Manage Leiningen Project Configuration - Ji ZHANG's Blog</title>
+  <meta name="author" content="Ji ZHANG">
+
+  
+  <meta name="description" content="In Maven projects, we tend to use .properties files to store various configurations, and use Maven profiles to switch between development and &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-37223379-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ji ZHANG's Blog</a></h1>
+  
+    <h2>If I rest, I rust.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:shzhangji.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/categories/tutorial">Tutorial</a></li>
+  <li><a href="/blog/categories/translation">Translation</a></li>
+  <li><a href="/blog/categories/ops">Ops</a></li>
+  <li><a href="/blog/categories/notes">Notes</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Manage Leiningen Project Configuration</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-30T16:16:00+08:00" pubdate data-updated="true">Apr 30<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'># database.properties
+</span><span class='line'>mydb.jdbcUrl=${mydb.jdbcUrl}
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="c">&lt;!-- pom.xml --&gt;</span>
+</span><span class='line'><span class="nt">&lt;profiles&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;profile&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;id&gt;</span>development<span class="nt">&lt;/id&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;activation&gt;&lt;activeByDefault&gt;</span>true<span class="nt">&lt;/activeByDefault&gt;&lt;/activation&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;properties&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;mydb.jdbcUrl&gt;</span>jdbc:mysql://127.0.0.1:3306/mydb<span class="nt">&lt;/mydb.jdbcUrl&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/properties&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/profile&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;profile&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;id&gt;</span>production<span class="nt">&lt;/id&gt;</span>
+</span><span class='line'>        <span class="c">&lt;!-- This profile could be moved to ~/.m2/settings.xml to increase security. --&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;properties&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;mydb.jdbcUrl&gt;</span>jdbc:mysql://10.0.2.15:3306/mydb<span class="nt">&lt;/mydb.jdbcUrl&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/properties&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/profile&gt;</span>
+</span><span class='line'><span class="nt">&lt;/profiles&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As for Leiningen projects, there&#8217;s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
+
+<!-- more -->
+
+
+<h2>Read Configuration from <code>.clj</code> Files</h2>
+
+<p>Instead of using <code>.properties</code>, we&#8217;ll use <code>.clj</code> files directly, since it&#8217;s more expressive and Clojure makes it very easy to utilize them.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="kd">defn </span><span class="nv">read-config</span> <span class="p">[</span><span class="nv">section</span><span class="p">]</span>
+</span><span class='line'>  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nb">read </span><span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">res-path</span><span class="p">]</span>
+</span><span class='line'>               <span class="p">(</span><span class="nb">if-let </span><span class="p">[</span><span class="nv">res</span> <span class="p">(</span><span class="nf">clojure.java.io/resource</span> <span class="nv">res-path</span><span class="p">)]</span>
+</span><span class='line'>                 <span class="p">(</span><span class="nf">read-string</span> <span class="p">(</span><span class="nb">slurp </span><span class="nv">res</span><span class="p">))</span>
+</span><span class='line'>                 <span class="p">{}))</span>
+</span><span class='line'>        <span class="nv">default-name</span> <span class="p">(</span><span class="nb">str </span><span class="p">(</span><span class="nb">name </span><span class="nv">section</span><span class="p">)</span> <span class="s">&quot;.clj&quot;</span><span class="p">)</span>
+</span><span class='line'>        <span class="nv">default</span> <span class="p">(</span><span class="nb">read </span><span class="nv">default-name</span><span class="p">)</span>
+</span><span class='line'>        <span class="nv">override</span> <span class="p">(</span><span class="nb">read </span><span class="p">(</span><span class="nb">str </span><span class="s">&quot;override/&quot;</span> <span class="nv">default-name</span><span class="p">))]</span>
+</span><span class='line'>    <span class="p">(</span><span class="nb">merge </span><span class="nv">default</span> <span class="nv">override</span><span class="p">)))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This function assumes the following directory layout:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>test-project/
+</span><span class='line'>├── README.md
+</span><span class='line'>├── project.clj
+</span><span class='line'>├── resources
+</span><span class='line'>│   ├── database.clj
+</span><span class='line'>│   └── override
+</span><span class='line'>│       └── database.clj
+</span><span class='line'>└── src
+</span><span class='line'>    └── test_project
+</span><span class='line'>        └── core.clj
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the <code>database.clj</code>s are like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="c1">; resources/database.clj</span>
+</span><span class='line'><span class="p">{</span><span class="ss">:charset</span> <span class="s">&quot;utf-8&quot;</span>
+</span><span class='line'> <span class="ss">:mydb</span> <span class="p">{</span><span class="ss">:host</span> <span class="s">&quot;127.0.0.1&quot;</span><span class="p">}}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">; resources/override/database.clj</span>
+</span><span class='line'><span class="p">{</span><span class="ss">:mydb</span> <span class="p">{</span><span class="ss">:host</span> <span class="s">&quot;10.0.2.15&quot;</span><span class="p">}}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>.clj</code> files simply contains a <code>map</code> object, and we use <code>read-string</code> facility to parse the map. Since the latter map is merged into the former one, we can include some default settings without worrying about whether they&#8217;ll be available.</p>
+
+<h2>Places to Put &#8216;Outter Configuration&#8217;</h2>
+
+<p>Here I use the word &#8216;outter&#8217;, which means those configs are related to environments, and will override the default settings. In this section, I&#8217;ll introduce some typical places to put these outter configs and how to use them.</p>
+
+<h3>A &#8216;resources/override/&#8217; Directory</h3>
+
+<p>First of all, this directory should be removed from version control, such as <code>.gitignore</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>/.project
+</span><span class='line'>/.settings
+</span><span class='line'>
+</span><span class='line'>/resources/override
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And then, developers can put production or local configuration files in this directory.</p>
+
+<p>In production, there&#8217;s typically a &#8216;compiling server&#8217;, which can be used to store production configs. After compiling, the Jar file will include the proper configs and are ready to be deployed.</p>
+
+<h3>A Dedicated Directory on Every Server</h3>
+
+<p>We could simply replace the <code>override</code> directory with an absolute path, such as <code>/home/www/config</code>. The pros are that we don&#8217;t need to recompile the jar files when config changes, and some of the configs could be shared between different projects.</p>
+
+<p>But in such approach, you&#8217;ll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it&#8217;s probably not practical to have such a directory on every compute nodes.</p>
+
+<p>Another thing I want to mention in this approach is that, I suggest using an environment variable to indicate the path to config directory, not hard-coded in application. As a matter of fact, you could even place all configs into env vars, as suggested by <a href="http://www.12factor.net/config">12-factor apps</a>.</p>
+
+<h3>A Central Configuration Server</h3>
+
+<p>As for really big corporations, a central configuration server is necessary. One popular option is to use ZooKeeper. Or your companies have some service-discovery mechanism. These are really advanced topics, and I&#8217;ll leave them to the readers.</p>
+
+<h2>Manage Configs in Application</h2>
+
+<p>Lastly, I&#8217;ll share a snippet that&#8217;ll manage the configs, it&#8217;s actually quite easy:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>(def ^:private config (atom {}))
+</span><span class='line'>
+</span><span class='line'>(defn get-config
+</span><span class='line'>
+</span><span class='line'>  ([section]
+</span><span class='line'>    (if-let [config-section (get @config section)]
+</span><span class='line'>      config-section
+</span><span class='line'>      (let [config-section (read-config section)]
+</span><span class='line'>        (swap! config assoc section config-section)
+</span><span class='line'>        config-section)))
+</span><span class='line'>
+</span><span class='line'>  ([section item]
+</span><span class='line'>    (get (get-config section) item)))
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ji ZHANG</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-30T16:16:00+08:00" pubdate data-updated="true">Apr 30<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/notes/'>Notes</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/04/22/cia-storm/" title="Previous Post: Clojure实战(5)：Storm实时计算框架">&laquo; Clojure实战(5)：Storm实时计算框架</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/" title="Next Post: Cascalog：基于Clojure的Hadoop查询语言">Cascalog：基于Clojure的Hadoop查询语言 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/">Cascalog：基于Clojure的Hadoop查询语言</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/04/30/manage-leiningen-project-configuration/">Manage Leiningen Project Configuration</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/04/22/cia-storm/">Clojure实战(5)：Storm实时计算框架</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/">Perl入门实战：JVM监控脚本（下）</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/27/fork-and-zombie-process/">fork()与僵尸进程</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section>
+  <h1>On Delicious</h1>
+  <div id="delicious"></div>
+  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/zjerryj?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
+  <p><a href="http://delicious.com/zjerryj">My Delicious Bookmarks &raquo;</a></p>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/zhangji87@gmail.com?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Ji ZHANG -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jizhang';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/';
+        var disqus_url = 'http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
