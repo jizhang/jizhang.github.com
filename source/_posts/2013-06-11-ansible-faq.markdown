@@ -51,23 +51,23 @@ Ansible不仅易于学习和扩展，它更是集配置管理、应用部署、�
 
 ### Func？
 
-Ansible uses SSH by default instead of SSL and custom daemons, and requires no extra software to run on managed machines. You can also write modules in any language as long as they return JSON. Ansible’s API, of course, is heavily inspired by Func. Ansible also adds a configuration management and multinode orchestration layer (Playbooks) that Func didn’t have.
+Ansible默认使用SSH，而非SSL和守护进程，无需在远程服务器上安装任何软件。你可以使用任何语言编写插件，只要它能够返回JSON格式即可。Ansible的API深受Func的影响，但它和Func相较提供了配置管理和多节点统一化部署（Playbooks）等功能。
 
 ### Puppet？
 
-First off, Ansible wouldn’t have happened without Puppet. Puppet took configuration management ideas from cfengine and made them sane. However, I still think they can be much simpler.
+首先我要强调的是，如果没有Puppet，就不会有Ansible。Puppet从cfengine中吸收了配置管理的概念，并更合理地加以实现。但是，我依旧认为它可以再简单一些。
 
-Ansible playbooks ARE a complete configuration management system. Unlike Puppet, playbooks are implicitly ordered (more like Chef), but still retain the ability to signal notification events (like Puppet). This is kind of a ‘best of both worlds’ thing.
+Ansible的playbook是一套完整的配置管理系统。和Puppet不同，playbook在编写时就隐含了执行顺序（和Chef类似），但同时也提供了事件机制（和Puppet类似），可以说是结合了两者的优点。
 
-There is no central server subject to thundering herd problems, and Ansible is also designed with multi-node deployment in mind from day-one – something that is difficult for Puppet because of the pull architecture. Ansible is push based, so you can do things in an ordered fashion, addressing batches of servers at one time, and you do not have to contend with the dependency graph. It’s also extensible in any language and the source is designed so that you don’t have to be an expert programmer to submit a patch.
+Ansible没有中心节点的概念，从而避免了惊群效应。它一开始就是为多节点部署设计的，这点Puppet很难做到，因为它是一种“拉取”的架构。Ansible以“推送”为基础，从而能够定义执行顺序，同时只操作一部分服务器，无需关注它们的依赖关系。又因为Ansible可以用任何语言进行扩展，因此并不是只有专业的程序员才能为其开发插件。
 
-Ansible’s resources are heavily inspired by Puppet, with the “state” keyword being a more or less direct port of “ensure” from Puppet. Unlike Puppet, Ansible can be extended in any language, even bash ... just return some output in JSON format. You don’t need to know Ruby.
+Ansible中资源的概念深受Puppet的启发，甚至“state”这一关键字直接来自Puppet的“ensure”一词。和Puppet不同的是，Ansbile可以用任何语言进行扩展，甚至是Bash，只需返回JSON格式的输出即可。你不需要懂得Ruby。
 
-Unlike Puppet, hosts are taken out of playbooks when they have a failure. It encourages ‘fail first’, so you can correct the error, instead of configuring as much of the system as it can. A system shouldn’t be half correct, especially if we’re planning on configuring other systems that depend on that system.
+和Puppet不同，Ansible若在配置某台服务器时发生错误，它会立即终止这台服务器的配置过程。它提倡的是“提前崩溃”，修正错误，而非最大化应用。这一点在我们需要配置包含依赖关系的服务器架构时尤为重要。
 
-Ansible also has a VERY short learning curve – but it also has less language constructs and does not create its own programming language. What constructs Ansible does have should be enough to cover 80% or so of the cases of most Puppet users, and it should scale equally well (not having a server is almost like cheating).
+Ansible的学习曲线非常平滑，你不需要掌握编程技能，更不需要学习新的语言。Ansible内置的功能应该能够满足超过80%的用户需求，而且它不会遇到扩展性方面的瓶颈（因为没有中心节点）。
 
-Ansible does support gathering variables from ‘facter’, if installed, and Ansible templates in jinja2 in a way just like Puppet does with erb. Ansible also has it’s own facts though, so usage of facter is not required to get variables about the system.
+如果系统中安装了factor，Ansible同样支持从中获取系统信息。Ansible使用jinja2作为模板语言，类似于Puppet使用erb文件作为模板。Ansible可以使用自己的信息收集工具，因此factor并不是必需的。
 
 ### Chef？
 
