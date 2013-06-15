@@ -5,7 +5,7 @@ date: 2013-06-11 21:18
 comments: true
 categories: Translation
 tags: [ops]
-published: false
+published: true
 ---
 
 本文是从原Ansible官网的FAQ页面翻译而来，网站改版后该页面已无法访问，但可以从[Github历史提交](https://github.com/ansible/ansible.github.com/blob/4a2bf7f60a020f0d0a7b042056fc3dd8716588f2/faq.html)中获得。翻译这篇原始FAQ文档是因为它陈述了Ansible这款工具诞生的原因，设计思路和特性，以及与Puppet、Fabric等同类软件的比较，可以让我们对Ansible有一个整体的了解，所以值得使用者一读。
@@ -101,28 +101,28 @@ Ansible没有守护进程，主要使用OpenSSH进行通信，这是一款已被
 
 ### Ansible如何扩展？
 
-Whether in single-execution mode or using ansible playbooks, ansible can run multiple commands in seperate parallel forks, thanks to the magic behind Python’s multiprocessing module.
+无论是在单次执行模式还是playbook模式下，Ansible都可以并行执行任务，这要感谢Python提供的多进程处理模块。
 
-You can decide if you want to try to manage 5 hosts at a time, or 50 at a time. It’s up to you and how much power you can throw at it and how fast you want to go.
+你可以自行决定要一次性配置5台还是50台服务器，这取决于服务器的计算能力，以及你想要多快完成任务。
 
-There are no daemons so it’s entirely up to you. When you are aren’t using Ansible, it is not consuming any resources, and you don’t have to contend with a herd of machines all knocking at the door of your management server all at once.
+由于没有守护进程，所以平时不会占用任何资源，而且你不用担心一次性有太多节点一起从控制节点上获取信息。
 
-The SSH connection type (paramiko is the default, binary openssh is an option) can also make use of “ControlMaster” features in SSH, which reuses network connections.
+对于SSH，Ansible默认使用paramiko库，当然也能使用原始的openssh。Ansible可以利用SSH的ControlMaster特性来重用网络连接。
 
-If you have 10,000 systems, running a single ansible playbook against all of them probably isn’t appropriate, which is why ansible-pull exists. This tool is designed for running out of git and cron, and can scale to any number of hosts. Ansible-pull uses local connections versus SSH, but can be easily bootstrapped or reconfigured just using SSH. There is more information available about this in the Advanced Playbooks section. The self-bootstrapping and ease of use are ansible are still retained, even when switching to the pull model.
+当要维护上万个节点时，单个Ansible playbook可能不太合理，这时你就能使用Ansible的“拉取”模式。这种模式下需要配合git和cron，可以扩展到任意多台服务器。“拉取”模式可以使用本地连接，或是SSH。关于这个模式的详细说明可以在帮助文档的“Advanced Playbooks”一节查阅。即使在“拉取”模式下，你同样能够享受到Ansible的种种便利。
 
-If you’d like to discuss scaling strategies further, please hop on the mailing list.
+如果你想进一步探讨扩展性，可以加入到邮件列表中。
 
 ### 是否支持SSH以外的协议？
 
-Currently SSH (you can choose between paramiko or the openssh binaries) and local connections are supported. The interface is actually pluggable so a small patch could bring transport over message bus or XMPP as an option.
+目前Ansible支持SSH和本地连接，但它的接口实际上是非常易于扩展的，因此你可以编写补丁来使Ansible运行于消息系统或XMPP协议之上。
 
-Stop by the mailing list if you have ideas. The connection-specific parts of Ansible are all abstracted away from the core implementation so it is very easy to extend.
+如果你有任何建议，可以加入到邮件列表中一起探讨。Ansible中对于连接的管理都已单独抽象出来，有很强的可扩性。
 
 ### Ansible的适用场景有哪些？
 
-One of the best use cases? Complex multi-node cloud deployments using playbooks. Another good example is for configuration management where you are starting from a clean OS with no extra software installed, adopting systems that are already deployed.
+最适场景？使用playbook进行多节点云主机部署；从一个初始的操作系统开始部署应用，或是配置一个现有的系统。
 
-Ansible is also great for running ad-hoc tasks across a wide variety of Linux, Unix, and BSDs. Because it just uses the basic tools available on the system, it is exceptionally cross platform without needing to install management packages on each node.
+Ansible同样适用于执行临时性的任务，能够用于各类 Unix-like 系统，因为它使用的就是系统本身自带的工具，无需安装额外软件。
 
-It also excels for writing distributed scripts and ad-hoc applications that need to gather data or perform arbitrary tasks – whether for a QA sytem, build system, or anything you can think of.
+你还可以用Ansible来编写各类脚本，用于收集信息、执行各种任务，对QA、运维等团队均适用。
