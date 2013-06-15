@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="Session和Cookie 做网络编程的人肯定对这两个概念不陌生，因此这里就不介绍它们的定义和作用了。我们要实现的需求也很简单：用户通过一个表单登录，在当前窗口中保持登录状态，并可以选择“记住我”来免去关闭并新开窗口之后的重登录。显然，前者使用Session，后者使用Cookie。 &hellip;">
+  <meta name="description" content="系统管理员可以使用Nginx提供的信号机制来对其进行维护，比较常用的是kill -HUP &lt;master pid&gt;命令，它能通知Nginx使用新的配置文件启动工作进程，并逐个关闭旧进程，完成平滑切换。当需要对Nginx进行版本升级或增减模块时，为了不丢失请求，可以结合使用USR2、 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -80,6 +80,78 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/23/nginx-live-upgrade/">Nginx热升级</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-23T22:11:00+08:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>系统管理员可以使用Nginx提供的信号机制来对其进行维护，比较常用的是<code>kill -HUP &lt;master pid&gt;</code>命令，它能通知Nginx使用新的配置文件启动工作进程，并逐个关闭旧进程，完成平滑切换。当需要对Nginx进行版本升级或增减模块时，为了不丢失请求，可以结合使用<code>USR2</code>、<code>WINCH</code>等信号进行平滑过度，达到热升级的目的。如果中途遇到问题，也能立刻回退至原版本。</p>
+
+<h2>操作步骤</h2>
+
+<p>1、备份原Nginx二进制文件；</p>
+
+<p>2、编译新Nginx源码，安装路径需与旧版一致；</p>
+
+<p>3、向主进程发送<code>USR2</code>信号，Nginx会启动一个新版本的master进程和工作进程，和旧版一起处理请求：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>prey:~ root# ps -ef|grep nginx
+</span><span class='line'> 127     1   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+</span><span class='line'> 129   127   nginx: worker process
+</span><span class='line'>prey:~ root# <span class="nb">kill</span> -USR2 127
+</span><span class='line'>prey:~ root# ps -ef|grep nginx
+</span><span class='line'> 127     1   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+</span><span class='line'> 129   127   nginx: worker process
+</span><span class='line'>5180   127   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+</span><span class='line'>5182  5180   nginx: worker process
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/23/nginx-live-upgrade/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -427,6 +499,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/06/11/ansible-faq/">Ansible FAQ</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/">Cascalog：基于Clojure的Hadoop查询语言</a>
       </li>
     
@@ -440,10 +516,6 @@
     
       <li class="post">
         <a href="/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/">Perl入门实战：JVM监控脚本（下）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/27/fork-and-zombie-process/">fork()与僵尸进程</a>
       </li>
     
   </ul>
