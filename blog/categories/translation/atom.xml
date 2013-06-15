@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Translation | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/translation/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2013-06-15T23:17:07+08:00</updated>
+  <updated>2013-06-15T23:22:28+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -50,6 +50,9 @@
 
 <p>我最喜爱的书籍之一是奥森·斯科特·卡特的《安德的游戏》。在这本书中，“Ansible”是一种能够跨越时空的即时通讯工具。强烈推荐这本书！</p>
 
+<!-- more -->
+
+
 <h2>Ansible受到了谁的启发？</h2>
 
 <p>我在Red Hat任职期间主要开发Cobbler，很快我和几个同事就发现在部署工具（Cobbler）和配置管理工具（cfengine、Puppet等）之间有一个空缺，即如何更高效地执行临时性的任务。虽然当时有一些并行调用SSH脚本的方案，但并没有形成统一的API。所以我们（Adrian Likins、Seth Vidal、我）就开发了一个SSH分布式脚本框架——Func。</p>
@@ -92,7 +95,7 @@
 
 <h3>Chef？</h3>
 
-<p>Ansbile与Chef的区别和Puppet类似。Chef的配置非常困难，而且需要你掌握Ruby语言。也因为如此，Chef在Rails使用者中很流行。</p>
+<p>Ansible与Chef的区别和Puppet类似。Chef的配置非常困难，而且需要你掌握Ruby语言。也因为如此，Chef在Rails使用者中很流行。</p>
 
 <p>Ansible是按照编写顺序来执行任务的，而不是显示地定义依赖关系，这点和Chef相似。但Ansible更进一步，它支持事件触发，比如修改了Apache的配置文件，Apache就会被重启。</p>
 
