@@ -71,33 +71,33 @@ Ansible的学习曲线非常平滑，你不需要掌握编程技能，更不需�
 
 ### Chef？
 
-Much in the ways Ansible is different from Puppet. Chef is notoriously hard to set up on the server, and requires that you know how to program in Ruby to use the language. As such, it seems to have a pretty good following mainly among Rails coders.
+Ansbile与Chef的区别和Puppet类似。Chef的配置非常困难，而且需要你掌握Ruby语言。也因为如此，Chef在Rails使用者中很流行。
 
-Like Chef (and unlike Puppet), Ansible executes configuration tasks in the order given, rather than having to manually specify a dependency graph. Ansible extends this though, by allowing triggered notifiers, so Apache can, be restarted if needed, only once, at the end of a configuration run.
+Ansible是按照编写顺序来执行任务的，而不是显示地定义依赖关系，这点和Chef相似。但Ansible更进一步，它支持事件触发，比如修改了Apache的配置文件，Apache就会被重启。
 
-Unlike Chef, Ansible’s playbooks are not a programming language. This means that you can parse Ansible’s playbooks and treat the instructions as data. It also means working on your infrastructure is not a development task and testing is easier.
+和Chef不同的是，Ansible的playbook不是一门编程语言，而是一种可以存储的数据结构。这就意味着你的运维工作不是一项开发型的任务，测试起来也相对简单。
 
-Ansible can be used regardless of your programming language experience. Both Chef and Puppet are around 60k+ lines of code, while Ansible is a much simpler program. I believe this strongly leads to more reliable software and a richer open source community – the code is kept simple so it is easy for anyone to submit a patch or module.
+无论你有怎样的语言背景，都可以使用Ansible。Chef和Puppet有超过六万行的代码，而Ansible则是一段小巧简单的程序。我相信这一点会使得Ansible更加健壮和可靠，并汇聚一批活跃的社区贡献者——因为任何人都可以提交补丁或是模块。
 
-Ansible does support gathering variables from ‘ohai’, if installed. Ansible also has it’s own facts so you do not need to use ohai unless you want to.
+Ansible同样支持从ohai中获取系统信息，当然这同样不是必需的。
 
 ### Capistrano/Fabric？
 
-These tools aren’t really well suited to doing idempotent configuration and are typically about pushing software out for web deployment and automating steps.
+这些工具并不适合用作服务器配置工具，它们主要用于应用程序的部署。
 
-Meanwhile Ansible is designed for other types of configuration management, and contains some advanced scaling features.
+而Ansible则提供了完整的配置管理，以及在扩展性方面提供了一些高级特性。
 
-The ansible playbook syntax is documented within one HTML page and also has a MUCH lower learning curve. And because Ansible is designed for more than pushing webapps, it’s more generally useful for sysadmins (not just web developers), and can also be used for firing off ad-hoc tasks.
+Ansible playbook的语法简介只占一个HTML页面，有着非常平缓的学习曲线。由于Ansible使用了“推送”的设计，因此对系统管理员（不仅仅是开发者）同样适用，并能用它处理各种临时性的任务。
 
 ## 其它问题
 
 ### Ansible的安全性如何？
 
-Ansible aims to not develop custom daemon or PKI code but rely heavily on OpenSSH, which is extremely well peer reviewed and the most widely used security subsystem in the industry. As a result, Ansible has a lower attack surface than any configuration management tool featuring daemons that run as root, and you do not have to worry about network security vulnerabilities in the tool itself.
+Ansible没有守护进程，主要使用OpenSSH进行通信，这是一款已被反复检验并广泛使用的软件。其它工具都会在远程服务器上以root用户运行守护进程，因此相较于这些工具，Ansible会更为安全，且无需担心网络方面的问题。
 
-If your central server is taken over (or even logged into by a malicious employee), provided you were using SSH-agent and encrypted keys (and/or sudo with a password), your keys are still locked and no one can take control of your nodes.
+如果你的中心节点遭到入侵（或是被恶意员工登录），只要你是使用SSH-agent、或是经过加密的密码，那你的密钥仍然是被锁定的，别人无法操控你的节点。而对于Chef、Puppet等工具来说，一旦配置文件遭到篡改，那危及的将是整个网络。
 
-Compared with something like Chef/Puppet/other, compromised manifests would lead to a loss of the whole network, with your network turning into an easily controllable botnet. Further by not running daemon infrastructure, you have more free RAM and compute resources, which should be relevant to users wanting to maximize their computing investments.
+此外，由于Ansible没有守护进程，可以节省下一部分内存和计算资源，这对需要最大化性能的用户来说也是一个优点。
 
 ### Ansible如何扩展？
 
