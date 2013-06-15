@@ -23,29 +23,29 @@ published: false
     * Ansible的安全性如何？
     * Ansible如何扩展？
     * 是否支持SSH以外的协议？
-    * Ansbiel的适用场景有哪些？
+    * Ansible的适用场景有哪些？
 
 ## 为什么命名为“Ansible”？
 
-One of my favorite books is Orson Scott Card’s “Ender’s Game”. In the book, the Ansible is a method of instantaneous long distance “hyperspace” communication with a large number of space ships. You should read it!
+我最喜爱的书籍之一是奥森·斯科特·卡特的《安德的游戏》。在这本书中，“Ansible”是一种能够跨越时空的即时通讯工具。强烈推荐这本书！
 
 ## Ansible受到了谁的启发？
 
-Back when I worked for Red Hat and working on Cobbler, several of us identified a gap between provisioning (Cobbler) and configuration management solutions (cfengine, Puppet, etc). There was a need for a way to do ad-hoc tasks efficiently, and various parallel SSH scripts were not API based enough for us. So we (Adrian Likins, Seth Vidal, and I) created Func – a secure distributed command framework.
+我在Red Hat任职期间主要开发Cobbler，很快我和几个同事就发现在部署工具（Cobbler）和配置管理工具（cfengine、Puppet等）之间有一个空缺，即如何更高效地执行临时性的任务。虽然当时有一些并行调用SSH脚本的方案，但并没有形成统一的API。所以我们（Adrian Likins、Seth Vidal、我）就开发了一个SSH分布式脚本框架——Func。
 
-I always wanted to have a configuration management system built on Func, but never built it due to needing to spend time on Cobbler and other projects. In the meantime, a John Eckersberg developed Taboot, a deployment framework of sorts that sat on top of Func, using a YAML syntax very much like what Ansible now has in Playbooks.
+我一直想在Func的基础上开发一个配置管理工具，但因为忙于Cobbler和其他项目的开发，一直没有动手。在此期间，John Eckersberg开发了名为Taboot的自动化部署工具，它基于Func，采用YAML描述，和目前Ansible中的Playbooks很像。
 
-After trying to get Func running again recently at a new company, I got tired of some SSL and DNS issues and decided to create something a bit simpler, taking all of the good ideas from Func, and merging them with experience I learned from working at Puppet Labs. I wanted something that was easy to pick up and was installable without any bootstrapping, and didn’t suffer from the “I don’t want to learn X” mentality that often impacted adoption of tools like Puppet and Chef among certain ops teams.
+近期我在一家新公司尝试引入Func，但遇到一些SSL和DNS方面的问题，所以想要开发一个更为简单的工具，吸收Func中优秀的理念，并与我在Puppet Labs的工作经验相结合。我希望这一工具能够易于学习，且不需要进行任何安装步骤。使用它不需要引入一整套新的理论，像Puppet和Chef那样，从而降低被某些运维团队排挤的可能。
 
-I also spent some time working with a couple of sites that needed to do large webapp deployments, and noticed how complex various configuration management and deployment tools were to these companies, compared with what they actually needed. Release processes were too complex and needed something simple to straighten them out – but I really didn’t want to train all the dev(ops) on Puppet or Chef, and they really didn’t want to learn them either.
+我也曾参与过一些大型网站的应用部署，发觉现有的配置管理工具都太过复杂了，超过了这些公司的需求。程序发布的过程很繁复，需要一个简单的工具来帮助开发和运维人员。我不想教授他们Puppet或Chef，而且他们也不愿学习这些工具。
 
-I kept thinking, is there a reason for these programs to be so large and complicated? Well, systems management is a little complicated, but no. Not really.
+于是我便思考，应用程序的部署就应该那么复杂吗？答案是否定的。
 
-Can I build something that a sysadmin can figure out in 15 minutes and get going, and then extend in any language he knows? That’s how Ansible was born. It sheds ‘best practices’ for ‘you know your infrastructure best’, and distills all of the ideas behind all of these other tools to the core.
+我是否能开发一款工具，让运维人员能够在15分钟内学会使用，并用自己熟悉的语言来扩展它？这就是Ansible的由来。运维人员对自己的服务器设施最清楚，Ansible深知这一点，并将同类工具中最核心的功能提取出来，供我们使用。
 
-Not only is Ansible very simple and easy to learn/extend, it’s configuration management, deployment, and ad-hoc tasks all in one app. And I think that makes it pretty powerful. It hasn’t really been done before.
+Ansible不仅易于学习和扩展，它更是集配置管理、应用部署、临时任务等功能于一身。它非常强大，甚至前所未有。
 
-I’d like to know what you think of it. Hop by the mailing list and say hi.
+我很想知道你对Ansible的看法，到邮件列表里发表一下意见吧。
 
 ## 与同类软件比较
 
@@ -119,7 +119,7 @@ Currently SSH (you can choose between paramiko or the openssh binaries) and loca
 
 Stop by the mailing list if you have ideas. The connection-specific parts of Ansible are all abstracted away from the core implementation so it is very easy to extend.
 
-### Ansbiel的适用场景有哪些？
+### Ansible的适用场景有哪些？
 
 One of the best use cases? Complex multi-node cloud deployments using playbooks. Another good example is for configuration management where you are starting from a clean OS with no extra software installed, adopting systems that are already deployed.
 
