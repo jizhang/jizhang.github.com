@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Tutorial | Ji ZHANG's Blog]]></title>
-  <link href="http://shzhangji.com/blog/categories/tutorial/atom.xml" rel="self"/>
-  <link href="http://shzhangji.com/"/>
-  <updated>2013-06-15T23:22:28+08:00</updated>
-  <id>http://shzhangji.com/</id>
+  <link href="http://jizhang.github.com/blog/categories/tutorial/atom.xml" rel="self"/>
+  <link href="http://jizhang.github.com/"/>
+  <updated>2013-09-06T12:37:30+08:00</updated>
+  <id>http://jizhang.github.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Clojure实战(5)：Storm实时计算框架]]></title>
-    <link href="http://shzhangji.com/blog/2013/04/22/cia-storm/"/>
+    <link href="http://jizhang.github.com/blog/2013/04/22/cia-storm/"/>
     <updated>2013-04-22T12:11:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/04/22/cia-storm</id>
+    <id>http://jizhang.github.com/blog/2013/04/22/cia-storm</id>
     <content type="html"><![CDATA[<h2>Storm简介</h2>
 
 <p>上一章介绍的Hadoop工具能够对海量数据进行批量处理，采用分布式的并行计算架构，只需使用其提供的MapReduce API编写脚本即可。但随着人们对数据实时性的要求越来越高，如实时日志分析、实时推荐系统等，Hadoop就无能为力了。</p>
@@ -365,9 +365,9 @@ $ tail worker-6701.log
   
   <entry>
     <title type="html"><![CDATA[Perl入门实战：JVM监控脚本（下）]]></title>
-    <link href="http://shzhangji.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/"/>
+    <link href="http://jizhang.github.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/"/>
     <updated>2013-03-28T15:28:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2</id>
+    <id>http://jizhang.github.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2</id>
     <content type="html"><![CDATA[<h2>套接字</h2>
 
 <p>使用套接字（Socket）进行网络通信的基本流程是：</p>
@@ -628,9 +628,9 @@ PORT 12345
   
   <entry>
     <title type="html"><![CDATA[Perl入门实战：JVM监控脚本（上）]]></title>
-    <link href="http://shzhangji.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1/"/>
+    <link href="http://jizhang.github.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1/"/>
     <updated>2013-03-26T23:00:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1</id>
+    <id>http://jizhang.github.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1</id>
     <content type="html"><![CDATA[<p>由于最近在搭建Zabbix监控服务，需要制作各类监控的模板，如iostat、Nginx、MySQL等，因此会写一些脚本来完成数据采集的工作。又因为近期对Perl语言比较感兴趣，因此决定花些时间学一学，写一个脚本来练练手，于是就有了这样一份笔记。</p>
 
 <h2>需求描述</h2>
@@ -928,9 +928,9 @@ my @arr2 = (3, 4);</p>
   
   <entry>
     <title type="html"><![CDATA[Clojure实战(4)：编写Hadoop MapReduce脚本]]></title>
-    <link href="http://shzhangji.com/blog/2013/02/09/cia-hadoop/"/>
+    <link href="http://jizhang.github.com/blog/2013/02/09/cia-hadoop/"/>
     <updated>2013-02-09T16:43:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/02/09/cia-hadoop</id>
+    <id>http://jizhang.github.com/blog/2013/02/09/cia-hadoop</id>
     <content type="html"><![CDATA[<h2>Hadoop简介</h2>
 
 <p>众所周知，我们已经进入了大数据时代，每天都有PB级的数据需要处理、分析，从中提取出有用的信息。Hadoop就是这一时代背景下的产物。它是Apache基金会下的开源项目，受<a href="http://en.wikipedia.org/wiki/Apache_Hadoop#Papers">Google两篇论文</a>的启发，采用分布式的文件系统HDFS，以及通用的MapReduce解决方案，能够在数千台物理节点上进行分布式并行计算。</p>
@@ -1263,9 +1263,9 @@ $ lein test cia-hadoop.browser-test
   
   <entry>
     <title type="html"><![CDATA[Clojure实战(3)：使用Noir框架开发博客(下)]]></title>
-    <link href="http://shzhangji.com/blog/2012/12/16/cia-noir-3/"/>
+    <link href="http://jizhang.github.com/blog/2012/12/16/cia-noir-3/"/>
     <updated>2012-12-16T20:20:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2012/12/16/cia-noir-3</id>
+    <id>http://jizhang.github.com/blog/2012/12/16/cia-noir-3</id>
     <content type="html"><![CDATA[<h2>Session和Cookie</h2>
 
 <p>做网络编程的人肯定对这两个概念不陌生，因此这里就不介绍它们的定义和作用了。我们要实现的需求也很简单：用户通过一个表单登录，在当前窗口中保持登录状态，并可以选择“记住我”来免去关闭并新开窗口之后的重登录。显然，前者使用Session，后者使用Cookie。下面我们就来看Noir对这两者的支持。</p>

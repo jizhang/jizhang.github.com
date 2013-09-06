@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Notes | Ji ZHANG's Blog]]></title>
-  <link href="http://shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
-  <link href="http://shzhangji.com/"/>
-  <updated>2013-06-15T23:22:28+08:00</updated>
-  <id>http://shzhangji.com/</id>
+  <link href="http://jizhang.github.com/blog/categories/notes/atom.xml" rel="self"/>
+  <link href="http://jizhang.github.com/"/>
+  <updated>2013-09-06T12:37:30+08:00</updated>
+  <id>http://jizhang.github.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
     
@@ -14,10 +14,86 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Hive并发情况下报DELETEME表不存在的异常]]></title>
+    <link href="http://jizhang.github.com/blog/2013/09/06/hive-deleteme-error/"/>
+    <updated>2013-09-06T11:20:00+08:00</updated>
+    <id>http://jizhang.github.com/blog/2013/09/06/hive-deleteme-error</id>
+    <content type="html"><![CDATA[<p>在每天运行的Hive脚本中，偶尔会抛出以下错误：</p>
+
+<p>```
+2013-09-03 01:39:00,973 ERROR parse.SemanticAnalyzer (SemanticAnalyzer.java:getMetaData(1128)) - org.apache.hadoop.hive.ql.metadata.HiveException: Unable to fetch table dw_xxx_xxx</p>
+
+<pre><code>    at org.apache.hadoop.hive.ql.metadata.Hive.getTable(Hive.java:896)
+    ...
+</code></pre>
+
+<p>Caused by: javax.jdo.JDODataStoreException: Exception thrown obtaining schema column information from datastore
+NestedThrowables:
+com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Table 'hive.DELETEME1378143540925' doesn't exist</p>
+
+<pre><code>    at org.datanucleus.jdo.NucleusJDOHelper.getJDOExceptionForNucleusException(NucleusJDOHelper.java:313)
+    ...
+</code></pre>
+
+<p>```</p>
+
+<p>查阅了网上的资料，是DataNucleus的问题。</p>
+
+<p>背景1：我们知道MySQL中的库表信息是存放在information_schema库中的，Hive也有类似的机制，它会将库表信息存放在一个第三方的RDBMS中，目前我们线上配置的是本机MySQL，即：</p>
+
+<p>$ mysql -uhive -ppassword hive</p>
+
+<p><img src="/images/hive-deleteme-error/1.png" alt="1.png" /></p>
+
+<p>背景2：Hive使用的是DataNuclues ORM库来操作数据库的，而基本上所有的ORM框架（对象关系映射）都会提供自动建表的功能，即开发者只需编写Java对象，ORM会自动生成DDL。DataNuclues也有这一功能，而且它在初始化时会通过生成临时表的方式来获取数据库的Catalog和Schema，也就是 DELETEME表：</p>
+
+<p><img src="/images/hive-deleteme-error/2.png" alt="2.png" /></p>
+
+<p>这样就有一个问题：在并发量大的情况下，DELETEME表名中的毫秒数可能相同，那在pt.drop(conn)的时候就会产生找不到表的报错。</p>
+
+<p>解决办法已经可以在代码中看到了：将datanucleus.fixedDataStore选项置为true，即告知DataNuclues该数据库的表结构是既定的，不允许执行DDL操作。</p>
+
+<p>这样配置会有什么问题？让我们回忆一下Hive的安装步骤：</p>
+
+<ol>
+<li>解压hive-xyz.tar.gz；</li>
+<li>在conf/hive-site.xml中配置Hadoop以及用于存放库表信息的第三方数据库；</li>
+<li>执行bin/hive -e "..."即可使用。DataNucleus会按需创建上述的DBS等表。</li>
+</ol>
+
+
+<p>这对新手来说很有用，因为不需要手动去执行建表语句，但对生产环境来说，普通帐号是没有DDL权限的，我们公司建表也都是提DB-RT给DBA操作。同理，线上Hive数据库也应该采用手工创建的方式，导入scripts/metastore/upgrade/mysql/hive-schema-0.9.0.mysql.sql文件即可。这样一来，就可以放心地配置datanucleus.fixedDataStore以及 datanecleus.autoCreateSchema两个选项了。</p>
+
+<p>这里我们也明确了一个问题：设置datanucleus.fixedDataStore=true不会影响Hive建库建表，因为Hive中的库表只是DBS、TBLS表中的一条记录而已。</p>
+
+<p>建议的操作：</p>
+
+<ol>
+<li>在线上导入hive-schema-0.9.0.mysql.sql，将尚未创建的表创建好（比如我们没有用过Hive的权限管理，所以DataNucleus没有自动创建DB_PRIVS表）；</li>
+<li>在hive-site.xml中配置 datanucleus.fixedDataStore=true；datanecleus.autoCreateSchema=false。</li>
+</ol>
+
+
+<p>这样就可以彻底解决这个异常了。</p>
+
+<p>为什么HWI没有遇到类似问题？因为它是常驻内存的，DELETEME表只会在启动的时候创建，后续的查询不会创建。而我们这里每次调用hive命令行都会去创建，所以才有这样的问题。</p>
+
+<p>参考链接：</p>
+
+<ul>
+<li>http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html</li>
+<li>https://github.com/dianping/cosmos-hive/issues/10</li>
+<li>https://issues.apache.org/jira/browse/HIVE-1841</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Manage Leiningen Project Configuration]]></title>
-    <link href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/"/>
+    <link href="http://jizhang.github.com/blog/2013/04/30/manage-leiningen-project-configuration/"/>
     <updated>2013-04-30T16:16:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration</id>
+    <id>http://jizhang.github.com/blog/2013/04/30/manage-leiningen-project-configuration</id>
     <content type="html"><![CDATA[<p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
 
 <p>```text</p>
@@ -168,9 +244,9 @@ test-project/
   
   <entry>
     <title type="html"><![CDATA[fork()与僵尸进程]]></title>
-    <link href="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/"/>
+    <link href="http://jizhang.github.com/blog/2013/03/27/fork-and-zombie-process/"/>
     <updated>2013-03-27T20:18:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process</id>
+    <id>http://jizhang.github.com/blog/2013/03/27/fork-and-zombie-process</id>
     <content type="html"><![CDATA[<p>使用fork()函数派生出多个子进程来并行执行程序的不同代码块，是一种常用的编程泛型。特别是在网络编程中，父进程初始化后派生出指定数量的子进程，共同监听网络端口并处理请求，从而达到扩容的目的。</p>
 
 <p>但是，在使用fork()函数时若处理不当，很容易产生僵尸进程。根据UNIX系统的定义，僵尸进程是指子进程退出后，它的父进程没有“等待”该子进程，这样的子进程就会成为僵尸进程。何谓“等待”？僵尸进程的危害是什么？以及要如何避免？这就是本文将要阐述的内容。</p>
