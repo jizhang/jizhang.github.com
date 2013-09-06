@@ -18,13 +18,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/">
+  <link rel="canonical" href="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -398,8 +399,8 @@
 <h2>参考资料</h2>
 
 <ul>
-<li><a href="http://linux.die.net/man/2/fork">fork(2) - Linux man page</a></li>
-<li><a href="http://linux.die.net/man/2/waitpid">waitpid(2) - Linux man page</a></li>
+<li><a href="http://linux.die.net/man/2/fork">fork(2) &ndash; Linux man page</a></li>
+<li><a href="http://linux.die.net/man/2/waitpid">waitpid(2) &ndash; Linux man page</a></li>
 <li><a href="http://book.jd.com/10137688.html">UNIX环境高级编程（英文版）（第2版）</a></li>
 <li><a href="http://tech.idv2.com/2006/10/14/linux-multiprocess-info/">Linux多进程相关内容</a></li>
 </ul>
@@ -440,7 +441,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -555,7 +556,7 @@
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) {return;}
-  js = d.createElement(s); js.id = id;
+  js = d.createElement(s); js.id = id; js.async = true;
   js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
@@ -577,7 +578,7 @@
       var twitterWidgets = document.createElement('script');
       twitterWidgets.type = 'text/javascript';
       twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
       document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
     })();
   </script>

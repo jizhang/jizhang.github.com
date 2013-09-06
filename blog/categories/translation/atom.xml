@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Translation | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/translation/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2013-09-06T12:45:40+08:00</updated>
+  <updated>2013-09-06T12:55:01+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -165,14 +165,14 @@
 <h2>特点</h2>
 
 <ul>
-<li><strong>简单</strong> - 使用相同的语法编写函数、过滤规则、聚合运算；数据联合（join）变得简单而自然。</li>
-<li><strong>表达能力强</strong> - 强大的逻辑组合条件，你可以在查询语句中任意编写Clojure函数。</li>
-<li><strong>交互性</strong> - 可以在Clojure REPL中执行查询语句。</li>
-<li><strong>可扩展</strong> - Cascalog的查询语句是一组MapReduce脚本。</li>
-<li><strong>任意数据源</strong> - HDFS、数据库、本地数据、以及任何能够使用Cascading的<code>Tap</code>读取的数据。</li>
-<li><strong>正确处理空值</strong> - 空值往往让事情变得棘手。Cascalog提供了内置的“非空变量”来自动过滤空值。</li>
-<li><strong>与Cascading结合</strong> - 使用Cascalog定义的流程可以在Cascading中直接使用，反之亦然。</li>
-<li><strong>与Clojure结合</strong> - 能够使用普通的Clojure函数来编写操作流程、过滤规则，又因为Cascalog是一种Clojure DSL，因此也能在其他Clojure代码中使用。</li>
+<li><strong>简单</strong> &ndash; 使用相同的语法编写函数、过滤规则、聚合运算；数据联合（join）变得简单而自然。</li>
+<li><strong>表达能力强</strong> &ndash; 强大的逻辑组合条件，你可以在查询语句中任意编写Clojure函数。</li>
+<li><strong>交互性</strong> &ndash; 可以在Clojure REPL中执行查询语句。</li>
+<li><strong>可扩展</strong> &ndash; Cascalog的查询语句是一组MapReduce脚本。</li>
+<li><strong>任意数据源</strong> &ndash; HDFS、数据库、本地数据、以及任何能够使用Cascading的<code>Tap</code>读取的数据。</li>
+<li><strong>正确处理空值</strong> &ndash; 空值往往让事情变得棘手。Cascalog提供了内置的“非空变量”来自动过滤空值。</li>
+<li><strong>与Cascading结合</strong> &ndash; 使用Cascalog定义的流程可以在Cascading中直接使用，反之亦然。</li>
+<li><strong>与Clojure结合</strong> &ndash; 能够使用普通的Clojure函数来编写操作流程、过滤规则，又因为Cascalog是一种Clojure DSL，因此也能在其他Clojure代码中使用。</li>
 </ul>
 
 
@@ -209,7 +209,7 @@ user=&gt; (?&lt;- (stdout) [?person] (age ?person ?age) (&lt; ?age 30))
 <p>我们重新执行这条语句，只是这次会将人的年龄也输出出来：</p>
 
 <p>```clojure
-user=> (?&lt;- (stdout) [?person ?age] (age ?person ?age)</p>
+user=> (?&lt;&ndash; (stdout) [?person ?age] (age ?person ?age)</p>
 
 <pre><code>        (&lt; ?age 30))
 </code></pre>
@@ -221,7 +221,7 @@ user=> (?&lt;- (stdout) [?person ?age] (age ?person ?age)</p>
 <p>让我们执行另一条查询，找出艾米丽关注的所有男性：</p>
 
 <p>```clojure
-user=> (?&lt;- (stdout) [?person] (follows "emily" ?person)</p>
+user=> (?&lt;&ndash; (stdout) [?person] (follows &ldquo;emily&rdquo; ?person)</p>
 
 <pre><code>        (gender ?person "m"))
 </code></pre>
@@ -235,7 +235,7 @@ user=> (?&lt;- (stdout) [?person] (follows "emily" ?person)</p>
 <p>让我们分析一下查询语句的结构，以下面这条语句为例：</p>
 
 <p>```clojure
-user=> (?&lt;- [stdout] [?person ?a2] (age ?person ?age)</p>
+user=> (?&lt;&ndash; [stdout] [?person ?a2] (age ?person ?age)</p>
 
 <pre><code>        (&lt; ?age 30) (* 2 ?age :&gt; ?a2))
 </code></pre>
@@ -299,7 +299,7 @@ user=> (?&lt;- [stdout] [?person ?a2] (age ?person ?age)</p>
 <p>让我们回到示例中。找出所有关注了比自己年龄小的用户的列表：</p>
 
 <p>```clojure
-user=> (?&lt;- (stdout) [?person1 ?person2]</p>
+user=> (?&lt;&ndash; (stdout) [?person1 ?person2]</p>
 
 <pre><code>        (age ?person1 ?age1) (follows ?person1 ?person2)
         (age ?person2 ?age2) (&lt; ?age2 ?age1))
@@ -310,7 +310,7 @@ user=> (?&lt;- (stdout) [?person1 ?person2]</p>
 <p>同时，我们将年龄差异也输出出来：</p>
 
 <p>```clojure
-user=> (?&lt;- (stdout) [?person1 ?person2 ?delta]</p>
+user=> (?&lt;&ndash; (stdout) [?person1 ?person2 ?delta]</p>
 
 <pre><code>        (age ?person1 ?age1) (follows ?person1 ?person2)
         (age ?person2 ?age2) (- ?age2 ?age1 :&gt; ?delta)
@@ -324,7 +324,7 @@ user=> (?&lt;- (stdout) [?person1 ?person2 ?delta]</p>
 <p>下面让我们看看聚合查询的使用方法。统计所有年龄小于30的用户人数：</p>
 
 <p>```clojure
-user=> (?&lt;- (stdout) [?count] (age _ ?a) (&lt; ?a 30)</p>
+user=> (?&lt;&ndash; (stdout) [?count] (age _ ?a) (&lt; ?a 30)</p>
 
 <pre><code>        (c/count ?count))
 </code></pre>
@@ -334,7 +334,7 @@ user=> (?&lt;- (stdout) [?count] (age _ ?a) (&lt; ?a 30)</p>
 <p>这条查询会统计所有的记录。我们也可以只聚合部分记录。比如，让我们找出每个人所关注的用户的数量：</p>
 
 <p>```clojure
-user=> (?&lt;- (stdout) [?person ?count] (follows ?person _)</p>
+user=> (?&lt;&ndash; (stdout) [?person ?count] (follows ?person _)</p>
 
 <pre><code>        (c/count ?count))
 </code></pre>
@@ -346,7 +346,7 @@ user=> (?&lt;- (stdout) [?person ?count] (follows ?person _)</p>
 <p>你可以在单个查询中使用多个聚合条件，它们的分组方式是一致的。例如，我们可以计算每个国家的用户的平均年龄，使用计数和求和这两种聚合方式：</p>
 
 <p>```clojure
-user=> (?&lt;- (stdout) [?country ?avg]</p>
+user=> (?&lt;&ndash; (stdout) [?country ?avg]</p>
 
 <pre><code>        (location ?person ?country _ _) (age ?person ?age)
         (c/count ?count) (c/sum ?age :&gt; ?sum)
@@ -367,7 +367,7 @@ user=> (defmapcatop split [sentence]</p>
 <pre><code>     (seq (.split sentence "\\s+")))
 </code></pre>
 
-<p>user=> (?&lt;- (stdout) [?word ?count] (sentence ?s)</p>
+<p>user=> (?&lt;&ndash; (stdout) [?word ?count] (sentence ?s)</p>
 
 <pre><code>        (split ?s :&gt; ?word) (c/count ?count))
 </code></pre>
@@ -380,7 +380,7 @@ user=> (defmapcatop split [sentence]</p>
 
 <p>```clojure
 user=> (defn lowercase [w] (.toLowerCase w))
-user=> (?&lt;- (stdout) [?word ?count]</p>
+user=> (?&lt;&ndash; (stdout) [?word ?count]</p>
 
 <pre><code>        (sentence ?s) (split ?s :&gt; ?word1)
         (lowercase ?word1 :&gt; ?word) (c/count ?count))
@@ -398,7 +398,7 @@ user=> (defn agebucket [age]</p>
 <pre><code>     (find-first (partial &lt;= age) [17 25 35 45 55 65 100 200]))
 </code></pre>
 
-<p>user=> (?&lt;- (stdout) [?bucket ?gender ?count]</p>
+<p>user=> (?&lt;&ndash; (stdout) [?bucket ?gender ?count]</p>
 
 <pre><code>        (age ?person ?age) (gender ?person ?gender)
         (agebucket ?age :&gt; ?bucket) (c/count ?count))
@@ -424,7 +424,7 @@ user=&gt; (?&lt;- (stdout) [?person !city] (location ?person _ _ !city)
 <p>最后，我们来看看更为复杂的查询，我们会用到子查询这一特性。让我们找出关注了两人以上的用户列表，并找出这些用户之间的关注关系：</p>
 
 <p>```clojure
-user=> (let [many-follows (&lt;- [?person] (follows ?person _)</p>
+user=> (let [many-follows (&lt;&ndash; [?person] (follows ?person _)</p>
 
 <pre><code>                          (c/count ?c) (&gt; ?c 2))]
         (?&lt;- (stdout) [?person1 ?person2] (many-follows ?person1)
@@ -438,7 +438,7 @@ user=> (let [many-follows (&lt;- [?person] (follows ?person _)</p>
 <p>我们还可以在一个查询中指定多个输出目的地。比如我们想要同时得到<code>many-follows</code>的查询结果：</p>
 
 <p>```clojure
-user=> (let [many-follows (&lt;- [?person] (follows ?person _)</p>
+user=> (let [many-follows (&lt;&ndash; [?person] (follows ?person _)</p>
 
 <pre><code>                          (c/count ?c) (&gt; ?c 2))
          active-follows (&lt;- [?p1 ?p2] (many-follows ?p1)
@@ -783,7 +783,7 @@ function applyFirst (binaryFn, firstArg) {
     <link href="http://shzhangji.com/blog/2013/01/04/clojure-style-guide/"/>
     <updated>2013-01-04T20:49:00+08:00</updated>
     <id>http://shzhangji.com/blog/2013/01/04/clojure-style-guide</id>
-    <content type="html"><![CDATA[<p>原文地址：https://github.com/bbatsov/clojure-style-guide</p>
+    <content type="html"><![CDATA[<p>原文地址：<a href="https://github.com/bbatsov/clojure-style-guide">https://github.com/bbatsov/clojure-style-guide</a></p>
 
 <p>这份Clojure代码规范旨在提供一系列的最佳实践，让现实工作中的Clojure程序员能够写出易于维护的代码，并能与他人协作和共享。一份反应真实需求的代码规范才能被人接收，而那些理想化的、甚至部分观点遭到程序员拒绝的代码规范注定不会长久——无论它有多出色。</p>
 
@@ -2071,7 +2071,7 @@ Integer/MAX_VALUE
 <p>```python
 from distutils.core import setup</p>
 
-<p>setup(name='MyProject', version='1.0', py_modules=['mycode.py'])
+<p>setup(name=&lsquo;MyProject&rsquo;, version=&lsquo;1.0&rsquo;, py_modules=[&lsquo;mycode.py&rsquo;])
 ```</p>
 
 <p>这个模块可以用来执行<code>Distutils</code>的各种命令，如<code>sdist</code>。这条命令会在<code>dist</code>目录中创建一个源代码发布包：</p>
@@ -2153,7 +2153,7 @@ Building against libxml2/libxslt in the following directory: /usr/lib/lxml
 <p>```python
 from distutils.core import setup</p>
 
-<p>setup(name='foo', version='1.0', requires=['ldap'])
+<p>setup(name=&lsquo;foo&rsquo;, version=&lsquo;1.0&rsquo;, requires=[&lsquo;ldap&rsquo;])
 ```</p>
 
 <p>这里声明了对<code>ldap</code>模块的依赖，这种依赖并没有实际效力，因为没有安装工具会保证这个模块真实存在。如果说Python代码中会使用类似Perl的<code>require</code>关键字来定义依赖关系，那还有些作用，因为这时安装工具会检索PyPI上的信息并进行安装，其实这也就是CPAN的做法。但是对于Python来说，<code>ldap</code>模块可以存在于任何项目之中，因为<code>Distutils</code>是允许开发者发布一个包含多个模块的软件的，所以这里的元信息字段并无太大作用。</p>
@@ -2163,7 +2163,7 @@ from distutils.core import setup</p>
 <p>```python
 from distutils.core import setup</p>
 
-<p>setup(name='foo', version='1.0', requires=['win32com'])
+<p>setup(name=&lsquo;foo&rsquo;, version=&lsquo;1.0&rsquo;, requires=[&lsquo;win32com&rsquo;])
 ```</p>
 
 <p>这样配置相当于是默认该项目只会运行在Windows环境下，即使它可能提供了跨平台的方案。一种解决方法是根据不同的平台来指定<code>requires</code>参数：</p>
@@ -2172,7 +2172,7 @@ from distutils.core import setup</p>
 from distutils.core import setup
 import sys</p>
 
-<p>if sys.platform == 'win32':</p>
+<p>if sys.platform == &lsquo;win32&rsquo;:</p>
 
 <pre><code>setup(name='foo', version='1.0', requires=['win32com'])
 </code></pre>
@@ -2271,39 +2271,39 @@ Server response (200): OK
 
 <blockquote><blockquote><blockquote><p>import xmlrpclib
 import pprint
-client = xmlrpclib.ServerProxy('http://pypi.python.org/pypi')
-client.package_releases('MPTools')
-['0.1']
-pprint.pprint(client.release_urls('MPTools', '0.1'))
-[{'comment_text': &rquot;,
-'downloads': 28,
-'filename': 'MPTools-0.1.tar.gz',
-'has_sig': False,
-'md5_digest': '6b06752d62c4bffe1fb65cd5c9b7111a',
-'packagetype': 'sdist',
-'python_version': 'source',
-'size': 3684,
-'upload_time': <DateTime '20110204T09:37:12' at f4da28>,
-'url': 'http://pypi.python.org/packages/source/M/MPTools/MPTools-0.1.tar.gz'}]
-pprint.pprint(client.release_data('MPTools', '0.1'))
-{'author': 'Tarek Ziade',
-'author_email': 'tarek@mozilla.com',
-'classifiers': [],
-'description': 'UNKNOWN',
-'download_url': 'UNKNOWN',
-'home_page': 'http://bitbucket.org/tarek/mopytools',
-'keywords': None,
-'license': 'UNKNOWN',
-'maintainer': None,
-'maintainer_email': None,
-'name': 'MPTools',
-'package_url': 'http://pypi.python.org/pypi/MPTools',
-'platform': 'UNKNOWN',
-'release_url': 'http://pypi.python.org/pypi/MPTools/0.1',
-'requires_python': None,
-'stable_version': None,
-'summary': 'Set of tools to build Mozilla Services apps',
-'version': '0.1'}
+client = xmlrpclib.ServerProxy(&lsquo;<a href="http://pypi.python.org/pypi">http://pypi.python.org/pypi</a>&rsquo;)
+client.package_releases(&lsquo;MPTools&rsquo;)
+[&lsquo;0.1&rsquo;]
+pprint.pprint(client.release_urls(&lsquo;MPTools&rsquo;, &lsquo;0.1&rsquo;))
+[{&lsquo;comment_text&rsquo;: &rquot;,
+&lsquo;downloads&rsquo;: 28,
+&lsquo;filename&rsquo;: &lsquo;MPTools-0.1.tar.gz&rsquo;,
+&lsquo;has_sig&rsquo;: False,
+&lsquo;md5_digest&rsquo;: &lsquo;6b06752d62c4bffe1fb65cd5c9b7111a&rsquo;,
+&lsquo;packagetype&rsquo;: &lsquo;sdist&rsquo;,
+&lsquo;python_version&rsquo;: &lsquo;source&rsquo;,
+&lsquo;size&rsquo;: 3684,
+&lsquo;upload_time&rsquo;: <DateTime '20110204T09:37:12' at f4da28>,
+&lsquo;url&rsquo;: &lsquo;<a href="http://pypi.python.org/packages/source/M/MPTools/MPTools-0.1.tar.gz">http://pypi.python.org/packages/source/M/MPTools/MPTools-0.1.tar.gz</a>&rsquo;}]
+pprint.pprint(client.release_data(&lsquo;MPTools&rsquo;, &lsquo;0.1&rsquo;))
+{&lsquo;author&rsquo;: &lsquo;Tarek Ziade&rsquo;,
+&lsquo;author_email&rsquo;: &lsquo;<a href="&#x6d;&#x61;&#x69;&#108;&#x74;&#x6f;&#x3a;&#116;&#x61;&#114;&#x65;&#x6b;&#x40;&#x6d;&#111;&#x7a;&#x69;&#x6c;&#108;&#97;&#x2e;&#x63;&#x6f;&#109;">&#116;&#97;&#114;&#101;&#107;&#64;&#109;&#x6f;&#122;&#105;&#108;&#x6c;&#x61;&#x2e;&#99;&#111;&#109;</a>&rsquo;,
+&lsquo;classifiers&rsquo;: [],
+&lsquo;description&rsquo;: &lsquo;UNKNOWN&rsquo;,
+&lsquo;download_url&rsquo;: &lsquo;UNKNOWN&rsquo;,
+&lsquo;home_page&rsquo;: &lsquo;<a href="http://bitbucket.org/tarek/mopytools">http://bitbucket.org/tarek/mopytools</a>&rsquo;,
+&lsquo;keywords&rsquo;: None,
+&lsquo;license&rsquo;: &lsquo;UNKNOWN&rsquo;,
+&lsquo;maintainer&rsquo;: None,
+&lsquo;maintainer_email&rsquo;: None,
+&lsquo;name&rsquo;: &lsquo;MPTools&rsquo;,
+&lsquo;package_url&rsquo;: &lsquo;<a href="http://pypi.python.org/pypi/MPTools">http://pypi.python.org/pypi/MPTools</a>&rsquo;,
+&lsquo;platform&rsquo;: &lsquo;UNKNOWN&rsquo;,
+&lsquo;release_url&rsquo;: &lsquo;<a href="http://pypi.python.org/pypi/MPTools/0.1">http://pypi.python.org/pypi/MPTools/0.1</a>&rsquo;,
+&lsquo;requires_python&rsquo;: None,
+&lsquo;stable_version&rsquo;: None,
+&lsquo;summary&rsquo;: &lsquo;Set of tools to build Mozilla Services apps&rsquo;,
+&lsquo;version&rsquo;: &lsquo;0.1&rsquo;}
 ```</p></blockquote></blockquote></blockquote>
 
 <p>这种方式的问题在于，项目元信息原本就能以静态文件的方式在简单索引协议中提供，这样可以简化安装工具的复杂性，也可以减少PyPI服务的请求数。对于诸如下载数量这样的动态数据，可以在其他接口中提供。用两种服务来获取所有的静态内容，显然不太合理。</p>
@@ -2536,7 +2536,7 @@ Requires-External: libxslt; 'linux' in sys.platform
 import os</p>
 
 <p>here = os.path.dirname(<strong>file</strong>)
-cfg = open(os.path.join(here, 'config', 'mopy.cfg'))
+cfg = open(os.path.join(here, &lsquo;config&rsquo;, &lsquo;mopy.cfg&rsquo;))
 ```</p>
 
 <p>这样编写代码意味着该配置文件必须和代码放在相同的位置，一个名为<code>config</code>的子目录下。</p>
@@ -2549,7 +2549,7 @@ import pkgutil</p>
 
 <h1>Open the file located in config/mopy.cfg in the MPTools project</h1>
 
-<p>cfg = pkgutil.open('MPTools', 'config/mopy.cfg')
+<p>cfg = pkgutil.open(&lsquo;MPTools&rsquo;, &lsquo;config/mopy.cfg&rsquo;)
 ```</p>
 
 <p><code>pkgutil.open</code>命令会检索项目元信息中的<code>RESOURCES</code>文件，该文件保存的是一个简单的映射信息——文件名称和它所存放的位置：</p>
@@ -2601,8 +2601,8 @@ resources =</p>
 <p>```python</p>
 
 <blockquote><blockquote><blockquote><p>import socket
-socket.gethostbyname_ex('last.pypi.python.org')[0]
-'h.pypi.python.org'
+socket.gethostbyname_ex(&lsquo;last.pypi.python.org&rsquo;)[0]
+&lsquo;h.pypi.python.org&rsquo;
 ```</p></blockquote></blockquote></blockquote>
 
 <p>这样一来，客户端还可以根据域名的IP地址来决定连接最近的镜像服务器，或者在服务器发生故障时自动重连到新的地址。镜像协议本身要比rsync更复杂一些，因为我们需要保证下载统计量的准确性，并提供最基本的安全性保障。</p>
@@ -2659,12 +2659,12 @@ socket.gethostbyname_ex('last.pypi.python.org')[0]
 name = MPTools
 version = 0.1
 author = Tarek Ziade
-author-email = tarek@mozilla.com
+author-email = <a href="&#x6d;&#97;&#x69;&#108;&#116;&#111;&#58;&#x74;&#97;&#114;&#x65;&#107;&#64;&#x6d;&#111;&#122;&#105;&#108;&#108;&#97;&#46;&#99;&#111;&#109;">&#116;&#97;&#114;&#x65;&#107;&#64;&#x6d;&#x6f;&#122;&#105;&#x6c;&#x6c;&#x61;&#x2e;&#99;&#x6f;&#109;</a>
 summary = Set of tools to build Mozilla Services apps
 description-file = README
-home-page = http://bitbucket.org/tarek/pypi2rpm
-project-url: Repository, http://hg.mozilla.org/services/server-devtools
-classifier = Development Status :: 3 - Alpha</p>
+home-page = <a href="http://bitbucket.org/tarek/pypi2rpm">http://bitbucket.org/tarek/pypi2rpm</a>
+project-url: Repository, <a href="http://hg.mozilla.org/services/server-devtools">http://hg.mozilla.org/services/server-devtools</a>
+classifier = Development Status :: 3 &ndash; Alpha</p>
 
 <pre><code>License :: OSI Approved :: Mozilla Public License 1.1 (MPL 1.1)
 </code></pre>
@@ -2749,12 +2749,12 @@ packages =</p>
 <p>本文的部分章节直接摘自PEP文档，你可以在<code>http://python.org</code>中找到原文：</p>
 
 <ul>
-<li>PEP 241: Metadata for Python Software Packages 1.0: http://python.org/peps/pep-0214.html</li>
-<li>PEP 314: Metadata for Python Software Packages 1.1: http://python.org/peps/pep-0314.html</li>
-<li>PEP 345: Metadata for Python Software Packages 1.2: http://python.org/peps/pep-0345.html</li>
-<li>PEP 376: Database of Installed Python Distributions: http://python.org/peps/pep-0376.html</li>
-<li>PEP 381: Mirroring infrastructure for PyPI: http://python.org/peps/pep-0381.html</li>
-<li>PEP 386: Changing the version comparison module in Distutils: http://python.org/peps/pep-0386.html</li>
+<li>PEP 241: Metadata for Python Software Packages 1.0: <a href="http://python.org/peps/pep-0214.html">http://python.org/peps/pep-0214.html</a></li>
+<li>PEP 314: Metadata for Python Software Packages 1.1: <a href="http://python.org/peps/pep-0314.html">http://python.org/peps/pep-0314.html</a></li>
+<li>PEP 345: Metadata for Python Software Packages 1.2: <a href="http://python.org/peps/pep-0345.html">http://python.org/peps/pep-0345.html</a></li>
+<li>PEP 376: Database of Installed Python Distributions: <a href="http://python.org/peps/pep-0376.html">http://python.org/peps/pep-0376.html</a></li>
+<li>PEP 381: Mirroring infrastructure for PyPI: <a href="http://python.org/peps/pep-0381.html">http://python.org/peps/pep-0381.html</a></li>
+<li>PEP 386: Changing the version comparison module in Distutils: <a href="http://python.org/peps/pep-0386.html">http://python.org/peps/pep-0386.html</a></li>
 </ul>
 
 
@@ -2763,12 +2763,12 @@ packages =</p>
 <p>本章中讨论的项目有：</p>
 
 <ul>
-<li>Distutils: http://docs.python.org/distutils</li>
-<li>Distutils2: http://packages.python.org/Distutils2</li>
-<li>Distribute: http://packages.python.org/distribute</li>
-<li>Setuptools: http://pypi.python.org/pypi/setuptools</li>
-<li>Pip: http://pypi.python.org/pypi/pip</li>
-<li>Virtualenv: http://pypi.python.org/pypi/virtualenv</li>
+<li>Distutils: <a href="http://docs.python.org/distutils">http://docs.python.org/distutils</a></li>
+<li>Distutils2: <a href="http://packages.python.org/Distutils2">http://packages.python.org/Distutils2</a></li>
+<li>Distribute: <a href="http://packages.python.org/distribute">http://packages.python.org/distribute</a></li>
+<li>Setuptools: <a href="http://pypi.python.org/pypi/setuptools">http://pypi.python.org/pypi/setuptools</a></li>
+<li>Pip: <a href="http://pypi.python.org/pypi/pip">http://pypi.python.org/pypi/pip</a></li>
+<li>Virtualenv: <a href="http://pypi.python.org/pypi/virtualenv">http://pypi.python.org/pypi/virtualenv</a></li>
 </ul>
 
 

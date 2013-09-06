@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2013-09-06T12:45:40+08:00</updated>
+  <updated>2013-09-06T12:55:01+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -62,7 +62,7 @@
 <ol>
 <li>解压hive-xyz.tar.gz；</li>
 <li>在conf/hive-site.xml中配置Hadoop以及用于存放库表信息的第三方数据库；</li>
-<li>执行bin/hive -e &#8220;&#8230;&#8221;即可使用。DataNucleus会按需创建上述的DBS等表。</li>
+<li>执行bin/hive -e &ldquo;&hellip;&#8221;即可使用。DataNucleus会按需创建上述的DBS等表。</li>
 </ol>
 
 
@@ -85,9 +85,9 @@
 <p>参考链接：</p>
 
 <ul>
-<li>http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html</li>
-<li>https://github.com/dianping/cosmos-hive/issues/10</li>
-<li>https://issues.apache.org/jira/browse/HIVE-1841</li>
+<li><a href="http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html">http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html</a></li>
+<li><a href="https://github.com/dianping/cosmos-hive/issues/10">https://github.com/dianping/cosmos-hive/issues/10</a></li>
+<li><a href="https://issues.apache.org/jira/browse/HIVE-1841">https://issues.apache.org/jira/browse/HIVE-1841</a></li>
 </ul>
 
 ]]></content>
@@ -245,14 +245,14 @@
 <h2>特点</h2>
 
 <ul>
-<li><strong>简单</strong> - 使用相同的语法编写函数、过滤规则、聚合运算；数据联合（join）变得简单而自然。</li>
-<li><strong>表达能力强</strong> - 强大的逻辑组合条件，你可以在查询语句中任意编写Clojure函数。</li>
-<li><strong>交互性</strong> - 可以在Clojure REPL中执行查询语句。</li>
-<li><strong>可扩展</strong> - Cascalog的查询语句是一组MapReduce脚本。</li>
-<li><strong>任意数据源</strong> - HDFS、数据库、本地数据、以及任何能够使用Cascading的<code>Tap</code>读取的数据。</li>
-<li><strong>正确处理空值</strong> - 空值往往让事情变得棘手。Cascalog提供了内置的“非空变量”来自动过滤空值。</li>
-<li><strong>与Cascading结合</strong> - 使用Cascalog定义的流程可以在Cascading中直接使用，反之亦然。</li>
-<li><strong>与Clojure结合</strong> - 能够使用普通的Clojure函数来编写操作流程、过滤规则，又因为Cascalog是一种Clojure DSL，因此也能在其他Clojure代码中使用。</li>
+<li><strong>简单</strong> &ndash; 使用相同的语法编写函数、过滤规则、聚合运算；数据联合（join）变得简单而自然。</li>
+<li><strong>表达能力强</strong> &ndash; 强大的逻辑组合条件，你可以在查询语句中任意编写Clojure函数。</li>
+<li><strong>交互性</strong> &ndash; 可以在Clojure REPL中执行查询语句。</li>
+<li><strong>可扩展</strong> &ndash; Cascalog的查询语句是一组MapReduce脚本。</li>
+<li><strong>任意数据源</strong> &ndash; HDFS、数据库、本地数据、以及任何能够使用Cascading的<code>Tap</code>读取的数据。</li>
+<li><strong>正确处理空值</strong> &ndash; 空值往往让事情变得棘手。Cascalog提供了内置的“非空变量”来自动过滤空值。</li>
+<li><strong>与Cascading结合</strong> &ndash; 使用Cascalog定义的流程可以在Cascading中直接使用，反之亦然。</li>
+<li><strong>与Clojure结合</strong> &ndash; 能够使用普通的Clojure函数来编写操作流程、过滤规则，又因为Cascalog是一种Clojure DSL，因此也能在其他Clojure代码中使用。</li>
 </ul>
 
 
@@ -599,14 +599,14 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>As for Leiningen projects, there&#8217;s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
+<p>As for Leiningen projects, there&rsquo;s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
 
 <!-- more -->
 
 
 <h2>Read Configuration from <code>.clj</code> Files</h2>
 
-<p>Instead of using <code>.properties</code>, we&#8217;ll use <code>.clj</code> files directly, since it&#8217;s more expressive and Clojure makes it very easy to utilize them.</p>
+<p>Instead of using <code>.properties</code>, we&rsquo;ll use <code>.clj</code> files directly, since it&rsquo;s more expressive and Clojure makes it very easy to utilize them.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -671,13 +671,13 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The <code>.clj</code> files simply contains a <code>map</code> object, and we use <code>read-string</code> facility to parse the map. Since the latter map is merged into the former one, we can include some default settings without worrying about whether they&#8217;ll be available.</p>
+<p>The <code>.clj</code> files simply contains a <code>map</code> object, and we use <code>read-string</code> facility to parse the map. Since the latter map is merged into the former one, we can include some default settings without worrying about whether they&rsquo;ll be available.</p>
 
-<h2>Places to Put &#8216;Outter Configuration&#8217;</h2>
+<h2>Places to Put &lsquo;Outter Configuration&rsquo;</h2>
 
-<p>Here I use the word &#8216;outter&#8217;, which means those configs are related to environments, and will override the default settings. In this section, I&#8217;ll introduce some typical places to put these outter configs and how to use them.</p>
+<p>Here I use the word &lsquo;outter&rsquo;, which means those configs are related to environments, and will override the default settings. In this section, I&rsquo;ll introduce some typical places to put these outter configs and how to use them.</p>
 
-<h3>A &#8216;resources/override/&#8217; Directory</h3>
+<h3>A &lsquo;resources/override/&rsquo; Directory</h3>
 
 <p>First of all, this directory should be removed from version control, such as <code>.gitignore</code>:</p>
 
@@ -694,23 +694,23 @@
 
 <p>And then, developers can put production or local configuration files in this directory.</p>
 
-<p>In production, there&#8217;s typically a &#8216;compiling server&#8217;, which can be used to store production configs. After compiling, the Jar file will include the proper configs and are ready to be deployed.</p>
+<p>In production, there&rsquo;s typically a &lsquo;compiling server&rsquo;, which can be used to store production configs. After compiling, the Jar file will include the proper configs and are ready to be deployed.</p>
 
 <h3>A Dedicated Directory on Every Server</h3>
 
-<p>We could simply replace the <code>override</code> directory with an absolute path, such as <code>/home/www/config</code>. The pros are that we don&#8217;t need to recompile the jar files when config changes, and some of the configs could be shared between different projects.</p>
+<p>We could simply replace the <code>override</code> directory with an absolute path, such as <code>/home/www/config</code>. The pros are that we don&rsquo;t need to recompile the jar files when config changes, and some of the configs could be shared between different projects.</p>
 
-<p>But in such approach, you&#8217;ll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it&#8217;s probably not practical to have such a directory on every compute node.</p>
+<p>But in such approach, you&rsquo;ll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it&rsquo;s probably not practical to have such a directory on every compute node.</p>
 
 <p>Another thing I want to mention in this approach is that, I suggest using an environment variable to indicate the path to config directory, not hard-coded in application. As a matter of fact, you could even place all configs into env vars, as suggested by <a href="http://www.12factor.net/config">12-factor apps</a>.</p>
 
 <h3>A Central Configuration Server</h3>
 
-<p>As for really big corporations, a central configuration server is necessary. One popular option is to use ZooKeeper. Or your companies have some service-discovery mechanism. These are really advanced topics, and I&#8217;ll leave them to the readers.</p>
+<p>As for really big corporations, a central configuration server is necessary. One popular option is to use ZooKeeper. Or your companies have some service-discovery mechanism. These are really advanced topics, and I&rsquo;ll leave them to the readers.</p>
 
 <h2>Manage Configs in Application</h2>
 
-<p>Lastly, I&#8217;ll share a snippet that&#8217;ll manage the configs, it&#8217;s actually quite easy:</p>
+<p>Lastly, I&rsquo;ll share a snippet that&rsquo;ll manage the configs, it&rsquo;s actually quite easy:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1082,7 +1082,7 @@
 
 <p><code>spout-spec</code>和<code>bolt-spec</code>则定义了组件在Topology中更具体的参数。如&#8221;split&#8221;使用的是<code>split-bolt</code>这个组件，它的上游是&#8221;sentence&#8221;，使用shuffleGrouping来对消息进行分配，<code>:p 3</code>表示会启动3个<code>split-bolt</code>实例。</p>
 
-<p>&#8220;count&#8221;使用<code>count-bolt</code>组件，上游是&#8221;split&#8221;，但聚合方式采用了fieldGrouping，因此列出了执行哈希运算时使用的消息字段（word）。为何要使用fieldGrouping？因为我们会开启两个<code>count-bolt</code>，如果采用shuffleGrouping，那单词“a”第一次出现的消息会发送给一个<code>count-bolt</code>，第二次出现会发送给另一个<code>count-bolt</code>，这样统计结果就会错乱。如果指定了<code>:p 1</code>，即只开启一个<code>count-bolt</code>实例，就不会有这样的问题。</p>
+<p>&ldquo;count&#8221;使用<code>count-bolt</code>组件，上游是&#8221;split&#8221;，但聚合方式采用了fieldGrouping，因此列出了执行哈希运算时使用的消息字段（word）。为何要使用fieldGrouping？因为我们会开启两个<code>count-bolt</code>，如果采用shuffleGrouping，那单词“a”第一次出现的消息会发送给一个<code>count-bolt</code>，第二次出现会发送给另一个<code>count-bolt</code>，这样统计结果就会错乱。如果指定了<code>:p 1</code>，即只开启一个<code>count-bolt</code>实例，就不会有这样的问题。</p>
 
 <h4>本地模式和Cluster模式</h4>
 
@@ -1844,8 +1844,8 @@
 <h2>参考资料</h2>
 
 <ul>
-<li><a href="http://linux.die.net/man/2/fork">fork(2) - Linux man page</a></li>
-<li><a href="http://linux.die.net/man/2/waitpid">waitpid(2) - Linux man page</a></li>
+<li><a href="http://linux.die.net/man/2/fork">fork(2) &ndash; Linux man page</a></li>
+<li><a href="http://linux.die.net/man/2/waitpid">waitpid(2) &ndash; Linux man page</a></li>
 <li><a href="http://book.jd.com/10137688.html">UNIX环境高级编程（英文版）（第2版）</a></li>
 <li><a href="http://tech.idv2.com/2006/10/14/linux-multiprocess-info/">Linux多进程相关内容</a></li>
 </ul>
@@ -2892,7 +2892,7 @@
 
 <h3>解析JSON字符串</h3>
 
-<p>Clojure除了内置函数之外，周边还有一个名为<code>clojure.contrib</code>的类库，其中囊括了各类常用功能，包括JSON处理。目前<code>clojure.contrib</code>中的各个组件已经分开发行，读者可以到 https://github.com/clojure 中浏览。</p>
+<p>Clojure除了内置函数之外，周边还有一个名为<code>clojure.contrib</code>的类库，其中囊括了各类常用功能，包括JSON处理。目前<code>clojure.contrib</code>中的各个组件已经分开发行，读者可以到 <a href="https://github.com/clojure">https://github.com/clojure</a> 中浏览。</p>
 
 <p>处理JSON字符串时，首先在项目声明文件中添加依赖项<code>[org.clojure/data.json "0.2.1"]</code>，然后就能使用了：</p>
 
@@ -3051,7 +3051,7 @@
 
 <p>本章我们简单介绍了Hadoop这一用于大数据处理的开源项目，以及如何借助clojure-hadoop类库编写MapReduce脚本，并在本地和集群上运行。Hadoop已经将大数据处理背后的种种细节都包装了起来，用户只需编写Map和Reduce函数，而借助Clojure语言，这一步也变的更为轻松和高效。Apache Hadoop是一个生态圈，其周边有很多开源项目，像Hive、HBase等，这里再推荐一个使用Clojure语言在Hadoop上执行查询的工具：<a href="https://github.com/nathanmarz/cascalog">cascalog</a>。它的作者是<a href="http://nathanmarz.com/">Nathan Marz</a>，也是我们下一章的主题——Storm实时计算框架——的作者。</p>
 
-<p>本文涉及到的源码可以到 https://github.com/jizhang/cia-hadoop 中查看。</p>
+<p>本文涉及到的源码可以到 <a href="https://github.com/jizhang/cia-hadoop">https://github.com/jizhang/cia-hadoop</a> 中查看。</p>
 ]]></content>
   </entry>
   
@@ -3060,7 +3060,7 @@
     <link href="http://shzhangji.com/blog/2013/01/04/clojure-style-guide/"/>
     <updated>2013-01-04T20:49:00+08:00</updated>
     <id>http://shzhangji.com/blog/2013/01/04/clojure-style-guide</id>
-    <content type="html"><![CDATA[<p>原文地址：https://github.com/bbatsov/clojure-style-guide</p>
+    <content type="html"><![CDATA[<p>原文地址：<a href="https://github.com/bbatsov/clojure-style-guide">https://github.com/bbatsov/clojure-style-guide</a></p>
 
 <p>这份Clojure代码规范旨在提供一系列的最佳实践，让现实工作中的Clojure程序员能够写出易于维护的代码，并能与他人协作和共享。一份反应真实需求的代码规范才能被人接收，而那些理想化的、甚至部分观点遭到程序员拒绝的代码规范注定不会长久——无论它有多出色。</p>
 
@@ -4757,7 +4757,7 @@
 
 <h2>Nginx信号汇总</h2>
 
-<p>以下内容译自：http://wiki.nginx.org/CommandLine</p>
+<p>以下内容译自：<a href="http://wiki.nginx.org/CommandLine">http://wiki.nginx.org/CommandLine</a></p>
 
 <h3>主进程支持的信号</h3>
 
@@ -5326,7 +5326,7 @@
 
 <p>似乎又多了几个新奇的语法，我们一一来解释：</p>
 
-<p><code>{:as forms}</code>是一种解构（destructuring）语法，解构的对象是list或map，将它们包含的元素拆解出来。Noir在调用页面函数时（defpage实质上是创建了一个函数）会将接收到的参数以map的形式传递给该函数，如<code>title=greeting&amp;content=helloworld</code>会以`{:title &#8220;greeting&#8221;, :content &#8220;helloworld&#8221;}的形式传递过来，函数可以通过以下几种方式对map类型进行解构：</p>
+<p><code>{:as forms}</code>是一种解构（destructuring）语法，解构的对象是list或map，将它们包含的元素拆解出来。Noir在调用页面函数时（defpage实质上是创建了一个函数）会将接收到的参数以map的形式传递给该函数，如<code>title=greeting&amp;content=helloworld</code>会以`{:title &ldquo;greeting&rdquo;, :content &ldquo;helloworld&rdquo;}的形式传递过来，函数可以通过以下几种方式对map类型进行解构：</p>
 
 <ul>
 <li>不接收参数，使用<code>[]</code>来表示。</li>
@@ -5676,7 +5676,7 @@
 
 <p>为什么要学习一门新的语言？我的想法很简单，平时OO、PO代码写多了，却从未接触过函数式编程，不免有些遗憾。考察下来，Clojure可以用来尝尝鲜，所以就决定学一学。为了给自己的学习留下些记录，就有了这样一份教程。</p>
 
-<p>Clojure已经有一些不错的教程，如<a href="http://java.ociweb.com/mark/">Mark Volkmann</a>的<a href="http://java.ociweb.com/mark/clojure/article.html">Clojure - Functional Programming for the JVM</a>，Storm的主要贡献者<a href="http://xumingming.sinaapp.com/">徐明明</a>也对这个教程做了<a href="http://xumingming.sinaapp.com/302/clojure-functional-programming-for-the-jvm-clojure-tutorial/">全文翻译</a>。还有一些不错的书籍，像<a href="http://oreilly.com/">O&#8217;Reilly</a>的<a href="http://www.amazon.com/Clojure-Programming-Chas-Emerick/dp/1449394701">Clojure Programming</a>，都值得一读。我是从Mark的教程开始学起的，对其中没有提到的部分则是参考了Clojure Programming这本书。Clojure的<a href="http://clojure.org/">官方网站</a>上有详尽的<a href="http://clojure.github.com/clojure/">API参考</a>，可以作为工具书查阅。</p>
+<p>Clojure已经有一些不错的教程，如<a href="http://java.ociweb.com/mark/">Mark Volkmann</a>的<a href="http://java.ociweb.com/mark/clojure/article.html">Clojure &ndash; Functional Programming for the JVM</a>，Storm的主要贡献者<a href="http://xumingming.sinaapp.com/">徐明明</a>也对这个教程做了<a href="http://xumingming.sinaapp.com/302/clojure-functional-programming-for-the-jvm-clojure-tutorial/">全文翻译</a>。还有一些不错的书籍，像<a href="http://oreilly.com/">O&#8217;Reilly</a>的<a href="http://www.amazon.com/Clojure-Programming-Chas-Emerick/dp/1449394701">Clojure Programming</a>，都值得一读。我是从Mark的教程开始学起的，对其中没有提到的部分则是参考了Clojure Programming这本书。Clojure的<a href="http://clojure.org/">官方网站</a>上有详尽的<a href="http://clojure.github.com/clojure/">API参考</a>，可以作为工具书查阅。</p>
 
 <p>但是，上面提到的教程都是针对Clojure语言本身的，从 <em>Hello, world!</em> 开始，讲解Clojure的各种语法，关键字，结构等等。虽然Clojure的语法已经足够吸引你的眼球，在<a href="http://en.wikipedia.org/wiki/Read-eval-print_loop">REPL</a>中敲击Clojure代码已经是一种莫大的乐趣了，但似乎还有些不够，我们想看到一个用Clojure编写的应用程序！</p>
 
@@ -5802,7 +5802,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>浏览http://localhost:8080，就能看到项目的页面了。</p>
+<p>浏览<a href="http://localhost:8080%EF%BC%8C%E5%B0%B1%E8%83%BD%E7%9C%8B%E5%88%B0%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%A1%B5%E9%9D%A2%E4%BA%86%E3%80%82">http://localhost:8080%EF%BC%8C%E5%B0%B1%E8%83%BD%E7%9C%8B%E5%88%B0%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%A1%B5%E9%9D%A2%E4%BA%86%E3%80%82</a></p>
 
 <h2>Noir项目的基本结构</h2>
 
@@ -5896,7 +5896,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>经过处理，mode变量包含了:dev这个关键字，且作用域仅在(let &#8230;)中有效。</p>
+<p>经过处理，mode变量包含了:dev这个关键字，且作用域仅在(let &hellip;)中有效。</p>
 
 <p>再来看看port变量，这里涉及到了与Java类的交互：</p>
 
@@ -6002,7 +6002,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>访问 http://127.0.0.1:8080/greeting 就能看到一个新的页面了，页面源码是<code>&lt;h1&gt;Hello, world!&lt;/h1&gt;</code>。</p>
+<p>访问 <a href="http://127.0.0.1:8080/greeting">http://127.0.0.1:8080/greeting</a> 就能看到一个新的页面了，页面源码是<code>&lt;h1&gt;Hello, world!&lt;/h1&gt;</code>。</p>
 
 <p>defpage是Noir的一个宏，用来定义URL和它返回的页面内容。URL的定义有很多其他用法，如POST方式、截取参数等，我们稍后都会用到。页面内容方面，可以直接返回字符串，如<code>(defpage "/greeting" [] "Hello, world!")</code>，也可以使用Hiccup构建HTML页面。<a href="https://github.com/weavejester/hiccup">Hiccup</a>是Noir默认的模板引擎，简单来说就是用Clojure来写HTML。一个完整的页面示例如下：</p>
 
@@ -6097,7 +6097,7 @@
 
 <h3>静态资源：src/resources/public</h3>
 
-<p>Noir默认对src/resources/public目录下的文件做了路由，因此当有一个资源文件位于src/resources/public/css/reset.css时，可以通过http://127.0.0.1:8080/css/reset.css访问。</p>
+<p>Noir默认对src/resources/public目录下的文件做了路由，因此当有一个资源文件位于src/resources/public/css/reset.css时，可以通过<a href="http://127.0.0.1:8080/css/reset.css%E8%AE%BF%E9%97%AE%E3%80%82">http://127.0.0.1:8080/css/reset.css%E8%AE%BF%E9%97%AE%E3%80%82</a></p>
 
 <p>值得一提的是，Noir项目本身依赖于两个开源项目：<a href="https://github.com/ring-clojure/ring">ring</a>和<a href="https://github.com/weavejester/compojure/tree/master/src">compojure</a>，前者对HTTP请求进行了封装，提供了一套类似Python WSGI的API；后者则是专门提供URL路由功能的类库。如对静态资源的路由，实质上Noir是调用了compojure提供的resources函数，函数中又调用ring提供的GET、wrap-file-info等函数响应请求。</p>
 
@@ -6988,12 +6988,12 @@
 <p>本文的部分章节直接摘自PEP文档，你可以在<code>http://python.org</code>中找到原文：</p>
 
 <ul>
-<li>PEP 241: Metadata for Python Software Packages 1.0: http://python.org/peps/pep-0214.html</li>
-<li>PEP 314: Metadata for Python Software Packages 1.1: http://python.org/peps/pep-0314.html</li>
-<li>PEP 345: Metadata for Python Software Packages 1.2: http://python.org/peps/pep-0345.html</li>
-<li>PEP 376: Database of Installed Python Distributions: http://python.org/peps/pep-0376.html</li>
-<li>PEP 381: Mirroring infrastructure for PyPI: http://python.org/peps/pep-0381.html</li>
-<li>PEP 386: Changing the version comparison module in Distutils: http://python.org/peps/pep-0386.html</li>
+<li>PEP 241: Metadata for Python Software Packages 1.0: <a href="http://python.org/peps/pep-0214.html">http://python.org/peps/pep-0214.html</a></li>
+<li>PEP 314: Metadata for Python Software Packages 1.1: <a href="http://python.org/peps/pep-0314.html">http://python.org/peps/pep-0314.html</a></li>
+<li>PEP 345: Metadata for Python Software Packages 1.2: <a href="http://python.org/peps/pep-0345.html">http://python.org/peps/pep-0345.html</a></li>
+<li>PEP 376: Database of Installed Python Distributions: <a href="http://python.org/peps/pep-0376.html">http://python.org/peps/pep-0376.html</a></li>
+<li>PEP 381: Mirroring infrastructure for PyPI: <a href="http://python.org/peps/pep-0381.html">http://python.org/peps/pep-0381.html</a></li>
+<li>PEP 386: Changing the version comparison module in Distutils: <a href="http://python.org/peps/pep-0386.html">http://python.org/peps/pep-0386.html</a></li>
 </ul>
 
 
@@ -7002,12 +7002,12 @@
 <p>本章中讨论的项目有：</p>
 
 <ul>
-<li>Distutils: http://docs.python.org/distutils</li>
-<li>Distutils2: http://packages.python.org/Distutils2</li>
-<li>Distribute: http://packages.python.org/distribute</li>
-<li>Setuptools: http://pypi.python.org/pypi/setuptools</li>
-<li>Pip: http://pypi.python.org/pypi/pip</li>
-<li>Virtualenv: http://pypi.python.org/pypi/virtualenv</li>
+<li>Distutils: <a href="http://docs.python.org/distutils">http://docs.python.org/distutils</a></li>
+<li>Distutils2: <a href="http://packages.python.org/Distutils2">http://packages.python.org/Distutils2</a></li>
+<li>Distribute: <a href="http://packages.python.org/distribute">http://packages.python.org/distribute</a></li>
+<li>Setuptools: <a href="http://pypi.python.org/pypi/setuptools">http://pypi.python.org/pypi/setuptools</a></li>
+<li>Pip: <a href="http://pypi.python.org/pypi/pip">http://pypi.python.org/pypi/pip</a></li>
+<li>Virtualenv: <a href="http://pypi.python.org/pypi/virtualenv">http://pypi.python.org/pypi/virtualenv</a></li>
 </ul>
 
 

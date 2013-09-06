@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ops | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/ops/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2013-09-06T12:45:40+08:00</updated>
+  <updated>2013-09-06T12:55:01+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -163,7 +163,7 @@ sbin/dso_tool --add-module=/home/dso/lua-nginx-module
 
 <h2>Nginx信号汇总</h2>
 
-<p>以下内容译自：http://wiki.nginx.org/CommandLine</p>
+<p>以下内容译自：<a href="http://wiki.nginx.org/CommandLine">http://wiki.nginx.org/CommandLine</a></p>
 
 <h3>主进程支持的信号</h3>
 

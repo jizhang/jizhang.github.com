@@ -18,13 +18,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/">
+  <link rel="canonical" href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -154,14 +155,14 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>As for Leiningen projects, there&#8217;s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
+<p>As for Leiningen projects, there&rsquo;s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
 
 <!-- more -->
 
 
 <h2>Read Configuration from <code>.clj</code> Files</h2>
 
-<p>Instead of using <code>.properties</code>, we&#8217;ll use <code>.clj</code> files directly, since it&#8217;s more expressive and Clojure makes it very easy to utilize them.</p>
+<p>Instead of using <code>.properties</code>, we&rsquo;ll use <code>.clj</code> files directly, since it&rsquo;s more expressive and Clojure makes it very easy to utilize them.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -226,13 +227,13 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The <code>.clj</code> files simply contains a <code>map</code> object, and we use <code>read-string</code> facility to parse the map. Since the latter map is merged into the former one, we can include some default settings without worrying about whether they&#8217;ll be available.</p>
+<p>The <code>.clj</code> files simply contains a <code>map</code> object, and we use <code>read-string</code> facility to parse the map. Since the latter map is merged into the former one, we can include some default settings without worrying about whether they&rsquo;ll be available.</p>
 
-<h2>Places to Put &#8216;Outter Configuration&#8217;</h2>
+<h2>Places to Put &lsquo;Outter Configuration&rsquo;</h2>
 
-<p>Here I use the word &#8216;outter&#8217;, which means those configs are related to environments, and will override the default settings. In this section, I&#8217;ll introduce some typical places to put these outter configs and how to use them.</p>
+<p>Here I use the word &lsquo;outter&rsquo;, which means those configs are related to environments, and will override the default settings. In this section, I&rsquo;ll introduce some typical places to put these outter configs and how to use them.</p>
 
-<h3>A &#8216;resources/override/&#8217; Directory</h3>
+<h3>A &lsquo;resources/override/&rsquo; Directory</h3>
 
 <p>First of all, this directory should be removed from version control, such as <code>.gitignore</code>:</p>
 
@@ -249,23 +250,23 @@
 
 <p>And then, developers can put production or local configuration files in this directory.</p>
 
-<p>In production, there&#8217;s typically a &#8216;compiling server&#8217;, which can be used to store production configs. After compiling, the Jar file will include the proper configs and are ready to be deployed.</p>
+<p>In production, there&rsquo;s typically a &lsquo;compiling server&rsquo;, which can be used to store production configs. After compiling, the Jar file will include the proper configs and are ready to be deployed.</p>
 
 <h3>A Dedicated Directory on Every Server</h3>
 
-<p>We could simply replace the <code>override</code> directory with an absolute path, such as <code>/home/www/config</code>. The pros are that we don&#8217;t need to recompile the jar files when config changes, and some of the configs could be shared between different projects.</p>
+<p>We could simply replace the <code>override</code> directory with an absolute path, such as <code>/home/www/config</code>. The pros are that we don&rsquo;t need to recompile the jar files when config changes, and some of the configs could be shared between different projects.</p>
 
-<p>But in such approach, you&#8217;ll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it&#8217;s probably not practical to have such a directory on every compute node.</p>
+<p>But in such approach, you&rsquo;ll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it&rsquo;s probably not practical to have such a directory on every compute node.</p>
 
 <p>Another thing I want to mention in this approach is that, I suggest using an environment variable to indicate the path to config directory, not hard-coded in application. As a matter of fact, you could even place all configs into env vars, as suggested by <a href="http://www.12factor.net/config">12-factor apps</a>.</p>
 
 <h3>A Central Configuration Server</h3>
 
-<p>As for really big corporations, a central configuration server is necessary. One popular option is to use ZooKeeper. Or your companies have some service-discovery mechanism. These are really advanced topics, and I&#8217;ll leave them to the readers.</p>
+<p>As for really big corporations, a central configuration server is necessary. One popular option is to use ZooKeeper. Or your companies have some service-discovery mechanism. These are really advanced topics, and I&rsquo;ll leave them to the readers.</p>
 
 <h2>Manage Configs in Application</h2>
 
-<p>Lastly, I&#8217;ll share a snippet that&#8217;ll manage the configs, it&#8217;s actually quite easy:</p>
+<p>Lastly, I&rsquo;ll share a snippet that&rsquo;ll manage the configs, it&rsquo;s actually quite easy:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -331,7 +332,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -446,7 +447,7 @@
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) {return;}
-  js = d.createElement(s); js.id = id;
+  js = d.createElement(s); js.id = id; js.async = true;
   js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
@@ -468,7 +469,7 @@
       var twitterWidgets = document.createElement('script');
       twitterWidgets.type = 'text/javascript';
       twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
       document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
     })();
   </script>

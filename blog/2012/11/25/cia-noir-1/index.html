@@ -18,13 +18,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://shzhangji.com/blog/2012/11/25/cia-noir-1/">
+  <link rel="canonical" href="http://shzhangji.com/blog/2012/11/25/cia-noir-1">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -110,7 +111,7 @@
 
 <p>为什么要学习一门新的语言？我的想法很简单，平时OO、PO代码写多了，却从未接触过函数式编程，不免有些遗憾。考察下来，Clojure可以用来尝尝鲜，所以就决定学一学。为了给自己的学习留下些记录，就有了这样一份教程。</p>
 
-<p>Clojure已经有一些不错的教程，如<a href="http://java.ociweb.com/mark/">Mark Volkmann</a>的<a href="http://java.ociweb.com/mark/clojure/article.html">Clojure - Functional Programming for the JVM</a>，Storm的主要贡献者<a href="http://xumingming.sinaapp.com/">徐明明</a>也对这个教程做了<a href="http://xumingming.sinaapp.com/302/clojure-functional-programming-for-the-jvm-clojure-tutorial/">全文翻译</a>。还有一些不错的书籍，像<a href="http://oreilly.com/">O&#8217;Reilly</a>的<a href="http://www.amazon.com/Clojure-Programming-Chas-Emerick/dp/1449394701">Clojure Programming</a>，都值得一读。我是从Mark的教程开始学起的，对其中没有提到的部分则是参考了Clojure Programming这本书。Clojure的<a href="http://clojure.org/">官方网站</a>上有详尽的<a href="http://clojure.github.com/clojure/">API参考</a>，可以作为工具书查阅。</p>
+<p>Clojure已经有一些不错的教程，如<a href="http://java.ociweb.com/mark/">Mark Volkmann</a>的<a href="http://java.ociweb.com/mark/clojure/article.html">Clojure &ndash; Functional Programming for the JVM</a>，Storm的主要贡献者<a href="http://xumingming.sinaapp.com/">徐明明</a>也对这个教程做了<a href="http://xumingming.sinaapp.com/302/clojure-functional-programming-for-the-jvm-clojure-tutorial/">全文翻译</a>。还有一些不错的书籍，像<a href="http://oreilly.com/">O&#8217;Reilly</a>的<a href="http://www.amazon.com/Clojure-Programming-Chas-Emerick/dp/1449394701">Clojure Programming</a>，都值得一读。我是从Mark的教程开始学起的，对其中没有提到的部分则是参考了Clojure Programming这本书。Clojure的<a href="http://clojure.org/">官方网站</a>上有详尽的<a href="http://clojure.github.com/clojure/">API参考</a>，可以作为工具书查阅。</p>
 
 <p>但是，上面提到的教程都是针对Clojure语言本身的，从 <em>Hello, world!</em> 开始，讲解Clojure的各种语法，关键字，结构等等。虽然Clojure的语法已经足够吸引你的眼球，在<a href="http://en.wikipedia.org/wiki/Read-eval-print_loop">REPL</a>中敲击Clojure代码已经是一种莫大的乐趣了，但似乎还有些不够，我们想看到一个用Clojure编写的应用程序！</p>
 
@@ -236,7 +237,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>浏览http://localhost:8080，就能看到项目的页面了。</p>
+<p>浏览<a href="http://localhost:8080%EF%BC%8C%E5%B0%B1%E8%83%BD%E7%9C%8B%E5%88%B0%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%A1%B5%E9%9D%A2%E4%BA%86%E3%80%82">http://localhost:8080%EF%BC%8C%E5%B0%B1%E8%83%BD%E7%9C%8B%E5%88%B0%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%A1%B5%E9%9D%A2%E4%BA%86%E3%80%82</a></p>
 
 <h2>Noir项目的基本结构</h2>
 
@@ -330,7 +331,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>经过处理，mode变量包含了:dev这个关键字，且作用域仅在(let &#8230;)中有效。</p>
+<p>经过处理，mode变量包含了:dev这个关键字，且作用域仅在(let &hellip;)中有效。</p>
 
 <p>再来看看port变量，这里涉及到了与Java类的交互：</p>
 
@@ -436,7 +437,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>访问 http://127.0.0.1:8080/greeting 就能看到一个新的页面了，页面源码是<code>&lt;h1&gt;Hello, world!&lt;/h1&gt;</code>。</p>
+<p>访问 <a href="http://127.0.0.1:8080/greeting">http://127.0.0.1:8080/greeting</a> 就能看到一个新的页面了，页面源码是<code>&lt;h1&gt;Hello, world!&lt;/h1&gt;</code>。</p>
 
 <p>defpage是Noir的一个宏，用来定义URL和它返回的页面内容。URL的定义有很多其他用法，如POST方式、截取参数等，我们稍后都会用到。页面内容方面，可以直接返回字符串，如<code>(defpage "/greeting" [] "Hello, world!")</code>，也可以使用Hiccup构建HTML页面。<a href="https://github.com/weavejester/hiccup">Hiccup</a>是Noir默认的模板引擎，简单来说就是用Clojure来写HTML。一个完整的页面示例如下：</p>
 
@@ -531,7 +532,7 @@
 
 <h3>静态资源：src/resources/public</h3>
 
-<p>Noir默认对src/resources/public目录下的文件做了路由，因此当有一个资源文件位于src/resources/public/css/reset.css时，可以通过http://127.0.0.1:8080/css/reset.css访问。</p>
+<p>Noir默认对src/resources/public目录下的文件做了路由，因此当有一个资源文件位于src/resources/public/css/reset.css时，可以通过<a href="http://127.0.0.1:8080/css/reset.css%E8%AE%BF%E9%97%AE%E3%80%82">http://127.0.0.1:8080/css/reset.css%E8%AE%BF%E9%97%AE%E3%80%82</a></p>
 
 <p>值得一提的是，Noir项目本身依赖于两个开源项目：<a href="https://github.com/ring-clojure/ring">ring</a>和<a href="https://github.com/weavejester/compojure/tree/master/src">compojure</a>，前者对HTTP请求进行了封装，提供了一套类似Python WSGI的API；后者则是专门提供URL路由功能的类库。如对静态资源的路由，实质上Noir是调用了compojure提供的resources函数，函数中又调用ring提供的GET、wrap-file-info等函数响应请求。</p>
 
@@ -574,7 +575,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2012/11/25/cia-noir-1/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2012/11/25/cia-noir-1/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2012/11/25/cia-noir-1/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2012/11/25/cia-noir-1/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -689,7 +690,7 @@
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) {return;}
-  js = d.createElement(s); js.id = id;
+  js = d.createElement(s); js.id = id; js.async = true;
   js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
@@ -711,7 +712,7 @@
       var twitterWidgets = document.createElement('script');
       twitterWidgets.type = 'text/javascript';
       twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
       document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
     })();
   </script>

@@ -18,13 +18,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://shzhangji.com/blog/2013/02/09/cia-hadoop/">
+  <link rel="canonical" href="http://shzhangji.com/blog/2013/02/09/cia-hadoop">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -378,7 +379,7 @@
 
 <h3>解析JSON字符串</h3>
 
-<p>Clojure除了内置函数之外，周边还有一个名为<code>clojure.contrib</code>的类库，其中囊括了各类常用功能，包括JSON处理。目前<code>clojure.contrib</code>中的各个组件已经分开发行，读者可以到 https://github.com/clojure 中浏览。</p>
+<p>Clojure除了内置函数之外，周边还有一个名为<code>clojure.contrib</code>的类库，其中囊括了各类常用功能，包括JSON处理。目前<code>clojure.contrib</code>中的各个组件已经分开发行，读者可以到 <a href="https://github.com/clojure">https://github.com/clojure</a> 中浏览。</p>
 
 <p>处理JSON字符串时，首先在项目声明文件中添加依赖项<code>[org.clojure/data.json "0.2.1"]</code>，然后就能使用了：</p>
 
@@ -537,7 +538,7 @@
 
 <p>本章我们简单介绍了Hadoop这一用于大数据处理的开源项目，以及如何借助clojure-hadoop类库编写MapReduce脚本，并在本地和集群上运行。Hadoop已经将大数据处理背后的种种细节都包装了起来，用户只需编写Map和Reduce函数，而借助Clojure语言，这一步也变的更为轻松和高效。Apache Hadoop是一个生态圈，其周边有很多开源项目，像Hive、HBase等，这里再推荐一个使用Clojure语言在Hadoop上执行查询的工具：<a href="https://github.com/nathanmarz/cascalog">cascalog</a>。它的作者是<a href="http://nathanmarz.com/">Nathan Marz</a>，也是我们下一章的主题——Storm实时计算框架——的作者。</p>
 
-<p>本文涉及到的源码可以到 https://github.com/jizhang/cia-hadoop 中查看。</p>
+<p>本文涉及到的源码可以到 <a href="https://github.com/jizhang/cia-hadoop">https://github.com/jizhang/cia-hadoop</a> 中查看。</p>
 </div>
 
 
@@ -574,7 +575,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2013/02/09/cia-hadoop/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2013/02/09/cia-hadoop/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2013/02/09/cia-hadoop/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2013/02/09/cia-hadoop/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -689,7 +690,7 @@
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) {return;}
-  js = d.createElement(s); js.id = id;
+  js = d.createElement(s); js.id = id; js.async = true;
   js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
@@ -711,7 +712,7 @@
       var twitterWidgets = document.createElement('script');
       twitterWidgets.type = 'text/javascript';
       twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
       document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
     })();
   </script>
