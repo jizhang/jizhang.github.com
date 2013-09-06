@@ -30,6 +30,8 @@ $ mysql -uhive -ppassword hive
 ![1.png](/images/hive-deleteme-error/1.png)
 
 
+<!--more-->
+
 背景2：Hive使用的是DataNuclues ORM库来操作数据库的，而基本上所有的ORM框架（对象关系映射）都会提供自动建表的功能，即开发者只需编写Java对象，ORM会自动生成DDL。DataNuclues也有这一功能，而且它在初始化时会通过生成临时表的方式来获取数据库的Catalog和Schema，也就是 DELETEME表：
 
 ![2.png](/images/hive-deleteme-error/2.png)
