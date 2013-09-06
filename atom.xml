@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Ji ZHANG's Blog]]></title>
-  <link href="http://jizhang.github.com/atom.xml" rel="self"/>
-  <link href="http://jizhang.github.com/"/>
-  <updated>2013-09-06T12:37:30+08:00</updated>
-  <id>http://jizhang.github.com/</id>
+  <link href="http://shzhangji.com/atom.xml" rel="self"/>
+  <link href="http://shzhangji.com/"/>
+  <updated>2013-09-06T12:45:40+08:00</updated>
+  <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Hive并发情况下报DELETEME表不存在的异常]]></title>
-    <link href="http://jizhang.github.com/blog/2013/09/06/hive-deleteme-error/"/>
+    <link href="http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/"/>
     <updated>2013-09-06T11:20:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/09/06/hive-deleteme-error</id>
+    <id>http://shzhangji.com/blog/2013/09/06/hive-deleteme-error</id>
     <content type="html"><![CDATA[<p>在每天运行的Hive脚本中，偶尔会抛出以下错误：</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -44,11 +44,14 @@
 
 <p>$ mysql -uhive -ppassword hive</p>
 
-<p><img src="http://jizhang.github.com/images/hive-deleteme-error/1.png" alt="1.png" /></p>
+<p><img src="http://shzhangji.com/images/hive-deleteme-error/1.png" alt="1.png" /></p>
+
+<!--more-->
+
 
 <p>背景2：Hive使用的是DataNuclues ORM库来操作数据库的，而基本上所有的ORM框架（对象关系映射）都会提供自动建表的功能，即开发者只需编写Java对象，ORM会自动生成DDL。DataNuclues也有这一功能，而且它在初始化时会通过生成临时表的方式来获取数据库的Catalog和Schema，也就是 DELETEME表：</p>
 
-<p><img src="http://jizhang.github.com/images/hive-deleteme-error/2.png" alt="2.png" /></p>
+<p><img src="http://shzhangji.com/images/hive-deleteme-error/2.png" alt="2.png" /></p>
 
 <p>这样就有一个问题：在并发量大的情况下，DELETEME表名中的毫秒数可能相同，那在pt.drop(conn)的时候就会产生找不到表的报错。</p>
 
@@ -92,9 +95,9 @@
   
   <entry>
     <title type="html"><![CDATA[Ansible FAQ]]></title>
-    <link href="http://jizhang.github.com/blog/2013/06/11/ansible-faq/"/>
+    <link href="http://shzhangji.com/blog/2013/06/11/ansible-faq/"/>
     <updated>2013-06-11T21:18:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/06/11/ansible-faq</id>
+    <id>http://shzhangji.com/blog/2013/06/11/ansible-faq</id>
     <content type="html"><![CDATA[<p>本文是从原Ansible官网的FAQ页面翻译而来，网站改版后该页面已无法访问，但可以从<a href="https://github.com/ansible/ansible.github.com/blob/4a2bf7f60a020f0d0a7b042056fc3dd8716588f2/faq.html">Github历史提交</a>中获得。翻译这篇原始FAQ文档是因为它陈述了Ansible这款工具诞生的原因，设计思路和特性，以及与Puppet、Fabric等同类软件的比较，可以让我们对Ansible有一个整体的了解，所以值得使用者一读。</p>
 
 <h2>目录</h2>
@@ -232,9 +235,9 @@
   
   <entry>
     <title type="html"><![CDATA[Cascalog：基于Clojure的Hadoop查询语言]]></title>
-    <link href="http://jizhang.github.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/"/>
+    <link href="http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/"/>
     <updated>2013-05-01T18:01:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado</id>
+    <id>http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado</id>
     <content type="html"><![CDATA[<p>原文：<a href="http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html">http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html</a></p>
 
 <p>我非常兴奋地告诉大家，<a href="http://github.com/nathanmarz/cascalog">Cascalog</a>开源了！Cascalog受<a href="http://en.wikipedia.org/wiki/Datalog">Datalog</a>启发，是一种基于Clojure、运行于Hadoop平台上的查询语言。</p>
@@ -545,9 +548,9 @@
   
   <entry>
     <title type="html"><![CDATA[Manage Leiningen Project Configuration]]></title>
-    <link href="http://jizhang.github.com/blog/2013/04/30/manage-leiningen-project-configuration/"/>
+    <link href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/"/>
     <updated>2013-04-30T16:16:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/04/30/manage-leiningen-project-configuration</id>
+    <id>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration</id>
     <content type="html"><![CDATA[<p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -742,9 +745,9 @@
   
   <entry>
     <title type="html"><![CDATA[Clojure实战(5)：Storm实时计算框架]]></title>
-    <link href="http://jizhang.github.com/blog/2013/04/22/cia-storm/"/>
+    <link href="http://shzhangji.com/blog/2013/04/22/cia-storm/"/>
     <updated>2013-04-22T12:11:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/04/22/cia-storm</id>
+    <id>http://shzhangji.com/blog/2013/04/22/cia-storm</id>
     <content type="html"><![CDATA[<h2>Storm简介</h2>
 
 <p>上一章介绍的Hadoop工具能够对海量数据进行批量处理，采用分布式的并行计算架构，只需使用其提供的MapReduce API编写脚本即可。但随着人们对数据实时性的要求越来越高，如实时日志分析、实时推荐系统等，Hadoop就无能为力了。</p>
@@ -1182,9 +1185,9 @@
   
   <entry>
     <title type="html"><![CDATA[Perl入门实战：JVM监控脚本（下）]]></title>
-    <link href="http://jizhang.github.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/"/>
+    <link href="http://shzhangji.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/"/>
     <updated>2013-03-28T15:28:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2</id>
+    <id>http://shzhangji.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2</id>
     <content type="html"><![CDATA[<h2>套接字</h2>
 
 <p>使用套接字（Socket）进行网络通信的基本流程是：</p>
@@ -1546,9 +1549,9 @@
   
   <entry>
     <title type="html"><![CDATA[fork()与僵尸进程]]></title>
-    <link href="http://jizhang.github.com/blog/2013/03/27/fork-and-zombie-process/"/>
+    <link href="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/"/>
     <updated>2013-03-27T20:18:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/03/27/fork-and-zombie-process</id>
+    <id>http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process</id>
     <content type="html"><![CDATA[<p>使用fork()函数派生出多个子进程来并行执行程序的不同代码块，是一种常用的编程泛型。特别是在网络编程中，父进程初始化后派生出指定数量的子进程，共同监听网络端口并处理请求，从而达到扩容的目的。</p>
 
 <p>但是，在使用fork()函数时若处理不当，很容易产生僵尸进程。根据UNIX系统的定义，僵尸进程是指子进程退出后，它的父进程没有“等待”该子进程，这样的子进程就会成为僵尸进程。何谓“等待”？僵尸进程的危害是什么？以及要如何避免？这就是本文将要阐述的内容。</p>
@@ -1852,9 +1855,9 @@
   
   <entry>
     <title type="html"><![CDATA[Perl入门实战：JVM监控脚本（上）]]></title>
-    <link href="http://jizhang.github.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1/"/>
+    <link href="http://shzhangji.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1/"/>
     <updated>2013-03-26T23:00:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1</id>
+    <id>http://shzhangji.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1</id>
     <content type="html"><![CDATA[<p>由于最近在搭建Zabbix监控服务，需要制作各类监控的模板，如iostat、Nginx、MySQL等，因此会写一些脚本来完成数据采集的工作。又因为近期对Perl语言比较感兴趣，因此决定花些时间学一学，写一个脚本来练练手，于是就有了这样一份笔记。</p>
 
 <h2>需求描述</h2>
@@ -2232,9 +2235,9 @@
   
   <entry>
     <title type="html"><![CDATA[柯里化与偏应用（JavaScript描述）]]></title>
-    <link href="http://jizhang.github.com/blog/2013/03/07/currying-and-partial-application/"/>
+    <link href="http://shzhangji.com/blog/2013/03/07/currying-and-partial-application/"/>
     <updated>2013-03-07T20:59:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/03/07/currying-and-partial-application</id>
+    <id>http://shzhangji.com/blog/2013/03/07/currying-and-partial-application</id>
     <content type="html"><![CDATA[<p>原文：<a href="http://raganwald.com/2013/03/07/currying-and-partial-application.html">http://raganwald.com/2013/03/07/currying-and-partial-application.html</a></p>
 
 <p>上周末我参加了<a href="http://wrocloverb.com/">wroc_love.rb大会</a>，其间<a href="http://steveklabnik.com/">Steve Klabnik</a>的一张PPT中提到了<a href="https://en.wikipedia.org/wiki/Partial_application">偏应用（Partial Application）</a>和<a href="https://en.wikipedia.org/wiki/Currying">柯里化（Currying）</a>，并说这两者之间的区别如今已经不重要了。但是我不这么认为。</p>
@@ -2614,9 +2617,9 @@
   
   <entry>
     <title type="html"><![CDATA[Clojure实战(4)：编写Hadoop MapReduce脚本]]></title>
-    <link href="http://jizhang.github.com/blog/2013/02/09/cia-hadoop/"/>
+    <link href="http://shzhangji.com/blog/2013/02/09/cia-hadoop/"/>
     <updated>2013-02-09T16:43:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/02/09/cia-hadoop</id>
+    <id>http://shzhangji.com/blog/2013/02/09/cia-hadoop</id>
     <content type="html"><![CDATA[<h2>Hadoop简介</h2>
 
 <p>众所周知，我们已经进入了大数据时代，每天都有PB级的数据需要处理、分析，从中提取出有用的信息。Hadoop就是这一时代背景下的产物。它是Apache基金会下的开源项目，受<a href="http://en.wikipedia.org/wiki/Apache_Hadoop#Papers">Google两篇论文</a>的启发，采用分布式的文件系统HDFS，以及通用的MapReduce解决方案，能够在数千台物理节点上进行分布式并行计算。</p>
@@ -2672,7 +2675,7 @@
 
 <p>以Wordcount为例，将一段文字划分成一个个单词的过程就是Map。这个过程是可以并行执行的，即将文章拆分成多个段落，每个段落分别在不同的节点上执行划分单词的操作。这个过程结束后，我们便可以统计各个单词出现的次数，这也就是Reduce的过程。同样，Reduce也是可以并发执行的。整个过程如下图所示：</p>
 
-<p><img src="http://jizhang.github.com/images/cia-hadoop/wordcount.png" alt="Wordcount" /></p>
+<p><img src="http://shzhangji.com/images/cia-hadoop/wordcount.png" alt="Wordcount" /></p>
 
 <p>中间Shuffle部分的功能是将Map输出的数据按键排序，交由Reduce处理。整个过程全部由Hadoop把控，开发者只需编写<code>Map</code>和<code>Reduce</code>函数，这也是Hadoop强大之处。</p>
 
@@ -3054,9 +3057,9 @@
   
   <entry>
     <title type="html"><![CDATA[Clojure 代码规范]]></title>
-    <link href="http://jizhang.github.com/blog/2013/01/04/clojure-style-guide/"/>
+    <link href="http://shzhangji.com/blog/2013/01/04/clojure-style-guide/"/>
     <updated>2013-01-04T20:49:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/01/04/clojure-style-guide</id>
+    <id>http://shzhangji.com/blog/2013/01/04/clojure-style-guide</id>
     <content type="html"><![CDATA[<p>原文地址：https://github.com/bbatsov/clojure-style-guide</p>
 
 <p>这份Clojure代码规范旨在提供一系列的最佳实践，让现实工作中的Clojure程序员能够写出易于维护的代码，并能与他人协作和共享。一份反应真实需求的代码规范才能被人接收，而那些理想化的、甚至部分观点遭到程序员拒绝的代码规范注定不会长久——无论它有多出色。</p>
@@ -4555,9 +4558,9 @@
   
   <entry>
     <title type="html"><![CDATA[Nginx热升级]]></title>
-    <link href="http://jizhang.github.com/blog/2012/12/23/nginx-live-upgrade/"/>
+    <link href="http://shzhangji.com/blog/2012/12/23/nginx-live-upgrade/"/>
     <updated>2012-12-23T22:11:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2012/12/23/nginx-live-upgrade</id>
+    <id>http://shzhangji.com/blog/2012/12/23/nginx-live-upgrade</id>
     <content type="html"><![CDATA[<p>系统管理员可以使用Nginx提供的信号机制来对其进行维护，比较常用的是<code>kill -HUP &lt;master pid&gt;</code>命令，它能通知Nginx使用新的配置文件启动工作进程，并逐个关闭旧进程，完成平滑切换。当需要对Nginx进行版本升级或增减模块时，为了不丢失请求，可以结合使用<code>USR2</code>、<code>WINCH</code>等信号进行平滑过度，达到热升级的目的。如果中途遇到问题，也能立刻回退至原版本。</p>
 
 <h2>操作步骤</h2>
@@ -4803,9 +4806,9 @@
   
   <entry>
     <title type="html"><![CDATA[Clojure实战(3)：使用Noir框架开发博客(下)]]></title>
-    <link href="http://jizhang.github.com/blog/2012/12/16/cia-noir-3/"/>
+    <link href="http://shzhangji.com/blog/2012/12/16/cia-noir-3/"/>
     <updated>2012-12-16T20:20:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2012/12/16/cia-noir-3</id>
+    <id>http://shzhangji.com/blog/2012/12/16/cia-noir-3</id>
     <content type="html"><![CDATA[<h2>Session和Cookie</h2>
 
 <p>做网络编程的人肯定对这两个概念不陌生，因此这里就不介绍它们的定义和作用了。我们要实现的需求也很简单：用户通过一个表单登录，在当前窗口中保持登录状态，并可以选择“记住我”来免去关闭并新开窗口之后的重登录。显然，前者使用Session，后者使用Cookie。下面我们就来看Noir对这两者的支持。</p>
@@ -5196,9 +5199,9 @@
   
   <entry>
     <title type="html"><![CDATA[Clojure实战(2)：使用Noir框架开发博客(中)]]></title>
-    <link href="http://jizhang.github.com/blog/2012/12/08/cia-noir-2/"/>
+    <link href="http://shzhangji.com/blog/2012/12/08/cia-noir-2/"/>
     <updated>2012-12-08T12:09:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2012/12/08/cia-noir-2</id>
+    <id>http://shzhangji.com/blog/2012/12/08/cia-noir-2</id>
     <content type="html"><![CDATA[<h2>在Eclipse中编写Clojure代码</h2>
 
 <p>从这章起我们就要开始真正的编码了。Vim可能是很多程序员的选择，但如果你像我一样更喜欢GUI界面，那就来看看如何在Eclipse中编写Clojure代码吧。</p>
@@ -5666,9 +5669,9 @@
   
   <entry>
     <title type="html"><![CDATA[Clojure实战(1)：使用Noir框架开发博客(上)]]></title>
-    <link href="http://jizhang.github.com/blog/2012/11/25/cia-noir-1/"/>
+    <link href="http://shzhangji.com/blog/2012/11/25/cia-noir-1/"/>
     <updated>2012-11-25T16:58:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2012/11/25/cia-noir-1</id>
+    <id>http://shzhangji.com/blog/2012/11/25/cia-noir-1</id>
     <content type="html"><![CDATA[<h2>前言</h2>
 
 <p>为什么要学习一门新的语言？我的想法很简单，平时OO、PO代码写多了，却从未接触过函数式编程，不免有些遗憾。考察下来，Clojure可以用来尝尝鲜，所以就决定学一学。为了给自己的学习留下些记录，就有了这样一份教程。</p>
@@ -6106,9 +6109,9 @@
   
   <entry>
     <title type="html"><![CDATA[开源软件架构 - 卷1：第14章 Python打包工具]]></title>
-    <link href="http://jizhang.github.com/blog/2012/11/18/aosa-python-packaging/"/>
+    <link href="http://shzhangji.com/blog/2012/11/18/aosa-python-packaging/"/>
     <updated>2012-11-18T19:20:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2012/11/18/aosa-python-packaging</id>
+    <id>http://shzhangji.com/blog/2012/11/18/aosa-python-packaging</id>
     <content type="html"><![CDATA[<p>作者：<a href="http://www.aosabook.org/en/intro1.html#ziade-tarek">Tarek Ziadé</a>，翻译：<a href="mailto:zhangji87@gmail.com">张吉</a></p>
 
 <p>原文：<a href="http://www.aosabook.org/en/packaging.html">http://www.aosabook.org/en/packaging.html</a></p>
@@ -7022,9 +7025,9 @@
   
   <entry>
     <title type="html"><![CDATA[开源软件架构 - 卷2：第6章 Git]]></title>
-    <link href="http://jizhang.github.com/blog/2012/11/16/aosa-git/"/>
+    <link href="http://shzhangji.com/blog/2012/11/16/aosa-git/"/>
     <updated>2012-11-16T23:54:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2012/11/16/aosa-git</id>
+    <id>http://shzhangji.com/blog/2012/11/16/aosa-git</id>
     <content type="html"><![CDATA[<p>作者：<a href="http://www.aosabook.org/en/intro2.html#potter-susan">Susan Potter</a>，翻译：<a href="mailto:zhangji87@gmail.com">张吉</a></p>
 
 <p>原文：<a href="http://www.aosabook.org/en/git.html">http://www.aosabook.org/en/git.html</a></p>

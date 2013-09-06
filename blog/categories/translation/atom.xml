@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Translation | Ji ZHANG's Blog]]></title>
-  <link href="http://jizhang.github.com/blog/categories/translation/atom.xml" rel="self"/>
-  <link href="http://jizhang.github.com/"/>
-  <updated>2013-09-06T12:37:30+08:00</updated>
-  <id>http://jizhang.github.com/</id>
+  <link href="http://shzhangji.com/blog/categories/translation/atom.xml" rel="self"/>
+  <link href="http://shzhangji.com/"/>
+  <updated>2013-09-06T12:45:40+08:00</updated>
+  <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Ansible FAQ]]></title>
-    <link href="http://jizhang.github.com/blog/2013/06/11/ansible-faq/"/>
+    <link href="http://shzhangji.com/blog/2013/06/11/ansible-faq/"/>
     <updated>2013-06-11T21:18:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/06/11/ansible-faq</id>
+    <id>http://shzhangji.com/blog/2013/06/11/ansible-faq</id>
     <content type="html"><![CDATA[<p>本文是从原Ansible官网的FAQ页面翻译而来，网站改版后该页面已无法访问，但可以从<a href="https://github.com/ansible/ansible.github.com/blob/4a2bf7f60a020f0d0a7b042056fc3dd8716588f2/faq.html">Github历史提交</a>中获得。翻译这篇原始FAQ文档是因为它陈述了Ansible这款工具诞生的原因，设计思路和特性，以及与Puppet、Fabric等同类软件的比较，可以让我们对Ansible有一个整体的了解，所以值得使用者一读。</p>
 
 <h2>目录</h2>
@@ -155,9 +155,9 @@
   
   <entry>
     <title type="html"><![CDATA[Cascalog：基于Clojure的Hadoop查询语言]]></title>
-    <link href="http://jizhang.github.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/"/>
+    <link href="http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/"/>
     <updated>2013-05-01T18:01:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado</id>
+    <id>http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado</id>
     <content type="html"><![CDATA[<p>原文：<a href="http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html">http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html</a></p>
 
 <p>我非常兴奋地告诉大家，<a href="http://github.com/nathanmarz/cascalog">Cascalog</a>开源了！Cascalog受<a href="http://en.wikipedia.org/wiki/Datalog">Datalog</a>启发，是一种基于Clojure、运行于Hadoop平台上的查询语言。</p>
@@ -462,9 +462,9 @@ user=> (let [many-follows (&lt;- [?person] (follows ?person _)</p>
   
   <entry>
     <title type="html"><![CDATA[柯里化与偏应用（JavaScript描述）]]></title>
-    <link href="http://jizhang.github.com/blog/2013/03/07/currying-and-partial-application/"/>
+    <link href="http://shzhangji.com/blog/2013/03/07/currying-and-partial-application/"/>
     <updated>2013-03-07T20:59:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/03/07/currying-and-partial-application</id>
+    <id>http://shzhangji.com/blog/2013/03/07/currying-and-partial-application</id>
     <content type="html"><![CDATA[<p>原文：<a href="http://raganwald.com/2013/03/07/currying-and-partial-application.html">http://raganwald.com/2013/03/07/currying-and-partial-application.html</a></p>
 
 <p>上周末我参加了<a href="http://wrocloverb.com/">wroc_love.rb大会</a>，其间<a href="http://steveklabnik.com/">Steve Klabnik</a>的一张PPT中提到了<a href="https://en.wikipedia.org/wiki/Partial_application">偏应用（Partial Application）</a>和<a href="https://en.wikipedia.org/wiki/Currying">柯里化（Currying）</a>，并说这两者之间的区别如今已经不重要了。但是我不这么认为。</p>
@@ -780,9 +780,9 @@ function applyFirst (binaryFn, firstArg) {
   
   <entry>
     <title type="html"><![CDATA[Clojure 代码规范]]></title>
-    <link href="http://jizhang.github.com/blog/2013/01/04/clojure-style-guide/"/>
+    <link href="http://shzhangji.com/blog/2013/01/04/clojure-style-guide/"/>
     <updated>2013-01-04T20:49:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2013/01/04/clojure-style-guide</id>
+    <id>http://shzhangji.com/blog/2013/01/04/clojure-style-guide</id>
     <content type="html"><![CDATA[<p>原文地址：https://github.com/bbatsov/clojure-style-guide</p>
 
 <p>这份Clojure代码规范旨在提供一系列的最佳实践，让现实工作中的Clojure程序员能够写出易于维护的代码，并能与他人协作和共享。一份反应真实需求的代码规范才能被人接收，而那些理想化的、甚至部分观点遭到程序员拒绝的代码规范注定不会长久——无论它有多出色。</p>
@@ -1999,9 +1999,9 @@ Integer/MAX_VALUE
   
   <entry>
     <title type="html"><![CDATA[开源软件架构 - 卷1：第14章 Python打包工具]]></title>
-    <link href="http://jizhang.github.com/blog/2012/11/18/aosa-python-packaging/"/>
+    <link href="http://shzhangji.com/blog/2012/11/18/aosa-python-packaging/"/>
     <updated>2012-11-18T19:20:00+08:00</updated>
-    <id>http://jizhang.github.com/blog/2012/11/18/aosa-python-packaging</id>
+    <id>http://shzhangji.com/blog/2012/11/18/aosa-python-packaging</id>
     <content type="html"><![CDATA[<p>作者：<a href="http://www.aosabook.org/en/intro1.html#ziade-tarek">Tarek Ziadé</a>，翻译：<a href="mailto:zhangji87@gmail.com">张吉</a></p>
 
 <p>原文：<a href="http://www.aosabook.org/en/packaging.html">http://www.aosabook.org/en/packaging.html</a></p>
