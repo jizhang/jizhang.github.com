@@ -5,7 +5,7 @@ date: 2013-05-25 10:57
 comments: true
 categories: Translation
 tags: [hadoop]
-published: false
+published: true
 ---
 
 原文：http://hortonworks.com/blog/apache-hadoop-yarn-background-and-an-overview/
@@ -68,3 +68,25 @@ MapReduce对大部分应用程序来说已经足够，但仍有一些场景并�
 ### 敏捷性为何重要？
 
 在现实应用中，Hadoop通常会部署在共享的、多租户的系统上。所以，对Hadoop进行升级时会影响很大一部分甚至是所有的应用。基于这一点，用户会对升级持保守态度，因为不想因此引发一系列的问题。所以，一个支持多版本Hadoop的架构就变得非常重要。
+
+## Apache Hadoop YARN 诞生
+
+YARN的核心思想是将JobTracker的两个职能，即资源管理和脚本调度/监控，分解为两个独立的组件：全局ResourceManager以及按应用拆分的ApplicationMaster（AM）。
+
+主节点的ResourceManager以及其它节电的NodeManager（NM），形成了一个新的更为通用的分布式应用管理模式。
+
+ResourceManager负责应用程序的资源分配。ApplicationMaster会和ResourceManager进行协商，并与节点上的NodeManager协作，运行和监控每个工作进程。
+
+ResourceManager的调度器是可定制的，能够根据计算能力、队列大小进行资源调配。调度器不包含任何对工作进程的监控和跟踪，不会去重启失败的脚本。调度器会根据应用程序申请的资源进行分配，它是建立在一个资源容器抽象层（Resource Container）之上的，其中包括了内存、CPU、硬盘、网络等要素信息。
+
+NodeManager运行在每个节点之上，负责运行应用程序的工作进程，监控它们的资源占用情况，并向ResourceManager汇报。
+
+每个应用都会有一个专属的ApplicationMaster，它会负责和调度器协商资源分配，跟踪工作进程的状态和进度。ApplicationMaster本身也是以一个工作进程来运行的。
+
+以下是YARN的架构图：
+
+![YARNArch.png](http://hortonworks.com/wp-content/uploads/2012/08/YARNArch.png)
+
+值得一提的是，我们在为YARN开发MapReduce API时没有做任何较大的改动，所以现有的程序可以很方便地进行迁移。关于这点我们会在以后的文章中详述。
+
+下一节我们会深入了解YARN的架构，阐述它所带来的各种优点，如高可扩、支持多类型脚本（MapReduce、MPI等），以及它是如何提升集群资源利用率的。
