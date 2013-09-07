@@ -22,6 +22,8 @@ Apache Hadoop MapReduce是当下最流行的开源MapReduce模型。
 
 这一模式成功的原因之一是，它使用的是“移动计算能力至数据节点”而非通过网络“移动数据至计算节点”的方式。具体来说，一个MapReduce任务会被调度到输入数据所在的HDFS节点执行，这会极大地减少I/O支出，因为大部分I/O会发生在本地磁盘或是同一机架中——这是核心优势。
 
+<!-- more -->
+
 ### 回顾2011年的Apache Hadoop MapReduce
 
 Apache Hadoop MapReduce是[Apache基金会](http://www.apache.org/)下的开源项目，实现了如上所述的MapReduce编程模式。作为一个在该项目中全职开发了六年的工作者，我通常会将它细分为以下几个部分：
@@ -46,7 +48,7 @@ TaskTracker的职责比较简单：根据JobTracker的指令来启动和关闭�
 
 ### 为什么要支持非MapReduce类型的脚本？
 
-MapReduce对大部分应用程序来说已经足够，但仍有一些场景并不适用，如图形计算（[Google Pregel](http://googleresearch.blogspot.com/2009/06/large-scale-graph-computing-at-google.html / [Apache Giraph](http://giraph.apache.org/)）、交互式建模（[MPI](http://en.wikipedia.org/wiki/Message_Passing_Interface)）。当所有的企业数据都已存放在Hadoop HDFS中时，支持多种处理模型就变得额外重要。
+MapReduce对大部分应用程序来说已经足够，但仍有一些场景并不适用，如图形计算（[Google Pregel](http://googleresearch.blogspot.com/2009/06/large-scale-graph-computing-at-google.html) / [Apache Giraph](http://giraph.apache.org/)）、交互式建模（[MPI](http://en.wikipedia.org/wiki/Message_Passing_Interface)）。当所有的企业数据都已存放在Hadoop HDFS中时，支持多种处理模型就变得额外重要。
 
 此外，MapReduce本质上是以批量处理为核心的，对于日益增长的实时和近实时处理的客户需求，如流式计算以及CEPFresil等，就无能为力了。
 
