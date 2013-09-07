@@ -22,7 +22,7 @@ Apache Hadoop MapReduce是当下最流行的开源MapReduce模型。
 
 这一模式成功的原因之一是，它使用的是“移动计算能力至数据节点”而非通过网络“移动数据至计算节点”的方式。具体来说，一个MapReduce任务会被调度到输入数据所在的HDFS节点执行，这会极大地减少I/O支出，因为大部分I/O会发生在本地磁盘或是同一机架中——这是核心优势。
 
-## 回顾2011年的Apache Hadoop MapReduce
+### 回顾2011年的Apache Hadoop MapReduce
 
 Apache Hadoop MapReduce是[Apache基金会](http://www.apache.org/)下的开源项目，实现了如上所述的MapReduce编程模式。作为一个在该项目中全职开发了六年的工作者，我通常会将它细分为以下几个部分：
 
@@ -44,3 +44,27 @@ TaskTracker的职责比较简单：根据JobTracker的指令来启动和关闭�
 
 长久以来，我们都在做修复和更新，如近期加入的JobTracker高可用和HDFS故障恢复（这两个特性都已包含在[Hortonworks Data Platform v1](http://hortonworks.com/download/)中）。但我们渐渐发现，这些特性会增加维护成本，而且并不能解决一些核心问题，如支持非MapReduce脚本，以及敏捷性。
 
+### 为什么要支持非MapReduce类型的脚本？
+
+MapReduce对大部分应用程序来说已经足够，但仍有一些场景并不适用，如图形计算（[Google Pregel](http://googleresearch.blogspot.com/2009/06/large-scale-graph-computing-at-google.html / [Apache Giraph](http://giraph.apache.org/)）、交互式建模（[MPI](http://en.wikipedia.org/wiki/Message_Passing_Interface)）。当所有的企业数据都已存放在Hadoop HDFS中时，支持多种处理模型就变得额外重要。
+
+此外，MapReduce本质上是以批量处理为核心的，对于日益增长的实时和近实时处理的客户需求，如流式计算以及CEPFresil等，就无能为力了。
+
+如果Hadoop能够支持这一特性，企业会从对Hadoop的投资中得到更多回报，因为他们可以减少数据迁移所需要的管理和维护成本。
+
+### 为何要提升可扩展性？
+
+根据摩尔定律，同样的价格所能购买到的计算能力一直在大幅上升。让我们看看以下两组数字：
+
+* 2009年：8核CPU，16GB内存，4x1TB硬盘；
+* 2012年：16核以上的CPU，48至96GB内存，12x2TB或12x3TB的硬盘。
+
+同样价格的服务器，其各方面的计算能力要比两到三年以前提升了两倍。Hadoop的MapReduce在2009年便能支持约5000台节点，所以随着机器性能的提升，对其高可扩的要求也与日俱增。
+
+### 集群资源利用率不高的典型症候是？
+
+在现有的系统中，集群由节点组成，节点上有map槽位和reduce槽位，两者不能互相替代。这样一来，很有可能map槽位已经耗尽，而reduce还是空闲的，反之亦然。修复这一问题对于提升集群资源利用率来说是必不可少的。
+
+### 敏捷性为何重要？
+
+在现实应用中，Hadoop通常会部署在共享的、多租户的系统上。所以，对Hadoop进行升级时会影响很大一部分甚至是所有的应用。基于这一点，用户会对升级持保守态度，因为不想因此引发一系列的问题。所以，一个支持多版本Hadoop的架构就变得非常重要。
