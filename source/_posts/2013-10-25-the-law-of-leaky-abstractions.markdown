@@ -7,4 +7,6 @@ categories: Translation
 published: false
 ---
 
+原文：http://www.joelonsoftware.com/articles/LeakyAbstractions.html
+
 <!--more-->
