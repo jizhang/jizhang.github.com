@@ -28,5 +28,51 @@ The above is not a problem for small data sets, or at least small mapper outputs
 
 <!-- more -->
 
+Solution B: Increment by Number of Tasks
+----------------------------------------
+
+Inspired by a [mailing list][3] around the corner, which is inspired by MySQL master-master setup (with auto\_increment\_increment and auto\_increment\_offset), there's a brilliant way to generate a globally unique integer id across mappers or reducers. Let's take mapper for example:
+
+```java
+public static class JobMapper extends Mapper<LongWritable, Text, LongWritable, Text> {
+
+    private long id;
+    private int increment;
+
+    @Override
+    protected void setup(Context context) throws IOException,
+            InterruptedException {
+
+        super.setup(context);
+
+        id = context.getTaskAttemptID().getTaskID().getId();
+        increment = context.getConfiguration().getInt("mapred.map.tasks", 0);
+        if (increment == 0) {
+            throw new IllegalArgumentException("mapred.map.tasks is zero");
+        }
+    }
+
+    @Override
+    protected void map(LongWritable key, Text value, Context context)
+            throws IOException, InterruptedException {
+
+        id += increment;
+        context.write(new LongWritable(id),
+                new Text(String.format("%d, %s", key.get(), value.toString())));
+    }
+
+}
+```
+
+The basic idea is simple:
+
+1. Set the initial id to current tasks's id.
+2. When mapping, increment the id by the number of tasks.
+
+It's also applicable to reducers.
+
+
+
 [1]: http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html
 [2]: http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/
+[3]: http://mail-archives.apache.org/mod_mbox/hadoop-common-user/200904.mbox/%3C49E13557.7090504@domaintools.com%3E
