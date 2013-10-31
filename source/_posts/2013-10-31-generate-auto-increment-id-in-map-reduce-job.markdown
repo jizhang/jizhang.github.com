@@ -82,11 +82,57 @@ How about the incremental id? Even though the outputs are in total order, Soluti
 
 Here's what we gonna do:
 
-1. Use TotalOrderPartitioner, and set the sampler class.
+1. Use TotalOrderPartitioner, and generate the partition file.
 2. Parse logs in mapper A, use time as the output key.
 3. Let the framework do partitioning and sorting.
 4. Count records in reducer, write it with [MultipleOutput][5].
 5. In mapper B, use count as offset, and increment by 1.
+
+To simplify the situation, we assume to have the following inputs and outputs:
+
+```text
+ Input       Output
+ 
+11:00 a     1 11:00 a
+12:00 b     2 11:01 aa
+13:00 c     3 11:02 aaa
+
+11:01 aa    4 12:00 b
+12:01 bb    5 12:01 bb
+13:01 cc    6 12:02 bbb
+
+11:02 aaa   7 13:00 c
+12:02 bbb   8 13:01 cc
+13:02 ccc   9 13:02 ccc
+```
+
+### Generate Partition File
+
+To use TotalOrderpartitioner, we need a partition file (i.e. boundaries) to tell the partitioner how to partition the mapper outputs. Usually we'll use [InputSampler.RandomSampler][6] class, but this time let's use a manual partition file.
+
+```java
+SequenceFile.Writer writer = new SequenceFile.Writer(fs, getConf(), partition,
+        Text.class, NullWritable.class);
+Text key = new Text();
+NullWritable value = NullWritable.get();
+key.set("12:00");
+writer.append(key, value);
+key.set("13:00");
+writer.append(key, value);
+writer.close();
+```
+
+So basically, the partitioner will partition the mapper outputs into three parts, the first part will be less than "12:00", seceond part ["12:00", "13:00"), thrid ["13:00", ).
+
+And then, indicate the job to use this partition file:
+
+```java
+job.setPartitionerClass(TotalOrderPartitioner.class);
+otalOrderPartitioner.setPartitionFile(job.getConfiguration(), partition);
+
+// The number of reducers should equal the number of partitions.
+job.setNumReduceTasks(3);
+```
 
 
 [1]: http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html
@@ -94,3 +140,4 @@ Here's what we gonna do:
 [3]: http://mail-archives.apache.org/mod_mbox/hadoop-common-user/200904.mbox/%3C49E13557.7090504@domaintools.com%3E
 [4]: http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapred/lib/TotalOrderPartitioner.html
 [5]: http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapreduce/lib/output/MultipleOutputs.html
+[6]: https://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapreduce/lib/partition/InputSampler.RandomSampler.html
