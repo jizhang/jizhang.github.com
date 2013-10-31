@@ -31,7 +31,7 @@ The above is not a problem for small data sets, or at least small mapper outputs
 Solution B: Increment by Number of Tasks
 ----------------------------------------
 
-Inspired by a [mailing list][3] around the corner, which is inspired by MySQL master-master setup (with auto\_increment\_increment and auto\_increment\_offset), there's a brilliant way to generate a globally unique integer id across mappers or reducers. Let's take mapper for example:
+Inspired by a [mailing list][3] that is quite hard to find, which is inspired by MySQL master-master setup (with auto\_increment\_increment and auto\_increment\_offset), there's a brilliant way to generate a globally unique integer id across mappers or reducers. Let's take mapper for example:
 
 ```java
 public static class JobMapper extends Mapper<LongWritable, Text, LongWritable, Text> {
@@ -67,12 +67,30 @@ public static class JobMapper extends Mapper<LongWritable, Text, LongWritable, T
 The basic idea is simple:
 
 1. Set the initial id to current tasks's id.
-2. When mapping, increment the id by the number of tasks.
+2. When mapping each row, increment the id by the number of tasks.
 
 It's also applicable to reducers.
 
+Solution C: Sorted Auto-increment Id
+------------------------------------
+
+Here's a real senario: we have several log files pulled from different machines, and we want to identify each row by an auto-increment id, and they should be in time sequence order.
+
+We know Hadoop has a sort phase, so we can use timestamp as the mapper output key, and the framework will do the trick. But the sorting thing happends in one reducer (partition, in fact), so when using multiple reducer tasks, the result is not in total order. To achieve this, we can use the [TotalOrderPartitioner][4].
+
+How about the incremental id? Even though the outputs are in total order, Solution B is not applicable here. So we take another approach: seperate the job in two phases, use the reducer to do sorting *and* counting, then use the second mapper to generate the id.
+
+Here's what we gonna do:
+
+1. Use TotalOrderPartitioner, and set the sampler class.
+2. Parse logs in mapper A, use time as the output key.
+3. Let the framework do partitioning and sorting.
+4. Count records in reducer, write it with [MultipleOutput][5].
+5. In mapper B, use count as offset, and increment by 1.
 
 
 [1]: http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html
 [2]: http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/
 [3]: http://mail-archives.apache.org/mod_mbox/hadoop-common-user/200904.mbox/%3C49E13557.7090504@domaintools.com%3E
+[4]: http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapred/lib/TotalOrderPartitioner.html
+[5]: http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapreduce/lib/output/MultipleOutputs.html
