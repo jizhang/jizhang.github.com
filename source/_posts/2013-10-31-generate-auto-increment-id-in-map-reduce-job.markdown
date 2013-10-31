@@ -4,7 +4,7 @@ title: "Generate Auto-increment Id in Map-reduce Job"
 date: 2013-10-31 09:35
 comments: true
 categories: Notes
-published: false
+published: true
 ---
 
 In DBMS world, it's easy to generate a unique, auto-increment id, using MySQL's [AUTO_INCREMENT attribute][1] on a primary key or MongoDB's [Counters Collection][2] pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it'll take some steps.
@@ -198,9 +198,93 @@ For example, if the output folder is "/tmp/total-sort/", there'll be the followi
 /tmp/total-sort/part-r-00003
 ```
 
+### Pass Start Ids to Mapper
+
+When the second mapper processes the inputs, we want them to know the initial id of its partition, which can be calculated from the "count-*" files we produce before. To pass this information, we can use the job's Configuration object.
+
+```java
+// Read and calculate the start id from those row-count files.
+Map<String, Long> startIds = new HashMap<String, Long>();
+long startId = 1;
+FileSystem fs = FileSystem.get(getConf());
+for (FileStatus file : fs.listStatus(countPath)) {
+
+    Path path = file.getPath();
+    String name = path.getName();
+    if (!name.startsWith("count-")) {
+        continue;
+    }
+
+    startIds.put(name.substring(name.length() - 5), startId);
+
+    SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, getConf());
+    NullWritable key = NullWritable.get();
+    LongWritable value = new LongWritable();
+    if (!reader.next(key, value)) {
+        continue;
+    }
+    startId += value.get();
+    reader.close();
+}
+
+// Serialize the map and pass it to Configuration.
+job.getConfiguration().set("startIds", Base64.encodeBase64String(
+        SerializationUtils.serialize((Serializable) startIds)));
+        
+// Recieve it in Mapper#setup
+public static class JobMapperB extends Mapper<NullWritable, Text, LongWritable, Text> {
+
+    private Map<String, Long> startIds;
+    private long startId;
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void setup(Context context)
+            throws IOException, InterruptedException {
+
+        super.setup(context);
+        startIds = (Map<String, Long>) SerializationUtils.deserialize(
+                Base64.decodeBase64(context.getConfiguration().get("startIds")));
+        String name = ((FileSplit) context.getInputSplit()).getPath().getName();
+        startId = startIds.get(name.substring(name.length() - 5));
+    }
+
+    @Override
+    protected void map(NullWritable key, Text value, Context context)
+            throws IOException, InterruptedException {
+
+        context.write(new LongWritable(startId++), value);
+    }
+
+}
+```
+
+### Set the Input Non-splitable
+
+When the file is bigger than a block or so (depending on some configuration entries), Hadoop will split it, which is not good for us. So let's define a new InputFormat class to disable the splitting behaviour:
+
+```java
+public static class NonSplitableSequence extends SequenceFileInputFormat<NullWritable, Text> {
+
+    @Override
+    protected boolean isSplitable(JobContext context, Path filename) {
+        return false;
+    }
+
+}
+
+// use it
+job.setInputFormatClass(NonSplitableSequence.class);
+```
+
+And that's it, we are able to generate a unique, auto-increment id for a sorted collection, with Hadoop's parallel computing capability. The process is rather complicated, which requires several techniques about Hadoop. It's worthwhile to dig.
+
+A workable example can be found in my [Github repository][7]. If you have some more straight-forward approach, please do let me know.
+
 [1]: http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html
 [2]: http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/
 [3]: http://mail-archives.apache.org/mod_mbox/hadoop-common-user/200904.mbox/%3C49E13557.7090504@domaintools.com%3E
 [4]: http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapred/lib/TotalOrderPartitioner.html
 [5]: http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapreduce/lib/output/MultipleOutputs.html
 [6]: https://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapreduce/lib/partition/InputSampler.RandomSampler.html
+[7]: https://github.com/jizhang/mapred-sandbox/blob/master/src/main/java/com/shzhangji/mapred_sandbox/AutoIncrementId2Job.java
