@@ -134,6 +134,69 @@ otalOrderPartitioner.setPartitionFile(job.getConfiguration(), partition);
 job.setNumReduceTasks(3);
 ```
 
+### Use MutipleOutputs
+
+In the reducer, we need to note down the row count of this partition, to do that, we'll need the MultipleOutputs class, which let use output multiple result files apart from the default "part-r-xxxxx". The reducer's code is as following:
+
+```java
+public static class JobReducer extends Reducer<Text, Text, NullWritable, Text> {
+
+    private MultipleOutputs<NullWritable, Text> mos;
+    private long count;
+
+    @Override
+    protected void setup(Context context)
+            throws IOException, InterruptedException {
+
+        super.setup(context);
+        mos = new MultipleOutputs<NullWritable, Text>(context);
+        count = 0;
+    }
+
+    @Override
+    protected void reduce(Text key, Iterable<Text> values, Context context)
+            throws IOException, InterruptedException {
+
+        for (Text value : values) {
+            context.write(NullWritable.get(), value);
+            ++count;
+        }
+    }
+
+    @Override
+    protected void cleanup(Context context)
+            throws IOException, InterruptedException {
+
+        super.cleanup(context);
+        mos.write("count", NullWritable.get(), new LongWritable(count));
+        mos.close();
+    }
+
+}
+```
+
+There're several things to pay attention to:
+
+1. MultipleOutputs is declared as class member, defined in Reducer#setup method, and must be closed at Reducer#cleanup (otherwise the file will be empty).
+2. When instantiating MultipleOutputs class, the generic type needs to be the same as reducer's output key/value class.
+3. In order to use a different output key/value class, additional setup needs to be done at job definition:
+
+```java
+Job job = new Job(getConf());
+MultipleOutputs.addNamedOutput(job, "count", SequenceFileOutputFormat.class,
+    NullWritable.class, LongWritable.class);
+```
+
+For example, if the output folder is "/tmp/total-sort/", there'll be the following files when job is done:
+
+```text
+/tmp/total-sort/count-r-00001
+/tmp/total-sort/count-r-00002
+/tmp/total-sort/count-r-00003
+/tmp/total-sort/part-r-00001
+/tmp/total-sort/part-r-00002
+/tmp/total-sort/part-r-00003
+```
 
 [1]: http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html
 [2]: http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/
