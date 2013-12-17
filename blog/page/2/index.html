@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="原文：http://raganwald.com/2013/03/07/currying-and-partial-application.html 上周末我参加了wroc_love.rb大会，其间Steve Klabnik的一张PPT中提到了偏应用（Partial Application）和柯里化（ &hellip;">
+  <meta name="description" content="由于最近在搭建Zabbix监控服务，需要制作各类监控的模板，如iostat、Nginx、MySQL等，因此会写一些脚本来完成数据采集的工作。又因为近期对Perl语言比较感兴趣，因此决定花些时间学一学，写一个脚本来练练手，于是就有了这样一份笔记。 需求描述 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +81,63 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1/">Perl入门实战：JVM监控脚本（上）</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-26T23:00:00+08:00" pubdate data-updated="true">Mar 26<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>由于最近在搭建Zabbix监控服务，需要制作各类监控的模板，如iostat、Nginx、MySQL等，因此会写一些脚本来完成数据采集的工作。又因为近期对Perl语言比较感兴趣，因此决定花些时间学一学，写一个脚本来练练手，于是就有了这样一份笔记。</p>
+
+<h2>需求描述</h2>
+
+<p>我们将编写一个获取JVM虚拟机状态信息的脚本：</p>
+
+<ol>
+<li>启动一个服务进程，通过套接字接收形如“JVMPORT 2181”的请求；</li>
+<li>执行<code>netstat</code>命令，根据端口获取进程号；</li>
+<li>执行<code>jstat</code>命令获取JVM的GC信息；<code>jstack</code>获取线程信息；<code>ps -o pcpu,rss</code>获取CPU和内存使用情况；</li>
+<li>将以上信息返回给客户端；</li>
+</ol>
+
+
+<p>之所以需要这样一个服务是因为Zabbix Agent会运行在zabbix用户下，无法获取运行在其他用户下的JVM信息。</p>
+
+<p>此外，Zabbix Agent也需要编写一个脚本来调用上述服务，这个在文章末尾会给出范例代码。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -647,6 +704,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/12/17/the-law-of-leaky-abstractions/">抽象泄漏定律</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/">Generate Auto-increment Id in Map-reduce Job</a>
       </li>
     
@@ -660,10 +721,6 @@
     
       <li class="post">
         <a href="/blog/2013/05/25/apache-hadoop-yarn-background-and-an-overview/">Apache Hadoop YARN - 项目背景与简介</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/">Cascalog：基于Clojure的Hadoop查询语言</a>
       </li>
     
   </ul>
