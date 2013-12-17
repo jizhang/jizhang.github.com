@@ -3,7 +3,7 @@ layout: post
 title: "Cascalog：基于Clojure的Hadoop查询语言"
 date: 2013-05-01 18:01
 comments: true
-categories: Translation
+categories: [Translation, Big Data]
 tags: [clojure]
 published: true
 ---

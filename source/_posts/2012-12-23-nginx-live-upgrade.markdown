@@ -3,7 +3,7 @@ layout: post
 title: "Nginx热升级"
 date: 2012-12-23 22:11
 comments: true
-categories: Ops
+categories: Notes
 tags: [nginx]
 published: true
 ---
