@@ -29,6 +29,8 @@ TCP是一种 *可靠的* 数据传输协议，也就是说，当你通过TCP协�
 
 我们继续说TCP。刚才我打了一个比方，有些人可能觉得那很疯狂。但是，当我说TCP协议可以保证消息一定能够到达，事实上并非如此。如果你的宠物蛇把网线给咬坏了，那即便是TCP协议也无法传输数据；如果你和网络管理员闹了矛盾，他将你的网口接到了一台负载很高的交换机上，那即便你的数据包可以传输，速度也会奇慢无比。
 
-This is what I call a leaky abstraction. TCP attempts to provide a complete abstraction of an underlying unreliable network, but sometimes, the network leaks through the abstraction and you feel the things that the abstraction can't quite protect you from. This is but one example of what I've dubbed the Law of Leaky Abstractions:
-
 这就是我所说的“抽象泄漏”。TCP协议试图提供一个完整的抽象，将底层不可靠的数据传输包装起来，但是，底层的传输有时也会发生问题，即便是TCP协议也无法解决，这时你会发现，它也不是万能的。TCP协议就是“抽象泄漏定律”的示例之一，其实，几乎所有的抽象都是泄漏的。这种泄漏有时很小，有时会很严重。下面再举一些例子：
+
+* 对于一个简单的操作，如循环遍历一个二维数组，当遍历的方式不同（横向或纵向），也会对性能造成很大影响，这主要取决于数组中数据的分布——按某个方向遍历时可能会产生更多的页缺失（page fault），而页缺失往往是非常消耗性能的。即使是汇编程序员，他们在编写代码时也会假设程序的内存空间是连续的，这是系统底层的虚拟内存机制提供的抽象，而这一机制在遇到页缺失时就会消耗更多时间。
+
+* SQL语言意图将过程式的数据库访问操作封装起来，你只需要告诉操作系统你想要的数据，系统会自动生成各个步骤并加以执行。但在有些情况下，某些SQL查询会比其逻辑等同的查询语句要慢得多。一个著名的示例是，对大多数SQL服务器，指定“WHERE a = b AND b = c AND a = c”要比单纯指定“WHERE a = b AND b = c”快的多，即便它们的结果集是一致的。在使用SQL时，我们不需要思考过程，只需关注定义。但有时，这种抽象会造成性能上的大幅下降，你需要去了解SQL语法分析器的工作原理，找出问题的原因，并想出应对措施，让自己的查询运行得更快。
