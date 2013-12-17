@@ -41,8 +41,22 @@ TCP是一种 *可靠的* 数据传输协议，也就是说，当你通过TCP协�
 
 * 当你在雨天开车，虽然你坐在车里，前窗有雨刷，车内有空调，这些措施将“天气”给抽象走了。但是，你还是要小心雨天的轮胎打滑，有时这雨下得太大，可见度很糟，所以你还是得慢行。也就是说，“天气”因素并没有被完全抽象走，它也是存在泄漏的。
 
-抽象泄漏引发的麻烦之一是，它并没有完全简化我们的工作。当我指导别人学习C++时，我当然希望可以跳过char \*和指针运算，直接讲解STL字符串类库的使用。但是，当某一天他写出了"foo" + "bar"这样的代码，并询问我为什么编译错误时，我还是需要告诉它char \*的存在。或者说，当他需要调用一个Windows API，需要指定OUT LPTSTR参数，这时他就必须学习char \*、指针、Unicode、wchar_t、TCHAR头文件等一系列知识，这些都是抽象泄漏。
+抽象泄漏引发的麻烦之一是，它并没有完全简化我们的工作。当我指导别人学习C++时，我当然希望可以跳过char \*和指针运算，直接讲解STL字符串类库的使用。但是，当某一天他写出了 *"foo" + "bar"* 这样的代码，并询问我为什么编译错误时，我还是需要告诉它char \*的存在。或者说，当他需要调用一个Windows API，需要指定OUT LPTSTR参数，这时他就必须学习char \*、指针、Unicode、wchar_t、TCHAR头文件等一系列知识，这些都是抽象泄漏。
 
 在指导COM编程时，我希望可以直接让大家如何使用Visual Studio的代码生成向导。但将来如果出现问题，学员面对这些生成的代码会不知所从，这时还是要回过头来学习IUnknown、CLSID、ProgIDS等等。天呐！
 
 在指导ASP.NET编程时，我希望可以直接告诉大家双击页面上的控件，在弹出的代码框中输入点击响应事件。的确，ASP.NET将处理点击的HTML代码抽象掉了，但问题在于，ASP.NET的设计者需要动用JS来模拟表单的提交，因为HTML中的&lt;a/&gt;标签是没有这一功能的。这样一来，如果终端用户将JS禁止了，这个程序将无法运行。初学者会不知所措，直至他了解ASP.NET的运作方式，了解它究竟将什么样的工作封装起来了，才能进一步排查。
+
+由于抽象定律的存在，每当有人说自己发现了一款新的代码生成工具，能够大大提高我们的编程效率时，你会听很多人说“先学习手工编写，再去用工具生成”。代码生成工具是一种抽象，同样也会泄漏，唯一的解决方法是学习它的实现原理，即它抽象了什么。所以说抽象只是用于提高我们的工作效率的，而不会节省我们的学习时间。
+
+这就形成了一个悖论：当我们拥有越来越高级的开发工具，越来越好的“抽象”，要成为一个高水平的程序员反而越来越困难了。
+
+我在微软实习的第一年，是为Macintosh编写字符串处理类库。很普通的一个任务：编写 *strcat* 函数，返回一个指针，指向新字符串的尾部。几行C语言代码就能实现了，这些都是从K&R这本C语言编程书上学习到的。
+
+如今，我在CityDesk供职，需要使用Visual Basic、COM、ATL、C++、InnoSetup、Internet Explorer原理、正则表达式、DOM、HTML、CSS、XML等等，这些相对于古老的K&R来说都是非常高级的工具，但是我仍然需要用到K&R的相关知识，否则会困难重重。
+
+Ten years ago, we might have imagined that new programming paradigms would have made programming easier by now. Indeed, the abstractions we've created over the years do allow us to deal with new orders of complexity in software development that we didn't have to deal with ten or fifteen years ago, like GUI programming and network programming. And while these great tools, like modern OO forms-based languages, let us get a lot of work done incredibly quickly, suddenly one day we need to figure out a problem where the abstraction leaked, and it takes 2 weeks. And when you need to hire a programmer to do mostly VB programming, it's not good enough to hire a VB programmer, because they will get completely stuck in tar every time the VB abstraction leaks.
+
+十年前，我们会想象未来能够出现各种新式的编程范型，简化我们的工作。的确，这些年我们创造的各类抽象使得开发复杂的大型软件变得比十五年前要简单得多，就像GUI和网络编程。现代的面向对象编程语言让我们的工作变得高效快速，但突然有一天，这种抽象泄漏出一个问题，解决它需要耗费两星期。如果你需要招录一个VB程序员，那不是一个好主意，因为当他碰到 ...to be continued
+
+抽象泄漏定律正在阻碍我们前进。
