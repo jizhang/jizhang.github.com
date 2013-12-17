@@ -22,7 +22,7 @@
     </url>
     <url>
         <loc>http://shzhangji.com/blog/2012/12/23/nginx-live-upgrade/</loc>
-        <lastmod>2013-12-17T13:05:48+08:00</lastmod>
+        <lastmod>2013-12-17T13:12:46+08:00</lastmod>
     </url>
     <url>
         <loc>http://shzhangji.com/blog/2013/01/04/clojure-style-guide/</loc>
@@ -30,7 +30,7 @@
     </url>
     <url>
         <loc>http://shzhangji.com/blog/2013/02/09/cia-hadoop/</loc>
-        <lastmod>2013-12-17T13:05:48+08:00</lastmod>
+        <lastmod>2013-12-17T13:13:24+08:00</lastmod>
     </url>
     <url>
         <loc>http://shzhangji.com/blog/2013/03/07/currying-and-partial-application/</loc>
@@ -50,7 +50,7 @@
     </url>
     <url>
         <loc>http://shzhangji.com/blog/2013/04/22/cia-storm/</loc>
-        <lastmod>2013-12-17T13:05:48+08:00</lastmod>
+        <lastmod>2013-12-17T13:13:41+08:00</lastmod>
     </url>
     <url>
         <loc>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/</loc>
@@ -60,7 +60,7 @@
         <loc>
             http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/
         </loc>
-        <lastmod>2013-12-17T13:05:48+08:00</lastmod>
+        <lastmod>2013-12-17T13:13:56+08:00</lastmod>
     </url>
     <url>
         <loc>
@@ -74,13 +74,13 @@
     </url>
     <url>
         <loc>http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/</loc>
-        <lastmod>2013-12-17T13:05:48+08:00</lastmod>
+        <lastmod>2013-12-17T13:12:27+08:00</lastmod>
     </url>
     <url>
         <loc>
             http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/
         </loc>
-        <lastmod>2013-12-17T13:05:48+08:00</lastmod>
+        <lastmod>2013-12-17T13:11:25+08:00</lastmod>
     </url>
     <url>
         <loc>http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions/</loc>
@@ -92,10 +92,10 @@
     </url>
     <url>
         <loc>http://shzhangji.com/</loc>
-        <lastmod>2013-12-17T13:05:48+08:00</lastmod>
+        <lastmod>2013-12-17T13:13:56+08:00</lastmod>
     </url>
     <url>
         <loc>http://shzhangji.com/blog/archives/</loc>
-        <lastmod>2013-12-17T13:05:48+08:00</lastmod>
+        <lastmod>2013-12-17T13:13:56+08:00</lastmod>
     </url>
 </urlset>

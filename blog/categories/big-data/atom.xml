@@ -1,0 +1,1392 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Big Data | Ji ZHANG's Blog]]></title>
+  <link href="http://shzhangji.com/blog/categories/big-data/atom.xml" rel="self"/>
+  <link href="http://shzhangji.com/"/>
+  <updated>2013-12-17T13:18:53+08:00</updated>
+  <id>http://shzhangji.com/</id>
+  <author>
+    <name><![CDATA[Ji ZHANG]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Generate Auto-increment Id in Map-reduce Job]]></title>
+    <link href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/"/>
+    <updated>2013-10-31T09:35:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job</id>
+    <content type="html"><![CDATA[<p>In DBMS world, it&rsquo;s easy to generate a unique, auto-increment id, using MySQL&rsquo;s <a href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html">AUTO_INCREMENT attribute</a> on a primary key or MongoDB&rsquo;s <a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it&rsquo;ll take some steps.</p>
+
+<h2>Solution A: Single Reducer</h2>
+
+<p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
+
+<p><code>java
+job.setNumReduceTasks(1);
+</code></p>
+
+<p>And also obvious, there are several demerits:</p>
+
+<ol>
+<li>All mappers output will be copied to one task tracker.</li>
+<li>Only one process is working on shuffel &amp; sort.</li>
+<li>When producing output, there&rsquo;s also only one process.</li>
+</ol>
+
+
+<p>The above is not a problem for small data sets, or at least small mapper outputs. And it is also the approach that Pig and Hive use when they need to perform a total sort. But when hitting a certain threshold, the sort and copy phase will become very slow and unacceptable.</p>
+
+<!-- more -->
+
+
+<h2>Solution B: Increment by Number of Tasks</h2>
+
+<p>Inspired by a <a href="http://mail-archives.apache.org/mod_mbox/hadoop-common-user/200904.mbox/%3C49E13557.7090504@domaintools.com%3E">mailing list</a> that is quite hard to find, which is inspired by MySQL master-master setup (with auto_increment_increment and auto_increment_offset), there&rsquo;s a brilliant way to generate a globally unique integer id across mappers or reducers. Let&rsquo;s take mapper for example:</p>
+
+<p>```java
+public static class JobMapper extends Mapper&lt;LongWritable, Text, LongWritable, Text> {</p>
+
+<pre><code>private long id;
+private int increment;
+
+@Override
+protected void setup(Context context) throws IOException,
+        InterruptedException {
+
+    super.setup(context);
+
+    id = context.getTaskAttemptID().getTaskID().getId();
+    increment = context.getConfiguration().getInt("mapred.map.tasks", 0);
+    if (increment == 0) {
+        throw new IllegalArgumentException("mapred.map.tasks is zero");
+    }
+}
+
+@Override
+protected void map(LongWritable key, Text value, Context context)
+        throws IOException, InterruptedException {
+
+    id += increment;
+    context.write(new LongWritable(id),
+            new Text(String.format("%d, %s", key.get(), value.toString())));
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>The basic idea is simple:</p>
+
+<ol>
+<li>Set the initial id to current tasks&rsquo;s id.</li>
+<li>When mapping each row, increment the id by the number of tasks.</li>
+</ol>
+
+
+<p>It&rsquo;s also applicable to reducers.</p>
+
+<h2>Solution C: Sorted Auto-increment Id</h2>
+
+<p>Here&rsquo;s a real senario: we have several log files pulled from different machines, and we want to identify each row by an auto-increment id, and they should be in time sequence order.</p>
+
+<p>We know Hadoop has a sort phase, so we can use timestamp as the mapper output key, and the framework will do the trick. But the sorting thing happends in one reducer (partition, in fact), so when using multiple reducer tasks, the result is not in total order. To achieve this, we can use the <a href="http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapred/lib/TotalOrderPartitioner.html">TotalOrderPartitioner</a>.</p>
+
+<p>How about the incremental id? Even though the outputs are in total order, Solution B is not applicable here. So we take another approach: seperate the job in two phases, use the reducer to do sorting <em>and</em> counting, then use the second mapper to generate the id.</p>
+
+<p>Here&rsquo;s what we gonna do:</p>
+
+<ol>
+<li>Use TotalOrderPartitioner, and generate the partition file.</li>
+<li>Parse logs in mapper A, use time as the output key.</li>
+<li>Let the framework do partitioning and sorting.</li>
+<li>Count records in reducer, write it with <a href="http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapreduce/lib/output/MultipleOutputs.html">MultipleOutput</a>.</li>
+<li>In mapper B, use count as offset, and increment by 1.</li>
+</ol>
+
+
+<p>To simplify the situation, we assume to have the following inputs and outputs:</p>
+
+<p>```text
+ Input       Output</p>
+
+<p>11:00 a     1 11:00 a
+12:00 b     2 11:01 aa
+13:00 c     3 11:02 aaa</p>
+
+<p>11:01 aa    4 12:00 b
+12:01 bb    5 12:01 bb
+13:01 cc    6 12:02 bbb</p>
+
+<p>11:02 aaa   7 13:00 c
+12:02 bbb   8 13:01 cc
+13:02 ccc   9 13:02 ccc
+```</p>
+
+<h3>Generate Partition File</h3>
+
+<p>To use TotalOrderpartitioner, we need a partition file (i.e. boundaries) to tell the partitioner how to partition the mapper outputs. Usually we&rsquo;ll use <a href="https://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapreduce/lib/partition/InputSampler.RandomSampler.html">InputSampler.RandomSampler</a> class, but this time let&rsquo;s use a manual partition file.</p>
+
+<p>```java
+SequenceFile.Writer writer = new SequenceFile.Writer(fs, getConf(), partition,</p>
+
+<pre><code>    Text.class, NullWritable.class);
+</code></pre>
+
+<p>Text key = new Text();
+NullWritable value = NullWritable.get();
+key.set(&ldquo;12:00&rdquo;);
+writer.append(key, value);
+key.set(&ldquo;13:00&rdquo;);
+writer.append(key, value);
+writer.close();
+```</p>
+
+<p>So basically, the partitioner will partition the mapper outputs into three parts, the first part will be less than &ldquo;12:00&rdquo;, seceond part [&ldquo;12:00&rdquo;, &ldquo;13:00&rdquo;), thrid [&ldquo;13:00&rdquo;, ).</p>
+
+<p>And then, indicate the job to use this partition file:</p>
+
+<p>```java
+job.setPartitionerClass(TotalOrderPartitioner.class);
+otalOrderPartitioner.setPartitionFile(job.getConfiguration(), partition);</p>
+
+<p>// The number of reducers should equal the number of partitions.
+job.setNumReduceTasks(3);
+```</p>
+
+<h3>Use MutipleOutputs</h3>
+
+<p>In the reducer, we need to note down the row count of this partition, to do that, we&rsquo;ll need the MultipleOutputs class, which let use output multiple result files apart from the default &ldquo;part-r-xxxxx&rdquo;. The reducer&rsquo;s code is as following:</p>
+
+<p>```java
+public static class JobReducer extends Reducer&lt;Text, Text, NullWritable, Text> {</p>
+
+<pre><code>private MultipleOutputs&lt;NullWritable, Text&gt; mos;
+private long count;
+
+@Override
+protected void setup(Context context)
+        throws IOException, InterruptedException {
+
+    super.setup(context);
+    mos = new MultipleOutputs&lt;NullWritable, Text&gt;(context);
+    count = 0;
+}
+
+@Override
+protected void reduce(Text key, Iterable&lt;Text&gt; values, Context context)
+        throws IOException, InterruptedException {
+
+    for (Text value : values) {
+        context.write(NullWritable.get(), value);
+        ++count;
+    }
+}
+
+@Override
+protected void cleanup(Context context)
+        throws IOException, InterruptedException {
+
+    super.cleanup(context);
+    mos.write("count", NullWritable.get(), new LongWritable(count));
+    mos.close();
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>There&rsquo;re several things to pay attention to:</p>
+
+<ol>
+<li>MultipleOutputs is declared as class member, defined in Reducer#setup method, and must be closed at Reducer#cleanup (otherwise the file will be empty).</li>
+<li>When instantiating MultipleOutputs class, the generic type needs to be the same as reducer&rsquo;s output key/value class.</li>
+<li>In order to use a different output key/value class, additional setup needs to be done at job definition:</li>
+</ol>
+
+
+<p>```java
+Job job = new Job(getConf());
+MultipleOutputs.addNamedOutput(job, &ldquo;count&rdquo;, SequenceFileOutputFormat.class,</p>
+
+<pre><code>NullWritable.class, LongWritable.class);
+</code></pre>
+
+<p>```</p>
+
+<p>For example, if the output folder is &ldquo;/tmp/total-sort/&rdquo;, there&rsquo;ll be the following files when job is done:</p>
+
+<p><code>text
+/tmp/total-sort/count-r-00001
+/tmp/total-sort/count-r-00002
+/tmp/total-sort/count-r-00003
+/tmp/total-sort/part-r-00001
+/tmp/total-sort/part-r-00002
+/tmp/total-sort/part-r-00003
+</code></p>
+
+<h3>Pass Start Ids to Mapper</h3>
+
+<p>When the second mapper processes the inputs, we want them to know the initial id of its partition, which can be calculated from the &ldquo;count-*&rdquo; files we produce before. To pass this information, we can use the job&rsquo;s Configuration object.</p>
+
+<p>```java
+// Read and calculate the start id from those row-count files.
+Map&lt;String, Long> startIds = new HashMap&lt;String, Long>();
+long startId = 1;
+FileSystem fs = FileSystem.get(getConf());
+for (FileStatus file : fs.listStatus(countPath)) {</p>
+
+<pre><code>Path path = file.getPath();
+String name = path.getName();
+if (!name.startsWith("count-")) {
+    continue;
+}
+
+startIds.put(name.substring(name.length() - 5), startId);
+
+SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, getConf());
+NullWritable key = NullWritable.get();
+LongWritable value = new LongWritable();
+if (!reader.next(key, value)) {
+    continue;
+}
+startId += value.get();
+reader.close();
+</code></pre>
+
+<p>}</p>
+
+<p>// Serialize the map and pass it to Configuration.
+job.getConfiguration().set(&ldquo;startIds&rdquo;, Base64.encodeBase64String(</p>
+
+<pre><code>    SerializationUtils.serialize((Serializable) startIds)));
+</code></pre>
+
+<p>// Recieve it in Mapper#setup
+public static class JobMapperB extends Mapper&lt;NullWritable, Text, LongWritable, Text> {</p>
+
+<pre><code>private Map&lt;String, Long&gt; startIds;
+private long startId;
+
+@SuppressWarnings("unchecked")
+@Override
+protected void setup(Context context)
+        throws IOException, InterruptedException {
+
+    super.setup(context);
+    startIds = (Map&lt;String, Long&gt;) SerializationUtils.deserialize(
+            Base64.decodeBase64(context.getConfiguration().get("startIds")));
+    String name = ((FileSplit) context.getInputSplit()).getPath().getName();
+    startId = startIds.get(name.substring(name.length() - 5));
+}
+
+@Override
+protected void map(NullWritable key, Text value, Context context)
+        throws IOException, InterruptedException {
+
+    context.write(new LongWritable(startId++), value);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>Set the Input Non-splitable</h3>
+
+<p>When the file is bigger than a block or so (depending on some configuration entries), Hadoop will split it, which is not good for us. So let&rsquo;s define a new InputFormat class to disable the splitting behaviour:</p>
+
+<p>```java
+public static class NonSplitableSequence extends SequenceFileInputFormat&lt;NullWritable, Text> {</p>
+
+<pre><code>@Override
+protected boolean isSplitable(JobContext context, Path filename) {
+    return false;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>// use it
+job.setInputFormatClass(NonSplitableSequence.class);
+```</p>
+
+<p>And that&rsquo;s it, we are able to generate a unique, auto-increment id for a sorted collection, with Hadoop&rsquo;s parallel computing capability. The process is rather complicated, which requires several techniques about Hadoop. It&rsquo;s worthwhile to dig.</p>
+
+<p>A workable example can be found in my <a href="https://github.com/jizhang/mapred-sandbox/blob/master/src/main/java/com/shzhangji/mapred_sandbox/AutoIncrementId2Job.java">Github repository</a>. If you have some more straight-forward approach, please do let me know.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Hive并发情况下报DELETEME表不存在的异常]]></title>
+    <link href="http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/"/>
+    <updated>2013-09-06T11:20:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2013/09/06/hive-deleteme-error</id>
+    <content type="html"><![CDATA[<p>在每天运行的Hive脚本中，偶尔会抛出以下错误：</p>
+
+<p>```
+2013-09-03 01:39:00,973 ERROR parse.SemanticAnalyzer (SemanticAnalyzer.java:getMetaData(1128)) &ndash; org.apache.hadoop.hive.ql.metadata.HiveException: Unable to fetch table dw_xxx_xxx</p>
+
+<pre><code>    at org.apache.hadoop.hive.ql.metadata.Hive.getTable(Hive.java:896)
+    ...
+</code></pre>
+
+<p>Caused by: javax.jdo.JDODataStoreException: Exception thrown obtaining schema column information from datastore
+NestedThrowables:
+com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Table &lsquo;hive.DELETEME1378143540925&rsquo; doesn&rsquo;t exist</p>
+
+<pre><code>    at org.datanucleus.jdo.NucleusJDOHelper.getJDOExceptionForNucleusException(NucleusJDOHelper.java:313)
+    ...
+</code></pre>
+
+<p>```</p>
+
+<p>查阅了网上的资料，是DataNucleus的问题。</p>
+
+<p>背景1：我们知道MySQL中的库表信息是存放在information_schema库中的，Hive也有类似的机制，它会将库表信息存放在一个第三方的RDBMS中，目前我们线上配置的是本机MySQL，即：</p>
+
+<p>$ mysql -uhive -ppassword hive</p>
+
+<p><img src="/images/hive-deleteme-error/1.png" alt="1.png" /></p>
+
+<!--more-->
+
+
+<p>背景2：Hive使用的是DataNuclues ORM库来操作数据库的，而基本上所有的ORM框架（对象关系映射）都会提供自动建表的功能，即开发者只需编写Java对象，ORM会自动生成DDL。DataNuclues也有这一功能，而且它在初始化时会通过生成临时表的方式来获取数据库的Catalog和Schema，也就是 DELETEME表：</p>
+
+<p><img src="/images/hive-deleteme-error/2.png" alt="2.png" /></p>
+
+<p>这样就有一个问题：在并发量大的情况下，DELETEME表名中的毫秒数可能相同，那在pt.drop(conn)的时候就会产生找不到表的报错。</p>
+
+<p>解决办法已经可以在代码中看到了：将datanucleus.fixedDataStore选项置为true，即告知DataNuclues该数据库的表结构是既定的，不允许执行DDL操作。</p>
+
+<p>这样配置会有什么问题？让我们回忆一下Hive的安装步骤：</p>
+
+<ol>
+<li>解压hive-xyz.tar.gz；</li>
+<li>在conf/hive-site.xml中配置Hadoop以及用于存放库表信息的第三方数据库；</li>
+<li>执行bin/hive -e &ldquo;&hellip;"即可使用。DataNucleus会按需创建上述的DBS等表。</li>
+</ol>
+
+
+<p>这对新手来说很有用，因为不需要手动去执行建表语句，但对生产环境来说，普通帐号是没有DDL权限的，我们公司建表也都是提DB-RT给DBA操作。同理，线上Hive数据库也应该采用手工创建的方式，导入scripts/metastore/upgrade/mysql/hive-schema-0.9.0.mysql.sql文件即可。这样一来，就可以放心地配置datanucleus.fixedDataStore以及 datanecleus.autoCreateSchema两个选项了。</p>
+
+<p>这里我们也明确了一个问题：设置datanucleus.fixedDataStore=true不会影响Hive建库建表，因为Hive中的库表只是DBS、TBLS表中的一条记录而已。</p>
+
+<p>建议的操作：</p>
+
+<ol>
+<li>在线上导入hive-schema-0.9.0.mysql.sql，将尚未创建的表创建好（比如我们没有用过Hive的权限管理，所以DataNucleus没有自动创建DB_PRIVS表）；</li>
+<li>在hive-site.xml中配置 datanucleus.fixedDataStore=true；datanecleus.autoCreateSchema=false。</li>
+</ol>
+
+
+<p>这样就可以彻底解决这个异常了。</p>
+
+<p>为什么HWI没有遇到类似问题？因为它是常驻内存的，DELETEME表只会在启动的时候创建，后续的查询不会创建。而我们这里每次调用hive命令行都会去创建，所以才有这样的问题。</p>
+
+<p>参考链接：</p>
+
+<ul>
+<li><a href="http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html">http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html</a></li>
+<li><a href="https://github.com/dianping/cosmos-hive/issues/10">https://github.com/dianping/cosmos-hive/issues/10</a></li>
+<li><a href="https://issues.apache.org/jira/browse/HIVE-1841">https://issues.apache.org/jira/browse/HIVE-1841</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Cascalog：基于Clojure的Hadoop查询语言]]></title>
+    <link href="http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/"/>
+    <updated>2013-05-01T18:01:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado</id>
+    <content type="html"><![CDATA[<p>原文：<a href="http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html">http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html</a></p>
+
+<p>我非常兴奋地告诉大家，<a href="http://github.com/nathanmarz/cascalog">Cascalog</a>开源了！Cascalog受<a href="http://en.wikipedia.org/wiki/Datalog">Datalog</a>启发，是一种基于Clojure、运行于Hadoop平台上的查询语言。</p>
+
+<h2>特点</h2>
+
+<ul>
+<li><strong>简单</strong> &ndash; 使用相同的语法编写函数、过滤规则、聚合运算；数据联合（join）变得简单而自然。</li>
+<li><strong>表达能力强</strong> &ndash; 强大的逻辑组合条件，你可以在查询语句中任意编写Clojure函数。</li>
+<li><strong>交互性</strong> &ndash; 可以在Clojure REPL中执行查询语句。</li>
+<li><strong>可扩展</strong> &ndash; Cascalog的查询语句是一组MapReduce脚本。</li>
+<li><strong>任意数据源</strong> &ndash; HDFS、数据库、本地数据、以及任何能够使用Cascading的<code>Tap</code>读取的数据。</li>
+<li><strong>正确处理空值</strong> &ndash; 空值往往让事情变得棘手。Cascalog提供了内置的“非空变量”来自动过滤空值。</li>
+<li><strong>与Cascading结合</strong> &ndash; 使用Cascalog定义的流程可以在Cascading中直接使用，反之亦然。</li>
+<li><strong>与Clojure结合</strong> &ndash; 能够使用普通的Clojure函数来编写操作流程、过滤规则，又因为Cascalog是一种Clojure DSL，因此也能在其他Clojure代码中使用。</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>好，下面就让我们开始Cascalog的学习之旅！我会用一系列的示例来介绍Cascalog。这些示例会使用到项目本身提供的“试验场”数据集。我建议你立刻下载Cascalog，一边阅读本文一边在REPL中操作。（安装启动过程只有几分钟，README中有步骤）</p>
+
+<h2>基本查询</h2>
+
+<p>首先让我们启动REPL，并加载“试验场”数据集：</p>
+
+<p><code>clojure
+lein repl
+user=&gt; (use 'cascalog.playground) (bootstrap)
+</code></p>
+
+<p>以上语句会加载本文用到的所有模块和数据。你可以阅读项目中的<code>playground.clj</code>文件来查看这些数据。下面让我们执行第一个查询语句，找出年龄为25岁的人：</p>
+
+<p><code>clojure
+user=&gt; (?&lt;- (stdout) [?person] (age ?person 25))
+</code></p>
+
+<p>这条查询语句可以这样阅读：找出所有<code>age</code>等于25的<code>?person</code>。执行过程中你可以看到Hadoop输出的日志信息，几秒钟后就能看到查询结果。</p>
+
+<p>好，让我们尝试稍复杂的例子。我们来做一个范围查询，找出年龄小于30的人：</p>
+
+<p><code>clojure
+user=&gt; (?&lt;- (stdout) [?person] (age ?person ?age) (&lt; ?age 30))
+</code></p>
+
+<p>看起来也不复杂。这条语句中，我们将人的年龄绑定到了<code>?age</code>变量中，并对该变量做出了“小于30”的限定。</p>
+
+<p>我们重新执行这条语句，只是这次会将人的年龄也输出出来：</p>
+
+<p>```clojure
+user=> (?&lt;&ndash; (stdout) [?person ?age] (age ?person ?age)</p>
+
+<pre><code>        (&lt; ?age 30))
+</code></pre>
+
+<p>```</p>
+
+<p>我们要做的仅仅是将<code>?age</code>添加到向量中去。</p>
+
+<p>让我们执行另一条查询，找出艾米丽关注的所有男性：</p>
+
+<p>```clojure
+user=> (?&lt;&ndash; (stdout) [?person] (follows &ldquo;emily&rdquo; ?person)</p>
+
+<pre><code>        (gender ?person "m"))
+</code></pre>
+
+<p>```</p>
+
+<p>可能你没有注意到，这条语句使用了联合查询。各个数据集中的<code>?person</code>值都必须对应，而<code>follows</code>和<code>gender</code>分属于不同的数据集，Cascalog便会使用联合查询。</p>
+
+<h2>查询语句的结构</h2>
+
+<p>让我们分析一下查询语句的结构，以下面这条语句为例：</p>
+
+<p>```clojure
+user=> (?&lt;&ndash; [stdout] [?person ?a2] (age ?person ?age)</p>
+
+<pre><code>        (&lt; ?age 30) (* 2 ?age :&gt; ?a2))
+</code></pre>
+
+<p>```</p>
+
+<p><code>?&lt;-</code>操作符出现的频率很高，它能同时定义并执行一条查询。<code>?&lt;-</code>实际上是对<code>&lt;-</code>和<code>?-</code>的包装。我们之后会看到如何使用这些操作符编写更为复杂的查询语句。</p>
+
+<p>首先，我们指定了查询结果的输出目的地，就是这里的<code>(stdout)</code>。<code>(stdout)</code>会创建一个Cascading的<code>tap</code>组件，它会在查询结束后将结果打印到标准输出中。我们可以使用任意一种Cascading的<code>tap</code>组件，也就是说输出结果的格式可以是序列文件（Sequence file）、文本文件等等；也可以输出到任何地方，如本地磁盘、HDFS、数据库等。</p>
+
+<p>在定义了输出目的地后，我们使用Clojure的向量结构来定义输出结果所包含的内容。本例中，我们定义的是<code>?person</code>和<code>?a2</code>。</p>
+
+<p>接下来，我们定义了一系列的约束条件。Cascalog有三种约束条件：</p>
+
+<ol>
+<li>生成器（Generator）：表示一个数据源，可以是以下两种类型：
+
+<ul>
+<li>Cascading Tap：如HDFS上某个路径中的文件；</li>
+<li>一个已经使用<code>&lt;-</code>定义的查询。</li>
+</ul>
+</li>
+<li>操作器（Operation）：引入预定义的变量，将其绑定至新的变量，或是设定一个过滤条件。</li>
+<li>集合器（Aggregator）：计数、求和、最小值、最大值等等。</li>
+</ol>
+
+
+<p>约束条件由名称、一组输入变量、以及一组输出变量构成。上述查询中的约束条件有：</p>
+
+<ul>
+<li>(age ?person ?age)</li>
+<li>(&lt; ?age 30)</li>
+<li>(* 2 ?age :> ?a2)</li>
+</ul>
+
+
+<p>其中，<code>:&gt;</code>关键字用于将输入变量和输出变量隔开。如果没有这个关键字，那么该变量在操作器中就会被识别为输入变量，在生成器和集合器中会被认为是输出变量。</p>
+
+<p><code>age</code>约束指向<code>playground.clj</code>中定义的一个<code>tap</code>，所以它是一个生成器，会输出<code>?person</code>和<code>?age</code>这两个数据。</p>
+
+<p><code>&lt;</code>约束是一个Clojure函数，因为没有指定输出变量，所以这条约束会构成一个过滤器，将<code>?age</code>小于30的记录筛选出来。如果我们这样写：</p>
+
+<p><code>clojure
+(&lt; ?age 30 :&gt; ?young)
+</code></p>
+
+<p>那么<code>&lt;</code>约束会将“年龄是否小于30”作为一个布尔值传递给<code>?young</code>变量。</p>
+
+<p>约束之间的顺序不重要，因为Cascalog是声明式语言。</p>
+
+<h2>变量替换为常量</h2>
+
+<p>变量是以<code>?</code>或<code>!</code>起始的标识。有时你不在意变量的值，可以直接用<code>_</code>代替。其他的变量则会在解析时替换成常量。我们已经在很多示例中用到这一特性了。下面这个示例中，我们将输出变量作为一种过滤条件：</p>
+
+<p><code>clojure
+(* 4 ?v2 :&gt; 100)
+</code></p>
+
+<p>这里使用了两个常量：4和100。4是一个输入变量，100则是作为一个过滤条件，只有满足<code>?v2</code>乘以4等于100的记录才会被筛选出来。字符串、数字、以及其他基本类型和对象类型，只要在Hadoop有对应的序列化操作，都可以被作为常量使用。</p>
+
+<p>让我们回到示例中。找出所有关注了比自己年龄小的用户的列表：</p>
+
+<p>```clojure
+user=> (?&lt;&ndash; (stdout) [?person1 ?person2]</p>
+
+<pre><code>        (age ?person1 ?age1) (follows ?person1 ?person2)
+        (age ?person2 ?age2) (&lt; ?age2 ?age1))
+</code></pre>
+
+<p>```</p>
+
+<p>同时，我们将年龄差异也输出出来：</p>
+
+<p>```clojure
+user=> (?&lt;&ndash; (stdout) [?person1 ?person2 ?delta]</p>
+
+<pre><code>        (age ?person1 ?age1) (follows ?person1 ?person2)
+        (age ?person2 ?age2) (- ?age2 ?age1 :&gt; ?delta)
+        (&lt; ?delta 0))
+</code></pre>
+
+<p>```</p>
+
+<h2>聚合</h2>
+
+<p>下面让我们看看聚合查询的使用方法。统计所有年龄小于30的用户人数：</p>
+
+<p>```clojure
+user=> (?&lt;&ndash; (stdout) [?count] (age _ ?a) (&lt; ?a 30)</p>
+
+<pre><code>        (c/count ?count))
+</code></pre>
+
+<p>```</p>
+
+<p>这条查询会统计所有的记录。我们也可以只聚合部分记录。比如，让我们找出每个人所关注的用户的数量：</p>
+
+<p>```clojure
+user=> (?&lt;&ndash; (stdout) [?person ?count] (follows ?person _)</p>
+
+<pre><code>        (c/count ?count))
+</code></pre>
+
+<p>```</p>
+
+<p>因为我们在输出结果中指定了<code>?person</code>这个变量，所以Cascalog会将数据记录按照用户来分组，然后使用<code>c/count</code>进行聚合运算。</p>
+
+<p>你可以在单个查询中使用多个聚合条件，它们的分组方式是一致的。例如，我们可以计算每个国家的用户的平均年龄，使用计数和求和这两种聚合方式：</p>
+
+<p>```clojure
+user=> (?&lt;&ndash; (stdout) [?country ?avg]</p>
+
+<pre><code>        (location ?person ?country _ _) (age ?person ?age)
+        (c/count ?count) (c/sum ?age :&gt; ?sum)
+        (div ?sum ?count :&gt; ?avg))
+</code></pre>
+
+<p>```</p>
+
+<p>可以看到，我们对<code>?sum</code>和<code>?count</code>这两个聚合结果执行了<code>div</code>操作，该操作会在聚合过程结束后进行。</p>
+
+<h2>自定义操作</h2>
+
+<p>下面我们来编写一个查询，统计几句话中每个单词的出现次数。首先，我们编写一个自定义操作：</p>
+
+<p>```clojure
+user=> (defmapcatop split [sentence]</p>
+
+<pre><code>     (seq (.split sentence "\\s+")))
+</code></pre>
+
+<p>user=> (?&lt;&ndash; (stdout) [?word ?count] (sentence ?s)</p>
+
+<pre><code>        (split ?s :&gt; ?word) (c/count ?count))
+</code></pre>
+
+<p>```</p>
+
+<p><code>defmapcatop split</code>定义了一个方法，这个方法接收一个参数<code>sentence</code>，并会输出0个或多个元组（tuple）。<code>deffilterop</code>可以用来定义一个返回布尔型的方法，用来筛选记录；<code>defmapop</code>定义的函数会返回一个元组；<code>defaggregateop</code>定义一个聚合函数。这些函数都能在Cascalog工作流API中使用，我会在另一篇博客中叙述。</p>
+
+<p>在上述查询中，如果单词字母大小写不一致，会被分别统计。我们用以下方法来修复这个问题：</p>
+
+<p>```clojure
+user=> (defn lowercase [w] (.toLowerCase w))
+user=> (?&lt;&ndash; (stdout) [?word ?count]</p>
+
+<pre><code>        (sentence ?s) (split ?s :&gt; ?word1)
+        (lowercase ?word1 :&gt; ?word) (c/count ?count))
+</code></pre>
+
+<p>```</p>
+
+<p>可以看到，这里直接使用了纯Clojure编写的函数。当这个函数不包含输出变量时，会被作为过滤条件来执行；当包含一个返回值时，则会作为<code>defmapop</code>来解析。而对于返回0个或多个元组的函数，则必须使用<code>defmapcatop</code>来定义。</p>
+
+<p>下面这个查询会按照性别和年龄范围来统计用户数量：</p>
+
+<p>```clojure
+user=> (defn agebucket [age]</p>
+
+<pre><code>     (find-first (partial &lt;= age) [17 25 35 45 55 65 100 200]))
+</code></pre>
+
+<p>user=> (?&lt;&ndash; (stdout) [?bucket ?gender ?count]</p>
+
+<pre><code>        (age ?person ?age) (gender ?person ?gender)
+        (agebucket ?age :&gt; ?bucket) (c/count ?count))
+</code></pre>
+
+<p>```</p>
+
+<h2>非空变量</h2>
+
+<p>Cascalog提供了“非空变量”这样的机制来帮助用户处理空值的情况。其实我们每个示例中都在使用这一特性。以<code>?</code>开头的变量都是非空变量，而以<code>!</code>开头的则是可空变量。Cascalog会在执行过程中将空值排除在外。</p>
+
+<p>为了体验非空变量的效果，让我们对比下面这两条查询语句：</p>
+
+<p><code>clojure
+user=&gt; (?&lt;- (stdout) [?person ?city] (location ?person _ _ ?city)
+user=&gt; (?&lt;- (stdout) [?person !city] (location ?person _ _ !city)
+</code></p>
+
+<p>第二组查询结果中会包含空值。</p>
+
+<h2>子查询</h2>
+
+<p>最后，我们来看看更为复杂的查询，我们会用到子查询这一特性。让我们找出关注了两人以上的用户列表，并找出这些用户之间的关注关系：</p>
+
+<p>```clojure
+user=> (let [many-follows (&lt;&ndash; [?person] (follows ?person _)</p>
+
+<pre><code>                          (c/count ?c) (&gt; ?c 2))]
+        (?&lt;- (stdout) [?person1 ?person2] (many-follows ?person1)
+             (many-follows ?person2) (follows ?person1 ?person2)))
+</code></pre>
+
+<p>```</p>
+
+<p>这里，我们使用<code>let</code>来定义了一个子查询<code>many-follows</code>。这个子查询是用<code>&lt;-</code>定义的。之后，我们便可以在后续查询中使用这个子查询了。</p>
+
+<p>我们还可以在一个查询中指定多个输出目的地。比如我们想要同时得到<code>many-follows</code>的查询结果：</p>
+
+<p>```clojure
+user=> (let [many-follows (&lt;&ndash; [?person] (follows ?person _)</p>
+
+<pre><code>                          (c/count ?c) (&gt; ?c 2))
+         active-follows (&lt;- [?p1 ?p2] (many-follows ?p1)
+                            (many-follows ?p2) (follows ?p1 ?p2))]
+        (?- (stdout) many-follows (stdout) active-follows))
+</code></pre>
+
+<p>```</p>
+
+<p>这里我们分别定义了两个查询，没有立刻执行它们，而是在后续的<code>?-</code>中将两个查询分别绑定到了两个<code>tap</code>上，并同时执行。</p>
+
+<h2>小结</h2>
+
+<p>Cascalog目前在还不断的改进中，未来会增加更多查询特性，以及对查询过程的优化。</p>
+
+<p>我非常希望能够得到你对Cascalog的反馈，如果你有任何评论、问题、或是顾虑，请留言，或者在<a href="http://twitter.com/nathanmarz">Twitter</a>上联系我，给我发送邮件<a href="nathan.marz@gmail.com">nathan.marz@gmail.com</a>，或是在freenode的#cascading频道和我聊天。</p>
+
+<p><a href="http://nathanmarz.com/blog/new-cascalog-features">下一篇博客</a>会介绍Cascalog的外联合、排序、组合等特性。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Clojure实战(5)：Storm实时计算框架]]></title>
+    <link href="http://shzhangji.com/blog/2013/04/22/cia-storm/"/>
+    <updated>2013-04-22T12:11:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2013/04/22/cia-storm</id>
+    <content type="html"><![CDATA[<h2>Storm简介</h2>
+
+<p>上一章介绍的Hadoop工具能够对海量数据进行批量处理，采用分布式的并行计算架构，只需使用其提供的MapReduce API编写脚本即可。但随着人们对数据实时性的要求越来越高，如实时日志分析、实时推荐系统等，Hadoop就无能为力了。</p>
+
+<p>这时，Storm诞生了。它的设计初衷就是提供一套分布式的实时计算框架，实现低延迟、高并发的海量数据处理，被誉为“Realtime Hadoop”。它提供了简单易用的API接口用于编写实时处理脚本；能够和现有各类消息系统整合；提供了HA、容错、事务、RPC等高级特性。</p>
+
+<p>Storm的官网是：<a href="http://storm-project.net/">storm-project.net</a>，它的<a href="https://github.com/nathanmarz/storm/wiki">Wiki</a>上有非常详尽的说明文档。</p>
+
+<h3>Storm与Clojure</h3>
+
+<p>Storm的主要贡献者<a href="https://github.com/nathanmarz">Nathan Marz</a>和<a href="https://github.com/xumingming">徐明明</a>都是活跃的Clojure开发者，因此在Storm框架中也提供了原生的<a href="https://github.com/nathanmarz/storm/wiki/Clojure-DSL">Clojure DSL</a>。本文就将介绍如何使用这套DSL来编写Storm处理脚本。</p>
+
+<p>Storm集群的安装配置这里不会讲述，具体请参考<a href="https://github.com/nathanmarz/storm/wiki/Setting-up-a-Storm-cluster">这篇文档</a>。下文的脚本都运行在“本地模式”之下，因此即使不搭建集群也可以运行和调试。</p>
+
+<!-- more -->
+
+
+<h2>Storm脚本的组件</h2>
+
+<p><img src="http://storm-project.net/images/topology.png" height="200"></p>
+
+<p>Storm脚本的英文名称叫做“Storm Topology”，直译过来是“拓扑结构”。这个脚本由两大类组建构成，<code>Spout</code>和<code>Bolt</code>，分别可以有任意多个。他们之间以“数据流”的方式连接起来，因此整体看来就像一张拓扑网络，因此得名<code>Topology</code>。</p>
+
+<h3>Spout</h3>
+
+<p>数据源节点，是整个脚本的入口。Storm会不断调用该节点的<code>nextTuple()</code>方法来获取数据，分发给下游<code>Bolt</code>节点。<code>nextTuple()</code>方法中可以用各种方式从外部获取数据，如逐行读取一个文件、从消息队列（ZeroMQ、Kafka）中获取消息等。一个Storm脚本可以包含多个<code>Spout</code>节点，从而将多个数据流汇聚到一起进行处理。</p>
+
+<h3>Bolt</h3>
+
+<p>数据处理节点，它是脚本的核心逻辑。它含有一个<code>execute()</code>方法，当接收到消息时，Storm会调用这个函数，并将消息传递给它。我们可以在<code>execute()</code>中对消息进行过滤（只接收符合条件的数据），或者进行聚合（统计某个条件的数据出现的次数）等。处理完毕后，这个节点可以选择将处理后的消息继续传递下去，或是持久化到数据库中。</p>
+
+<p><code>Bolt</code>同样是可以有多个的，且能够前后组合。<code>Bolt C</code>可以同时收取<code>Bolt A</code>和<code>Bolt B</code>的数据，并将处理结果继续传递给<code>Bolt D</code>。</p>
+
+<p>此外， <em>一个Bolt可以产生多个实例</em> ，如某个<code>Bolt</code>包含复杂耗时的计算，那在运行时可以调高其并发数量（实例的个数），从而达到并行处理的目的。</p>
+
+<h3>Tuple</h3>
+
+<p><code>Tuple</code>是消息传输的基本单元，一条消息即一个<code>Tuple</code>。可以将其看做是一个<code>HashMap</code>对象，它能够包含任何可序列化的数据内容。对于简单的数据类型，如整型、字符串、Map等，Storm提供了内置的序列化支持。而用户自定义的数据类型，可以通过指定序列化/反序列化函数来处理。</p>
+
+<h3>Stream Grouping</h3>
+
+<p>想象一个<code>Spout</code>连接了两个<code>Bolt</code>（或一个<code>Bolt</code>的两个实例），那数据应该如何分发呢？你可以选择轮询（<code>ShuffleGrouping</code>），或是广播（<code>GlobalGrouping</code>）、亦或是按照某一个字段进行哈希分组（<code>FieldGrouping</code>），这些都称作为<a href="https://github.com/nathanmarz/storm/wiki/Concepts#stream-groupings"><code>Stream Grouping</code></a>。</p>
+
+<h2>示例：WordCount</h2>
+
+<p>下面我们就来实现一个实时版的WordCount脚本，它由以下几个组件构成：</p>
+
+<ul>
+<li>sentence-spout：从已知的一段文字中随机选取一句话发送出来；</li>
+<li>split-bolt：将这句话按空格分割成单词；</li>
+<li>count-bolt：统计每个单词出现的次数，每五秒钟打印一次，并清零。</li>
+</ul>
+
+
+<h3>依赖项和配置文件</h3>
+
+<p>首先使用<code>lein new</code>新建一个项目，并修改<code>project.clj</code>文件：</p>
+
+<p>```clojure
+(defproject cia-storm &ldquo;0.1.0-SNAPSHOT&rdquo;
+  &hellip;
+  :dependencies [[org.clojure/clojure &ldquo;1.4.0&rdquo;]</p>
+
+<pre><code>             [org.clojure/tools.logging "0.2.6"]]
+</code></pre>
+
+<p>  :profiles {:dev {:dependencies [[storm &ldquo;0.8.2&rdquo;]]}}
+  :plugins [[lein2-eclipse &ldquo;2.0.0&rdquo;]]
+  :aot [cia-storm.wordcount])
+```</p>
+
+<p>其中<code>:profiles</code>表示定义不同的用户配置文件。Leiningen有类似于Maven的配置文件体系（profile），每个配置文件中可以定义<code>project.clj</code>所支持的各种属性，执行时会进行合并。<code>lein</code>命令默认调用<code>:dev</code>、<code>:user</code>等配置文件，可以使用<code>lein with-profiles prod run</code>来指定配置文件。具体可以参考<a href="https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md">这份文档</a>。</p>
+
+<p>这里将<code>[storm "0.8.2"]</code>依赖项定义在了<code>:dev</code>配置下，如果直接定义在外层的<code>:dependencies</code>下，那在使用<code>lein uberjar</code>进行打包时，会将<code>storm.jar</code>包含在最终的Jar包中，提交到Storm集群运行时就会报冲突。而<code>lein uberjar</code>默认会跳过<code>:dev</code>配置，所以才这样定义。</p>
+
+<p><code>:aot</code>表示<code>Ahead Of Time</code>，即预编译。我们在<a href="http://shzhangji.com/blog/2012/12/16/cia-noir-3/">Clojure实战（3）</a>中提过<code>:gen-class</code>这个标识表示为当前<code>.clj</code>文件生成一个<code>.class</code>文件，从而能够作为<code>main</code>函数使用，因此也需要在<code>project.clj</code>中添加<code>:main</code>标识，指向这个<code>.clj</code>文件的命名空间。如果想为其它的命名空间也生成对应的<code>.class</code>文件，就需要用到<code>:aot</code>了。它的另一个用处是加速Clojure程序的启动速度。</p>
+
+<h3>sentence-spout</h3>
+
+<p>```clojure
+(ns cia-storm.wordcount
+  &hellip;
+  (:use [backtype.storm clojure config]))</p>
+
+<p>(defspout sentence-spout [&ldquo;sentence&rdquo;]
+  [conf context collector]
+  (let [sentences [&ldquo;a little brown dog&rdquo;</p>
+
+<pre><code>               "the man petted the dog"
+               "four score and seven years ago"
+               "an apple a day keeps the doctor away"]]
+(spout
+  (nextTuple []
+    (Thread/sleep 1000)
+    (emit-spout! collector [(rand-nth sentences)])))))
+</code></pre>
+
+<p>```</p>
+
+<p><code>defspout</code>是定义在<code>backtype.storm.clojure</code>命名空间下的宏，可以<a href="https://github.com/nathanmarz/storm/blob/master/storm-core/src/clj/backtype/storm/clojure.clj#L93">点此</a>查看源码。以下是各个部分的说明：</p>
+
+<ul>
+<li><code>sentence-spout</code>是该组件的名称。</li>
+<li><code>["sentence"]</code>表示该组件输出一个字段，名称为“sentence”。</li>
+<li><code>[conf context collector]</code>用于接收Storm框架传入的参数，如配置对象、上下文对象、下游消息收集器等。</li>
+<li><code>spout</code>表示开始定义数据源组件需要用到的各类方法。它实质上是生成一个实现了ISpout接口的对象，从而能够被Storm框架调用。</li>
+<li><code>nextTuple</code>是ISpout接口必须实现的方法之一，Storm会不断调用这个方法，获取数据。这里使用<code>Thread#sleep</code>函数来控制调用的频率。</li>
+<li><code>emit-spout!</code>是一个函数，用于向下游发送消息。</li>
+</ul>
+
+
+<p>ISpout还有open、ack、fail等函数，分别表示初始化、消息处理成功的回调、消息处理失败的回调。这里我们暂不深入讨论。</p>
+
+<h3>split-bolt</h3>
+
+<p>```clojure
+(defbolt split-bolt [&ldquo;word&rdquo;] {:prepare true}
+  [conf context collector]
+  (bolt</p>
+
+<pre><code>(execute [tuple]
+  (let [words (.split (.getString tuple 0) " ")]
+    (doseq [w words]
+      (emit-bolt! collector [w])))
+  (ack! collector tuple))))
+</code></pre>
+
+<p>```</p>
+
+<p><code>defbolt</code>用于定义一个Bolt组件。整段代码的结构和<code>defspout</code>是比较相似的。<code>bolt</code>宏会实现为一个IBolt对象，<code>execute</code>是该接口的方法之一，其它还有<code>prepare</code>和<code>cleanup</code>。<code>execute</code>方法接收一个参数<code>tuple</code>，用于接收上游消息。</p>
+
+<p><code>ack!</code>是<code>execute</code>中必须调用的一个方法。Storm会对每一个组件发送出来的消息进行追踪，上游组件发出的消息需要得到下游组件的“确认”（ACKnowlege），否则会一直堆积在内存中。对于Spout而言，如果消息得到确认，会触发<code>ISpout#ack</code>函数，否则会触发<code>ISpout#fail</code>函数，这时Spout可以选择重发或报错。</p>
+
+<p>代码中比较怪异的是<code>{:prepare true}</code>。<code>defspout</code>和<code>defbolt</code>有两种定义方式，即prepare和非prepare。两者的区别在于：</p>
+
+<ul>
+<li>参数不同，prepare方式下接收的参数是<code>[conf context collector]</code>，非prepare方式下，<code>defspout</code>接收的是<code>[collector]</code>，<code>defbolt</code>是[tuple collector]`。</li>
+<li>prepare方式下需要调用<code>spout</code>和<code>bolt</code>宏来编写组件代码，而非prepare方式则不需要——<code>defspout</code>会默认生成<code>nextTuple()</code>函数，<code>defbolt</code>默认生成<code>execute(tuple)</code>。</li>
+<li>只有prepare方式下才能指定<code>ISpout#open</code>、<code>IBolt#prepare</code>等函数，非prepare不能。</li>
+<li><code>defspout</code>默认使用prepare方式，<code>defbolt</code>默认使用非prepare方式。</li>
+</ul>
+
+
+<p>因此，<code>split-bolt</code>可以按如下方式重写：</p>
+
+<p>```clojure
+(defbolt split-bolt [&ldquo;word&rdquo;]
+  [tuple collector]
+  (let [words (.split (.getString tuple 0) &ldquo; &rdquo;)]</p>
+
+<pre><code>(doseq [w words]
+  (emit-bolt! collector [w]))
+(ack! collector tuple)))
+</code></pre>
+
+<p>```</p>
+
+<p>prepare方式可以用于在组件中保存状态，具体请看下面的计数Bolt。</p>
+
+<h3>count-bolt</h3>
+
+<p>```clojure
+(defbolt count-bolt [] {:prepare true}
+  [conf context collector]
+  (let [counts (atom {})]</p>
+
+<pre><code>(bolt
+  (execute [tuple]
+    (let [word (.getString tuple 0)]
+      (swap! counts (partial merge-with +) {word 1}))
+    (ack! collector tuple)))))
+</code></pre>
+
+<p>```</p>
+
+<h4>原子（Atom）</h4>
+
+<p><code>atom</code>是我们遇到的第一个可变量（Mutable Variable），其它的有Ref、Agent等。Atom是“原子”的意思，我们很容易想到原子性操作，即同一时刻只有一个线程能够修改Atom的值，因此它是处理并发的一种方式。这里我们使用Atom来保存每个单词出现的数量。以下是Atom的常用操作：</p>
+
+<p><code>clojure
+user=&gt; (def cnt (atom 0))
+user=&gt; (println @cnt) ; 使用@符号获取Atom中的值。
+0
+user=&gt; (swap! cnt inc) ; 将cnt中的值置换为(inc @cnt)，并返回该新的值
+1
+user=&gt; (println @cnt)
+1
+user=&gt; (swap! cnt + 10) ; 新值为(+ @cnt 10)
+11
+user=&gt; (reset! cnt 0) ; 归零
+0
+</code></p>
+
+<p>需要注意的是，<code>(swap! atom f arg ...)</code>中的<code>f</code>函数可能会被执行多次，因此要确保它没有副作用（side-effect，即不会产生其它状态的变化）。</p>
+
+<p>再来解释一下<code>(partial merge-with +)</code>。<code>merge-with</code>函数是对map类型的一种操作，表示将一个或多个map合并起来。和<code>merge</code>不同的是，<code>merge-with</code>多接收一个<code>f</code>函数（<code>merge-with [f &amp; maps]</code>），当键名重复时，会用<code>f</code>函数去合并它们的值，而不是直接替代。</p>
+
+<p><code>partial</code>可以简单理解为给函数设定默认值，如：</p>
+
+<p><code>clojure
+user=&gt; (defn add [a b] (+ a b))
+user=&gt; (add 5 10)
+15
+user=&gt; (def add-5 (partial add 5))
+user=&gt; (add-5 10)
+15
+</code></p>
+
+<p>这样一来，<code>(swap! counts (partial merge-with +) {word 1})</code>就可理解为：将<code>counts</code>这个Atom中的值（一个map类型）和<code>{word 1}</code>这个map进行合并，如果单词已存在，则递增1。</p>
+
+<h4>线程（Thread）</h4>
+
+<p>为了输出统计值，我们为count-bolt增加prepare方法：</p>
+
+<p>```clojure
+&hellip;</p>
+
+<pre><code>(bolt
+  (prepare [conf context collector]
+    (.start (Thread. (fn []
+                       (while (not (Thread/interrupted))
+                         (logging/info
+                           (clojure.string/join ", "
+                             (for [[word count] @counts]
+                               (str word ": " count))))
+                         (reset! counts {})
+                         (Thread/sleep 5000)))))))
+</code></pre>
+
+<p>&hellip;
+```</p>
+
+<p>这段代码的功能是：在Bolt开始处理消息之前启动一个线程，每隔5秒钟将<code>(atom counts)</code>中的单词出现次数打印出来，并对其进行清零操作。</p>
+
+<p>这里我们直接使用了Java的Thread类型。读者可能会觉得好奇，Thread类型的构造函数只接收实现Runnable接口的对象，Clojure的匿名函数直接支持吗？我们做一个简单测试：</p>
+
+<p><code>clojure
+user=&gt; (defn greet [name] (println "Hi" name))
+user=&gt; (instance? Runnable greet)
+true
+user=&gt; (instance? Runnable #(+ 1 %))
+true
+</code></p>
+
+<p><code>logging</code>命名空间对应的依赖是<code>[org.clojure/tools.logging "0.2.6"]</code>，需要将其添加到<code>project.clj</code>中，它是对log4j组件的包装。这里之所以没有使用<code>println</code>输出到标准输出，是为了将该脚本上传到Storm集群中运行时也能查看到日志输出。</p>
+
+<h3>定义和执行Topology</h3>
+
+<p>各个组件已经定义完毕，下面让我们用它们组成一个Topology：</p>
+
+<p>```clojure
+(defn mk-topology []
+  (topology</p>
+
+<pre><code>{"sentence" (spout-spec sentence-spout)}
+{"split" (bolt-spec {"sentence" :shuffle}
+                    split-bolt
+                    :p 3)
+ "count" (bolt-spec {"split" ["word"]}
+                     count-bolt
+                     :p 2)}))
+</code></pre>
+
+<p>```</p>
+
+<p><code>topology</code>同样是Clojure DSL定义的宏，它接收两个map作为参数，一个用于定义使用到的Spout，一个则是Bolt。该map的键是组件的名称，该名称用于确定各组件之间的关系。</p>
+
+<p><code>spout-spec</code>和<code>bolt-spec</code>则定义了组件在Topology中更具体的参数。如"split"使用的是<code>split-bolt</code>这个组件，它的上游是"sentence"，使用shuffleGrouping来对消息进行分配，<code>:p 3</code>表示会启动3个<code>split-bolt</code>实例。</p>
+
+<p>&ldquo;count"使用<code>count-bolt</code>组件，上游是"split"，但聚合方式采用了fieldGrouping，因此列出了执行哈希运算时使用的消息字段（word）。为何要使用fieldGrouping？因为我们会开启两个<code>count-bolt</code>，如果采用shuffleGrouping，那单词“a”第一次出现的消息会发送给一个<code>count-bolt</code>，第二次出现会发送给另一个<code>count-bolt</code>，这样统计结果就会错乱。如果指定了<code>:p 1</code>，即只开启一个<code>count-bolt</code>实例，就不会有这样的问题。</p>
+
+<h4>本地模式和Cluster模式</h4>
+
+<p>```clojure
+(ns cia-storm.wordcount
+  (:import [backtype.storm StormSubmitter LocalCluster])
+  &hellip;
+  (:gen-class))</p>
+
+<p>(defn run-local! []
+  (let [cluster (LocalCluster.)]</p>
+
+<pre><code>(.submitTopology cluster
+  "wordcount" {} (mk-topology))
+(Thread/sleep 30000)
+(.shutdown cluster)))
+</code></pre>
+
+<p>(defn submit-topology! [name]
+  (StormSubmitter/submitTopology</p>
+
+<pre><code>name {TOPOLOGY-WORKERS 3} (mk-topology)))
+</code></pre>
+
+<p>(defn -main
+  ([]</p>
+
+<pre><code>(run-local!))
+</code></pre>
+
+<p>  ([name]</p>
+
+<pre><code>(submit-topology! name)))
+</code></pre>
+
+<p>```</p>
+
+<p>我们为WordCount生成一个类，它的<code>main</code>函数在没有命令行参数时会以本地模式执行Topology，若传递了参数（即指定了脚本在Cluster运行时的名称），则提交至Cluster。</p>
+
+<p>这里直接使用了Storm的Java类，对参数有疑惑的可以参考<a href="http://nathanmarz.github.io/storm/doc-0.8.1/">Javadoc</a>。<code>TOPOLOGY-WORKERS</code>是在<code>backtype.storm.config</code>命名空间中定义的，我们在前面的代码中<code>:use</code>过了。Storm这个项目是用Java和Clojure混写的，所以查阅代码时还需仔细一些。</p>
+
+<h4>运行结果</h4>
+
+<p>首先我们直接用<code>lein</code>以本地模式运行该Topology：</p>
+
+<p><code>bash
+$ lein run -m cia-storm.wordcount
+6996 [Thread-18] INFO  cia-storm.wordcount  - doctor: 17, the: 31, a: 29, an: 17, ago: 13, seven: 13, and: 13
+6998 [Thread-21] INFO  cia-storm.wordcount  - four: 13, keeps: 17, away: 17, score: 13, petted: 7, brown: 12, little: 12, years: 13, man: 7, apple: 17, dog: 19, day: 17
+11997 [Thread-18] INFO  cia-storm.wordcount  - ago: 6, seven: 6, and: 6, doctor: 7, an: 7, the: 39, a: 28
+11998 [Thread-21] INFO  cia-storm.wordcount  - four: 6, keeps: 7, away: 7, score: 6, petted: 16, brown: 21, little: 21, years: 6, man: 16, apple: 7, dog: 37, day: 7
+</code></p>
+
+<p>Cluster模式需要搭建本地集群，可以参考<a href="https://github.com/nathanmarz/storm/wiki/Setting-up-a-Storm-cluster">这篇文档</a>。下文使用的<code>storm</code>命令则需要配置<code>~/.storm/storm.yaml</code>文件，具体请参考<a href="https://github.com/nathanmarz/storm/wiki/Setting-up-development-environment#starting-and-stopping-topologies-on-a-remote-cluster">这篇文章</a>。</p>
+
+<p><code>bash
+$ lein do clean, compile, uberjar
+$ storm jar target/cia-storm-0.1.0-SNAPSHOT-standalone.jar cia_storm.wordcount wordcount
+$ cd /path/to/storm/logs
+$ tail worker-6700.log
+2013-05-11 21:26:15 wordcount [INFO] four: 9, keeps: 15, away: 15, score: 9, petted: 16, brown: 9, little: 9, years: 9, man: 16, apple: 15, dog: 25, day: 15
+2013-05-11 21:26:20 wordcount [INFO] four: 10, keeps: 9, away: 9, score: 10, petted: 18, brown: 13, little: 13, years: 10, man: 18, apple: 9, dog: 31, day: 9
+$ tail worker-6701.log
+2013-05-11 21:27:10 wordcount [INFO] ago: 12, seven: 12, and: 12, doctor: 11, a: 31, an: 11, the: 25
+2013-05-11 21:27:15 wordcount [INFO] ago: 14, seven: 14, and: 14, doctor: 11, the: 43, a: 19, an: 11
+</code></p>
+
+<h2>小结</h2>
+
+<p>这一章我们简单介绍了Storm的设计初衷，它是如何通过分布式并行运算解决实时数据分析问题的。Storm目前已经十分稳定，且仍处于活跃的开发状态。它的一些高级特性如DRPC、Trident等，还请感兴趣的读者自行研究。</p>
+
+<p>本文使用的WordCount示例代码：<a href="https://github.com/jizhang/cia-storm">https://github.com/jizhang/cia-storm</a>。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Clojure实战(4)：编写Hadoop MapReduce脚本]]></title>
+    <link href="http://shzhangji.com/blog/2013/02/09/cia-hadoop/"/>
+    <updated>2013-02-09T16:43:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2013/02/09/cia-hadoop</id>
+    <content type="html"><![CDATA[<h2>Hadoop简介</h2>
+
+<p>众所周知，我们已经进入了大数据时代，每天都有PB级的数据需要处理、分析，从中提取出有用的信息。Hadoop就是这一时代背景下的产物。它是Apache基金会下的开源项目，受<a href="http://en.wikipedia.org/wiki/Apache_Hadoop#Papers">Google两篇论文</a>的启发，采用分布式的文件系统HDFS，以及通用的MapReduce解决方案，能够在数千台物理节点上进行分布式并行计算。</p>
+
+<p>对于Hadoop的介绍这里不再赘述，读者可以<a href="http://hadoop.apache.org/">访问其官网</a>，或阅读<a href="http://product.dangdang.com/main/product.aspx?product_id=21127813">Hadoop权威指南</a>。</p>
+
+<p>Hadoop项目是由Java语言编写的，运行在JVM之上，因此我们可以直接使用Clojure来编写MapReduce脚本，这也是本文的主题。Hadoop集群的搭建不在本文讨论范围内，而且运行MapReduce脚本也无需搭建测试环境。</p>
+
+<!-- more -->
+
+
+<h2>clojure-hadoop类库</h2>
+
+<p>Hadoop提供的API是面向Java语言的，如果不想在Clojure中过多地操作Java对象，那就需要对API进行包装（wrapper），好在已经有人为我们写好了，它就是<a href="https://github.com/alexott/clojure-hadoop">clojure-hadoop</a>。</p>
+
+<p>从clojure-hadoop的项目介绍中可以看到，它提供了不同级别的包装，你可以选择完全规避对Hadoop类型和对象的操作，使用纯Clojure语言来编写脚本；也可以部分使用Hadoop对象，以提升性能（因为省去了类型转换过程）。这里我们选择前一种，即完全使用Clojure语言。</p>
+
+<h2>示例1：Wordcount</h2>
+
+<p>Wordcount，统计文本文件中每个单词出现的数量，可以说是数据处理领域的“Hello, world!”。这一节我们就通过它来学习如何编写MapReduce脚本。</p>
+
+<h3>Leiningen 2</h3>
+
+<p>前几章我们使用的项目管理工具<code>lein</code>是1.7版的，而前不久Leiningen 2已经正式发布了，因此从本章开始我们的示例都会基于新版本。新版<code>lein</code>的安装过程也很简单：</p>
+
+<p><code>bash
+$ cd ~/bin
+$ wget https://raw.github.com/technomancy/leiningen/stable/bin/lein
+$ chmod 755 lein
+$ lein repl
+user=&gt;
+</code></p>
+
+<p>其中，<code>lein repl</code>这一步会下载<code>lein</code>运行时需要的文件，包括Clojure 1.4。</p>
+
+<h3>新建项目</h3>
+
+<p><code>bash
+$ lein new cia-hadoop
+</code></p>
+
+<p>编辑<code>project.clj</code>文件，添加依赖项<code>clojure-hadoop "1.4.1"</code>，尔后执行<code>lein deps</code>。</p>
+
+<h3>Map和Reduce</h3>
+
+<p>MapReduce，简称mapred，是Hadoop的核心概念之一。可以将其理解为处理问题的一种方式，即将大问题拆分成多个小问题来分析和解决，最终合并成一个结果。其中拆分的过程就是Map，合并的过程就是Reduce。</p>
+
+<p>以Wordcount为例，将一段文字划分成一个个单词的过程就是Map。这个过程是可以并行执行的，即将文章拆分成多个段落，每个段落分别在不同的节点上执行划分单词的操作。这个过程结束后，我们便可以统计各个单词出现的次数，这也就是Reduce的过程。同样，Reduce也是可以并发执行的。整个过程如下图所示：</p>
+
+<p><img src="/images/cia-hadoop/wordcount.png" alt="Wordcount" /></p>
+
+<p>中间Shuffle部分的功能是将Map输出的数据按键排序，交由Reduce处理。整个过程全部由Hadoop把控，开发者只需编写<code>Map</code>和<code>Reduce</code>函数，这也是Hadoop强大之处。</p>
+
+<h4>编写Map函数</h4>
+
+<p>在本示例中，我们处理的原始数据是文本文件，Hadoop会逐行读取并调用Map函数。Map函数会接收到两个参数：<code>key</code>是一个长整型，表示该行在整个文件中的偏移量，很少使用；<code>value</code>则是该行的内容。以下是将一行文字拆分成单词的Map函数：</p>
+
+<p>```clojure
+;; src/cia_hadoop/wordcount.clj</p>
+
+<p>(ns cia-hadoop.wordcount
+  (:require [clojure-hadoop.wrap :as wrap]</p>
+
+<pre><code>        [clojure-hadoop.defjob :as defjob])
+</code></pre>
+
+<p>  (:import [java.util StringTokenizer])
+  (:use clojure-hadoop.job))</p>
+
+<p>(defn my-map [key value]
+  (map (fn [token] [token 1])</p>
+
+<pre><code>   (enumeration-seq (StringTokenizer. value))))
+</code></pre>
+
+<p>```</p>
+
+<p>可以看到，这是一个纯粹的Clojure函数，并没有调用Hadoop的API。函数体虽然只有两行，但还是包含了很多知识点的：</p>
+
+<p><code>(map f coll)</code>函数的作用是将函数<code>f</code>应用到序列<code>coll</code>的每个元素上，并返回一个新的序列。如<code>(map inc [1 2 3])</code>会对每个元素做加1操作（参考<code>(doc inc)</code>），返回<code>[2 3 4]</code>。值得一提的是，<code>map</code>函数返回的是一个惰性序列（lazy sequence），即序列元素不会一次性完全生成，而是在遍历过程中逐个生成，这在处理元素较多的序列时很有优势。</p>
+
+<p><code>map</code>函数接收的参数自然不会只限于Clojure内部函数，我们可以将自己定义的函数传递给它：</p>
+
+<p>```clojure
+(defn my-inc [x]
+  (+ x 1))</p>
+
+<p>(map my-inc [1 2 3]) ; &ndash;> [2 3 4]
+```</p>
+
+<p>我们更可以传递一个匿名函数给<code>map</code>。上一章提过，定义匿名函数的方式是使用<code>fn</code>，另外还可使用<code>#(...)</code>简写：</p>
+
+<p><code>clojure
+(map (fn [x] (+ x 1)) [1 2 3])
+(map #(+ % 1) [1 2 3])
+</code></p>
+
+<p>对于含有多个参数的情况：</p>
+
+<p><code>clojure
+((fn [x y] (+ x y)) 1 2) ; -&gt; 3
+(#(+ %1 %2) 1 2) ; -&gt; 3
+</code></p>
+
+<p><code>my-map</code>中的<code>(fn [token] [token 1])</code>即表示接收参数<code>token</code>，返回一个向量<code>[token 1]</code>，其作用等价于<code>#(vector % 1)</code>。为何是<code>[token 1]</code>，是因为Hadoop的数据传输都是以键值对的形式进行的，如<code>["apple" 1]</code>即表示“apple”这个单词出现一次。</p>
+
+<p><a href="http://docs.oracle.com/javase/6/docs/api/java/util/StringTokenizer.html">StringTokenizer</a>则是用来将一行文字按空格拆分成单词的。他的返回值是<code>Enumeration</code>类型，Clojure提供了<code>enumeration-seq</code>函数，可以将其转换成序列进行操作。</p>
+
+<p>所以最终<code>my-map</code>函数的作用就是：将一行文字按空格拆分成单词，返回一个形如<code>[["apple" 1] ["orange" 1] ...]</code>的序列。</p>
+
+<h4>编写Reduce函数</h4>
+
+<p>从上文的图表中可以看到，Map函数处理完成后，Hadoop会对结果按照键进行排序，并使用<code>key, [value1 value2 ...]</code>的形式调用Reduce函数。在clojure-hadoop中，Reduce函数的第二个参数是一个函数，其返回结果才是值的序列：</p>
+
+<p><code>clojure
+(defn my-reduce [key values-fn]
+  [[key (reduce + (values-fn))]])
+</code></p>
+
+<p>和Map函数相同，Reduce函数的返回值也是一个序列，其元素是一个个<code>[key value]</code>。注意，函数体中的<code>(reduce f coll)</code>是Clojure的内置函数，其作用是：取<code>coll</code>序列的第1、2个元素作为参数执行函数<code>f</code>，将结果和<code>coll</code>序列的第3个元素作为参数执行函数<code>f</code>，依次类推。因此<code>(reduce + [1 2 3])</code>等价于<code>(+ (+ 1 2) 3)</code>。</p>
+
+<h4>定义脚本</h4>
+
+<p>有了Map和Reduce函数，我们就可以定义一个完整的脚本了：</p>
+
+<p><code>clojure
+(defjob/defjob job
+  :map my-map
+  :map-reader wrap/int-string-map-reader
+  :reduce my-reduce
+  :input-format :text
+  :output-format :text
+  :compress-output false
+  :replace true
+  :input "README.md"
+  :output "out-wordcount")
+</code></p>
+
+<p>简单说明一下这些配置参数：<code>:map</code>和<code>:reduce</code>分别指定Map和Reduce函数；<code>map-reader</code>表示读取数据文件时采用键为<code>int</code>、值为<code>string</code>的形式；<code>:input-format</code>至<code>compress-output</code>指定了输入输出的文件格式，这里采用非压缩的文本形式，方便阅览；<code>:replace</code>表示每次执行时覆盖上一次的结果；<code>:input</code>和<code>:output</code>则是输入的文件和输出的目录。</p>
+
+<h4>执行脚本</h4>
+
+<p>我们可以采用Clojure的测试功能来执行脚本：</p>
+
+<p>```clojure
+;; test/cia_hadoop/wordcount_test.clj</p>
+
+<p>(ns cia-hadoop.wordcount-test
+  (:use clojure.test</p>
+
+<pre><code>    clojure-hadoop.job
+    cia-hadoop.wordcount))
+</code></pre>
+
+<p>(deftest test-wordcount
+  (is (run job)))
+```</p>
+
+<p>尔后执行：</p>
+
+<p><code>bash
+$ lein test cia-hadoop.wordcount-test
+...
+13/02/14 00:25:52 INFO mapred.JobClient:  map 0% reduce 0%
+..
+13/02/14 00:25:58 INFO mapred.JobClient:  map 100% reduce 100%
+...
+$ cat out-wordcount/part-r-00000
+...
+"java"  1
+"lein"  3
+"locally"   2
+"on"    1
+...
+</code></p>
+
+<p>如果想要将MapReduce脚本放到Hadoop集群中执行，可以采用以下命令：</p>
+
+<p><code>bash
+$ lein uberjar
+$ hadoop jar target/cia-hadoop-0.1.0-SNAPSHOT-standalone.jar clojure_hadoop.job -job cia-hadoop.wordcount/job
+</code></p>
+
+<h2>示例2：统计浏览器类型</h2>
+
+<p>下面我们再来看一个更为实际的示例：从用户的访问日志中统计浏览器类型。</p>
+
+<h3>需求概述</h3>
+
+<p>用户访问网站时，页面中会有段JS请求，将用户的IP、User-Agent等信息发送回服务器，并记录成文本文件的形式：</p>
+
+<p><code>text
+{"stamp": "1346376858286", "ip": "58.22.113.189", "agent": "Mozilla/5.0 (iPad; CPU OS 5_0_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A405 Safari/7534.48.3"}
+{"stamp": "1346376858354", "ip": "116.233.51.2", "agent": "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)"}
+{"stamp": "1346376858365", "ip": "222.143.28.2", "agent": "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)"}
+{"stamp": "1346376858423", "ip": "123.151.144.40", "agent": "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11"}
+</code></p>
+
+<p>我们要做的是从User-Agent中统计用户使用的浏览器类型所占比例，包括IE、Firefox、Chrome、Opera、Safari、以及其它。</p>
+
+<h3>User-Agent中的浏览器类型</h3>
+
+<p>由于一些<a href="http://webaim.org/blog/user-agent-string-history/">历史原因</a>，User-Agent中的信息是比较凌乱的，浏览器厂商会随意添加信息，甚至仿造其它浏览器的内容。因此在过滤时，我们需要做些额外的处理。Mozilla的<a href="https://developer.mozilla.org/en-US/docs/Browser_detection_using_the_user_agent">这篇文章</a>很好地概括了如何从User-Agent中获取浏览器类型，大致如下：</p>
+
+<ul>
+<li>IE: MSIE xyz</li>
+<li>Firefox: Firefox/xyz</li>
+<li>Chrome: Chrome/xyz</li>
+<li>Opera: Opera/xyz</li>
+<li>Safari: Safari/xyz, 且不包含 Chrome/xyz 和 Chromium/xyz</li>
+</ul>
+
+
+<h3>解析JSON字符串</h3>
+
+<p>Clojure除了内置函数之外，周边还有一个名为<code>clojure.contrib</code>的类库，其中囊括了各类常用功能，包括JSON处理。目前<code>clojure.contrib</code>中的各个组件已经分开发行，读者可以到 <a href="https://github.com/clojure">https://github.com/clojure</a> 中浏览。</p>
+
+<p>处理JSON字符串时，首先在项目声明文件中添加依赖项<code>[org.clojure/data.json "0.2.1"]</code>，然后就能使用了：</p>
+
+<p><code>clojure
+user=&gt; (require '[clojure.data.json :as json])
+user=&gt; (json/read-str "{\"a\":1,\"b\":2}")
+{"a" 1, "b" 2}
+user=&gt; (json/write-str [1 2 3])
+"[1,2,3]"
+</code></p>
+
+<h3>正则表达式</h3>
+
+<p>Clojure提供了一系列的内置函数来使用正则表达式，其实质上是对<code>java.util.regex</code>命名空间的包装。</p>
+
+<p><code>clojure
+user=&gt; (def ptrn #"[0-9]+") ; #"..."是定义正则表达式对象的简写形式
+user=&gt; (def ptrn (re-pattern "[0-9]+")) ; 和上式等价
+user=&gt; (re-matches ptrn "123") ; 完全匹配
+"123"
+user=&gt; (re-find ptrn "a123") ; 返回第一个匹配项
+"123"
+user=&gt; (re-seq ptrn "a123b456") ; 返回匹配项序列（惰性序列）
+("123" "456")
+user=&gt; (re-find #"([a-z]+)/([0-9]+)" "a/1") ; 子模式
+["a/1" "a" "1"]
+user=&gt; (def m (re-matcher #"([a-z]+)/([0-9]+)" "a/1 b/2")) ; 返回一个Matcher对象
+user=&gt; (re-find m) ; 返回第一个匹配
+["a/1" "a" "1"]
+user=&gt; (re-groups m) ; 获取当前匹配
+["a/1" "a" "1"]
+user=&gt; (re-find m) ; 返回下一个匹配，或nil
+["b/2" "b" "2"]
+</code></p>
+
+<h3>Map函数</h3>
+
+<p>```clojure
+(defn json-decode [s]
+  (try</p>
+
+<pre><code>(json/read-str s)
+(catch Exception e)))
+</code></pre>
+
+<p>(def rule-set {&ldquo;ie&rdquo; (partial re-find #&ldquo;(?i)MSIE [0-9]+&rdquo;)</p>
+
+<pre><code>           "chrome" (partial re-find #"(?i)Chrome/[0-9]+")
+           "firefox" (partial re-find #"(?i)Firefox/[0-9]+")
+           "opera" (partial re-find #"(?i)Opera/[0-9]+")
+           "safari" #(and (re-find #"(?i)Safari/[0-9]+" %)
+                          (not (re-find #"(?i)Chrom(e|ium)/[0-9]+" %)))
+           })
+</code></pre>
+
+<p>(defn get-type [ua]
+  (if-let [rule (first (filter #((second %) ua) rule-set))]</p>
+
+<pre><code>(first rule)
+"other"))
+</code></pre>
+
+<p>(defn my-map [key value]
+  (when-let [ua (get (json-decode value) &ldquo;agent&rdquo;)]</p>
+
+<pre><code>[[(get-type ua) 1]]))
+</code></pre>
+
+<p>```</p>
+
+<p><code>json-decode</code>函数是对<code>json/read-str</code>的包装，当JSON字符串无法正确解析时返回<code>nil</code>，而非异常终止。</p>
+
+<p><code>rule-set</code>是一个<code>map</code>类型，键是浏览器名称，值是一个函数，这里都是匿名函数。<code>partial</code>用于构造新的函数，<code>(partial + 1)</code>和<code>#(+ 1 %)</code>、<code>(fn [x] (+ 1 x))</code>是等价的，可以将其看做是为函数<code>+</code>的第一个参数定义了默认值。正则表达式中的<code>(?i)</code>表示匹配时不区分大小写。</p>
+
+<p><code>get-type</code>函数中，<code>(filter #((second %) ua) rule-set)</code>会用<code>rule-set</code>中的正则表达式逐一去和User-Agent字符串进行匹配，并返回第一个匹配项，也就是浏览器类型；没有匹配到的则返回<code>other</code>。</p>
+
+<h3>单元测试</h3>
+
+<p>我们可以编写一组单元测试来检验上述<code>my-map</code>函数是否正确：</p>
+
+<p>```clojure
+;; test/cia_hadoop/browser_test.clj</p>
+
+<p>(ns cia-hadoop.browser-test
+  (:use clojure.test</p>
+
+<pre><code>    clojure-hadoop.job
+    cia-hadoop.browser))
+</code></pre>
+
+<p>(deftest test-my-map
+  (is (= [[&ldquo;ie&rdquo; 1]] (my-map 0 &ldquo;{\"agent\&rdquo;:\&ldquo;MSIE 6.0\&rdquo;}&ldquo;)))
+  (is (= [["chrome&rdquo; 1]] (my-map 0 &ldquo;{\"agent\&rdquo;:\&ldquo;Chrome/20.0 Safari/6533.2\&rdquo;}&ldquo;)))
+  (is (= [["other&rdquo; 1]] (my-map 0 &ldquo;{\"agent\&rdquo;:\&ldquo;abc\&rdquo;}&ldquo;)))
+  (is (nil? (my-map 0 &rdquo;{&ldquo;))))</p>
+
+<p>(deftest test-browser
+  (is (run job)))
+```</p>
+
+<p>其中<code>deftest</code>和<code>is</code>都是<code>clojure.test</code>命名空间下定义的。</p>
+
+<p><code>bash
+$ lein test cia-hadoop.browser-test
+</code></p>
+
+<h2>小结</h2>
+
+<p>本章我们简单介绍了Hadoop这一用于大数据处理的开源项目，以及如何借助clojure-hadoop类库编写MapReduce脚本，并在本地和集群上运行。Hadoop已经将大数据处理背后的种种细节都包装了起来，用户只需编写Map和Reduce函数，而借助Clojure语言，这一步也变的更为轻松和高效。Apache Hadoop是一个生态圈，其周边有很多开源项目，像Hive、HBase等，这里再推荐一个使用Clojure语言在Hadoop上执行查询的工具：<a href="https://github.com/nathanmarz/cascalog">cascalog</a>。它的作者是<a href="http://nathanmarz.com/">Nathan Marz</a>，也是我们下一章的主题——Storm实时计算框架——的作者。</p>
+
+<p>本文涉及到的源码可以到 <a href="https://github.com/jizhang/cia-hadoop">https://github.com/jizhang/cia-hadoop</a> 中查看。</p>
+]]></content>
+  </entry>
+  
+</feed>
