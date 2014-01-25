@@ -4,7 +4,7 @@ title: "Java反射机制"
 date: 2014-01-25 09:42
 comments: true
 categories: [Translation, Tutorial]
-published: false
+published: true
 ---
 
 什么是反射？它有何用处？
@@ -78,3 +78,222 @@ Servlet也会使用相同的机制：
     <servlet-class>com.programcreek.WhyReflectionServlet</servlet-class>
 <servlet>
 ```
+
+## 3. 如何使用反射？
+
+让我们通过几个典型的案例来学习如何使用反射。
+
+示例1：获取对象的类型名称。
+
+```java
+package myreflection;
+import java.lang.reflect.Method;
+ 
+public class ReflectionHelloWorld {
+    public static void main(String[] args){
+        Foo f = new Foo();
+        System.out.println(f.getClass().getName());			
+    }
+}
+ 
+class Foo {
+    public void print() {
+        System.out.println("abc");
+    }
+}
+```
+
+输出：
+
+```text
+myreflection.Foo
+```
+
+示例2：调用未知对象的方法。
+
+在下列代码中，设想对象的类型是未知的。通过反射，我们可以判断它是否包含`print`方法，并调用它。
+
+```java
+package myreflection;
+import java.lang.reflect.Method;
+ 
+public class ReflectionHelloWorld {
+    public static void main(String[] args){
+        Foo f = new Foo();
+ 
+        Method method;
+        try {
+            method = f.getClass().getMethod("print", new Class<?>[0]);
+            method.invoke(f);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }           
+    }
+}
+ 
+class Foo {
+    public void print() {
+        System.out.println("abc");
+    }
+}
+```
+
+```text
+abc
+```
+
+示例3：创建对象
+
+```java
+package myreflection;
+ 
+public class ReflectionHelloWorld {
+    public static void main(String[] args){
+        // 创建Class实例
+        Class<?> c = null;
+        try{
+            c=Class.forName("myreflection.Foo");
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+ 
+        // 创建Foo实例
+        Foo f = null;
+ 
+        try {
+            f = (Foo) c.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }   
+ 
+        f.print();
+    }
+}
+ 
+class Foo {
+    public void print() {
+        System.out.println("abc");
+    }
+}
+```
+
+示例4：获取构造函数，并创建对象。
+
+```java
+package myreflection;
+ 
+import java.lang.reflect.Constructor;
+ 
+public class ReflectionHelloWorld {
+    public static void main(String[] args){
+        // 创建Class实例
+        Class<?> c = null;
+        try{
+            c=Class.forName("myreflection.Foo");
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+ 
+        // 创建Foo实例
+        Foo f1 = null;
+        Foo f2 = null;
+ 
+        // 获取所有的构造函数
+        Constructor<?> cons[] = c.getConstructors();
+ 
+        try {
+            f1 = (Foo) cons[0].newInstance();
+            f2 = (Foo) cons[1].newInstance("abc");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }   
+ 
+        f1.print();
+        f2.print();
+    }
+}
+ 
+class Foo {
+    String s; 
+ 
+    public Foo(){}
+ 
+    public Foo(String s){
+        this.s=s;
+    }
+ 
+    public void print() {
+        System.out.println(s);
+    }
+}
+```
+
+```text
+null
+abc
+```
+
+此外，你可以通过`Class`实例来获取该类实现的接口、父类、声明的属性等。
+
+示例5：通过反射来修改数组的大小。
+
+```java
+package myreflection;
+ 
+import java.lang.reflect.Array;
+ 
+public class ReflectionHelloWorld {
+    public static void main(String[] args) {
+        int[] intArray = { 1, 2, 3, 4, 5 };
+        int[] newIntArray = (int[]) changeArraySize(intArray, 10);
+        print(newIntArray);
+ 
+        String[] atr = { "a", "b", "c", "d", "e" };
+        String[] str1 = (String[]) changeArraySize(atr, 10);
+        print(str1);
+    }
+ 
+    // 修改数组的大小
+    public static Object changeArraySize(Object obj, int len) {
+        Class<?> arr = obj.getClass().getComponentType();
+        Object newArray = Array.newInstance(arr, len);
+ 
+        // 复制数组
+        int co = Array.getLength(obj);
+        System.arraycopy(obj, 0, newArray, 0, co);
+        return newArray;
+    }
+ 
+    // 打印
+    public static void print(Object obj) {
+        Class<?> c = obj.getClass();
+        if (!c.isArray()) {
+            return;
+        }
+ 
+        System.out.println("\nArray length: " + Array.getLength(obj));
+ 
+        for (int i = 0; i < Array.getLength(obj); i++) {
+            System.out.print(Array.get(obj, i) + " ");
+        }
+    }
+}
+```
+
+输出：
+
+```text
+Array length: 10
+1 2 3 4 5 0 0 0 0 0 
+Array length: 10
+a b c d e null null null null null 
+```
+
+## 总结
+
+上述示例代码仅仅展现了Java反射机制很小一部分的功能。如果你觉得意犹未尽，可以前去阅读[官方文档](http://docs.oracle.com/javase/tutorial/reflect/)。
+
+参考资料：
+
+1. http://en.wikipedia.org/wiki/Reflection_(computer_programming)
+2. http://docs.oracle.com/javase/tutorial/reflect/
