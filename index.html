@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="原文：http://www.joelonsoftware.com/articles/LeakyAbstractions.html TCP协议是互联网的基石，我们每天都需要依靠它来构建各类互联网应用。也正是在这一协议中，时刻发生着一件近乎神奇的事情。 TCP是一种 可靠的 数据传输协议，也就是说， &hellip;">
+  <meta name="description" content="什么是反射？它有何用处？ 1. 什么是反射？ “反射（Reflection）能够让运行于JVM中的程序检测和修改运行时的行为。”这个概念常常会和内省（Introspection）混淆，以下是这两个术语在Wikipedia中的解释： 内省用于在运行时检测某个对象的类型和其包含的属性； &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +81,61 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/25/java-reflection-tutorial/">Java反射机制</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-25T09:42:00+08:00" pubdate data-updated="true">Jan 25<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>什么是反射？它有何用处？</p>
+
+<h2>1. 什么是反射？</h2>
+
+<p>“反射（Reflection）能够让运行于JVM中的程序检测和修改运行时的行为。”这个概念常常会和内省（Introspection）混淆，以下是这两个术语在Wikipedia中的解释：</p>
+
+<ol>
+<li>内省用于在运行时检测某个对象的类型和其包含的属性；</li>
+<li>反射用于在运行时检测和修改某个对象的结构及其行为。</li>
+</ol>
+
+
+<p>从他们的定义可以看出，内省是反射的一个子集。有些语言支持内省，但并不支持反射，如C++。</p>
+
+<p><img src="http://www.programcreek.com/wp-content/uploads/2013/09/reflection-introspection-650x222.png" alt="反射和内省" /></p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/01/25/java-reflection-tutorial/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -690,98 +745,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/03/27/fork-and-zombie-process/">Fork()与僵尸进程</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-03-27T20:18:00+08:00" pubdate data-updated="true">Mar 27<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>使用fork()函数派生出多个子进程来并行执行程序的不同代码块，是一种常用的编程泛型。特别是在网络编程中，父进程初始化后派生出指定数量的子进程，共同监听网络端口并处理请求，从而达到扩容的目的。</p>
-
-<p>但是，在使用fork()函数时若处理不当，很容易产生僵尸进程。根据UNIX系统的定义，僵尸进程是指子进程退出后，它的父进程没有“等待”该子进程，这样的子进程就会成为僵尸进程。何谓“等待”？僵尸进程的危害是什么？以及要如何避免？这就是本文将要阐述的内容。</p>
-
-<h2>fork()函数</h2>
-
-<p>下面这段C语言代码展示了fork()函数的使用方法：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="c1">// myfork.c</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">pid_t</span> <span class="n">pid</span> <span class="o">=</span> <span class="n">fork</span><span class="p">();</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">pid</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// 主进程</span>
-</span><span class='line'>            <span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">pid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// 子进程</span>
-</span><span class='line'>            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>            <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;fork error</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">return</span> <span class="mi">2</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/03/27/fork-and-zombie-process/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -797,6 +760,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/01/25/java-reflection-tutorial/">Java反射机制</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/12/17/the-law-of-leaky-abstractions/">抽象泄漏定律</a>
       </li>
     
@@ -810,10 +777,6 @@
     
       <li class="post">
         <a href="/blog/2013/06/11/ansible-faq/">Ansible FAQ</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/05/25/apache-hadoop-yarn-background-and-an-overview/">Apache Hadoop YARN - 项目背景与简介</a>
       </li>
     
   </ul>
@@ -879,7 +842,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - Ji ZHANG -
+  Copyright &copy; 2014 - Ji ZHANG -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

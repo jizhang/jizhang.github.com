@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Translation | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/translation/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2013-12-17T13:18:53+08:00</updated>
+  <updated>2014-01-25T10:46:45+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,350 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Java反射机制]]></title>
+    <link href="http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/"/>
+    <updated>2014-01-25T09:42:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial</id>
+    <content type="html"><![CDATA[<p>什么是反射？它有何用处？</p>
+
+<h2>1. 什么是反射？</h2>
+
+<p>“反射（Reflection）能够让运行于JVM中的程序检测和修改运行时的行为。”这个概念常常会和内省（Introspection）混淆，以下是这两个术语在Wikipedia中的解释：</p>
+
+<ol>
+<li>内省用于在运行时检测某个对象的类型和其包含的属性；</li>
+<li>反射用于在运行时检测和修改某个对象的结构及其行为。</li>
+</ol>
+
+
+<p>从他们的定义可以看出，内省是反射的一个子集。有些语言支持内省，但并不支持反射，如C++。</p>
+
+<p><img src="http://www.programcreek.com/wp-content/uploads/2013/09/reflection-introspection-650x222.png" alt="反射和内省" /></p>
+
+<!-- more -->
+
+
+<p>内省示例：<code>instanceof</code>运算符用于检测某个对象是否属于特定的类。</p>
+
+<p>```java
+if (obj instanceof Dog) {</p>
+
+<pre><code>Dog d = (Dog) obj;
+d.bark();
+</code></pre>
+
+<p>}
+```</p>
+
+<p>反射示例：<code>Class.forName()</code>方法可以通过类或接口的名称（一个字符串或完全限定名）来获取对应的<code>Class</code>对象。<code>forName</code>方法会触发类的初始化。</p>
+
+<p><code>java
+// 使用反射
+Class&lt;?&gt; c = Class.forName("classpath.and.classname");
+Object dog = c.newInstance();
+Method m = c.getDeclaredMethod("bark", new Class&lt;?&gt;[0]);
+m.invoke(dog);
+</code></p>
+
+<p>在Java中，反射更接近于内省，因为你无法改变一个对象的结构。虽然一些API可以用来修改方法和属性的可见性，但并不能修改结构。</p>
+
+<h2>2. 我们为何需要反射？</h2>
+
+<p>反射能够让我们：</p>
+
+<ul>
+<li>在运行时检测对象的类型；</li>
+<li>动态构造某个类的对象；</li>
+<li>检测类的属性和方法；</li>
+<li>任意调用对象的方法；</li>
+<li>修改构造函数、方法、属性的可见性；</li>
+<li>以及其他</li>
+</ul>
+
+
+<p>反射是框架中常用的方法。</p>
+
+<p>例如，<a href="http://www.programcreek.com/2012/02/junit-tutorial-2-annotations/">JUnit</a>通过反射来遍历包含 <em>@Test</em> 注解的方法，并在运行单元测试时调用它们。（<a href="http://www.programcreek.com/2012/02/junit-tutorial-2-annotations/">这个连接</a>中包含了一些JUnit的使用案例）</p>
+
+<p>对于Web框架，开发人员在配置文件中定义他们对各种接口和类的实现。通过反射机制，框架能够快速地动态初始化所需要的类。</p>
+
+<p>例如，Spring框架使用如下的配置文件：</p>
+
+<p>```xml
+<bean id="someID" class="com.programcreek.Foo"></p>
+
+<pre><code>&lt;property name="someField" value="someValue" /&gt;
+</code></pre>
+
+<p></bean>
+```</p>
+
+<p>当Spring容器处理&lt;bean&gt;元素时，会使用<code>Class.forName("com.programcreek.Foo")</code>来初始化这个类，并再次使用反射获取&lt;property&gt;元素对应的<code>setter</code>方法，为对象的属性赋值。</p>
+
+<p>Servlet也会使用相同的机制：</p>
+
+<p>```xml
+<servlet></p>
+
+<pre><code>&lt;servlet-name&gt;someServlet&lt;/servlet-name&gt;
+&lt;servlet-class&gt;com.programcreek.WhyReflectionServlet&lt;/servlet-class&gt;
+</code></pre>
+
+<p><servlet>
+```</p>
+
+<h2>3. 如何使用反射？</h2>
+
+<p>让我们通过几个典型的案例来学习如何使用反射。</p>
+
+<p>示例1：获取对象的类型名称。</p>
+
+<p>```java
+package myreflection;
+import java.lang.reflect.Method;</p>
+
+<p>public class ReflectionHelloWorld {</p>
+
+<pre><code>public static void main(String[] args){
+    Foo f = new Foo();
+    System.out.println(f.getClass().getName());         
+}
+</code></pre>
+
+<p>}</p>
+
+<p>class Foo {</p>
+
+<pre><code>public void print() {
+    System.out.println("abc");
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>输出：</p>
+
+<p><code>text
+myreflection.Foo
+</code></p>
+
+<p>示例2：调用未知对象的方法。</p>
+
+<p>在下列代码中，设想对象的类型是未知的。通过反射，我们可以判断它是否包含<code>print</code>方法，并调用它。</p>
+
+<p>```java
+package myreflection;
+import java.lang.reflect.Method;</p>
+
+<p>public class ReflectionHelloWorld {</p>
+
+<pre><code>public static void main(String[] args){
+    Foo f = new Foo();
+
+    Method method;
+    try {
+        method = f.getClass().getMethod("print", new Class&lt;?&gt;[0]);
+        method.invoke(f);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }           
+}
+</code></pre>
+
+<p>}</p>
+
+<p>class Foo {</p>
+
+<pre><code>public void print() {
+    System.out.println("abc");
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p><code>text
+abc
+</code></p>
+
+<p>示例3：创建对象</p>
+
+<p>```java
+package myreflection;</p>
+
+<p>public class ReflectionHelloWorld {</p>
+
+<pre><code>public static void main(String[] args){
+    // 创建Class实例
+    Class&lt;?&gt; c = null;
+    try{
+        c=Class.forName("myreflection.Foo");
+    }catch(Exception e){
+        e.printStackTrace();
+    }
+
+    // 创建Foo实例
+    Foo f = null;
+
+    try {
+        f = (Foo) c.newInstance();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }   
+
+    f.print();
+}
+</code></pre>
+
+<p>}</p>
+
+<p>class Foo {</p>
+
+<pre><code>public void print() {
+    System.out.println("abc");
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>示例4：获取构造函数，并创建对象。</p>
+
+<p>```java
+package myreflection;</p>
+
+<p>import java.lang.reflect.Constructor;</p>
+
+<p>public class ReflectionHelloWorld {</p>
+
+<pre><code>public static void main(String[] args){
+    // 创建Class实例
+    Class&lt;?&gt; c = null;
+    try{
+        c=Class.forName("myreflection.Foo");
+    }catch(Exception e){
+        e.printStackTrace();
+    }
+
+    // 创建Foo实例
+    Foo f1 = null;
+    Foo f2 = null;
+
+    // 获取所有的构造函数
+    Constructor&lt;?&gt; cons[] = c.getConstructors();
+
+    try {
+        f1 = (Foo) cons[0].newInstance();
+        f2 = (Foo) cons[1].newInstance("abc");
+    } catch (Exception e) {
+        e.printStackTrace();
+    }   
+
+    f1.print();
+    f2.print();
+}
+</code></pre>
+
+<p>}</p>
+
+<p>class Foo {</p>
+
+<pre><code>String s; 
+
+public Foo(){}
+
+public Foo(String s){
+    this.s=s;
+}
+
+public void print() {
+    System.out.println(s);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p><code>text
+null
+abc
+</code></p>
+
+<p>此外，你可以通过<code>Class</code>实例来获取该类实现的接口、父类、声明的属性等。</p>
+
+<p>示例5：通过反射来修改数组的大小。</p>
+
+<p>```java
+package myreflection;</p>
+
+<p>import java.lang.reflect.Array;</p>
+
+<p>public class ReflectionHelloWorld {</p>
+
+<pre><code>public static void main(String[] args) {
+    int[] intArray = { 1, 2, 3, 4, 5 };
+    int[] newIntArray = (int[]) changeArraySize(intArray, 10);
+    print(newIntArray);
+
+    String[] atr = { "a", "b", "c", "d", "e" };
+    String[] str1 = (String[]) changeArraySize(atr, 10);
+    print(str1);
+}
+
+// 修改数组的大小
+public static Object changeArraySize(Object obj, int len) {
+    Class&lt;?&gt; arr = obj.getClass().getComponentType();
+    Object newArray = Array.newInstance(arr, len);
+
+    // 复制数组
+    int co = Array.getLength(obj);
+    System.arraycopy(obj, 0, newArray, 0, co);
+    return newArray;
+}
+
+// 打印
+public static void print(Object obj) {
+    Class&lt;?&gt; c = obj.getClass();
+    if (!c.isArray()) {
+        return;
+    }
+
+    System.out.println("\nArray length: " + Array.getLength(obj));
+
+    for (int i = 0; i &lt; Array.getLength(obj); i++) {
+        System.out.print(Array.get(obj, i) + " ");
+    }
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>输出：</p>
+
+<p><code>text
+Array length: 10
+1 2 3 4 5 0 0 0 0 0
+Array length: 10
+a b c d e null null null null null
+</code></p>
+
+<h2>总结</h2>
+
+<p>上述示例代码仅仅展现了Java反射机制很小一部分的功能。如果你觉得意犹未尽，可以前去阅读<a href="http://docs.oracle.com/javase/tutorial/reflect/">官方文档</a>。</p>
+
+<p>参考资料：</p>
+
+<ol>
+<li><a href="http://en.wikipedia.org/wiki/Reflection_">http://en.wikipedia.org/wiki/Reflection_</a>(computer_programming)</li>
+<li><a href="http://docs.oracle.com/javase/tutorial/reflect/">http://docs.oracle.com/javase/tutorial/reflect/</a></li>
+</ol>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[抽象泄漏定律]]></title>
@@ -615,324 +959,6 @@ user=> (let [many-follows (&lt;&ndash; [?person] (follows ?person _)</p>
 <p>我非常希望能够得到你对Cascalog的反馈，如果你有任何评论、问题、或是顾虑，请留言，或者在<a href="http://twitter.com/nathanmarz">Twitter</a>上联系我，给我发送邮件<a href="nathan.marz@gmail.com">nathan.marz@gmail.com</a>，或是在freenode的#cascading频道和我聊天。</p>
 
 <p><a href="http://nathanmarz.com/blog/new-cascalog-features">下一篇博客</a>会介绍Cascalog的外联合、排序、组合等特性。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[柯里化与偏应用（JavaScript描述）]]></title>
-    <link href="http://shzhangji.com/blog/2013/03/07/currying-and-partial-application/"/>
-    <updated>2013-03-07T20:59:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/03/07/currying-and-partial-application</id>
-    <content type="html"><![CDATA[<p>原文：<a href="http://raganwald.com/2013/03/07/currying-and-partial-application.html">http://raganwald.com/2013/03/07/currying-and-partial-application.html</a></p>
-
-<p>上周末我参加了<a href="http://wrocloverb.com/">wroc_love.rb大会</a>，其间<a href="http://steveklabnik.com/">Steve Klabnik</a>的一张PPT中提到了<a href="https://en.wikipedia.org/wiki/Partial_application">偏应用（Partial Application）</a>和<a href="https://en.wikipedia.org/wiki/Currying">柯里化（Currying）</a>，并说这两者之间的区别如今已经不重要了。但是我不这么认为。</p>
-
-<p>在这周发布的博文中，我用五种方式对<code>this</code>和闭包做了解释，但只有三到四种提到了柯里化。所以这篇博文就重点来谈谈这个。</p>
-
-<h2>函数参数的个数</h2>
-
-<p>在讲解之前，我们先明确一些术语。函数定义时会写明它所接收的参数个数（Arity）。“一元函数”（Unary）接收一个参数，“多元函数”（Polyadic）接收多个参数。还有一些特殊的名称，如“二元函数”（Binary）接收两个参数，“三元函数”（Ternary）接收三个参数等。你可以对照希腊语或拉丁语词汇来创造这些特殊的名称。</p>
-
-<p>有些函数能够接收不定数量的参数，我们称之为“可变参数函数”（Variadic）。不过这类函数、以及不接收参数的函数并不是本文讨论的重点。</p>
-
-<!-- more -->
-
-
-<h2>偏应用</h2>
-
-<p>偏应用的概念很容易理解，我们可以使用加法函数来做简单的演示，但如果你不介意的话，我想引用<a href="http://allong.es/">allong.es</a>这一JavaScript类库中的代码来做演示，而且它也是会在日常开发中用到的代码。</p>
-
-<p>作为铺垫，我们首先实现一个<code>map</code>函数，用来将某个函数应用到数组的每个元素上：</p>
-
-<p>```javascript
-var __map = [].map;</p>
-
-<p>function map (list, unaryFn) {
-  return __map.call(list, unaryFn);
-};</p>
-
-<p>function square (n) {
-  return n * n;
-};</p>
-
-<p>map([1, 2, 3], square);
-  //=> [1, 4, 9]
-```</p>
-
-<p>显然，<code>map</code>是二元函数，<code>square</code>是一元函数。当我们使用<code>[1, 2, 3]</code>和<code>square</code>作为参数来调用<code>map</code>时，我们是将这两个参数 <em>应用（Apply）</em> 到<code>map</code>函数，并获得结果。</p>
-
-<p>由于<code>map</code>函数接收两个参数，我们也提供了两个参数，所以说这是一次 <em>完整应用</em> 。那何谓偏应用（或部分应用）呢？其实就是提供少于指定数量的参数。如，仅提供一个参数来调用<code>map</code>。</p>
-
-<p>如果我们只提供一个参数来调用<code>map</code>会怎么样？我们无法得到所要的结果，只能得到一个新的一元函数，通过调用这个函数并传递缺失的参数后，才能获得结果。</p>
-
-<p>假设现在我们只提供一个参数给<code>map</code>，这个参数是<code>unaryFn</code>。我们从后往前来逐步实现，首先为<code>map</code>函数创建一个包装函数：</p>
-
-<p><code>javascript
-function mapWrapper (list, unaryFn) {
-  return map(list, unaryFn);
-};
-</code></p>
-
-<p>然后，我们将这个二元函数分割成两个嵌套的一元函数：</p>
-
-<p>```javascript
-function mapWrapper (unaryFn) {
-  return function (list) {</p>
-
-<pre><code>return map(list, unaryFn);
-</code></pre>
-
-<p>  };
-};
-```</p>
-
-<p>这样一来，我们就能每次仅传递一个参数来进行调用了：</p>
-
-<p><code>javascript
-mapWrapper(square)([1, 2, 3]);
-  //=&gt; [1, 4, 9]
-</code></p>
-
-<p>和之前的<code>map</code>函数相较，新的函数<code>mapWrapper</code>是一元函数，它的返回值是另一个一元函数，需要再次调用它才能获得返回值。那么偏应用要从何体现？让我们从第二个一元函数着手：</p>
-
-<p>```javascript
-var squareAll = mapWrapper(square);
-  //=> [function]</p>
-
-<p>squareAll([1, 2, 3]);
-  //=> [1, 4, 9]
-squareAll([5, 7, 5]);
-  //=> [25, 49, 25]
-```</p>
-
-<p>我们首先将<code>square</code>这个参数部分应用到了<code>map</code>函数，并获得一个一元函数<code>squareAll</code>，它能实现我们需要的功能。偏应用后的<code>map</code>函数十分便捷，而<a href="http://allong.es/">allong.es</a>库中提供的<code>splat</code>函数做的也是相同的事情。</p>
-
-<p>如果每次想要使用偏应用都需要手动编写这样一个包装函数，程序员显然会想到要自动化实现它。这就是下一节的内容：柯里化。</p>
-
-<h2>柯里化</h2>
-
-<p>首先，我们可以编写一个函数来返回包装器。我们仍然以二元函数为例：</p>
-
-<p>```javascript
-function wrapper (unaryFn) {
-  return function (list) {</p>
-
-<pre><code>return map(list, unaryFn);
-</code></pre>
-
-<p>  };
-};
-```</p>
-
-<p>将函数<code>map</code>和参数名称替换掉：</p>
-
-<p>```javascript
-function wrapper (secondArg) {
-  return function (firstArg) {</p>
-
-<pre><code>return binaryFn(firstArg, secondArg);
-</code></pre>
-
-<p>  };
-};
-```</p>
-
-<p>最后，我们再包装一层：</p>
-
-<p>```javascript
-function rightmostCurry (binaryFn) {
-  return function (secondArg) {</p>
-
-<pre><code>return function (firstArg) {
-  return binaryFn(firstArg, secondArg);
-};
-</code></pre>
-
-<p>  };
-};
-```</p>
-
-<p>这样一来，我们之前使用的“模式”就抽象出来了。这个函数的用法是：</p>
-
-<p>```javascript
-var rightmostCurriedMap = rightmostCurry(map);</p>
-
-<p>var squareAll = rightmostCurriedMap(square);</p>
-
-<p>squareAll([1, 4, 9]);
-  //=> [1, 4, 9]
-squareAll([5, 7, 5]);
-  //=> [25, 49, 25]
-```</p>
-
-<p>将一个多元函数转换成一系列一元函数的嵌套调用，这种转换称之为 <strong>柯里化</strong> 。它的名称取自其发明者Haskell Curry，他也重新定义了由<a href="https://en.wikipedia.org/wiki/Moses_Sch%C3%B6nfinkel">Moses Schönfinkel</a>提出的组合子逻辑（Combinatory Logic）。（<a href="#fn:birds">注1</a>）</p>
-
-<p><code>rightmostCurry</code>函数可以将任意二元函数转换为一组一元函数，从传递第二个参数开始，因此才称其为“右起柯里化”。</p>
-
-<p>和它相反的自然是“左起柯里化”，大多数逻辑学家使用“左起柯里化”，所以人们常说的柯里化指的也是左起柯里化：</p>
-
-<p>```javascript
-function curry (binaryFn) {
-  return function (firstArg) {</p>
-
-<pre><code>return function (secondArg) {
-  return binaryFn(firstArg, secondArg);
-};
-</code></pre>
-
-<p>  };
-};</p>
-
-<p>var curriedMap = curry(map),</p>
-
-<pre><code>double = function (n) { n + n; };
-</code></pre>
-
-<p>var oneToThreeEach = curriedMap([1, 2, 3]);</p>
-
-<p>oneToThreeEach(square);
-  //=> [1, 4, 9]
-oneToThreeEach(double);
-  //=> [2, 4, 6]
-```</p>
-
-<p>那这两种柯里化方式应该如何选择呢？这就要看你的用途了。在上述二元函数的示例中，我们模拟的是一种“主体-客体”（Subject-Object）的语法。第一个参数表示主体，第二个参数表示客体。</p>
-
-<p>当我们使用“右起柯里化”的<code>map</code>函数时，我们即假定主体是那个将被调用多次的函数（unaryFn）。</p>
-
-<p>看到<code>squareAll([1, 2, 3])</code>时，我们会理解为“将数组[1, 2, 3]中的每个元素做平方运算”。使用“右起柯里化”，我们使平方运算成为主体，数组成为客体。而当使用一般的柯里化时，则是让数组作为主体，平方运算作为客体。</p>
-
-<p>另一种理解的方式是看你需要重用哪一部分。通过不同的柯里化方式，你可以选择重用函数还是重用列表。</p>
-
-<h2>再谈偏应用</h2>
-
-<p>上文谈了那么多柯里化，那偏应用呢？事实上，当你有了柯里化，你就不需要偏应用了。同样地，当你使用了偏应用，也不会需要柯里化。所以当你需要为此撰写一篇文章时，最便捷的做法是先描述其中的一个，然后建立在其基础之上来描述另外一个。</p>
-
-<p>首先让我们回顾一下右起柯里化：</p>
-
-<p>```javascript
-function rightmostCurry (binaryFn) {
-  return function (secondArg) {</p>
-
-<pre><code>return function (firstArg) {
-  return binaryFn(firstArg, secondArg);
-};
-</code></pre>
-
-<p>  };
-};
-```</p>
-
-<p>你会发现在实际使用过程中会一直出现以下代码：</p>
-
-<p>```javascript
-var squareAll = rightmostCurry(map)(square),</p>
-
-<pre><code>doubleAll = rightmostCurry(map)(double);
-</code></pre>
-
-<p>```</p>
-
-<p>这种创建了柯里化函数后立刻调用的情况很常见，因此好事的人们就为它起了一个名字，称之为 <em>map函数的右起一元偏应用</em> 。</p>
-
-<p>名字很长，我们分解开来看：</p>
-
-<ol>
-<li>右起：从最右边的参数开始；</li>
-<li>一元：一个参数；</li>
-<li>偏应用：只应用部分函数；</li>
-<li>map：即<code>map</code>函数。</li>
-</ol>
-
-
-<p>所以我们实际上是想为<code>map</code>函数预先指定一个参数。它是一个二元函数，指定参数后便成了一元函数。在函数式编程语言或类库中，都提供了相应的方式来支持这种用法。</p>
-
-<p>我们可以用柯里化来实现这样的功能：</p>
-
-<p><code>javascript
-function rightmostUnaryPartialApplication (binaryFn, secondArg) {
-  return rightmostCurry(binaryFn)(secondArg);
-};
-</code></p>
-
-<p>但更多时候我们会使用更为直接的方式：（<a href="#fn:caveat">注2</a>）</p>
-
-<p>```javascript
-function rightmostUnaryPartialApplication (binaryFn, secondArg) {
-  return function (firstArg) {</p>
-
-<pre><code>return binaryFn(firstArg, secondArg);
-</code></pre>
-
-<p>  };
-};
-```</p>
-
-<p><code>rightmostUnaryPartialApplication</code>有些过长了，我们将其称为<code>applyLast</code>：</p>
-
-<p><code>javascript
-var applyLast = rightmostUnaryPartialApplication;
-</code></p>
-
-<p>这样，我们的<code>squareAll</code>和<code>doubleAll</code>函数就可以写为：</p>
-
-<p>```javascript
-var squareAll = applyLast(map, square),</p>
-
-<pre><code>doubleAll = applyLast(map, double);
-</code></pre>
-
-<p>```</p>
-
-<p>你同样可以实现一个<code>applyFirst</code>函数（我们就不提<code>leftmostUnaryPartialApplication</code>这种叫法了）：</p>
-
-<p>```javascript
-function applyFirst (binaryFn, firstArg) {
-  return function (secondArg) {</p>
-
-<pre><code>return binaryFn(firstArg, secondArg);
-</code></pre>
-
-<p>  };
-};
-```</p>
-
-<p>和“左起/右起柯里化”一样，你应该在工具箱中保留这两种偏应用的方式，以便在实际使用过程中选择。</p>
-
-<h2>柯里化和偏应用的区别</h2>
-
-<p>“柯里化是将一个多元函数分解为一系列嵌套调用的一元函数。分解后，你可以部分应用一个或多个参数（<a href="#fn:also">注3</a>）。柯里化的过程不会向函数传递参数。”</p>
-
-<p>“偏应用是为一个多元函数预先提供部分参数，从而在调用时可以省略这些参数。”</p>
-
-<h2>这就是全部吗？</h2>
-
-<p>是，但又不是。以下这些还请读者自行探索和实现：</p>
-
-<ol>
-<li>上文中，我们用柯里化实现了偏应用，那偏应用可以实现柯里化吗？为什么？（<a href="#fn:tao">注4</a>）</li>
-<li>所有的示例都是将二元函数转换为一元函数，尝试写出一个更为通用的<code>applyFirst</code>和<code>applyLast</code>函数，能够为任意元的函数提供一个参数。如，假设有一个函数接收四个参数，那在使用了<code>applyFirst</code>后会返回一个接收三个参数的函数。</li>
-<li>第2步完成后，再实现一组<code>applyLeft</code>和<code>applyRight</code>函数，它能为任意元的函数预先指定任意数量的参数，如，假设向<code>applyLeft</code>传递了一个三元函数和两个参数，那就会返回一个一元函数。</li>
-<li>重写<code>curry</code>和<code>rightmostCurry</code>这两个函数，使其能够接收任意元的函数。一个三元函数柯里化后会产生三个嵌套调用的一元函数。</li>
-<li>阅读<a href="http://allong.es/">allong.es</a>的代码，这是一个从<a href="http://leanpub.com/javascript-allonge">JavaScript Allongé</a>中提取的函数式编程类库。重点阅读它的partial_application.js文件。</li>
-</ol>
-
-
-<p>感谢你的阅读，如果你在代码中发现了Bug，请<a href="https://github.com/raganwald/raganwald.github.com">克隆这个镜像</a>，提交合并申请，或者<a href="https://github.com/raganwald/raganwald.github.com/issues">在Github上提交一个事务</a>。</p>
-
-<p>PS：你可能会对另一篇文章也感兴趣：<a href="http://raganwald.com/2013/01/05/practical-applications-of-partial-application.html">Practical Applicaitons for Partial Application</a>。</p>
-
-<p>（<a href="http://www.reddit.com/r/javascript/comments/19urej/whats_the_difference_between_currying_and_partial/">讨论</a>）</p>
-
-<h2>脚注</h2>
-
-<ol>
-<li><a name="fn:birds"></a>当Raymond Smullyan为组合子逻辑撰写介绍时，他称之为“嘲鸟的模仿者”（To Mock a Mockingbird）。他通篇使用树林和小鸟来做比喻，以表达对Schönfinkel的敬意。Schön意为“美丽”，Fink则指德语中的Finch（燕雀），也指犹太语中的Finkl（火花）。所以他的名字可以理解为“美丽的燕雀”或“美丽的火花”。</li>
-<li><a name="fn:caveat"></a>本文的示例都异常简单。完整的实现应该能够接收任意元的函数，并依调用情况返回恰当的值。</li>
-<li><a name="fn:also"></a>柯里化还有很多其它应用，只是本文着重讲述的是柯里化和偏应用的区别，而不是组合子逻辑和函数式编程。</li>
-<li><a name="fn:tao"></a>一位道教人士向街边小贩购买一个素食热狗，并说道：“我要全套。”</li>
-</ol>
-
 ]]></content>
   </entry>
   
