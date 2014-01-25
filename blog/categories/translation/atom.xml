@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Translation | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/translation/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-01-25T10:46:45+08:00</updated>
+  <updated>2014-01-25T10:50:29+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -18,7 +18,9 @@
     <link href="http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/"/>
     <updated>2014-01-25T09:42:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial</id>
-    <content type="html"><![CDATA[<p>什么是反射？它有何用处？</p>
+    <content type="html"><![CDATA[<p>原文：<a href="http://www.programcreek.com/2013/09/java-reflection-tutorial/">http://www.programcreek.com/2013/09/java-reflection-tutorial/</a></p>
+
+<p>什么是反射？它有何用处？</p>
 
 <h2>1. 什么是反射？</h2>
 
