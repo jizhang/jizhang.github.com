@@ -7,6 +7,8 @@ categories: [Translation, Tutorial]
 published: true
 ---
 
+原文：http://www.programcreek.com/2013/09/java-reflection-tutorial/
+
 什么是反射？它有何用处？
 
 ## 1. 什么是反射？
