@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="作者：Susan Potter，翻译：张吉 原文：http://www.aosabook.org/en/git.html 6.1 Git概述 Git能够让不同的协作者通过一个点对点的仓库网络对数据内容（通常是代码，当然不仅限于代码）进行维护。它支持分布式的工作流程，能够让数据内容临时分离， &hellip;">
+  <meta name="description" content="作者：Tarek Ziadé，翻译：张吉 原文：http://www.aosabook.org/en/packaging.html 14.1 简介 对于如何安装软件，目前有两种思想流派。第一种是说软件应该自给自足，不依赖于其它任何部件，这点在Windows和Mac OS X系统中很流行。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -87,6 +87,59 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2012/11/18/aosa-python-packaging/">开源软件架构 - 卷1：第14章 Python打包工具</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-11-18T19:20:00+08:00" pubdate data-updated="true">Nov 18<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>作者：<a href="http://www.aosabook.org/en/intro1.html#ziade-tarek">Tarek Ziadé</a>，翻译：<a href="mailto:zhangji87@gmail.com">张吉</a></p>
+
+<p>原文：<a href="http://www.aosabook.org/en/packaging.html">http://www.aosabook.org/en/packaging.html</a></p>
+
+<h2>14.1 简介</h2>
+
+<p>对于如何安装软件，目前有两种思想流派。第一种是说软件应该自给自足，不依赖于其它任何部件，这点在Windows和Mac OS X系统中很流行。这种方式简化了软件的管理：每个软件都有自己独立的“领域”，安装和卸载它们不会对操作系统产生影响。如果软件依赖一项不常见的类库，那么这个类库一定是包含在软件安装包之中的。</p>
+
+<p>第二种流派，主要在类Linux的操作系统中盛行，即软件应该是由一个个独立的、小型的软件包组成的。类库被包含在软件包中，包与包之间可以有依赖关系。安装软件时需要查找和安装它所依赖的其他特定版本的软件包。这些依赖包通常是从一个包含所有软件包的中央仓库中获取的。这种理念也催生了Linux发行版中那些复杂的依赖管理工具，如<code>dpkg</code>和<code>RPM</code>。它们会跟踪软件包的依赖关系，并防止两个软件使用了版本相冲突的第三方包。</p>
+
+<p>以上两种流派各有优劣。高度模块化的系统可以使得更新和替换某个软件包变的非常方便，因为每个类库都只有一份，所有依赖于它的应用程序都能因此受益。比如，修复某个类库的安全漏洞可以立刻应用到所有程序中，而如果应用程序使用了自带的类库，那安全更新就很难应用进去了，特别是在类库版本不一致的情况下更难处理。</p>
+
+<p>不过这种“模块化”也被一些开发者视为缺点，因为他们无法控制应用程序的依赖关系。他们希望提供一个独立和稳定的软件运行环境，这样就不会在系统升级后遭遇各种依赖方面的问题。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/11/18/aosa-python-packaging/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2012/11/16/aosa-git/">开源软件架构 - 卷2：第6章 Git</a></h1>
     
     
@@ -154,6 +207,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Use WebJars in Scalatra Project</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/01/25/java-reflection-tutorial/">Java反射机制</a>
       </li>
     
@@ -167,10 +224,6 @@
     
       <li class="post">
         <a href="/blog/2013/09/06/hive-deleteme-error/">Hive并发情况下报DELETEME表不存在的异常</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/06/11/ansible-faq/">Ansible FAQ</a>
       </li>
     
   </ul>

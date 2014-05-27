@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="原文：http://www.programcreek.com/2013/09/java-reflection-tutorial/ 什么是反射？它有何用处？ 1. 什么是反射？ “反射（Reflection）能够让运行于JVM中的程序检测和修改运行时的行为。”这个概念常常会和内省（ &hellip;">
+  <meta name="description" content="As I&rsquo;m working with my first Scalatra project, I automatically think of using WebJars to manage Javascript library dependencies, since it&rsquo &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +81,84 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Use WebJars in Scalatra Project</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-27T17:44:00+08:00" pubdate data-updated="true">May 27<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>As I&rsquo;m working with my first <a href="http://www.scalatra.org/">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/">WebJars</a> to manage Javascript library dependencies, since it&rsquo;s more convenient and seems like a good practice. Though there&rsquo;s no <a href="http://www.webjars.org/documentation">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn&rsquo;t mean I didn&rsquo;t spend much time on this. I&rsquo;m still a newbie to Scala, and there&rsquo;s only a few materials on this subject.</p>
+
+<h2>Add WebJars Dependency in SBT Build File</h2>
+
+<p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let&rsquo;s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/">Dojo</a> for example.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">object</span> <span class="nc">DwExplorerBuild</span> <span class="k">extends</span> <span class="nc">Build</span> <span class="o">{</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>  <span class="k">lazy</span> <span class="k">val</span> <span class="n">project</span> <span class="k">=</span> <span class="nc">Project</span> <span class="o">(</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'>    <span class="n">settings</span> <span class="k">=</span> <span class="nc">Defaults</span><span class="o">.</span><span class="n">defaultSettings</span> <span class="o">++</span> <span class="nc">ScalatraPlugin</span><span class="o">.</span><span class="n">scalatraWithJRebel</span> <span class="o">++</span> <span class="n">scalateSettings</span> <span class="o">++</span> <span class="nc">Seq</span><span class="o">(</span>
+</span><span class='line'>      <span class="o">...</span>
+</span><span class='line'>      <span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>        <span class="s">&quot;org.webjars&quot;</span> <span class="o">%</span> <span class="s">&quot;dojo&quot;</span> <span class="o">%</span> <span class="s">&quot;1.9.3&quot;</span>
+</span><span class='line'>      <span class="o">),</span>
+</span><span class='line'>      <span class="o">...</span>
+</span><span class='line'>    <span class="o">)</span>
+</span><span class='line'>  <span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To view this dependency in Eclipse, you need to run <code>sbt eclipse</code> again. In the <em>Referenced Libraries</em> section, you can see a <code>dojo-1.9.3.jar</code>, and the library lies in <code>META-INF/resources/webjars/</code>.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -641,112 +719,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/">Perl入门实战：JVM监控脚本（下）</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-03-28T15:28:00+08:00" pubdate data-updated="true">Mar 28<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>套接字</h2>
-
-<p>使用套接字（Socket）进行网络通信的基本流程是：</p>
-
-<ul>
-<li>服务端：监听端口、等待连接、接收请求、发送应答；</li>
-<li>客户端：连接服务端、发送请求、接收应答。</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">use</span> <span class="nn">IO::Socket::</span><span class="n">INET</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">my</span> <span class="nv">$server</span> <span class="o">=</span> <span class="nn">IO::Socket::</span><span class="n">INET</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span>
-</span><span class='line'>    <span class="n">LocalPort</span> <span class="o">=&gt;</span> <span class="mi">10060</span><span class="p">,</span>
-</span><span class='line'>    <span class="n">Type</span> <span class="o">=&gt;</span> <span class="n">SOCK_STREAM</span><span class="p">,</span>
-</span><span class='line'>    <span class="n">Reuse</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span>
-</span><span class='line'>    <span class="n">Listen</span> <span class="o">=&gt;</span> <span class="n">SOMAXCONN</span>
-</span><span class='line'><span class="p">)</span> <span class="o">||</span> <span class="nb">die</span> <span class="s">&quot;服务创建失败\n&quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">while</span> <span class="p">(</span><span class="k">my</span> <span class="nv">$client</span> <span class="o">=</span> <span class="nv">$server</span><span class="o">-&gt;</span><span class="nb">accept</span><span class="p">())</span> <span class="p">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">my</span> <span class="nv">$line</span> <span class="o">=</span> <span class="sr">&lt;$client&gt;</span><span class="p">;</span>
-</span><span class='line'>    <span class="nb">chomp</span><span class="p">(</span><span class="nv">$line</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nv">$line</span> <span class="o">=~</span><span class="sr"> /^JVMPORT ([0-9]+)$/</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;RECV $1\n&quot;</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">print</span> <span class="nv">$client</span> <span class="s">&quot;OK\n&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;ERROR $line\n&quot;</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">print</span> <span class="nv">$client</span> <span class="s">&quot;ERROR\n&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nb">close</span><span class="p">(</span><span class="nv">$client</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">close</span><span class="p">(</span><span class="nv">$server</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -762,6 +734,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Use WebJars in Scalatra Project</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/01/25/java-reflection-tutorial/">Java反射机制</a>
       </li>
     
@@ -775,10 +751,6 @@
     
       <li class="post">
         <a href="/blog/2013/09/06/hive-deleteme-error/">Hive并发情况下报DELETEME表不存在的异常</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/06/11/ansible-faq/">Ansible FAQ</a>
       </li>
     
   </ul>

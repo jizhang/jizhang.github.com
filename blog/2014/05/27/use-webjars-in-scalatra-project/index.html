@@ -1,0 +1,454 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Use WebJars in Scalatra Project - Ji ZHANG's Blog</title>
+  <meta name="author" content="Ji ZHANG">
+
+  
+  <meta name="description" content="As I&rsquo;m working with my first Scalatra project, I automatically think of using WebJars to manage Javascript library dependencies, since it&rsquo &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-37223379-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ji ZHANG's Blog</a></h1>
+  
+    <h2>If I rest, I rust.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:shzhangji.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/categories/tutorial">Tutorial</a></li>
+  <li><a href="/blog/categories/translation">Translation</a></li>
+  <li><a href="/blog/categories/notes">Notes</a></li>
+  <li><a href="/blog/categories/big-data">Big Data</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Use WebJars in Scalatra Project</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-27T17:44:00+08:00" pubdate data-updated="true">May 27<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>As I&rsquo;m working with my first <a href="http://www.scalatra.org/">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/">WebJars</a> to manage Javascript library dependencies, since it&rsquo;s more convenient and seems like a good practice. Though there&rsquo;s no <a href="http://www.webjars.org/documentation">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn&rsquo;t mean I didn&rsquo;t spend much time on this. I&rsquo;m still a newbie to Scala, and there&rsquo;s only a few materials on this subject.</p>
+
+<h2>Add WebJars Dependency in SBT Build File</h2>
+
+<p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let&rsquo;s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/">Dojo</a> for example.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">object</span> <span class="nc">DwExplorerBuild</span> <span class="k">extends</span> <span class="nc">Build</span> <span class="o">{</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>  <span class="k">lazy</span> <span class="k">val</span> <span class="n">project</span> <span class="k">=</span> <span class="nc">Project</span> <span class="o">(</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'>    <span class="n">settings</span> <span class="k">=</span> <span class="nc">Defaults</span><span class="o">.</span><span class="n">defaultSettings</span> <span class="o">++</span> <span class="nc">ScalatraPlugin</span><span class="o">.</span><span class="n">scalatraWithJRebel</span> <span class="o">++</span> <span class="n">scalateSettings</span> <span class="o">++</span> <span class="nc">Seq</span><span class="o">(</span>
+</span><span class='line'>      <span class="o">...</span>
+</span><span class='line'>      <span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>        <span class="s">&quot;org.webjars&quot;</span> <span class="o">%</span> <span class="s">&quot;dojo&quot;</span> <span class="o">%</span> <span class="s">&quot;1.9.3&quot;</span>
+</span><span class='line'>      <span class="o">),</span>
+</span><span class='line'>      <span class="o">...</span>
+</span><span class='line'>    <span class="o">)</span>
+</span><span class='line'>  <span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To view this dependency in Eclipse, you need to run <code>sbt eclipse</code> again. In the <em>Referenced Libraries</em> section, you can see a <code>dojo-1.9.3.jar</code>, and the library lies in <code>META-INF/resources/webjars/</code>.</p>
+
+<!-- more -->
+
+
+<h2>Add a Route for WebJars Resources</h2>
+
+<p>Find the <code>ProjectNameStack.scala</code> file and add the following lines at the bottom of the trait:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">ProjectNameStack</span> <span class="k">extends</span> <span class="nc">ScalatraServlet</span> <span class="k">with</span> <span class="nc">ScalateSupport</span> <span class="o">{</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>  <span class="n">get</span><span class="o">(</span><span class="s">&quot;/webjars/*&quot;</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">resourcePath</span> <span class="k">=</span> <span class="s">&quot;/META-INF/resources/webjars/&quot;</span> <span class="o">+</span> <span class="n">params</span><span class="o">(</span><span class="s">&quot;splat&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="nc">Option</span><span class="o">(</span><span class="n">getClass</span><span class="o">.</span><span class="n">getResourceAsStream</span><span class="o">(</span><span class="n">resourcePath</span><span class="o">))</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">case</span> <span class="nc">Some</span><span class="o">(</span><span class="n">inputStream</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">contentType</span> <span class="k">=</span> <span class="n">servletContext</span><span class="o">.</span><span class="n">getMimeType</span><span class="o">(</span><span class="n">resourcePath</span><span class="o">)</span>
+</span><span class='line'>        <span class="nc">IOUtil</span><span class="o">.</span><span class="n">loadBytes</span><span class="o">(</span><span class="n">inputStream</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>      <span class="k">case</span> <span class="nc">None</span> <span class="k">=&gt;</span> <span class="n">resourceNotFound</span><span class="o">()</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>That&rsquo;s it!</strong> Now you can refer to the WebJars resources in views, like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ssp'><span class='line'>#set (title)
+</span><span class='line'>Hello, Dojo!
+</span><span class='line'>#end
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;greeting&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;${uri(&quot;</span><span class="err">/webjars/dojo/1.9.3/dojo/dojo.js&quot;)}&quot;</span> <span class="na">data-dojo-config=</span><span class="s">&quot;async: true&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>require([
+</span><span class='line'>    &#39;dojo/dom&#39;,
+</span><span class='line'>    &#39;dojo/dom-construct&#39;
+</span><span class='line'>], function (dom, domConstruct) {
+</span><span class='line'>    var greetingNode = dom.byId(&#39;greeting&#39;);
+</span><span class='line'>    domConstruct.place(&#39;<span class="nt">&lt;i&gt;</span>Dojo!<span class="nt">&lt;/i&gt;</span>&#39;, greetingNode);
+</span><span class='line'>});
+</span><span class='line'><span class="nt">&lt;/script&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Some Explanations on This Route</h3>
+
+<ul>
+<li><code>/webjars/*</code> is a <a href="http://www.scalatra.org/2.2/guides/http/routes.html#toc_233">Wildcards</a> and <code>params("splat")</code> is to extract the asterisk part.</li>
+<li><code>resourcePath</code> points to the WebJars resources in the jar file, as we saw in Eclipse. It is then fetched as an <code>InputStream</code> with <code>getResourceAsStream()</code>.</li>
+<li><code>servletContext.getMimeType()</code> is a handy method to determine the content type of the requested resource, instead of parsing it by ourselves. I find this in SpringMVC&rsquo;s <a href="http://grepcode.com/file/repo1.maven.org/maven2/org.springframework/spring-webmvc/3.2.7.RELEASE/org/springframework/web/servlet/resource/ResourceHttpRequestHandler.java#ResourceHttpRequestHandler.handleRequest%28javax.servlet.http.HttpServletRequest%2Cjavax.servlet.http.HttpServletResponse%29">ResourceHttpRequestHandler</a>.</li>
+<li><code>IOUtil</code> is a utiliy class that comes with <a href="http://scalate.fusesource.org/">Scalate</a>, so don&rsquo;t forget to import it first.</li>
+</ul>
+
+
+<p>At first I tried to figure out whether Scalatra provides a conveniet way to serve static files in classpath, I failed. So I decided to serve them by my own, and <a href="https://gist.github.com/laurilehmijoki/4483113">this gist</a> was very helpful.</p>
+
+<p>Anyway, I&rsquo;ve spent more than half a day to solve this problem, and it turned out to be a very challenging yet interesting way to learn a new language, new framework, and new tools. Keep moving!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ji ZHANG</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-27T17:44:00+08:00" pubdate data-updated="true">May 27<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/notes/'>Notes</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/01/25/java-reflection-tutorial/" title="Previous Post: Java反射机制">&laquo; Java反射机制</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Use WebJars in Scalatra Project</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/25/java-reflection-tutorial/">Java反射机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/12/17/the-law-of-leaky-abstractions/">抽象泄漏定律</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/">Generate Auto-increment Id in Map-reduce Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/09/06/hive-deleteme-error/">Hive并发情况下报DELETEME表不存在的异常</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jizhang">@jizhang</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jizhang',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+<a href="http://stackoverflow.com/users/1030720/jerry">
+<img src="http://stackoverflow.com/users/flair/1030720.png?theme=clean" width="208" height="58" alt="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers" title="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers">
+</a>
+</section>
+
+<section>
+  <h1>On Delicious</h1>
+  <div id="delicious"></div>
+  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/zjerryj?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
+  <p><a href="http://delicious.com/zjerryj">My Delicious Bookmarks &raquo;</a></p>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/zhangji87@gmail.com?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Ji ZHANG -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jizhang';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/';
+        var disqus_url = 'http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
