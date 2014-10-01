@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-05-27T19:02:54+08:00</updated>
+  <updated>2014-10-01T16:19:41+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -142,7 +142,7 @@
 
 <p>At first I tried to figure out whether Scalatra provides a conveniet way to serve static files in classpath, I failed. So I decided to serve them by my own, and <a href="https://gist.github.com/laurilehmijoki/4483113">this gist</a> was very helpful.</p>
 
-<p>Anyway, I&rsquo;ve spent more than half a day to solve this problem, and it turned out to be a very challenging yet interesting way to learn a new language, new framework, and new tools. Keep moving!</p><div style="display: none;">doubanclaim622c7d1eeeac12ee</div>
+<p>Anyway, I&rsquo;ve spent more than half a day to solve this problem, and it turned out to be a very challenging yet interesting way to learn a new language, new framework, and new tools. Keep moving!</p>
 ]]></content>
   </entry>
   
