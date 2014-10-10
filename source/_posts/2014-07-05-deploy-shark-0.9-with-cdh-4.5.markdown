@@ -21,6 +21,8 @@ categories: [Notes, Big Data]
     * 配置主节点至子节点的root账户SSH无密码登录。
     * 在`/etc/hosts`中写死IP和主机名，或者DNS做好正反解析。
 
+<!-- more -->
+
 ## 安装Spark
 
 * 使用CM安装Parcel，不需要重启服务。
