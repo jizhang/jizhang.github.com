@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Notes | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-10-01T16:29:00+08:00</updated>
+  <updated>2014-10-10T23:11:13+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,204 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[在CDH 4.5上安装Shark 0.9]]></title>
+    <link href="http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/"/>
+    <updated>2014-07-05T17:16:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5</id>
+    <content type="html"><![CDATA[<p><a href="http://spark.apache.org">Spark</a>是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的<a href="http://hadoop.apache.org">Hadoop</a>生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于<a href="http://hive.apache.org">Hive</a>，Spark也有相应的替代项目——<a href="http://shark.cs.berkeley.edu/">Shark</a>，能做到 <strong>drop-in replacement</strong> ，直接构建在现有集群之上。本文就将简要阐述如何在CDH4.5上搭建Shark0.9集群。</p>
+
+<h2>准备工作</h2>
+
+<ul>
+<li>安装方式：Spark使用CDH提供的Parcel，以Standalone模式启动</li>
+<li>软件版本
+
+<ul>
+<li>Cloudera Manager 4.8.2</li>
+<li>CDH 4.5</li>
+<li>Spark 0.9.0 Parcel</li>
+<li><a href="http://cloudera.rst.im/shark/">Shark 0.9.1 Binary</a></li>
+</ul>
+</li>
+<li>服务器基础配置
+
+<ul>
+<li>可用的软件源（如<a href="http://mirrors.ustc.edu.cn/">中科大的源</a>）</li>
+<li>配置主节点至子节点的root账户SSH无密码登录。</li>
+<li>在<code>/etc/hosts</code>中写死IP和主机名，或者DNS做好正反解析。</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>安装Spark</h2>
+
+<ul>
+<li>使用CM安装Parcel，不需要重启服务。</li>
+<li>修改<code>/etc/spark/conf/spark-env.sh</code>：（其中one-843是主节点的域名）</li>
+</ul>
+
+
+<p><code>bash
+STANDALONE_SPARK_MASTER_HOST=one-843
+DEFAULT_HADOOP_HOME=/opt/cloudera/parcels/CDH/lib/hadoop
+export SPARK_CLASSPATH=$SPARK_CLASSPATH:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/*
+export SPARK_LIBRARY_PATH=$SPARK_LIBRARY_PATH:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/native
+</code></p>
+
+<ul>
+<li>修改<code>/etc/spark/conf/slaves</code>，添加各节点主机名。</li>
+<li>将<code>/etc/spark/conf</code>目录同步至所有节点。</li>
+<li>启动Spark服务（即Standalone模式）：</li>
+</ul>
+
+
+<p><code>bash
+$ /opt/cloudera/parcels/SPARK/lib/spark/sbin/start-master.sh
+$ /opt/cloudera/parcels/SPARK/lib/spark/sbin/start-slaves.sh
+</code></p>
+
+<ul>
+<li>测试<code>spark-shell</code>是否可用：</li>
+</ul>
+
+
+<p><code>scala
+sc.textFile("hdfs://one-843:8020/user/jizhang/zj_people.txt.lzo").count
+</code></p>
+
+<h2>安装Shark</h2>
+
+<ul>
+<li>安装Oracle JDK 1.7 Update 45至<code>/usr/lib/jvm/jdk1.7.0_45</code>。</li>
+<li>下载别人编译好的二进制包：<a href="http://cloudera.rst.im/shark/shark-0.9.1-bin-2.0.0-mr1-cdh-4.6.0.tar.gz">shark-0.9.1-bin-2.0.0-mr1-cdh-4.6.0.tar.gz</a></li>
+<li>解压至<code>/opt</code>目录，修改<code>conf/shark-env.sh</code>：</li>
+</ul>
+
+
+<p>```bash
+export JAVA_HOME=/usr/lib/jvm/jdk1.7.0_45
+export SCALA_HOME=/opt/cloudera/parcels/SPARK/lib/spark
+export SHARK_HOME=/root/shark-0.9.1-bin-2.0.0-mr1-cdh-4.6.0</p>
+
+<p>export HIVE_CONF_DIR=/etc/hive/conf</p>
+
+<p>export HADOOP_HOME=/opt/cloudera/parcels/CDH/lib/hadoop
+export SPARK_HOME=/opt/cloudera/parcels/SPARK/lib/spark
+export MASTER=spark://one-843:7077</p>
+
+<p>export SPARK_CLASSPATH=$SPARK_CLASSPATH:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/*
+export SPARK_LIBRARY_PATH=$SPARK_LIBRARY_PATH:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/native
+```</p>
+
+<ul>
+<li>开启SharkServer2，使用Supervisord管理：</li>
+</ul>
+
+
+<p><code>
+[program:sharkserver2]
+command = /opt/shark/bin/shark --service sharkserver2
+autostart = true
+autorestart = true
+stdout_logfile = /var/log/sharkserver2.log
+redirect_stderr = true
+</code></p>
+
+<p><code>bash
+$ supervisorctl start sharkserver2
+</code></p>
+
+<ul>
+<li>测试</li>
+</ul>
+
+
+<p><code>bash
+$ /opt/shark/bin/beeline -u jdbc:hive2://one-843:10000 -n root
+</code></p>
+
+<h2>版本问题</h2>
+
+<h3>背景</h3>
+
+<h4>CDH</h4>
+
+<p>CDH是对Hadoop生态链各组件的打包，每个CDH版本都会对应一组Hadoop组件的版本，如<a href="http://www.cloudera.com/content/cloudera-content/cloudera-docs/CDH4/4.5.0/CDH-Version-and-Packaging-Information/cdhvd_topic_3.html">CDH4.5</a>的部分对应关系如下：</p>
+
+<ul>
+<li>Apache Hadoop: hadoop-2.0.0+1518</li>
+<li>Apache Hive: hive-0.10.0+214</li>
+<li>Hue: hue-2.5.0+182</li>
+</ul>
+
+
+<p>可以看到，CDH4.5对应的Hive版本是0.10.0，因此它的<a href="http://www.cloudera.com/content/cloudera-content/cloudera-docs/CDH4/4.5.0/CDH4-Installation-Guide/cdh4ig_hive_metastore_configure.html">Metastore Server</a>使用的也是0.10.0版本的API。</p>
+
+<h4>Spark</h4>
+
+<p>Spark目前最高版本是0.9.1，CDH前不久推出了0.9.0的Parcel，使得安装过程变的简单得多。CDH5中对Spark做了深度集成，即可以用CM来直接控制Spark的服务，且支持Spark on YARN架构。</p>
+
+<h4>Shark</h4>
+
+<p>Shark是基于Spark的一款应用，可以简单地认为是将Hive的MapReduce引擎替换为了Spark。</p>
+
+<p>Shark的一个特点的是需要使用特定的Hive版本——<a href="https://github.com/amplab/hive">AMPLab patched Hive</a>：</p>
+
+<ul>
+<li>Shark 0.8.x: AMPLab Hive 0.9.0</li>
+<li>Shark 0.9.x: AMPLab Hive 0.11.0</li>
+</ul>
+
+
+<p>在0.9.0以前，我们需要手动下载AMPLab Hive的二进制包，并在Shark的环境变量中设置$HIVE_HOME。在0.9.1以后，AMPLab将该版本的Hive包上传至了Maven，可以直接打进Shark的二进制包中。但是，这个Jar是用JDK7编译的，因此运行Shark需要使用Oracle JDK7。CDH建议使用Update 45这个小版本。</p>
+
+<h4>Shark与Hive的并存</h4>
+
+<p>Shark的一个卖点是和Hive的<a href="5">高度兼容</a>，也就是说它可以直接操作Hive的metastore db，或是和metastore server通信。当然，前提是两者的Hive版本需要一致，这也是目前遇到的最大问题。</p>
+
+<h3>目前发现的不兼容SQL</h3>
+
+<ul>
+<li>DROP TABLE &hellip;</li>
+</ul>
+
+
+<p><code>
+FAILED: Error in metadata: org.apache.thrift.TApplicationException: Invalid method name: 'drop_table_with_environment_context'
+</code></p>
+
+<ul>
+<li>INSERT OVERWRITE TABLE &hellip; PARTITION (&hellip;) SELECT &hellip;</li>
+<li>LOAD DATA INPATH &lsquo;&hellip;&rsquo; OVERWRITE INTO TABLE &hellip; PARTITION (&hellip;)</li>
+</ul>
+
+
+<p><code>
+Failed with exception org.apache.thrift.TApplicationException: Invalid method name: 'partition_name_has_valid_characters'
+</code></p>
+
+<p>也就是说上述两个方法名是0.11.0接口中定义的，在0.10.0的定义中并不存在，所以出现上述问题。</p>
+
+<h3>解决方案</h3>
+
+<h4>对存在问题的SQL使用Hive命令去调</h4>
+
+<p>因为Shark初期是想给分析师使用的，他们对分区表并不是很在意，而DROP TABLE可以在客户端做判断，转而使用Hive来执行。</p>
+
+<p>这个方案的优点是可以在现有集群上立刻用起来，但缺点是需要做一些额外的开发，而且API不一致的问题可能还会有其他坑在里面。</p>
+
+<h4>升级到CDH5</h4>
+
+<p>CDH5中Hive的版本是0.12.0，所以不排除同样存在API不兼容的问题。不过网上也有人尝试跳过AMPLab Hive，让Shark直接调用CDH中的Hive，其可行性还需要我们自己测试。</p>
+
+<p>对于这个问题，我只在<a href="https://groups.google.com/forum/#!starred/shark-users/x_Dh5-3isIc">Google Groups</a>上看到一篇相关的帖子，不过并没有给出解决方案。</p>
+
+<p>目前我们实施的是 <strong>第一种方案</strong>，即在客户端和Shark之间添加一层，不支持的SQL语句直接降级用Hive执行，效果不错。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Use WebJars in Scalatra Project]]></title>
@@ -653,237 +851,6 @@ test-project/
 </code></pre>
 
 <p>```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[fork()与僵尸进程]]></title>
-    <link href="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/"/>
-    <updated>2013-03-27T20:18:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process</id>
-    <content type="html"><![CDATA[<p>使用fork()函数派生出多个子进程来并行执行程序的不同代码块，是一种常用的编程泛型。特别是在网络编程中，父进程初始化后派生出指定数量的子进程，共同监听网络端口并处理请求，从而达到扩容的目的。</p>
-
-<p>但是，在使用fork()函数时若处理不当，很容易产生僵尸进程。根据UNIX系统的定义，僵尸进程是指子进程退出后，它的父进程没有“等待”该子进程，这样的子进程就会成为僵尸进程。何谓“等待”？僵尸进程的危害是什么？以及要如何避免？这就是本文将要阐述的内容。</p>
-
-<h2>fork()函数</h2>
-
-<p>下面这段C语言代码展示了fork()函数的使用方法：</p>
-
-<p>```c
-// myfork.c</p>
-
-<h1>include &lt;unistd.h></h1>
-
-<h1>include &lt;stdio.h></h1>
-
-<p>int main(int argc, char **argv) {</p>
-
-<pre><code>while (1) {
-    pid_t pid = fork();
-    if (pid &gt; 0) {
-        // 主进程
-        sleep(5);
-    } else if (pid == 0) {
-        // 子进程
-        return 0;
-    } else {
-        fprintf(stderr, "fork error\n");
-        return 2;
-    }
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<!-- more -->
-
-
-<p>调用fork()函数后，系统会将当前进程的绝大部分资源拷贝一份（其中的copy-on-write技术这里不详述），该函数的返回值有三种情况，分别是：</p>
-
-<ul>
-<li>大于0，表示当前进程为父进程，返回值是子进程号；</li>
-<li>等于0，表示当前进程是子进程；</li>
-<li>小于0（确切地说是等于-1），表示fork()调用失败。</li>
-</ul>
-
-
-<p>让我们编译执行这段程序，并查看进程表：</p>
-
-<p><code>bash
-$ gcc myfork.c -o myfork &amp;&amp; ./myfork
-$ ps -ef | grep fork
-vagrant  14860  2748  0 06:09 pts/0    00:00:00 ./myfork
-vagrant  14861 14860  0 06:09 pts/0    00:00:00 [myfork] &lt;defunct&gt;
-vagrant  14864 14860  0 06:09 pts/0    00:00:00 [myfork] &lt;defunct&gt;
-vagrant  14877 14860  0 06:09 pts/0    00:00:00 [myfork] &lt;defunct&gt;
-vagrant  14879  2784  0 06:09 pts/1    00:00:00 grep fork
-</code></p>
-
-<p>可以看到子进程创建成功了，进程号也有对应关系。但是每个子进程后面都跟有“defunct”标识，即表示该进程是一个僵尸进程。</p>
-
-<p>这段程序会每五秒创建一个新的子进程，如果不加以回收，那就会占满进程表，使得系统无法再创建进程。这也是僵尸进程最大的危害。</p>
-
-<h2>wait()函数</h2>
-
-<p>我们对上面这段程序稍加修改：</p>
-
-<p>```c
-pid_t pid = fork();
-if (pid > 0) {</p>
-
-<pre><code>// parent process
-wait(NULL);
-sleep(5);
-</code></pre>
-
-<p>} else &hellip;
-```</p>
-
-<p>编译执行后会发现进程表中不再出现defunct进程了，即子进程已被完全回收。因此上文中的“等待”指的是主进程等待子进程结束，获取子进程的结束状态信息，这时内核才会回收子进程。</p>
-
-<p>除了通过“等待”来回收子进程，主进程退出也会回收子进程。这是因为主进程退出后，init进程（PID=1）会接管这些僵尸进程，该进程一定会调用wait()函数（或其他类似函数），从而保证僵尸进程得以回收。</p>
-
-<h2>SIGCHLD信号</h2>
-
-<p>通常，父进程不会始终处于等待状态，它还需要执行其它代码，因此“等待”的工作会使用信号机制来完成。</p>
-
-<p>在子进程终止时，内核会发送SIGCHLD信号给父进程，因此父进程可以添加信号处理函数，并在该函数中调用wait()函数，以防止僵尸进程的产生。</p>
-
-<p>```c
-// myfork2.c</p>
-
-<h1>include &lt;unistd.h></h1>
-
-<h1>include &lt;stdio.h></h1>
-
-<h1>include &lt;signal.h></h1>
-
-<h1>include &lt;time.h></h1>
-
-<h1>include &lt;sys/wait.h></h1>
-
-<p>void signal_handler(int signo) {</p>
-
-<pre><code>if (signo == SIGCHLD) {
-    pid_t pid;
-    while ((pid = waitpid(-1, NULL, WNOHANG)) &gt; 0) {
-        printf("SIGCHLD pid %d\n", pid);
-    }
-}
-</code></pre>
-
-<p>}</p>
-
-<p>void mysleep(int sec) {</p>
-
-<pre><code>time_t start = time(NULL), elapsed = 0;
-while (elapsed &lt; sec) {
-    sleep(sec - elapsed);
-    elapsed = time(NULL) - start;
-}
-</code></pre>
-
-<p>}</p>
-
-<p>int main(int argc, char **argv) {</p>
-
-<pre><code>signal(SIGCHLD, signal_handler);
-
-while (1) {
-    pid_t pid = fork();
-    if (pid &gt; 0) {
-        // parent process
-        mysleep(5);
-    } else if (pid == 0) {
-        // child process
-        printf("child pid %d\n", getpid());
-        return 0;
-    } else {
-        fprintf(stderr, "fork error\n");
-        return 2;
-    }
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>代码执行结果：</p>
-
-<p><code>bash
-$ gcc myfork2.c -o myfork2 &amp;&amp; ./myfork2
-child pid 17422
-SIGCHLD pid 17422
-child pid 17423
-SIGCHLD pid 17423
-</code></p>
-
-<p>其中，signal()用于注册信号处理函数，该处理函数接收一个signo参数，用来标识信号的类型。</p>
-
-<p>waitpid()的功能和wait()类似，但提供了额外的选项（<code>wait(NULL)</code>等价于<code>waitpid(-1, NULL, 0)</code>）。如，wait()函数是阻塞的，而waitpid()提供了WNOHANG选项，调用后会立刻返回，可根据返回值判断等待结果。</p>
-
-<p>此外，我们在信号处理中使用了一个循环体，不断调用waitpid()，直到失败为止。那是因为在系统繁忙时，信号可能会被合并，即两个子进程结束只会发送一次SIGCHLD信号，如果只wait()一次，就会产生僵尸进程。</p>
-
-<p>最后，由于默认的sleep()函数会在接收到信号时立即返回，因此为了方便演示，这里定义了mysleep()函数。</p>
-
-<h2>SIG_IGN</h2>
-
-<p>除了在SIGCHLD信号处理函数中调用wait()来避免产生僵尸进程，我们还可以选择忽略SIGCHLD信号，告知操作系统父进程不关心子进程的退出状态，可以直接清理。</p>
-
-<p><code>c
-signal(SIGCHLD, SIG_IGN);
-</code></p>
-
-<p>但需要注意的是，在部分BSD系统中，这种做法仍会产生僵尸进程。因此更为通用的方法还是使用wait()函数。</p>
-
-<h2>Perl中的fork()函数</h2>
-
-<p>Perl语言提供了相应的内置函数来创建子进程：</p>
-
-<p>```perl</p>
-
-<h1>!/usr/bin/perl</h1>
-
-<p>sub REAPER {</p>
-
-<pre><code>my $pid;
-while (($pid = waitpid(-1, WNOHANG)) &gt; 0) {
-    print "SIGCHLD pid $pid\n";
-}
-</code></pre>
-
-<p>}</p>
-
-<p>$SIG{CHLD} = &amp;REAPER;</p>
-
-<p>my $pid = fork();
-if ($pid > 0) {</p>
-
-<pre><code>print "[Parent] child pid $pid\n";
-sleep(10);
-</code></pre>
-
-<p>} elsif ($pid == 0) {</p>
-
-<pre><code>print "[Child] pid $$\n";
-exit;
-</code></pre>
-
-<p>}
-```</p>
-
-<p>其思路和C语言基本是一致的。如果想要忽略SIGCHLD，可使用<code>$SIG{CHLD} = 'IGNORE';</code>，但还是要考虑BSD系统上的限制。</p>
-
-<h2>参考资料</h2>
-
-<ul>
-<li><a href="http://linux.die.net/man/2/fork">fork(2) &ndash; Linux man page</a></li>
-<li><a href="http://linux.die.net/man/2/waitpid">waitpid(2) &ndash; Linux man page</a></li>
-<li><a href="http://book.jd.com/10137688.html">UNIX环境高级编程（英文版）（第2版）</a></li>
-<li><a href="http://tech.idv2.com/2006/10/14/linux-multiprocess-info/">Linux多进程相关内容</a></li>
-</ul>
-
 ]]></content>
   </entry>
   

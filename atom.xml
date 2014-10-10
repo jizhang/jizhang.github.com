@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-10-01T16:29:00+08:00</updated>
+  <updated>2014-10-10T23:11:13+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,235 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[在CDH 4.5上安装Shark 0.9]]></title>
+    <link href="http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/"/>
+    <updated>2014-07-05T17:16:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5</id>
+    <content type="html"><![CDATA[<p><a href="http://spark.apache.org">Spark</a>是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的<a href="http://hadoop.apache.org">Hadoop</a>生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于<a href="http://hive.apache.org">Hive</a>，Spark也有相应的替代项目——<a href="http://shark.cs.berkeley.edu/">Shark</a>，能做到 <strong>drop-in replacement</strong> ，直接构建在现有集群之上。本文就将简要阐述如何在CDH4.5上搭建Shark0.9集群。</p>
+
+<h2>准备工作</h2>
+
+<ul>
+<li>安装方式：Spark使用CDH提供的Parcel，以Standalone模式启动</li>
+<li>软件版本
+
+<ul>
+<li>Cloudera Manager 4.8.2</li>
+<li>CDH 4.5</li>
+<li>Spark 0.9.0 Parcel</li>
+<li><a href="http://cloudera.rst.im/shark/">Shark 0.9.1 Binary</a></li>
+</ul>
+</li>
+<li>服务器基础配置
+
+<ul>
+<li>可用的软件源（如<a href="http://mirrors.ustc.edu.cn/">中科大的源</a>）</li>
+<li>配置主节点至子节点的root账户SSH无密码登录。</li>
+<li>在<code>/etc/hosts</code>中写死IP和主机名，或者DNS做好正反解析。</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>安装Spark</h2>
+
+<ul>
+<li>使用CM安装Parcel，不需要重启服务。</li>
+<li>修改<code>/etc/spark/conf/spark-env.sh</code>：（其中one-843是主节点的域名）</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">STANDALONE_SPARK_MASTER_HOST</span><span class="o">=</span>one-843
+</span><span class='line'><span class="nv">DEFAULT_HADOOP_HOME</span><span class="o">=</span>/opt/cloudera/parcels/CDH/lib/hadoop
+</span><span class='line'><span class="nb">export </span><span class="nv">SPARK_CLASSPATH</span><span class="o">=</span><span class="nv">$SPARK_CLASSPATH</span>:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/*
+</span><span class='line'><span class="nb">export </span><span class="nv">SPARK_LIBRARY_PATH</span><span class="o">=</span><span class="nv">$SPARK_LIBRARY_PATH</span>:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/native
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>修改<code>/etc/spark/conf/slaves</code>，添加各节点主机名。</li>
+<li>将<code>/etc/spark/conf</code>目录同步至所有节点。</li>
+<li>启动Spark服务（即Standalone模式）：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>/opt/cloudera/parcels/SPARK/lib/spark/sbin/start-master.sh
+</span><span class='line'><span class="nv">$ </span>/opt/cloudera/parcels/SPARK/lib/spark/sbin/start-slaves.sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>测试<code>spark-shell</code>是否可用：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;hdfs://one-843:8020/user/jizhang/zj_people.txt.lzo&quot;</span><span class="o">).</span><span class="n">count</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>安装Shark</h2>
+
+<ul>
+<li>安装Oracle JDK 1.7 Update 45至<code>/usr/lib/jvm/jdk1.7.0_45</code>。</li>
+<li>下载别人编译好的二进制包：<a href="http://cloudera.rst.im/shark/shark-0.9.1-bin-2.0.0-mr1-cdh-4.6.0.tar.gz">shark-0.9.1-bin-2.0.0-mr1-cdh-4.6.0.tar.gz</a></li>
+<li>解压至<code>/opt</code>目录，修改<code>conf/shark-env.sh</code>：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">JAVA_HOME</span><span class="o">=</span>/usr/lib/jvm/jdk1.7.0_45
+</span><span class='line'><span class="nb">export </span><span class="nv">SCALA_HOME</span><span class="o">=</span>/opt/cloudera/parcels/SPARK/lib/spark
+</span><span class='line'><span class="nb">export </span><span class="nv">SHARK_HOME</span><span class="o">=</span>/root/shark-0.9.1-bin-2.0.0-mr1-cdh-4.6.0
+</span><span class='line'>
+</span><span class='line'><span class="nb">export </span><span class="nv">HIVE_CONF_DIR</span><span class="o">=</span>/etc/hive/conf
+</span><span class='line'>
+</span><span class='line'><span class="nb">export </span><span class="nv">HADOOP_HOME</span><span class="o">=</span>/opt/cloudera/parcels/CDH/lib/hadoop
+</span><span class='line'><span class="nb">export </span><span class="nv">SPARK_HOME</span><span class="o">=</span>/opt/cloudera/parcels/SPARK/lib/spark
+</span><span class='line'><span class="nb">export </span><span class="nv">MASTER</span><span class="o">=</span>spark://one-843:7077
+</span><span class='line'>
+</span><span class='line'><span class="nb">export </span><span class="nv">SPARK_CLASSPATH</span><span class="o">=</span><span class="nv">$SPARK_CLASSPATH</span>:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/*
+</span><span class='line'><span class="nb">export </span><span class="nv">SPARK_LIBRARY_PATH</span><span class="o">=</span><span class="nv">$SPARK_LIBRARY_PATH</span>:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/native
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>开启SharkServer2，使用Supervisord管理：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="o">[</span>program:sharkserver2<span class="o">]</span>
+</span><span class='line'><span class="nb">command</span> <span class="o">=</span> /opt/shark/bin/shark --service sharkserver2
+</span><span class='line'><span class="nv">autostart</span> <span class="o">=</span> <span class="nb">true</span>
+</span><span class='line'><span class="nv">autorestart</span> <span class="o">=</span> <span class="nb">true</span>
+</span><span class='line'><span class="nv">stdout_logfile</span> <span class="o">=</span> /var/log/sharkserver2.log
+</span><span class='line'><span class="nv">redirect_stderr</span> <span class="o">=</span> <span class="nb">true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>supervisorctl start sharkserver2
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>测试</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>/opt/shark/bin/beeline -u jdbc:hive2://one-843:10000 -n root
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>版本问题</h2>
+
+<h3>背景</h3>
+
+<h4>CDH</h4>
+
+<p>CDH是对Hadoop生态链各组件的打包，每个CDH版本都会对应一组Hadoop组件的版本，如<a href="http://www.cloudera.com/content/cloudera-content/cloudera-docs/CDH4/4.5.0/CDH-Version-and-Packaging-Information/cdhvd_topic_3.html">CDH4.5</a>的部分对应关系如下：</p>
+
+<ul>
+<li>Apache Hadoop: hadoop-2.0.0+1518</li>
+<li>Apache Hive: hive-0.10.0+214</li>
+<li>Hue: hue-2.5.0+182</li>
+</ul>
+
+
+<p>可以看到，CDH4.5对应的Hive版本是0.10.0，因此它的<a href="http://www.cloudera.com/content/cloudera-content/cloudera-docs/CDH4/4.5.0/CDH4-Installation-Guide/cdh4ig_hive_metastore_configure.html">Metastore Server</a>使用的也是0.10.0版本的API。</p>
+
+<h4>Spark</h4>
+
+<p>Spark目前最高版本是0.9.1，CDH前不久推出了0.9.0的Parcel，使得安装过程变的简单得多。CDH5中对Spark做了深度集成，即可以用CM来直接控制Spark的服务，且支持Spark on YARN架构。</p>
+
+<h4>Shark</h4>
+
+<p>Shark是基于Spark的一款应用，可以简单地认为是将Hive的MapReduce引擎替换为了Spark。</p>
+
+<p>Shark的一个特点的是需要使用特定的Hive版本——<a href="https://github.com/amplab/hive">AMPLab patched Hive</a>：</p>
+
+<ul>
+<li>Shark 0.8.x: AMPLab Hive 0.9.0</li>
+<li>Shark 0.9.x: AMPLab Hive 0.11.0</li>
+</ul>
+
+
+<p>在0.9.0以前，我们需要手动下载AMPLab Hive的二进制包，并在Shark的环境变量中设置$HIVE_HOME。在0.9.1以后，AMPLab将该版本的Hive包上传至了Maven，可以直接打进Shark的二进制包中。但是，这个Jar是用JDK7编译的，因此运行Shark需要使用Oracle JDK7。CDH建议使用Update 45这个小版本。</p>
+
+<h4>Shark与Hive的并存</h4>
+
+<p>Shark的一个卖点是和Hive的<a href="5">高度兼容</a>，也就是说它可以直接操作Hive的metastore db，或是和metastore server通信。当然，前提是两者的Hive版本需要一致，这也是目前遇到的最大问题。</p>
+
+<h3>目前发现的不兼容SQL</h3>
+
+<ul>
+<li>DROP TABLE &hellip;</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>FAILED: Error in metadata: org.apache.thrift.TApplicationException: Invalid method name: <span class="s1">&#39;drop_table_with_environment_context&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>INSERT OVERWRITE TABLE &hellip; PARTITION (&hellip;) SELECT &hellip;</li>
+<li>LOAD DATA INPATH &lsquo;&hellip;&rsquo; OVERWRITE INTO TABLE &hellip; PARTITION (&hellip;)</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Failed with exception org.apache.thrift.TApplicationException: Invalid method name: <span class="s1">&#39;partition_name_has_valid_characters&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>也就是说上述两个方法名是0.11.0接口中定义的，在0.10.0的定义中并不存在，所以出现上述问题。</p>
+
+<h3>解决方案</h3>
+
+<h4>对存在问题的SQL使用Hive命令去调</h4>
+
+<p>因为Shark初期是想给分析师使用的，他们对分区表并不是很在意，而DROP TABLE可以在客户端做判断，转而使用Hive来执行。</p>
+
+<p>这个方案的优点是可以在现有集群上立刻用起来，但缺点是需要做一些额外的开发，而且API不一致的问题可能还会有其他坑在里面。</p>
+
+<h4>升级到CDH5</h4>
+
+<p>CDH5中Hive的版本是0.12.0，所以不排除同样存在API不兼容的问题。不过网上也有人尝试跳过AMPLab Hive，让Shark直接调用CDH中的Hive，其可行性还需要我们自己测试。</p>
+
+<p>对于这个问题，我只在<a href="https://groups.google.com/forum/#!starred/shark-users/x_Dh5-3isIc">Google Groups</a>上看到一篇相关的帖子，不过并没有给出解决方案。</p>
+
+<p>目前我们实施的是 <strong>第一种方案</strong>，即在客户端和Shark之间添加一层，不支持的SQL语句直接降级用Hive执行，效果不错。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Use WebJars in Scalatra Project]]></title>
@@ -6901,446 +7130,6 @@
 <h2>小结</h2>
 
 <p>这一章我们学习了如何配置Eclipse以编写Leiningen项目；如何使用表单和接受参数，特别是表单验证和错误信息的提示；最后我们演示了如何将数据保存到MySQL中，并使用连接池来优化项目。下一节我们将为博客增加用户登录的功能，以讲解Cookie和Session的使用。我们还会学习如何对Leiningen项目进行打包和发布，并尝试将我们的博客发布到PaaS平台Heroku上去。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Clojure实战(1)：使用Noir框架开发博客(上)]]></title>
-    <link href="http://shzhangji.com/blog/2012/11/25/cia-noir-1/"/>
-    <updated>2012-11-25T16:58:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2012/11/25/cia-noir-1</id>
-    <content type="html"><![CDATA[<h2>前言</h2>
-
-<p>为什么要学习一门新的语言？我的想法很简单，平时OO、PO代码写多了，却从未接触过函数式编程，不免有些遗憾。考察下来，Clojure可以用来尝尝鲜，所以就决定学一学。为了给自己的学习留下些记录，就有了这样一份教程。</p>
-
-<p>Clojure已经有一些不错的教程，如<a href="http://java.ociweb.com/mark/">Mark Volkmann</a>的<a href="http://java.ociweb.com/mark/clojure/article.html">Clojure &ndash; Functional Programming for the JVM</a>，Storm的主要贡献者<a href="http://xumingming.sinaapp.com/">徐明明</a>也对这个教程做了<a href="http://xumingming.sinaapp.com/302/clojure-functional-programming-for-the-jvm-clojure-tutorial/">全文翻译</a>。还有一些不错的书籍，像<a href="http://oreilly.com/">O&#8217;Reilly</a>的<a href="http://www.amazon.com/Clojure-Programming-Chas-Emerick/dp/1449394701">Clojure Programming</a>，都值得一读。我是从Mark的教程开始学起的，对其中没有提到的部分则是参考了Clojure Programming这本书。Clojure的<a href="http://clojure.org/">官方网站</a>上有详尽的<a href="http://clojure.github.com/clojure/">API参考</a>，可以作为工具书查阅。</p>
-
-<p>但是，上面提到的教程都是针对Clojure语言本身的，从 <em>Hello, world!</em> 开始，讲解Clojure的各种语法，关键字，结构等等。虽然Clojure的语法已经足够吸引你的眼球，在<a href="http://en.wikipedia.org/wiki/Read-eval-print_loop">REPL</a>中敲击Clojure代码已经是一种莫大的乐趣了，但似乎还有些不够，我们想看到一个用Clojure编写的应用程序！</p>
-
-<p>因为平时都是做Web开发，所以先从一个Web框架入手会是不错的选择，因此这份教程会从使用<a href="http://webnoir.org/">Noir</a>框架搭建一个博客开始，带你领略Clojure的魅力。</p>
-
-<!-- more -->
-
-
-<h2>一句话概述Clojure</h2>
-
-<p><strong>Clojure是一种运行在JVM平台上的函数式编程语言。</strong></p>
-
-<ul>
-<li><a href="http://en.wikipedia.org/wiki/Jvm">JVM平台</a>：历史悠久，应用广泛，成熟稳定。Clojure可以和Java程序交互，调用各种类库，与现有系统整合。</li>
-<li><a href="http://en.wikipedia.org/wiki/Functional_programming">函数式编程</a>：<a href="http://en.wikipedia.org/wiki/LISP">Lisp</a>的一种方言，表达力强，是解决高并发问题的利器。</li>
-</ul>
-
-
-<h2>安装Clojure</h2>
-
-<p>Clojure是以一个Jar包发行的，可以到<a href="http://clojure.org/getting_started">官网下载</a>后使用<code>java -jar</code>命令运行。而在实际开发中，我们会选择使用<a href="https://github.com/technomancy/leiningen">Leiningen</a>或<a href="http://maven.apache.org/">Maven</a>来管理Clojure项目，本教程将以Leiningen（命令行是<code>lein</code>）作为项目管理工具进行讲解。</p>
-
-<h3>安装Leiningen</h3>
-
-<p><code>lein</code>目前有1.x和2.x两个版本，后者还在alpha阶段。使用以下命令安装<code>lein</code> 1.x版本：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span><span class="nb">cd</span> ~/bin <span class="c"># 假设$HOME/bin目录在系统的$PATH中</span>
-</span><span class='line'><span class="nv">$ </span>wget https://raw.github.com/technomancy/leiningen/stable/bin/lein
-</span><span class='line'><span class="nv">$ </span>chmod 755 lein
-</span><span class='line'><span class="nv">$ </span>lein self-install
-</span><span class='line'><span class="nv">$ </span>lein repl
-</span><span class='line'>REPL started; server listening on localhost port 1096
-</span><span class='line'><span class="nv">user</span><span class="o">=</span>&gt;
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这样就已经安装好了<code>lein</code>和Clojure环境，并启动了一个REPL，可以直接运行Clojure代码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span><span class="p">)</span>
-</span><span class='line'><span class="mi">3</span>
-</span><span class='line'><span class="nv">user=&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这里出现了Clojure的两个特点：圆括号和前缀表达式。Clojure的基本语法是<code>(fn1 arg1 (fn2 arg2 arg3))</code>。函数是Clojure中的“一等公民”，它即是可执行的代码，又是一种数据（类似闭包的概念）。以后我们会慢慢熟悉。</p>
-
-<h3>新建项目</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>lein new proj
-</span><span class='line'><span class="nv">$ </span>find proj
-</span><span class='line'>proj
-</span><span class='line'>proj/project.clj
-</span><span class='line'>proj/src/proj/core.clj
-</span><span class='line'><span class="nv">$ </span>cat proj/project.clj
-</span><span class='line'><span class="o">(</span>defproject proj <span class="s2">&quot;1.0.0-SNAPSHOT&quot;</span>
-</span><span class='line'>  :description <span class="s2">&quot;FIXME: write description&quot;</span>
-</span><span class='line'>  :dependencies <span class="o">[[</span>org.clojure/clojure <span class="s2">&quot;1.3.0&quot;</span><span class="o">]])</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>lein new</code>命令用来创建一个Clojure项目骨架，最重要的文件是<code>project.clj</code>，它声明了项目的基本属性以及依赖包。</p>
-
-<p><code>lein plugin</code>命令可以用来管理lein的插件，我们可以通过安装lein-noir插件来生成基于Noir的项目骨架：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>lein plugin install lein-noir 1.2.1
-</span><span class='line'><span class="nv">$ </span>lein noir new blog
-</span><span class='line'><span class="nv">$ </span>find blog
-</span><span class='line'>blog
-</span><span class='line'>blog/project.clj
-</span><span class='line'>blog/resources/public/css/reset.css
-</span><span class='line'>blog/resources/public/img
-</span><span class='line'>blog/resources/public/js
-</span><span class='line'>blog/src/blog/models
-</span><span class='line'>blog/src/blog/server.clj
-</span><span class='line'>blog/src/blog/views/common.clj
-</span><span class='line'>blog/src/blog/views/welcome.clj
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>我们可以直接运行这个项目：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span><span class="nb">cd </span>blog
-</span><span class='line'><span class="nv">$ </span>lein run
-</span><span class='line'>Starting server...
-</span><span class='line'>2012-11-29 22:34:39.174:INFO::jetty-6.1.25
-</span><span class='line'>2012-11-29 22:34:39.237:INFO::Started SocketConnector@0.0.0.0:8080
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>浏览<a href="http://localhost:8080%EF%BC%8C%E5%B0%B1%E8%83%BD%E7%9C%8B%E5%88%B0%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%A1%B5%E9%9D%A2%E4%BA%86%E3%80%82">http://localhost:8080%EF%BC%8C%E5%B0%B1%E8%83%BD%E7%9C%8B%E5%88%B0%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%A1%B5%E9%9D%A2%E4%BA%86%E3%80%82</a></p>
-
-<h2>Noir项目的基本结构</h2>
-
-<h3>项目基本信息：project.clj</h3>
-
-<p>Clojure文件都是以<code>.clj</code>为扩展名的。项目根目录下的project.clj文件包含了一些基本信息，我们逐一分析：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="kd">defproject </span><span class="nv">blog</span> <span class="s">&quot;0.1.0-SNAPSHOT&quot;</span>
-</span><span class='line'>            <span class="ss">:description</span> <span class="s">&quot;FIXME: write this!&quot;</span>
-</span><span class='line'>            <span class="ss">:dependencies</span> <span class="p">[[</span><span class="nv">org.clojure/clojure</span> <span class="s">&quot;1.3.0&quot;</span><span class="p">]</span>
-</span><span class='line'>                           <span class="p">[</span><span class="nv">noir</span> <span class="s">&quot;1.2.1&quot;</span><span class="p">]]</span>
-</span><span class='line'>            <span class="ss">:main</span> <span class="nv">blog.server</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><a href="http://clojuredocs.org/leiningen/leiningen.core/defproject">defproject</a>是Leiningen定义的一个<a href="http://clojure.org/macros">宏</a>，用来描述项目的基本信息。宏在Clojure中是一个很重要的语言特性，简单地说，开发者可以用宏创造出新的语法。</p>
-
-<p>:description、:main等是一种直接量(literal)，我们称之为关键字(keyword)，通常以<code>:</code>开头，主要用来作为哈希表(map)中的键名，这里则用来表示项目的某种信息，从名称上应该很好理解。</p>
-
-<p><code>[1 ["b", false]]</code>中的<code>[...]</code>表示一个向量(vector)，它的元素可以是任意类型，元素之间以空格或逗号分隔。这行代码也展示了Clojure中其他几种直接量：数值型、字符串、布尔型。</p>
-
-<p>依赖项的描述也很直观，<code>[groupId/artifactId "version"]</code>。Clojure使用了和Maven相似的包命名方式，当groupId和artifactId相同时，可以进行简写，如<code>[noir "1.2.1"]</code>等价于<code>[noir/noir "1.2.1"]</code>，这也是Clojure鼓励的做法。对依赖项进行修改后，可以运行<code>lein deps</code>命令进行安装。lein会先从<a href="https://clojars.org">Clojars</a>上查找和下载，不存在时再到<a href="http://search.maven.org/">Maven中央仓库</a>中搜索。</p>
-
-<p>最后，:main顾名思义指向的是程序入口，它配置的是一个命名空间，其中会包含一个<code>-main</code>方法（注意方法名中的<code>-</code>）。Leiningen项目的目录结构也是按照命名空间来的，这点和Java一致。</p>
-
-<h3>入口文件：src/blog/server.clj</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="kd">ns </span><span class="nv">blog.server</span>
-</span><span class='line'>  <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">noir.server</span> <span class="ss">:as</span> <span class="nv">server</span><span class="p">]))</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">(</span><span class="nf">server/load-views</span> <span class="s">&quot;src/blog/views/&quot;</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">(</span><span class="kd">defn </span><span class="nv">-main</span> <span class="p">[</span><span class="o">&amp;</span> <span class="nv">m</span><span class="p">]</span>
-</span><span class='line'>  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">mode</span> <span class="p">(</span><span class="nb">keyword </span><span class="p">(</span><span class="nb">or </span><span class="p">(</span><span class="nb">first </span><span class="nv">m</span><span class="p">)</span> <span class="ss">:dev</span><span class="p">))</span>
-</span><span class='line'>        <span class="nv">port</span> <span class="p">(</span><span class="nf">Integer.</span> <span class="p">(</span><span class="nb">get </span><span class="p">(</span><span class="nf">System/getenv</span><span class="p">)</span> <span class="s">&quot;PORT&quot;</span> <span class="s">&quot;8080&quot;</span><span class="p">))]</span>
-</span><span class='line'>    <span class="p">(</span><span class="nf">server/start</span> <span class="nv">port</span> <span class="p">{</span><span class="ss">:mode</span> <span class="nv">mode</span>
-</span><span class='line'>                        <span class="ss">:ns</span> <span class="ss">&#39;blog</span><span class="p">})))</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>ns宏用于定义当前的命名空间，:require表示导入其它命名空间，:as则是将为导入的命名空间设置别名。注意这些关键字及其用法都是在ns宏中定义的，这也是为什么说宏可以用来创造新的语法。</p>
-
-<p>关于命名空间，你在执行<code>lein repl</code>的时候可能会注意到，当在blog项目下执行时，提示符是<code>blog.server=&gt;</code>，而在其他目录下执行时是<code>user=&gt;</code>，因为user是Clojure默认的命名空间，可以通过<code>(ns myspace)</code>来切换成<code>myspace=&gt;</code>。</p>
-
-<p><code>server/load-views</code>表示调用<code>server</code>命名空间下的<code>load-views</code>函数，后面的<code>src/blog/views/</code>则是函数的参数。在大多数语言中，函数名称不能包含特殊字符，如<code>-</code>，但Clojure中的变量名、函数名、关键字等都可以包含诸如*、+、!、>这样的特殊字符。其中一些字符是有特定含义的，如关键字必须以<code>:</code>开头，以<code>::</code>开头的则表示仅在当前命名空间中有效。这些约定需要注意。</p>
-
-<p>defn宏用来定义一个函数，基本用法是<code>(defn 函数名 [参数列表] 语句1 语句2)</code>。如果参数数量不定，可以使用这样的语法<code>[arg1 arg2 &amp; args]</code>，这样当函数接收四个参数时，后两个参数会作为一个向量赋值给args变量。</p>
-
-<p>关于let，它是继“宏”和“函数”之后出现的第三个术语，“特殊形式”(Special Form)。我们暂时不去了解它们之间的关系，先来看看let的作用。设想这样一个场景，我们在调用一个函数之前会准备一些参数传送给它，这些参数仅在函数内部可见，函数处理完后就会销毁。let则是将参数准备和函数调用这两步整合了起来。它的语法是<code>(let [变量1 表达式1 变量2 表达式2] 语句1 语句2)</code>，举例来说，尝试在REPL中执行以下命令，思考一下结果是如何得出的：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">x</span> <span class="mi">1</span> <span class="nv">y</span> <span class="p">(</span><span class="nb">+ </span><span class="mi">2</span> <span class="mi">3</span><span class="p">)]</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="nv">y</span><span class="p">))</span>
-</span><span class='line'><span class="mi">6</span>
-</span><span class='line'><span class="nv">user=&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>入口文件中的表达式看起来有些复杂，但逐步拆解后就会明白：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="k">def </span><span class="nv">m</span> <span class="p">[])</span> <span class="c1">; 定义一个变量，它是一个空向量，正如不带参数调用-main函数时一样。Clojure中分号表示注释。</span>
-</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nb">first </span><span class="nv">m</span><span class="p">)</span> <span class="c1">; 获取向量（序列）的第一个元素，这里为空。</span>
-</span><span class='line'><span class="nv">nil</span>
-</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nb">or </span><span class="p">(</span><span class="nb">first </span><span class="nv">m</span><span class="p">)</span> <span class="ss">:dev</span><span class="p">)</span> <span class="c1">; 从左往右执行参数，若结果不为空(nil)则停止执行，并返回该结果。</span>
-</span><span class='line'><span class="ss">:dev</span>
-</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nb">keyword </span><span class="p">(</span><span class="nb">or </span><span class="p">(</span><span class="nb">first </span><span class="nv">m</span><span class="p">)</span> <span class="ss">:dev</span><span class="p">))</span> <span class="c1">; 获取关键字。由于传入的参数可能是一个关键字、一个变量、或一个字符串，因此使用keyword函数返回一个关键字类型。</span>
-</span><span class='line'><span class="ss">:dev</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>经过处理，mode变量包含了:dev这个关键字，且作用域仅在(let &hellip;)中有效。</p>
-
-<p>再来看看port变量，这里涉及到了与Java类的交互：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">System/getenv</span><span class="p">)</span> <span class="c1">; 这里的System不是一个命名空间，而是Java的一个类。通过这种方式我们调用了System类的静态方法getenv，并返回了一个Map类实例。</span>
-</span><span class='line'><span class="nv">java.util.Collections$UnmodifiableMap</span>
-</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nb">get </span><span class="p">(</span><span class="nf">System/getenv</span><span class="p">)</span> <span class="s">&quot;PORT&quot;</span> <span class="s">&quot;8080&quot;</span><span class="p">)</span> <span class="c1">; 这里的get不是Map实例的get方法，而是Clojure中的一个函数，用于返回哈希表(map)中的值，不存在则返回一个默认值。</span>
-</span><span class='line'><span class="s">&quot;8080&quot;</span>
-</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">.get</span> <span class="p">(</span><span class="nf">System/getenv</span><span class="p">)</span> <span class="s">&quot;PORT&quot;</span><span class="p">)</span> <span class="c1">; 这才是调用Map实例的get方法，注意点号和函数的参数。</span>
-</span><span class='line'><span class="nv">nil</span>
-</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">Integer.</span> <span class="p">(</span><span class="nb">get </span><span class="p">(</span><span class="nf">System/getenv</span><span class="p">)</span> <span class="s">&quot;PORT&quot;</span> <span class="s">&quot;8080&quot;</span><span class="p">))</span> <span class="c1">; 又是一个和Java交互的语法：创建实例。它和以下语法等价：</span>
-</span><span class='line'><span class="mi">8080</span>
-</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="k">new </span><span class="nv">Integer</span> <span class="p">(</span><span class="nb">get </span><span class="p">(</span><span class="nf">System/getenv</span><span class="p">)</span> <span class="s">&quot;PORT&quot;</span> <span class="s">&quot;8080&quot;</span><span class="p">))</span>
-</span><span class='line'><span class="mi">8080</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>关于map再补充一点，它虽然是Clojure的一种数据类型，但底层其实是Map接口一个实现，因此以下语法是合法的。类似的情况在Clojure中还有很多。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="k">def </span><span class="nv">m</span> <span class="p">{</span><span class="ss">:a</span> <span class="mi">1</span>, <span class="ss">:b</span> <span class="mi">2</span><span class="p">})</span> <span class="c1">; map的语法是{键1 值1 键2 值2}，为了加强可读性，这里使用了逗号分隔了两组键值，Clojure在编译时会将逗号转换成空格。</span>
-</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nb">&lt; </span><span class="p">(</span><span class="nb">get </span><span class="nv">m</span> <span class="ss">:a</span><span class="p">)</span> <span class="p">(</span><span class="nf">.get</span> <span class="nv">m</span> <span class="ss">:b</span><span class="p">))</span> <span class="c1">; 1 &lt; 2</span>
-</span><span class='line'><span class="nv">true</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>参数的赋值就结束了，后面的代码也很好理解：调用server命名空间下的start函数，参数是监听端口和一组由map表示的参数。这里blog之前的单引号需要注意，表示其后的代码不需要进行解析(evaluate)，在表示命空间名时都需要加上（ns宏除外），如：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">require</span> <span class="ss">&#39;noir.server</span><span class="p">)</span> <span class="c1">; 引入一个命名空间，使用noir.server/start调用方法。</span>
-</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">alias</span> <span class="ss">&#39;server</span> <span class="ss">&#39;noir.server</span><span class="p">)</span> <span class="c1">; 设置别名。</span>
-</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nb">refer </span><span class="ss">&#39;noir.server</span><span class="p">)</span> <span class="c1">; 将该命名空间下的变量导入当当前命名空间中，即可以直接使用(start ...)调用。</span>
-</span><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nf">use</span> <span class="ss">&#39;noir.server</span><span class="p">)</span> <span class="c1">; 同时完成require和refer。</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>小贴士</strong></p>
-
-<p>这一节中我们引入了不少Clojure的函数、宏、特殊形式，有时会需要查阅这些函数的用法。除了上网查找API文档，还可以在REPL中使用<code>doc</code>和<code>source</code>函数来返回某个函数或宏的文档和源码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="nv">user=&gt;</span> <span class="p">(</span><span class="nb">doc </span><span class="nv">first</span><span class="p">)</span>
-</span><span class='line'><span class="nv">-------------------------</span>
-</span><span class='line'><span class="nv">clojure.core/first</span>
-</span><span class='line'><span class="p">([</span><span class="nv">coll</span><span class="p">])</span>
-</span><span class='line'>  <span class="nv">Returns</span> <span class="nv">the</span> <span class="nb">first </span><span class="nv">item</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">collection.</span> <span class="nv">Calls</span> <span class="nb">seq </span><span class="nv">on</span> <span class="nv">its</span>
-</span><span class='line'>    <span class="nv">argument.</span> <span class="nv">If</span> <span class="nv">coll</span> <span class="nv">is</span> <span class="nv">nil</span>, <span class="nv">returns</span> <span class="nv">nil.</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>基本页面：src/blog/views/welcome.clj</h3>
-
-<p>入口文件中的<code>load-views</code>函数会将指定目录下的所有文件都包含进来，这些文件中定义的是URL路由以及页面内容，以welcome.clj为例：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="kd">ns </span><span class="nv">blog.views.welcome</span>
-</span><span class='line'>  <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">blog.views.common</span> <span class="ss">:as</span> <span class="nv">common</span><span class="p">]</span>
-</span><span class='line'>            <span class="p">[</span><span class="nv">noir.content.getting-started</span><span class="p">])</span>
-</span><span class='line'>  <span class="p">(</span><span class="ss">:use</span> <span class="p">[</span><span class="nv">noir.core</span> <span class="ss">:only</span> <span class="p">[</span><span class="nv">defpage</span><span class="p">]]</span>
-</span><span class='line'>        <span class="p">[</span><span class="nv">hiccup.core</span> <span class="ss">:only</span> <span class="p">[</span><span class="nv">html</span><span class="p">]]))</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">(</span><span class="nf">defpage</span> <span class="s">&quot;/welcome&quot;</span> <span class="p">[]</span>
-</span><span class='line'>         <span class="p">(</span><span class="nf">common/layout</span>
-</span><span class='line'>           <span class="p">[</span><span class="ss">:p</span> <span class="s">&quot;Welcome to blog&quot;</span><span class="p">]))</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>我们先跳过这些代码，来看看如何定义一个新的页面。将以下代码添加到welcome.clj尾部，然后执行<code>lein run</code>。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="nf">defpage</span> <span class="s">&quot;/greeting&quot;</span> <span class="p">[]</span>
-</span><span class='line'>         <span class="p">(</span><span class="nf">html</span>
-</span><span class='line'>           <span class="p">[</span><span class="ss">:h1</span> <span class="s">&quot;Hello, world!&quot;</span><span class="p">]))</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>访问 <a href="http://127.0.0.1:8080/greeting">http://127.0.0.1:8080/greeting</a> 就能看到一个新的页面了，页面源码是<code>&lt;h1&gt;Hello, world!&lt;/h1&gt;</code>。</p>
-
-<p>defpage是Noir的一个宏，用来定义URL和它返回的页面内容。URL的定义有很多其他用法，如POST方式、截取参数等，我们稍后都会用到。页面内容方面，可以直接返回字符串，如<code>(defpage "/greeting" [] "Hello, world!")</code>，也可以使用Hiccup构建HTML页面。<a href="https://github.com/weavejester/hiccup">Hiccup</a>是Noir默认的模板引擎，简单来说就是用Clojure来写HTML。一个完整的页面示例如下：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="kd">ns </span><span class="nv">...</span>
-</span><span class='line'>  <span class="p">(</span><span class="ss">:use</span> <span class="nv">...</span>
-</span><span class='line'>        <span class="p">[</span><span class="nv">hiccup.page-helpers</span> <span class="ss">:only</span> <span class="p">[</span><span class="nv">html4</span><span class="p">]]))</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">(</span><span class="nf">defpage</span> <span class="s">&quot;/greeting&quot;</span> <span class="p">[]</span>
-</span><span class='line'>         <span class="p">(</span><span class="nf">html4</span>
-</span><span class='line'>           <span class="p">[</span><span class="ss">:head</span>
-</span><span class='line'>             <span class="p">[</span><span class="ss">:title</span> <span class="s">&quot;Greeting&quot;</span><span class="p">]]</span>
-</span><span class='line'>           <span class="p">[</span><span class="ss">:body</span>
-</span><span class='line'>             <span class="p">[</span><span class="ss">:h1</span> <span class="s">&quot;Hello, world!&quot;</span><span class="p">]]))</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>生成的HTML是：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="cp">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD HTML 4.01//EN&quot; &quot;http://www.w3.org/TR/html4/strict.dtd&quot;&gt;</span>
-</span><span class='line'><span class="nt">&lt;html&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;head&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;title&gt;</span>Greeting<span class="nt">&lt;/title&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/head&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;body&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;h1&gt;</span>Hello, world!<span class="nt">&lt;/h1&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/body&gt;</span>
-</span><span class='line'><span class="nt">&lt;/html&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>其中，html和html4都是Hiccup定义的宏。html仅将接收到的参数转换为HTML代码，html4则是会添加相应版本的<code>&lt;!DOCTYPE&gt;</code>和<code>&lt;html&gt;</code>标签。要使用这些宏需要引入相应的命名空间。:only则表示只引入命名空间中特定的宏。</p>
-
-<p>关于命名空间中出现的<code>-</code>，Clojure在编译时会自动转换成<code>_</code>，从而确保程序在JVM中运行时不会出现问题。</p>
-
-<h3>页面模板：src/blog/views/common.clj</h3>
-
-<p>回到系统生成的welcome.clj文件，它并没有使用html或html4，而是调用了一个<code>common/layout</code>函数。那么让我们看看common.clj中这个函数的定义：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="kd">ns </span><span class="nv">blog.views.common</span>
-</span><span class='line'>  <span class="p">(</span><span class="ss">:use</span> <span class="p">[</span><span class="nv">noir.core</span> <span class="ss">:only</span> <span class="p">[</span><span class="nv">defpartial</span><span class="p">]]</span>
-</span><span class='line'>        <span class="p">[</span><span class="nv">hiccup.page-helpers</span> <span class="ss">:only</span> <span class="p">[</span><span class="nv">include-css</span> <span class="nv">html5</span><span class="p">]]))</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">(</span><span class="nf">defpartial</span> <span class="nv">layout</span> <span class="p">[</span><span class="o">&amp;</span> <span class="nv">content</span><span class="p">]</span>
-</span><span class='line'>            <span class="p">(</span><span class="nf">html5</span>
-</span><span class='line'>              <span class="p">[</span><span class="ss">:head</span>
-</span><span class='line'>               <span class="p">[</span><span class="ss">:title</span> <span class="s">&quot;blog&quot;</span><span class="p">]</span>
-</span><span class='line'>               <span class="p">(</span><span class="nf">include-css</span> <span class="s">&quot;/css/reset.css&quot;</span><span class="p">)]</span>
-</span><span class='line'>              <span class="p">[</span><span class="ss">:body</span>
-</span><span class='line'>               <span class="p">[</span><span class="ss">:div#wrapper</span>
-</span><span class='line'>                <span class="nv">content</span><span class="p">]]))</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>defpartial是Noir的一个宏，用来定义一段可复用的HTML代码。当然我们也可以将其定义为一个函数（用<code>defn</code>替换掉<code>defpartial</code>），不会有什么区别。官方文档的解释是使用defpartial会比较容易辨认。</p>
-
-<p><code>include-css</code>是一个函数，用来生成<code>&lt;link&gt;</code>标签。<code>[:div#wrapper ...]</code>会生成<code>&lt;div id="wrapper"&gt;...&lt;/div&gt;</code>。更多Hiccup的语法可以到<a href="http://www.webnoir.org/tutorials/html">这个页面</a>浏览一下。</p>
-
-<h3>默认首页：noir.content.getting-started</h3>
-
-<p>我们在代码中并没有看到<code>(defpage "/" [] ...)</code>这样的定义，那为什么网站根目录会出现一个默认页面呢？答案在<code>noir.content.getting-started</code>这个命名空间中，可以<a href="https://github.com/noir-clojure/noir/blob/master/src/noir/content/getting_started.clj">点击这里</a>查看它的源码。要取消这个默认页面，可以在welcome.clj的:require中将其删除。</p>
-
-<h3>静态资源：src/resources/public</h3>
-
-<p>Noir默认对src/resources/public目录下的文件做了路由，因此当有一个资源文件位于src/resources/public/css/reset.css时，可以通过<a href="http://127.0.0.1:8080/css/reset.css%E8%AE%BF%E9%97%AE%E3%80%82">http://127.0.0.1:8080/css/reset.css%E8%AE%BF%E9%97%AE%E3%80%82</a></p>
-
-<p>值得一提的是，Noir项目本身依赖于两个开源项目：<a href="https://github.com/ring-clojure/ring">ring</a>和<a href="https://github.com/weavejester/compojure/tree/master/src">compojure</a>，前者对HTTP请求进行了封装，提供了一套类似Python WSGI的API；后者则是专门提供URL路由功能的类库。如对静态资源的路由，实质上Noir是调用了compojure提供的resources函数，函数中又调用ring提供的GET、wrap-file-info等函数响应请求。</p>
-
-<h2>小结</h2>
-
-<p>本章讲述了Clojure环境的搭建，特别是项目管理工具<code>lein</code>的一般使用。通过对Noir项目骨架的分析，我们一窥Clojure的语法，接触了变量、直接量、函数、宏、命名空间的一些用法，并能结合Noir和Hiccup写出简单的页面来。下一章我们将讲解如何使用Noir编写表单页面进行交互，以及Clojure如何连接数据库，对博文进行增删改查等操作。</p>
 ]]></content>
   </entry>
   

@@ -1,0 +1,550 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>在CDH 4.5上安装Shark 0.9 - Ji ZHANG's Blog</title>
+  <meta name="author" content="Ji ZHANG">
+
+  
+  <meta name="description" content="Spark是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的Hadoop生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于Hive，Spark也有相应的替代项目——Shark，能做到 drop-in &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/libs/jquery.min.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>-->
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-37223379-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ji ZHANG's Blog</a></h1>
+  
+    <h2>If I rest, I rust.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:shzhangji.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/categories/tutorial">Tutorial</a></li>
+  <li><a href="/blog/categories/translation">Translation</a></li>
+  <li><a href="/blog/categories/notes">Notes</a></li>
+  <li><a href="/blog/categories/big-data">Big Data</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">在CDH 4.5上安装Shark 0.9</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-05T17:16:00+08:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><a href="http://spark.apache.org">Spark</a>是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的<a href="http://hadoop.apache.org">Hadoop</a>生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于<a href="http://hive.apache.org">Hive</a>，Spark也有相应的替代项目——<a href="http://shark.cs.berkeley.edu/">Shark</a>，能做到 <strong>drop-in replacement</strong> ，直接构建在现有集群之上。本文就将简要阐述如何在CDH4.5上搭建Shark0.9集群。</p>
+
+<h2>准备工作</h2>
+
+<ul>
+<li>安装方式：Spark使用CDH提供的Parcel，以Standalone模式启动</li>
+<li>软件版本
+
+<ul>
+<li>Cloudera Manager 4.8.2</li>
+<li>CDH 4.5</li>
+<li>Spark 0.9.0 Parcel</li>
+<li><a href="http://cloudera.rst.im/shark/">Shark 0.9.1 Binary</a></li>
+</ul>
+</li>
+<li>服务器基础配置
+
+<ul>
+<li>可用的软件源（如<a href="http://mirrors.ustc.edu.cn/">中科大的源</a>）</li>
+<li>配置主节点至子节点的root账户SSH无密码登录。</li>
+<li>在<code>/etc/hosts</code>中写死IP和主机名，或者DNS做好正反解析。</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>安装Spark</h2>
+
+<ul>
+<li>使用CM安装Parcel，不需要重启服务。</li>
+<li>修改<code>/etc/spark/conf/spark-env.sh</code>：（其中one-843是主节点的域名）</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">STANDALONE_SPARK_MASTER_HOST</span><span class="o">=</span>one-843
+</span><span class='line'><span class="nv">DEFAULT_HADOOP_HOME</span><span class="o">=</span>/opt/cloudera/parcels/CDH/lib/hadoop
+</span><span class='line'><span class="nb">export </span><span class="nv">SPARK_CLASSPATH</span><span class="o">=</span><span class="nv">$SPARK_CLASSPATH</span>:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/*
+</span><span class='line'><span class="nb">export </span><span class="nv">SPARK_LIBRARY_PATH</span><span class="o">=</span><span class="nv">$SPARK_LIBRARY_PATH</span>:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/native
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>修改<code>/etc/spark/conf/slaves</code>，添加各节点主机名。</li>
+<li>将<code>/etc/spark/conf</code>目录同步至所有节点。</li>
+<li>启动Spark服务（即Standalone模式）：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>/opt/cloudera/parcels/SPARK/lib/spark/sbin/start-master.sh
+</span><span class='line'><span class="nv">$ </span>/opt/cloudera/parcels/SPARK/lib/spark/sbin/start-slaves.sh
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>测试<code>spark-shell</code>是否可用：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;hdfs://one-843:8020/user/jizhang/zj_people.txt.lzo&quot;</span><span class="o">).</span><span class="n">count</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>安装Shark</h2>
+
+<ul>
+<li>安装Oracle JDK 1.7 Update 45至<code>/usr/lib/jvm/jdk1.7.0_45</code>。</li>
+<li>下载别人编译好的二进制包：<a href="http://cloudera.rst.im/shark/shark-0.9.1-bin-2.0.0-mr1-cdh-4.6.0.tar.gz">shark-0.9.1-bin-2.0.0-mr1-cdh-4.6.0.tar.gz</a></li>
+<li>解压至<code>/opt</code>目录，修改<code>conf/shark-env.sh</code>：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">JAVA_HOME</span><span class="o">=</span>/usr/lib/jvm/jdk1.7.0_45
+</span><span class='line'><span class="nb">export </span><span class="nv">SCALA_HOME</span><span class="o">=</span>/opt/cloudera/parcels/SPARK/lib/spark
+</span><span class='line'><span class="nb">export </span><span class="nv">SHARK_HOME</span><span class="o">=</span>/root/shark-0.9.1-bin-2.0.0-mr1-cdh-4.6.0
+</span><span class='line'>
+</span><span class='line'><span class="nb">export </span><span class="nv">HIVE_CONF_DIR</span><span class="o">=</span>/etc/hive/conf
+</span><span class='line'>
+</span><span class='line'><span class="nb">export </span><span class="nv">HADOOP_HOME</span><span class="o">=</span>/opt/cloudera/parcels/CDH/lib/hadoop
+</span><span class='line'><span class="nb">export </span><span class="nv">SPARK_HOME</span><span class="o">=</span>/opt/cloudera/parcels/SPARK/lib/spark
+</span><span class='line'><span class="nb">export </span><span class="nv">MASTER</span><span class="o">=</span>spark://one-843:7077
+</span><span class='line'>
+</span><span class='line'><span class="nb">export </span><span class="nv">SPARK_CLASSPATH</span><span class="o">=</span><span class="nv">$SPARK_CLASSPATH</span>:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/*
+</span><span class='line'><span class="nb">export </span><span class="nv">SPARK_LIBRARY_PATH</span><span class="o">=</span><span class="nv">$SPARK_LIBRARY_PATH</span>:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/native
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>开启SharkServer2，使用Supervisord管理：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="o">[</span>program:sharkserver2<span class="o">]</span>
+</span><span class='line'><span class="nb">command</span> <span class="o">=</span> /opt/shark/bin/shark --service sharkserver2
+</span><span class='line'><span class="nv">autostart</span> <span class="o">=</span> <span class="nb">true</span>
+</span><span class='line'><span class="nv">autorestart</span> <span class="o">=</span> <span class="nb">true</span>
+</span><span class='line'><span class="nv">stdout_logfile</span> <span class="o">=</span> /var/log/sharkserver2.log
+</span><span class='line'><span class="nv">redirect_stderr</span> <span class="o">=</span> <span class="nb">true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>supervisorctl start sharkserver2
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>测试</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>/opt/shark/bin/beeline -u jdbc:hive2://one-843:10000 -n root
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>版本问题</h2>
+
+<h3>背景</h3>
+
+<h4>CDH</h4>
+
+<p>CDH是对Hadoop生态链各组件的打包，每个CDH版本都会对应一组Hadoop组件的版本，如<a href="http://www.cloudera.com/content/cloudera-content/cloudera-docs/CDH4/4.5.0/CDH-Version-and-Packaging-Information/cdhvd_topic_3.html">CDH4.5</a>的部分对应关系如下：</p>
+
+<ul>
+<li>Apache Hadoop: hadoop-2.0.0+1518</li>
+<li>Apache Hive: hive-0.10.0+214</li>
+<li>Hue: hue-2.5.0+182</li>
+</ul>
+
+
+<p>可以看到，CDH4.5对应的Hive版本是0.10.0，因此它的<a href="http://www.cloudera.com/content/cloudera-content/cloudera-docs/CDH4/4.5.0/CDH4-Installation-Guide/cdh4ig_hive_metastore_configure.html">Metastore Server</a>使用的也是0.10.0版本的API。</p>
+
+<h4>Spark</h4>
+
+<p>Spark目前最高版本是0.9.1，CDH前不久推出了0.9.0的Parcel，使得安装过程变的简单得多。CDH5中对Spark做了深度集成，即可以用CM来直接控制Spark的服务，且支持Spark on YARN架构。</p>
+
+<h4>Shark</h4>
+
+<p>Shark是基于Spark的一款应用，可以简单地认为是将Hive的MapReduce引擎替换为了Spark。</p>
+
+<p>Shark的一个特点的是需要使用特定的Hive版本——<a href="https://github.com/amplab/hive">AMPLab patched Hive</a>：</p>
+
+<ul>
+<li>Shark 0.8.x: AMPLab Hive 0.9.0</li>
+<li>Shark 0.9.x: AMPLab Hive 0.11.0</li>
+</ul>
+
+
+<p>在0.9.0以前，我们需要手动下载AMPLab Hive的二进制包，并在Shark的环境变量中设置$HIVE_HOME。在0.9.1以后，AMPLab将该版本的Hive包上传至了Maven，可以直接打进Shark的二进制包中。但是，这个Jar是用JDK7编译的，因此运行Shark需要使用Oracle JDK7。CDH建议使用Update 45这个小版本。</p>
+
+<h4>Shark与Hive的并存</h4>
+
+<p>Shark的一个卖点是和Hive的<a href="5">高度兼容</a>，也就是说它可以直接操作Hive的metastore db，或是和metastore server通信。当然，前提是两者的Hive版本需要一致，这也是目前遇到的最大问题。</p>
+
+<h3>目前发现的不兼容SQL</h3>
+
+<ul>
+<li>DROP TABLE &hellip;</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>FAILED: Error in metadata: org.apache.thrift.TApplicationException: Invalid method name: <span class="s1">&#39;drop_table_with_environment_context&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>INSERT OVERWRITE TABLE &hellip; PARTITION (&hellip;) SELECT &hellip;</li>
+<li>LOAD DATA INPATH &lsquo;&hellip;&rsquo; OVERWRITE INTO TABLE &hellip; PARTITION (&hellip;)</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Failed with exception org.apache.thrift.TApplicationException: Invalid method name: <span class="s1">&#39;partition_name_has_valid_characters&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>也就是说上述两个方法名是0.11.0接口中定义的，在0.10.0的定义中并不存在，所以出现上述问题。</p>
+
+<h3>解决方案</h3>
+
+<h4>对存在问题的SQL使用Hive命令去调</h4>
+
+<p>因为Shark初期是想给分析师使用的，他们对分区表并不是很在意，而DROP TABLE可以在客户端做判断，转而使用Hive来执行。</p>
+
+<p>这个方案的优点是可以在现有集群上立刻用起来，但缺点是需要做一些额外的开发，而且API不一致的问题可能还会有其他坑在里面。</p>
+
+<h4>升级到CDH5</h4>
+
+<p>CDH5中Hive的版本是0.12.0，所以不排除同样存在API不兼容的问题。不过网上也有人尝试跳过AMPLab Hive，让Shark直接调用CDH中的Hive，其可行性还需要我们自己测试。</p>
+
+<p>对于这个问题，我只在<a href="https://groups.google.com/forum/#!starred/shark-users/x_Dh5-3isIc">Google Groups</a>上看到一篇相关的帖子，不过并没有给出解决方案。</p>
+
+<p>目前我们实施的是 <strong>第一种方案</strong>，即在客户端和Shark之间添加一层，不支持的SQL语句直接降级用Hive执行，效果不错。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ji ZHANG</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-05T17:16:00+08:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/05/27/use-webjars-in-scalatra-project/" title="Previous Post: Use WebJars in Scalatra Project">&laquo; Use WebJars in Scalatra Project</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/">在CDH 4.5上安装Shark 0.9</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Use WebJars in Scalatra Project</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/25/java-reflection-tutorial/">Java反射机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/12/17/the-law-of-leaky-abstractions/">抽象泄漏定律</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/">Generate Auto-increment Id in Map-reduce Job</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jizhang">@jizhang</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jizhang',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+<a href="http://stackoverflow.com/users/1030720/jerry">
+<img src="http://stackoverflow.com/users/flair/1030720.png?theme=clean" width="208" height="58" alt="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers" title="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers">
+</a>
+</section>
+
+<section>
+  <h1>On Delicious</h1>
+  <div id="delicious"></div>
+  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/zjerryj?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
+  <p><a href="http://delicious.com/zjerryj">My Delicious Bookmarks &raquo;</a></p>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/zhangji87@gmail.com?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Ji ZHANG -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jizhang';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/';
+        var disqus_url = 'http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
