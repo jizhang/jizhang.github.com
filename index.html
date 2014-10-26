@@ -9,7 +9,8 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="Spark是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的Hadoop生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于Hive，Spark也有相应的替代项目——Shark，能做到 drop-in &hellip;">
+  <meta name="description" content="ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误： 1
+Incorrect string value: '\xF0\x9D\x8C\x86' for &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +82,64 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/14/mysql-incorrent-utf8-value/">MySQL异常UTF-8字符的处理</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-14T13:16:00+08:00" pubdate data-updated="true">Oct 14<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Incorrect string value: '\xF0\x9D\x8C\x86' for column ...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>经查，这个字段中保存的是用户聊天记录，因此会有一些表情符号。这些符号在UTF-8编码下需要使用4个字节来记录，而MySQL中的utf8编码只支持3个字节，因此无法导入。</p>
+
+<p>根据UTF-8的编码规范，3个字节支持的Unicode字符范围是U+0000–U+FFFF，因此可以在Hive中对数据做一下清洗：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">REGEXP_REPLACE</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;[^\\u0000-\\uFFFF]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">FROM</span> <span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这样就能排除那些需要使用3个以上字节来记录的字符了，从而成功导入MySQL。</p>
+
+<p>以下是一些详细说明和参考资料。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/10/14/mysql-incorrent-utf8-value/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -642,95 +701,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/04/30/manage-leiningen-project-configuration/">Manage Leiningen Project Configuration</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-04-30T16:16:00+08:00" pubdate data-updated="true">Apr 30<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='text'><span class='line'># database.properties
-</span><span class='line'>mydb.jdbcUrl=${mydb.jdbcUrl}
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="c">&lt;!-- pom.xml --&gt;</span>
-</span><span class='line'><span class="nt">&lt;profiles&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;profile&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;id&gt;</span>development<span class="nt">&lt;/id&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;activation&gt;&lt;activeByDefault&gt;</span>true<span class="nt">&lt;/activeByDefault&gt;&lt;/activation&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;properties&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;mydb.jdbcUrl&gt;</span>jdbc:mysql://127.0.0.1:3306/mydb<span class="nt">&lt;/mydb.jdbcUrl&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/properties&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/profile&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;profile&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;id&gt;</span>production<span class="nt">&lt;/id&gt;</span>
-</span><span class='line'>        <span class="c">&lt;!-- This profile could be moved to ~/.m2/settings.xml to increase security. --&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;properties&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;mydb.jdbcUrl&gt;</span>jdbc:mysql://10.0.2.15:3306/mydb<span class="nt">&lt;/mydb.jdbcUrl&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/properties&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/profile&gt;</span>
-</span><span class='line'><span class="nt">&lt;/profiles&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>As for Leiningen projects, there&rsquo;s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/04/30/manage-leiningen-project-configuration/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -746,6 +716,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/10/14/mysql-incorrent-utf8-value/">MySQL异常UTF-8字符的处理</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/">在CDH 4.5上安装Shark 0.9</a>
       </li>
     
@@ -759,10 +733,6 @@
     
       <li class="post">
         <a href="/blog/2013/12/17/the-law-of-leaky-abstractions/">抽象泄漏定律</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/">Generate Auto-increment Id in Map-reduce Job</a>
       </li>
     
   </ul>

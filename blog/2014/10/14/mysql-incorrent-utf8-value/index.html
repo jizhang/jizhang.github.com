@@ -5,19 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Hive并发情况下报DELETEME表不存在的异常 - Ji ZHANG's Blog</title>
+  <title>MySQL异常UTF-8字符的处理 - Ji ZHANG's Blog</title>
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="在每天运行的Hive脚本中，偶尔会抛出以下错误： 1
-2
-3
-4
-5
-6
-7
-8
-2013-09-03 01:39:00,973 ERROR parse.SemanticAnalyzer (SemanticAnalyzer.java:getMetaData(1128)) - org.apache. &hellip;">
+  <meta name="description" content="ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误： 1
+Incorrect string value: '\xF0\x9D\x8C\x86' for &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -26,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://shzhangji.com/blog/2013/09/06/hive-deleteme-error">
+  <link rel="canonical" href="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
@@ -92,7 +85,7 @@
   
   <header>
     
-      <h1 class="entry-title">Hive并发情况下报DELETEME表不存在的异常</h1>
+      <h1 class="entry-title">MySQL异常UTF-8字符的处理</h1>
     
     
       <p class="meta">
@@ -108,83 +101,77 @@
   
 
 
-<time datetime="2013-09-06T11:20:00+08:00" pubdate data-updated="true">Sep 6<span>th</span>, 2013</time>
+<time datetime="2014-10-14T13:16:00+08:00" pubdate data-updated="true">Oct 14<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>在每天运行的Hive脚本中，偶尔会抛出以下错误：</p>
+<div class="entry-content"><p>ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误：</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>2013-09-03 01:39:00,973 ERROR parse.SemanticAnalyzer (SemanticAnalyzer.java:getMetaData(1128)) - org.apache.hadoop.hive.ql.metadata.HiveException: Unable to fetch table dw_xxx_xxx
-</span><span class='line'>        at org.apache.hadoop.hive.ql.metadata.Hive.getTable(Hive.java:896)
-</span><span class='line'>        ...
-</span><span class='line'>Caused by: javax.jdo.JDODataStoreException: Exception thrown obtaining schema column information from datastore
-</span><span class='line'>NestedThrowables:
-</span><span class='line'>com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Table 'hive.DELETEME1378143540925' doesn't exist
-</span><span class='line'>        at org.datanucleus.jdo.NucleusJDOHelper.getJDOExceptionForNucleusException(NucleusJDOHelper.java:313)
-</span><span class='line'>        ...</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Incorrect string value: '\xF0\x9D\x8C\x86' for column ...</span></code></pre></td></tr></table></div></figure>
 
 
-<p>查阅了网上的资料，是DataNucleus的问题。</p>
+<p>经查，这个字段中保存的是用户聊天记录，因此会有一些表情符号。这些符号在UTF-8编码下需要使用4个字节来记录，而MySQL中的utf8编码只支持3个字节，因此无法导入。</p>
 
-<p>背景1：我们知道MySQL中的库表信息是存放在information_schema库中的，Hive也有类似的机制，它会将库表信息存放在一个第三方的RDBMS中，目前我们线上配置的是本机MySQL，即：</p>
+<p>根据UTF-8的编码规范，3个字节支持的Unicode字符范围是U+0000–U+FFFF，因此可以在Hive中对数据做一下清洗：</p>
 
-<p>$ mysql -uhive -ppassword hive</p>
-
-<p><img src="/images/hive-deleteme-error/1.png" alt="1.png" /></p>
-
-<!--more-->
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">REGEXP_REPLACE</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;[^\\u0000-\\uFFFF]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">FROM</span> <span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>背景2：Hive使用的是DataNuclues ORM库来操作数据库的，而基本上所有的ORM框架（对象关系映射）都会提供自动建表的功能，即开发者只需编写Java对象，ORM会自动生成DDL。DataNuclues也有这一功能，而且它在初始化时会通过生成临时表的方式来获取数据库的Catalog和Schema，也就是 DELETEME表：</p>
+<p>这样就能排除那些需要使用3个以上字节来记录的字符了，从而成功导入MySQL。</p>
 
-<p><img src="/images/hive-deleteme-error/2.png" alt="2.png" /></p>
+<p>以下是一些详细说明和参考资料。</p>
 
-<p>这样就有一个问题：在并发量大的情况下，DELETEME表名中的毫秒数可能相同，那在pt.drop(conn)的时候就会产生找不到表的报错。</p>
-
-<p>解决办法已经可以在代码中看到了：将datanucleus.fixedDataStore选项置为true，即告知DataNuclues该数据库的表结构是既定的，不允许执行DDL操作。</p>
-
-<p>这样配置会有什么问题？让我们回忆一下Hive的安装步骤：</p>
-
-<ol>
-<li>解压hive-xyz.tar.gz；</li>
-<li>在conf/hive-site.xml中配置Hadoop以及用于存放库表信息的第三方数据库；</li>
-<li>执行bin/hive -e &ldquo;&hellip;&#8221;即可使用。DataNucleus会按需创建上述的DBS等表。</li>
-</ol>
+<!-- more -->
 
 
-<p>这对新手来说很有用，因为不需要手动去执行建表语句，但对生产环境来说，普通帐号是没有DDL权限的，我们公司建表也都是提DB-RT给DBA操作。同理，线上Hive数据库也应该采用手工创建的方式，导入scripts/metastore/upgrade/mysql/hive-schema-0.9.0.mysql.sql文件即可。这样一来，就可以放心地配置datanucleus.fixedDataStore以及 datanecleus.autoCreateSchema两个选项了。</p>
+<h2>Unicode字符集和UTF编码</h2>
 
-<p>这里我们也明确了一个问题：设置datanucleus.fixedDataStore=true不会影响Hive建库建表，因为Hive中的库表只是DBS、TBLS表中的一条记录而已。</p>
+<p><a href="http://en.wikipedia.org/wiki/Unicode">Unicode字符集</a>是一种将全球所有文字都囊括在内的字符集，从而实现跨语言、跨平台的文字信息交换。它由<a href="http://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane">基本多语平面（BMP）</a>和多个扩展平面（non-BMP）组成。前者的编码范围是U+0000-U+FFFF，包括了绝大多数现代语言文字，因此最为常用。</p>
 
-<p>建议的操作：</p>
+<p><a href="http://en.wikipedia.org/wiki/Unicode#Unicode_Transformation_Format_and_Universal_Character_Set">UTF</a>则是一种编码格式，负责将Unicode字符对应的编号转换为计算机可以识别的二进制数据，进行保存和读取。</p>
 
-<ol>
-<li>在线上导入hive-schema-0.9.0.mysql.sql，将尚未创建的表创建好（比如我们没有用过Hive的权限管理，所以DataNucleus没有自动创建DB_PRIVS表）；</li>
-<li>在hive-site.xml中配置 datanucleus.fixedDataStore=true；datanecleus.autoCreateSchema=false。</li>
-</ol>
+<p>比如，磁盘上记录了以下二进制数据：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="mi">1101000</span> <span class="mi">1100101</span> <span class="mi">1101100</span> <span class="mi">1101100</span> <span class="mi">1101111</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>这样就可以彻底解决这个异常了。</p>
+<p>读取它的程序知道这是以UTF-8编码保存的字符串，因此将其解析为以下编号：</p>
 
-<p>为什么HWI没有遇到类似问题？因为它是常驻内存的，DELETEME表只会在启动的时候创建，后续的查询不会创建。而我们这里每次调用hive命令行都会去创建，所以才有这样的问题。</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="mi">104</span> <span class="mi">101</span> <span class="mi">108</span> <span class="mi">108</span> <span class="mi">111</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>参考链接：</p>
+
+<p>又因为UTF-8编码对应的字符集是Unicode，所以上面这五个编号对应的字符便是“hello”。</p>
+
+<p>很多人会将Unicode和UTF混淆，但两者并不具可比性，它们完成的功能是不同的。</p>
+
+<h2>UTF-8编码</h2>
+
+<p>UTF编码家族也有很多成员，其中<a href="http://en.wikipedia.org/wiki/UTF-8">UTF-8</a>最为常用。它是一种变长的编码格式，对于ASCII码中的字符使用1个字节进行编码，对于中文等则使用3个字节。这样做的优点是在存储西方语言文字时不会造成空间浪费，不像UTF-16和UTF-32，分别使用两个字节和四个字节对所有字符进行编码。</p>
+
+<p>UTF-8编码的字节数上限并不是3个。对于U+0000-U+FFFF范围内的字符，使用3个字节可以表示完全；对于non-BMP中的字符，则会使用4-6个字节来表示。同样，UTF-16编码也会使用四个字节来表示non-BMP中的字符。</p>
+
+<h2>MySQL的UTF-8编码</h2>
+
+<p>根据MySQL的<a href="http://dev.mysql.com/doc/refman/5.5/en/charset-unicode.html">官方文档</a>，它的UTF-8编码支持是不完全的，最多使用3个字符，这也是导入数据时报错的原因。</p>
+
+<p>MySQL5.5开始支持utf8mb4编码，至多使用4个字节，因此能包含到non-BMP字符。只是我们的MySQL版本仍是5.1，因此选择丢弃这些字符。</p>
+
+<h2>参考资料</h2>
 
 <ul>
-<li><a href="http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html">http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html</a></li>
-<li><a href="https://github.com/dianping/cosmos-hive/issues/10">https://github.com/dianping/cosmos-hive/issues/10</a></li>
-<li><a href="https://issues.apache.org/jira/browse/HIVE-1841">https://issues.apache.org/jira/browse/HIVE-1841</a></li>
+<li><a href="http://stackoverflow.com/questions/3951722/whats-the-difference-between-unicode-and-utf8">http://stackoverflow.com/questions/3951722/whats-the-difference-between-unicode-and-utf8</a></li>
+<li><a href="http://www.joelonsoftware.com/articles/Unicode.html">http://www.joelonsoftware.com/articles/Unicode.html</a></li>
+<li><a href="http://apps.timwhitlock.info/emoji/tables/unicode">http://apps.timwhitlock.info/emoji/tables/unicode</a></li>
 </ul>
 
 </div>
@@ -209,12 +196,12 @@
   
 
 
-<time datetime="2013-09-06T11:20:00+08:00" pubdate data-updated="true">Sep 6<span>th</span>, 2013</time>
+<time datetime="2014-10-14T13:16:00+08:00" pubdate data-updated="true">Oct 14<span>th</span>, 2014</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a>
+    <a class='category' href='/blog/categories/notes/'>Notes</a>
   
 </span>
 
@@ -223,7 +210,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -236,10 +223,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2013/06/11/ansible-faq/" title="Previous Post: Ansible FAQ">&laquo; Ansible FAQ</a>
+        <a class="basic-alignment left" href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/" title="Previous Post: 在CDH 4.5上安装Shark 0.9">&laquo; 在CDH 4.5上安装Shark 0.9</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" title="Next Post: Generate Auto-increment Id in Map-reduce Job">Generate Auto-increment Id in Map-reduce Job &raquo;</a>
       
     </p>
   </footer>
@@ -356,8 +341,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/';
-        var disqus_url = 'http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/';
+        var disqus_identifier = 'http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/';
+        var disqus_url = 'http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/';
         var disqus_script = 'embed.js';
       
     (function () {

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Notes | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-10-10T23:15:10+08:00</updated>
+  <updated>2014-10-26T10:08:55+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,77 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[MySQL异常UTF-8字符的处理]]></title>
+    <link href="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/"/>
+    <updated>2014-10-14T13:16:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value</id>
+    <content type="html"><![CDATA[<p>ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误：</p>
+
+<p><code>
+Incorrect string value: '\xF0\x9D\x8C\x86' for column ...
+</code></p>
+
+<p>经查，这个字段中保存的是用户聊天记录，因此会有一些表情符号。这些符号在UTF-8编码下需要使用4个字节来记录，而MySQL中的utf8编码只支持3个字节，因此无法导入。</p>
+
+<p>根据UTF-8的编码规范，3个字节支持的Unicode字符范围是U+0000–U+FFFF，因此可以在Hive中对数据做一下清洗：</p>
+
+<p><code>sql
+SELECT REGEXP_REPLACE(content, '[^\\u0000-\\uFFFF]', '') FROM ...
+</code></p>
+
+<p>这样就能排除那些需要使用3个以上字节来记录的字符了，从而成功导入MySQL。</p>
+
+<p>以下是一些详细说明和参考资料。</p>
+
+<!-- more -->
+
+
+<h2>Unicode字符集和UTF编码</h2>
+
+<p><a href="http://en.wikipedia.org/wiki/Unicode">Unicode字符集</a>是一种将全球所有文字都囊括在内的字符集，从而实现跨语言、跨平台的文字信息交换。它由<a href="http://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane">基本多语平面（BMP）</a>和多个扩展平面（non-BMP）组成。前者的编码范围是U+0000-U+FFFF，包括了绝大多数现代语言文字，因此最为常用。</p>
+
+<p><a href="http://en.wikipedia.org/wiki/Unicode#Unicode_Transformation_Format_and_Universal_Character_Set">UTF</a>则是一种编码格式，负责将Unicode字符对应的编号转换为计算机可以识别的二进制数据，进行保存和读取。</p>
+
+<p>比如，磁盘上记录了以下二进制数据：</p>
+
+<p><code>
+1101000 1100101 1101100 1101100 1101111
+</code></p>
+
+<p>读取它的程序知道这是以UTF-8编码保存的字符串，因此将其解析为以下编号：</p>
+
+<p><code>
+104 101 108 108 111
+</code></p>
+
+<p>又因为UTF-8编码对应的字符集是Unicode，所以上面这五个编号对应的字符便是“hello”。</p>
+
+<p>很多人会将Unicode和UTF混淆，但两者并不具可比性，它们完成的功能是不同的。</p>
+
+<h2>UTF-8编码</h2>
+
+<p>UTF编码家族也有很多成员，其中<a href="http://en.wikipedia.org/wiki/UTF-8">UTF-8</a>最为常用。它是一种变长的编码格式，对于ASCII码中的字符使用1个字节进行编码，对于中文等则使用3个字节。这样做的优点是在存储西方语言文字时不会造成空间浪费，不像UTF-16和UTF-32，分别使用两个字节和四个字节对所有字符进行编码。</p>
+
+<p>UTF-8编码的字节数上限并不是3个。对于U+0000-U+FFFF范围内的字符，使用3个字节可以表示完全；对于non-BMP中的字符，则会使用4-6个字节来表示。同样，UTF-16编码也会使用四个字节来表示non-BMP中的字符。</p>
+
+<h2>MySQL的UTF-8编码</h2>
+
+<p>根据MySQL的<a href="http://dev.mysql.com/doc/refman/5.5/en/charset-unicode.html">官方文档</a>，它的UTF-8编码支持是不完全的，最多使用3个字符，这也是导入数据时报错的原因。</p>
+
+<p>MySQL5.5开始支持utf8mb4编码，至多使用4个字节，因此能包含到non-BMP字符。只是我们的MySQL版本仍是5.1，因此选择丢弃这些字符。</p>
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/3951722/whats-the-difference-between-unicode-and-utf8">http://stackoverflow.com/questions/3951722/whats-the-difference-between-unicode-and-utf8</a></li>
+<li><a href="http://www.joelonsoftware.com/articles/Unicode.html">http://www.joelonsoftware.com/articles/Unicode.html</a></li>
+<li><a href="http://apps.timwhitlock.info/emoji/tables/unicode">http://apps.timwhitlock.info/emoji/tables/unicode</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[在CDH 4.5上安装Shark 0.9]]></title>
@@ -701,159 +772,6 @@ com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Table &lsquo;hive.DEL
 <li><a href="https://issues.apache.org/jira/browse/HIVE-1841">https://issues.apache.org/jira/browse/HIVE-1841</a></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Manage Leiningen Project Configuration]]></title>
-    <link href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/"/>
-    <updated>2013-04-30T16:16:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration</id>
-    <content type="html"><![CDATA[<p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
-
-<p>```text</p>
-
-<h1>database.properties</h1>
-
-<p>mydb.jdbcUrl=${mydb.jdbcUrl}
-```</p>
-
-<p>```xml</p>
-
-<!-- pom.xml -->
-
-
-<p><profiles></p>
-
-<pre><code>&lt;profile&gt;
-    &lt;id&gt;development&lt;/id&gt;
-    &lt;activation&gt;&lt;activeByDefault&gt;true&lt;/activeByDefault&gt;&lt;/activation&gt;
-    &lt;properties&gt;
-        &lt;mydb.jdbcUrl&gt;jdbc:mysql://127.0.0.1:3306/mydb&lt;/mydb.jdbcUrl&gt;
-    &lt;/properties&gt;
-&lt;/profile&gt;
-&lt;profile&gt;
-    &lt;id&gt;production&lt;/id&gt;
-    &lt;!-- This profile could be moved to ~/.m2/settings.xml to increase security. --&gt;
-    &lt;properties&gt;
-        &lt;mydb.jdbcUrl&gt;jdbc:mysql://10.0.2.15:3306/mydb&lt;/mydb.jdbcUrl&gt;
-    &lt;/properties&gt;
-&lt;/profile&gt;
-</code></pre>
-
-<p></profiles>
-```</p>
-
-<p>As for Leiningen projects, there&rsquo;s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
-
-<!-- more -->
-
-
-<h2>Read Configuration from <code>.clj</code> Files</h2>
-
-<p>Instead of using <code>.properties</code>, we&rsquo;ll use <code>.clj</code> files directly, since it&rsquo;s more expressive and Clojure makes it very easy to utilize them.</p>
-
-<p>```clojure
-(defn read-config [section]
-  (let [read (fn [res-path]</p>
-
-<pre><code>           (if-let [res (clojure.java.io/resource res-path)]
-             (read-string (slurp res))
-             {}))
-    default-name (str (name section) ".clj")
-    default (read default-name)
-    override (read (str "override/" default-name))]
-(merge default override)))
-</code></pre>
-
-<p>```</p>
-
-<p>This function assumes the following directory layout:</p>
-
-<p>```text
-test-project/
-├── README.md
-├── project.clj
-├── resources
-│   ├── database.clj
-│   └── override
-│       └── database.clj
-└── src</p>
-
-<pre><code>└── test_project
-    └── core.clj
-</code></pre>
-
-<p>```</p>
-
-<p>And the <code>database.clj</code>s are like:</p>
-
-<p>```clojure
-; resources/database.clj
-{:charset &ldquo;utf-8&rdquo;
- :mydb {:host &ldquo;127.0.0.1&rdquo;}}</p>
-
-<p>; resources/override/database.clj
-{:mydb {:host &ldquo;10.0.2.15&rdquo;}}
-```</p>
-
-<p>The <code>.clj</code> files simply contains a <code>map</code> object, and we use <code>read-string</code> facility to parse the map. Since the latter map is merged into the former one, we can include some default settings without worrying about whether they&rsquo;ll be available.</p>
-
-<h2>Places to Put &lsquo;Outter Configuration&rsquo;</h2>
-
-<p>Here I use the word &lsquo;outter&rsquo;, which means those configs are related to environments, and will override the default settings. In this section, I&rsquo;ll introduce some typical places to put these outter configs and how to use them.</p>
-
-<h3>A &lsquo;resources/override/&rsquo; Directory</h3>
-
-<p>First of all, this directory should be removed from version control, such as <code>.gitignore</code>:</p>
-
-<p>```text
-/.project
-/.settings</p>
-
-<p>/resources/override
-```</p>
-
-<p>And then, developers can put production or local configuration files in this directory.</p>
-
-<p>In production, there&rsquo;s typically a &lsquo;compiling server&rsquo;, which can be used to store production configs. After compiling, the Jar file will include the proper configs and are ready to be deployed.</p>
-
-<h3>A Dedicated Directory on Every Server</h3>
-
-<p>We could simply replace the <code>override</code> directory with an absolute path, such as <code>/home/www/config</code>. The pros are that we don&rsquo;t need to recompile the jar files when config changes, and some of the configs could be shared between different projects.</p>
-
-<p>But in such approach, you&rsquo;ll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it&rsquo;s probably not practical to have such a directory on every compute node.</p>
-
-<p>Another thing I want to mention in this approach is that, I suggest using an environment variable to indicate the path to config directory, not hard-coded in application. As a matter of fact, you could even place all configs into env vars, as suggested by <a href="http://www.12factor.net/config">12-factor apps</a>.</p>
-
-<h3>A Central Configuration Server</h3>
-
-<p>As for really big corporations, a central configuration server is necessary. One popular option is to use ZooKeeper. Or your companies have some service-discovery mechanism. These are really advanced topics, and I&rsquo;ll leave them to the readers.</p>
-
-<h2>Manage Configs in Application</h2>
-
-<p>Lastly, I&rsquo;ll share a snippet that&rsquo;ll manage the configs, it&rsquo;s actually quite easy:</p>
-
-<p>```clojure
-(def ^:private config (atom {}))</p>
-
-<p>(defn get-config</p>
-
-<p>  ([section]</p>
-
-<pre><code>(if-let [config-section (get @config section)]
-  config-section
-  (let [config-section (read-config section)]
-    (swap! config assoc section config-section)
-    config-section)))
-</code></pre>
-
-<p>  ([section item]</p>
-
-<pre><code>(get (get-config section) item)))
-</code></pre>
-
-<p>```</p>
 ]]></content>
   </entry>
   
