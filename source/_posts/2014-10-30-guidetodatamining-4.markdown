@@ -3,7 +3,7 @@ layout: post
 title: "数据挖掘指南[4]分类"
 date: 2014-10-30 12:00
 comments: true
-categories: [Tutorial]
+categories: [Tutorial, Translation]
 published: true
 ---
 

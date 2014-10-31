@@ -3,7 +3,7 @@ layout: post
 title: "数据挖掘指南[2]推荐系统入门"
 date: 2014-08-29 12:00
 comments: true
-categories: [Tutorial]
+categories: [Tutorial, Translation]
 published: true
 ---
 

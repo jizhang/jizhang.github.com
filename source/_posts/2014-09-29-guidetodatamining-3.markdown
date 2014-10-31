@@ -3,7 +3,7 @@ layout: post
 title: "数据挖掘指南[3]隐式评价和基于物品的过滤算法"
 date: 2014-09-29 12:00
 comments: true
-categories: [Tutorial]
+categories: [Tutorial, Translation]
 published: true
 ---
 
