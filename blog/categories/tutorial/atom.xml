@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tutorial | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/tutorial/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-10-31T11:30:42+08:00</updated>
+  <updated>2014-10-31T11:40:52+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -14,18 +14,180 @@
 
   
   <entry>
+    <title type="html"><![CDATA[数据挖掘指南[4]分类]]></title>
+    <link href="http://shzhangji.com/blog/2014/10/30/guidetodatamining-4/"/>
+    <updated>2014-10-30T12:00:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/10/30/guidetodatamining-4</id>
+    <content type="html"><![CDATA[<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
+
+<p>内容：</p>
+
+<ul>
+<li>潘多拉推荐系统简介</li>
+<li>特征值选择的重要性</li>
+<li>示例：音乐特征值和邻域算法</li>
+<li>数据标准化</li>
+<li>修正的标准分数</li>
+<li>Python代码：音乐，特征，以及简单的邻域算法实现</li>
+<li>一个和体育相关的示例</li>
+<li>特征值抽取方式一览</li>
+</ul>
+
+
+<h2>根据物品特征进行分类</h2>
+
+<p>前几章我们讨论了如何使用协同过滤来进行推荐，由于使用的是用户产生的各种数据，因此又称为社会化过滤算法。比如你购买了Phoenix专辑，我们网站上其他购买过这张专辑的用户还会去购买Vampire的专辑，因此会把它推荐给你；我在Netflix上观看了Doctor Who，网站会向我推荐Quantum Leap，用的是同样的原理。我们同时也讨论了协同过滤会遇到的种种问题，包括数据的稀疏性和算法的可扩展性。此外，协同过滤算法倾向于推荐那些已经很流行的物品。试想一个极端的例子：一个新乐队发布了专辑，这张专辑还没有被任何用户评价或购买过，那它将永远不会出现在推荐列表中。</p>
+
+<blockquote><p><strong>这类推荐系统会让流行的物品更为流行，冷门的物品更无人问津。</strong></p>
+
+<p>&mdash; Daniel Fleder &amp; Kartik Hosanagar 2009 《推荐系统对商品分类的影响》</p></blockquote>
+
+<p>这一章我们来看另一种推荐方法。以潘多拉音乐站举例，在这个站点上你可以设立各种音乐频道，只需为这个频道添加一个歌手，潘多拉就会播放和这个歌手风格相类似的歌曲。比如我添加了Phoenix乐队，潘多拉便会播放El Ten Eleven的歌曲。它并没有使用协同过滤，而是通过计算得到这两个歌手的音乐风格是相似的。其实在播放界面上可以看到推荐理由：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-4/chapter-4-1.png" alt="" /></p>
+
+<p>“根据你目前告知的信息，我们播放的这首歌曲有着相似的旋律，使用了声响和电音的组合，即兴的吉他伴奏。”在我的Hiromi音乐站上，潘多拉会播放E.S.T.的歌曲，因为“它有着古典爵士乐风，一段高水准的钢琴独奏，轻盈的打击乐，以及有趣的歌曲结构。”</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-4/chapter-4-2.png" alt="" /></p>
+
+<p>潘多拉网站的推荐系统是基于一个名为音乐基因的项目。他们雇佣了专业的音乐家对歌曲进行分类（提取它们的“基因”）。这些音乐家会接受超过150小时的训练，之后便可用20到30分钟的时间来分析一首歌曲。这些乐曲特征是很专业的：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-4/chapter-4-3.png" alt="" /></p>
+
+<p>这些专家要甄别400多种特征，平均每个月会有15000首新歌曲，因此这是一项非常消耗人力的工程。</p>
+
+<blockquote><p>注意：潘多拉的音乐基因项目是商业机密，我不曾了解它的任何信息。下文讲述的是如何构造一个类似的系统。</p></blockquote>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-4.md">前往GitHub阅读全文</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[数据挖掘指南[3]隐式评价和基于物品的过滤算法]]></title>
+    <link href="http://shzhangji.com/blog/2014/09/29/guidetodatamining-3/"/>
+    <updated>2014-09-29T12:00:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/09/29/guidetodatamining-3</id>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-3/">http://guidetodatamining.com/chapter-3/</a></p>
+
+<p>本章会从用户的评价类型开始讨论，包括显式评价（赞一下、踩一脚、五星评价等等）和隐式评价（比如在亚马逊上购买了MP3，我们可以认为他喜欢这个产品）。</p>
+
+<p>内容：</p>
+
+<ul>
+<li>显式评价</li>
+<li>隐式评价</li>
+<li>哪种评价方式更准确？</li>
+<li>基于用户的协同过滤</li>
+<li>基于物品的协同过滤</li>
+<li>修正的余弦相似度</li>
+<li>Slope One算法</li>
+<li>Slope One的Python实现</li>
+<li>MovieLens数据</li>
+</ul>
+
+
+<p>第二章中我们学习了协同过滤和推荐系统的基本知识，其中讲述的算法是比较通用的，可以适用于多种数据集。用户使用5到10分的标尺来对不同的物品进行打分，通过计算得到相似的用户。但是，也有迹象表明用户通常不会有效地使用这种度量方式，而更倾向于给出极好或极差的评价，这种做法会使推荐结果变得不可用。这一章我们将继续探讨这个问题，尝试使用高效的方法给出更精确的推荐。</p>
+
+<h2>显式评价</h2>
+
+<p>用户的评价类型可以分为显式评价和隐式评价。显式评价指的是用户明确地给出对物品的评价，最常见的例子是Pandora和YouTube上的“喜欢”和“不喜欢”按钮：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-1.png" alt="" /></p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-2.png" alt="" /></p>
+
+<p>以及亚马逊的星级系统：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-3.png" alt="" /></p>
+
+<h2>隐式评价</h2>
+
+<p>所谓隐式评价，就是我们不让用户明确给出对物品的评价，而是通过观察他们的行为来获得偏好信息。示例之一是记录用户在纽约时报网上的点击记录。</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-4.png" alt="" /></p>
+
+<p>经过几周的观察之后，我们就可以为用户刻画出一个合理的模型了——她不喜欢体育新闻，但关注科技新闻；如果用户连续看了两篇文章：《快速减肥方法》和《不反弹的减肥方式》，那她很可能正在减肥；如果她点击了iPhone的广告，就表明她或许对这款产品感兴趣。</p>
+
+<p>试想一下，如果我们记录了用户在亚马逊上的操作记录，可以得出一些什么结论。你的首页上可能有这样的内容：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-5.png" alt="" /></p>
+
+<p>在这个示例中，亚马逊记录了用户的点击操作，因此它会知道浏览了Jupter Travel这本书的用户还浏览了Long Way Round这部DVD，其详细记录了演员伊万环球骑行的旅程。因此，亚马逊就用这些信息来做出“看过还看过”的推荐。</p>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-3.md">前往GitHub阅读全文</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[数据挖掘指南[2]推荐系统入门]]></title>
+    <link href="http://shzhangji.com/blog/2014/08/29/guidetodatamining-2/"/>
+    <updated>2014-08-29T12:00:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/08/29/guidetodatamining-2</id>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-2/">http://guidetodatamining.com/chapter-2/</a></p>
+
+<p>内容：</p>
+
+<ul>
+<li>推荐系统工作原理</li>
+<li>社会化协同过滤工作原理</li>
+<li>如何找到相似物品</li>
+<li>曼哈顿距离</li>
+<li>欧几里得距离</li>
+<li>闵可夫斯基距离</li>
+<li>皮尔逊相关系数</li>
+<li>余弦相似度</li>
+<li>使用Python实现K最邻近算法</li>
+<li>图书漂流站（BookCrossing）数据集</li>
+</ul>
+
+
+<h2>你喜欢的东西我也喜欢</h2>
+
+<p>我们将从推荐系统开始，开启数据挖掘之旅。推荐系统无处不在，如亚马逊网站的“看过这件商品的顾客还购买过”板块：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-1.png" alt="" /></p>
+
+<p>last.fm上对音乐和演唱会的推荐（相似歌手）：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-2.png" alt="" /></p>
+
+<p>在亚马逊的例子里，它用了两个元素来进行推荐：一是我浏览了里维斯翻译的《法华经》一书；二是其他浏览过该书的顾客还浏览过的译作。</p>
+
+<p>本章我们讲述的推荐方法称为协同过滤。顾名思义，这个方法是利用他人的喜好来进行推荐，也就是说，是大家一起产生的推荐。他的工作原理是这样的：如果要推荐一本书给你，我会在网站上查找一个和你类似的用户，然后将他喜欢的书籍推荐给你——比如巴奇加卢比的《发条女孩》。</p>
+
+<h3>如何找到相似的用户？</h3>
+
+<p>所以首先要做的工作是找到相似的用户。这里用最简单的二维模型来描述。假设用户会在网站用五颗星来评价一本书——没有星表示书写得很糟，五颗星表示很好。因为我们用的是二维模型，所以仅对两本书进行评价：史蒂芬森的《雪崩》（纵轴）和拉尔森的《龙纹身的女孩》（横轴）。</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-3.png" alt="" /></p>
+
+<p>首先，下表显示有三位用户对这两本书做了评价：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-4.png" alt="" /></p>
+
+<p>现在我想为神秘的X先生推荐一本书，他给《雪崩》打了四星，《龙纹身的女孩》两星。第一个任务是找出哪个用户和他最为相似。我们用距离来表示。</p>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-2.md">前往GitHub阅读全文</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[数据挖掘指南[1]简介]]></title>
     <link href="http://shzhangji.com/blog/2014/08/09/guidetodatamining-1/"/>
     <updated>2014-08-09T12:00:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/08/09/guidetodatamining-1</id>
     <content type="html"><![CDATA[<p>原文链接：<a href="http://guidetodatamining.com/chapter-1/">http://guidetodatamining.com/chapter-1/</a></p>
 
-<p>内容：
-* 寻找事物
-* 本书结构
-* 阅读完本书后你可以做些什么？
-* 为什么数据挖掘很重要？哪些内容可以为我所用？
-* 标题里的“Numerati的古老艺术”是什么意思？</p>
+<p>内容：</p>
+
+<ul>
+<li>寻找事物</li>
+<li>本书结构</li>
+<li>阅读完本书后你可以做些什么？</li>
+<li>为什么数据挖掘很重要？哪些内容可以为我所用？</li>
+<li>标题里的“Numerati的古老艺术”是什么意思？</li>
+</ul>
+
 
 <h2>序</h2>
 
@@ -391,919 +553,6 @@ a b c d e null null null null null
 <li><a href="http://docs.oracle.com/javase/tutorial/reflect/">http://docs.oracle.com/javase/tutorial/reflect/</a></li>
 </ol>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Clojure实战(5)：Storm实时计算框架]]></title>
-    <link href="http://shzhangji.com/blog/2013/04/22/cia-storm/"/>
-    <updated>2013-04-22T12:11:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/04/22/cia-storm</id>
-    <content type="html"><![CDATA[<h2>Storm简介</h2>
-
-<p>上一章介绍的Hadoop工具能够对海量数据进行批量处理，采用分布式的并行计算架构，只需使用其提供的MapReduce API编写脚本即可。但随着人们对数据实时性的要求越来越高，如实时日志分析、实时推荐系统等，Hadoop就无能为力了。</p>
-
-<p>这时，Storm诞生了。它的设计初衷就是提供一套分布式的实时计算框架，实现低延迟、高并发的海量数据处理，被誉为“Realtime Hadoop”。它提供了简单易用的API接口用于编写实时处理脚本；能够和现有各类消息系统整合；提供了HA、容错、事务、RPC等高级特性。</p>
-
-<p>Storm的官网是：<a href="http://storm-project.net/">storm-project.net</a>，它的<a href="https://github.com/nathanmarz/storm/wiki">Wiki</a>上有非常详尽的说明文档。</p>
-
-<h3>Storm与Clojure</h3>
-
-<p>Storm的主要贡献者<a href="https://github.com/nathanmarz">Nathan Marz</a>和<a href="https://github.com/xumingming">徐明明</a>都是活跃的Clojure开发者，因此在Storm框架中也提供了原生的<a href="https://github.com/nathanmarz/storm/wiki/Clojure-DSL">Clojure DSL</a>。本文就将介绍如何使用这套DSL来编写Storm处理脚本。</p>
-
-<p>Storm集群的安装配置这里不会讲述，具体请参考<a href="https://github.com/nathanmarz/storm/wiki/Setting-up-a-Storm-cluster">这篇文档</a>。下文的脚本都运行在“本地模式”之下，因此即使不搭建集群也可以运行和调试。</p>
-
-<!-- more -->
-
-
-<h2>Storm脚本的组件</h2>
-
-<p><img src="http://storm-project.net/images/topology.png" height="200"></p>
-
-<p>Storm脚本的英文名称叫做“Storm Topology”，直译过来是“拓扑结构”。这个脚本由两大类组建构成，<code>Spout</code>和<code>Bolt</code>，分别可以有任意多个。他们之间以“数据流”的方式连接起来，因此整体看来就像一张拓扑网络，因此得名<code>Topology</code>。</p>
-
-<h3>Spout</h3>
-
-<p>数据源节点，是整个脚本的入口。Storm会不断调用该节点的<code>nextTuple()</code>方法来获取数据，分发给下游<code>Bolt</code>节点。<code>nextTuple()</code>方法中可以用各种方式从外部获取数据，如逐行读取一个文件、从消息队列（ZeroMQ、Kafka）中获取消息等。一个Storm脚本可以包含多个<code>Spout</code>节点，从而将多个数据流汇聚到一起进行处理。</p>
-
-<h3>Bolt</h3>
-
-<p>数据处理节点，它是脚本的核心逻辑。它含有一个<code>execute()</code>方法，当接收到消息时，Storm会调用这个函数，并将消息传递给它。我们可以在<code>execute()</code>中对消息进行过滤（只接收符合条件的数据），或者进行聚合（统计某个条件的数据出现的次数）等。处理完毕后，这个节点可以选择将处理后的消息继续传递下去，或是持久化到数据库中。</p>
-
-<p><code>Bolt</code>同样是可以有多个的，且能够前后组合。<code>Bolt C</code>可以同时收取<code>Bolt A</code>和<code>Bolt B</code>的数据，并将处理结果继续传递给<code>Bolt D</code>。</p>
-
-<p>此外， <em>一个Bolt可以产生多个实例</em> ，如某个<code>Bolt</code>包含复杂耗时的计算，那在运行时可以调高其并发数量（实例的个数），从而达到并行处理的目的。</p>
-
-<h3>Tuple</h3>
-
-<p><code>Tuple</code>是消息传输的基本单元，一条消息即一个<code>Tuple</code>。可以将其看做是一个<code>HashMap</code>对象，它能够包含任何可序列化的数据内容。对于简单的数据类型，如整型、字符串、Map等，Storm提供了内置的序列化支持。而用户自定义的数据类型，可以通过指定序列化/反序列化函数来处理。</p>
-
-<h3>Stream Grouping</h3>
-
-<p>想象一个<code>Spout</code>连接了两个<code>Bolt</code>（或一个<code>Bolt</code>的两个实例），那数据应该如何分发呢？你可以选择轮询（<code>ShuffleGrouping</code>），或是广播（<code>GlobalGrouping</code>）、亦或是按照某一个字段进行哈希分组（<code>FieldGrouping</code>），这些都称作为<a href="https://github.com/nathanmarz/storm/wiki/Concepts#stream-groupings"><code>Stream Grouping</code></a>。</p>
-
-<h2>示例：WordCount</h2>
-
-<p>下面我们就来实现一个实时版的WordCount脚本，它由以下几个组件构成：</p>
-
-<ul>
-<li>sentence-spout：从已知的一段文字中随机选取一句话发送出来；</li>
-<li>split-bolt：将这句话按空格分割成单词；</li>
-<li>count-bolt：统计每个单词出现的次数，每五秒钟打印一次，并清零。</li>
-</ul>
-
-
-<h3>依赖项和配置文件</h3>
-
-<p>首先使用<code>lein new</code>新建一个项目，并修改<code>project.clj</code>文件：</p>
-
-<p>```clojure
-(defproject cia-storm &ldquo;0.1.0-SNAPSHOT&rdquo;
-  &hellip;
-  :dependencies [[org.clojure/clojure &ldquo;1.4.0&rdquo;]</p>
-
-<pre><code>             [org.clojure/tools.logging "0.2.6"]]
-</code></pre>
-
-<p>  :profiles {:dev {:dependencies [[storm &ldquo;0.8.2&rdquo;]]}}
-  :plugins [[lein2-eclipse &ldquo;2.0.0&rdquo;]]
-  :aot [cia-storm.wordcount])
-```</p>
-
-<p>其中<code>:profiles</code>表示定义不同的用户配置文件。Leiningen有类似于Maven的配置文件体系（profile），每个配置文件中可以定义<code>project.clj</code>所支持的各种属性，执行时会进行合并。<code>lein</code>命令默认调用<code>:dev</code>、<code>:user</code>等配置文件，可以使用<code>lein with-profiles prod run</code>来指定配置文件。具体可以参考<a href="https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md">这份文档</a>。</p>
-
-<p>这里将<code>[storm "0.8.2"]</code>依赖项定义在了<code>:dev</code>配置下，如果直接定义在外层的<code>:dependencies</code>下，那在使用<code>lein uberjar</code>进行打包时，会将<code>storm.jar</code>包含在最终的Jar包中，提交到Storm集群运行时就会报冲突。而<code>lein uberjar</code>默认会跳过<code>:dev</code>配置，所以才这样定义。</p>
-
-<p><code>:aot</code>表示<code>Ahead Of Time</code>，即预编译。我们在<a href="http://shzhangji.com/blog/2012/12/16/cia-noir-3/">Clojure实战（3）</a>中提过<code>:gen-class</code>这个标识表示为当前<code>.clj</code>文件生成一个<code>.class</code>文件，从而能够作为<code>main</code>函数使用，因此也需要在<code>project.clj</code>中添加<code>:main</code>标识，指向这个<code>.clj</code>文件的命名空间。如果想为其它的命名空间也生成对应的<code>.class</code>文件，就需要用到<code>:aot</code>了。它的另一个用处是加速Clojure程序的启动速度。</p>
-
-<h3>sentence-spout</h3>
-
-<p>```clojure
-(ns cia-storm.wordcount
-  &hellip;
-  (:use [backtype.storm clojure config]))</p>
-
-<p>(defspout sentence-spout [&ldquo;sentence&rdquo;]
-  [conf context collector]
-  (let [sentences [&ldquo;a little brown dog&rdquo;</p>
-
-<pre><code>               "the man petted the dog"
-               "four score and seven years ago"
-               "an apple a day keeps the doctor away"]]
-(spout
-  (nextTuple []
-    (Thread/sleep 1000)
-    (emit-spout! collector [(rand-nth sentences)])))))
-</code></pre>
-
-<p>```</p>
-
-<p><code>defspout</code>是定义在<code>backtype.storm.clojure</code>命名空间下的宏，可以<a href="https://github.com/nathanmarz/storm/blob/master/storm-core/src/clj/backtype/storm/clojure.clj#L93">点此</a>查看源码。以下是各个部分的说明：</p>
-
-<ul>
-<li><code>sentence-spout</code>是该组件的名称。</li>
-<li><code>["sentence"]</code>表示该组件输出一个字段，名称为“sentence”。</li>
-<li><code>[conf context collector]</code>用于接收Storm框架传入的参数，如配置对象、上下文对象、下游消息收集器等。</li>
-<li><code>spout</code>表示开始定义数据源组件需要用到的各类方法。它实质上是生成一个实现了ISpout接口的对象，从而能够被Storm框架调用。</li>
-<li><code>nextTuple</code>是ISpout接口必须实现的方法之一，Storm会不断调用这个方法，获取数据。这里使用<code>Thread#sleep</code>函数来控制调用的频率。</li>
-<li><code>emit-spout!</code>是一个函数，用于向下游发送消息。</li>
-</ul>
-
-
-<p>ISpout还有open、ack、fail等函数，分别表示初始化、消息处理成功的回调、消息处理失败的回调。这里我们暂不深入讨论。</p>
-
-<h3>split-bolt</h3>
-
-<p>```clojure
-(defbolt split-bolt [&ldquo;word&rdquo;] {:prepare true}
-  [conf context collector]
-  (bolt</p>
-
-<pre><code>(execute [tuple]
-  (let [words (.split (.getString tuple 0) " ")]
-    (doseq [w words]
-      (emit-bolt! collector [w])))
-  (ack! collector tuple))))
-</code></pre>
-
-<p>```</p>
-
-<p><code>defbolt</code>用于定义一个Bolt组件。整段代码的结构和<code>defspout</code>是比较相似的。<code>bolt</code>宏会实现为一个IBolt对象，<code>execute</code>是该接口的方法之一，其它还有<code>prepare</code>和<code>cleanup</code>。<code>execute</code>方法接收一个参数<code>tuple</code>，用于接收上游消息。</p>
-
-<p><code>ack!</code>是<code>execute</code>中必须调用的一个方法。Storm会对每一个组件发送出来的消息进行追踪，上游组件发出的消息需要得到下游组件的“确认”（ACKnowlege），否则会一直堆积在内存中。对于Spout而言，如果消息得到确认，会触发<code>ISpout#ack</code>函数，否则会触发<code>ISpout#fail</code>函数，这时Spout可以选择重发或报错。</p>
-
-<p>代码中比较怪异的是<code>{:prepare true}</code>。<code>defspout</code>和<code>defbolt</code>有两种定义方式，即prepare和非prepare。两者的区别在于：</p>
-
-<ul>
-<li>参数不同，prepare方式下接收的参数是<code>[conf context collector]</code>，非prepare方式下，<code>defspout</code>接收的是<code>[collector]</code>，<code>defbolt</code>是[tuple collector]`。</li>
-<li>prepare方式下需要调用<code>spout</code>和<code>bolt</code>宏来编写组件代码，而非prepare方式则不需要——<code>defspout</code>会默认生成<code>nextTuple()</code>函数，<code>defbolt</code>默认生成<code>execute(tuple)</code>。</li>
-<li>只有prepare方式下才能指定<code>ISpout#open</code>、<code>IBolt#prepare</code>等函数，非prepare不能。</li>
-<li><code>defspout</code>默认使用prepare方式，<code>defbolt</code>默认使用非prepare方式。</li>
-</ul>
-
-
-<p>因此，<code>split-bolt</code>可以按如下方式重写：</p>
-
-<p>```clojure
-(defbolt split-bolt [&ldquo;word&rdquo;]
-  [tuple collector]
-  (let [words (.split (.getString tuple 0) &ldquo; &rdquo;)]</p>
-
-<pre><code>(doseq [w words]
-  (emit-bolt! collector [w]))
-(ack! collector tuple)))
-</code></pre>
-
-<p>```</p>
-
-<p>prepare方式可以用于在组件中保存状态，具体请看下面的计数Bolt。</p>
-
-<h3>count-bolt</h3>
-
-<p>```clojure
-(defbolt count-bolt [] {:prepare true}
-  [conf context collector]
-  (let [counts (atom {})]</p>
-
-<pre><code>(bolt
-  (execute [tuple]
-    (let [word (.getString tuple 0)]
-      (swap! counts (partial merge-with +) {word 1}))
-    (ack! collector tuple)))))
-</code></pre>
-
-<p>```</p>
-
-<h4>原子（Atom）</h4>
-
-<p><code>atom</code>是我们遇到的第一个可变量（Mutable Variable），其它的有Ref、Agent等。Atom是“原子”的意思，我们很容易想到原子性操作，即同一时刻只有一个线程能够修改Atom的值，因此它是处理并发的一种方式。这里我们使用Atom来保存每个单词出现的数量。以下是Atom的常用操作：</p>
-
-<p><code>clojure
-user=&gt; (def cnt (atom 0))
-user=&gt; (println @cnt) ; 使用@符号获取Atom中的值。
-0
-user=&gt; (swap! cnt inc) ; 将cnt中的值置换为(inc @cnt)，并返回该新的值
-1
-user=&gt; (println @cnt)
-1
-user=&gt; (swap! cnt + 10) ; 新值为(+ @cnt 10)
-11
-user=&gt; (reset! cnt 0) ; 归零
-0
-</code></p>
-
-<p>需要注意的是，<code>(swap! atom f arg ...)</code>中的<code>f</code>函数可能会被执行多次，因此要确保它没有副作用（side-effect，即不会产生其它状态的变化）。</p>
-
-<p>再来解释一下<code>(partial merge-with +)</code>。<code>merge-with</code>函数是对map类型的一种操作，表示将一个或多个map合并起来。和<code>merge</code>不同的是，<code>merge-with</code>多接收一个<code>f</code>函数（<code>merge-with [f &amp; maps]</code>），当键名重复时，会用<code>f</code>函数去合并它们的值，而不是直接替代。</p>
-
-<p><code>partial</code>可以简单理解为给函数设定默认值，如：</p>
-
-<p><code>clojure
-user=&gt; (defn add [a b] (+ a b))
-user=&gt; (add 5 10)
-15
-user=&gt; (def add-5 (partial add 5))
-user=&gt; (add-5 10)
-15
-</code></p>
-
-<p>这样一来，<code>(swap! counts (partial merge-with +) {word 1})</code>就可理解为：将<code>counts</code>这个Atom中的值（一个map类型）和<code>{word 1}</code>这个map进行合并，如果单词已存在，则递增1。</p>
-
-<h4>线程（Thread）</h4>
-
-<p>为了输出统计值，我们为count-bolt增加prepare方法：</p>
-
-<p>```clojure
-&hellip;</p>
-
-<pre><code>(bolt
-  (prepare [conf context collector]
-    (.start (Thread. (fn []
-                       (while (not (Thread/interrupted))
-                         (logging/info
-                           (clojure.string/join ", "
-                             (for [[word count] @counts]
-                               (str word ": " count))))
-                         (reset! counts {})
-                         (Thread/sleep 5000)))))))
-</code></pre>
-
-<p>&hellip;
-```</p>
-
-<p>这段代码的功能是：在Bolt开始处理消息之前启动一个线程，每隔5秒钟将<code>(atom counts)</code>中的单词出现次数打印出来，并对其进行清零操作。</p>
-
-<p>这里我们直接使用了Java的Thread类型。读者可能会觉得好奇，Thread类型的构造函数只接收实现Runnable接口的对象，Clojure的匿名函数直接支持吗？我们做一个简单测试：</p>
-
-<p><code>clojure
-user=&gt; (defn greet [name] (println "Hi" name))
-user=&gt; (instance? Runnable greet)
-true
-user=&gt; (instance? Runnable #(+ 1 %))
-true
-</code></p>
-
-<p><code>logging</code>命名空间对应的依赖是<code>[org.clojure/tools.logging "0.2.6"]</code>，需要将其添加到<code>project.clj</code>中，它是对log4j组件的包装。这里之所以没有使用<code>println</code>输出到标准输出，是为了将该脚本上传到Storm集群中运行时也能查看到日志输出。</p>
-
-<h3>定义和执行Topology</h3>
-
-<p>各个组件已经定义完毕，下面让我们用它们组成一个Topology：</p>
-
-<p>```clojure
-(defn mk-topology []
-  (topology</p>
-
-<pre><code>{"sentence" (spout-spec sentence-spout)}
-{"split" (bolt-spec {"sentence" :shuffle}
-                    split-bolt
-                    :p 3)
- "count" (bolt-spec {"split" ["word"]}
-                     count-bolt
-                     :p 2)}))
-</code></pre>
-
-<p>```</p>
-
-<p><code>topology</code>同样是Clojure DSL定义的宏，它接收两个map作为参数，一个用于定义使用到的Spout，一个则是Bolt。该map的键是组件的名称，该名称用于确定各组件之间的关系。</p>
-
-<p><code>spout-spec</code>和<code>bolt-spec</code>则定义了组件在Topology中更具体的参数。如"split"使用的是<code>split-bolt</code>这个组件，它的上游是"sentence"，使用shuffleGrouping来对消息进行分配，<code>:p 3</code>表示会启动3个<code>split-bolt</code>实例。</p>
-
-<p>&ldquo;count"使用<code>count-bolt</code>组件，上游是"split"，但聚合方式采用了fieldGrouping，因此列出了执行哈希运算时使用的消息字段（word）。为何要使用fieldGrouping？因为我们会开启两个<code>count-bolt</code>，如果采用shuffleGrouping，那单词“a”第一次出现的消息会发送给一个<code>count-bolt</code>，第二次出现会发送给另一个<code>count-bolt</code>，这样统计结果就会错乱。如果指定了<code>:p 1</code>，即只开启一个<code>count-bolt</code>实例，就不会有这样的问题。</p>
-
-<h4>本地模式和Cluster模式</h4>
-
-<p>```clojure
-(ns cia-storm.wordcount
-  (:import [backtype.storm StormSubmitter LocalCluster])
-  &hellip;
-  (:gen-class))</p>
-
-<p>(defn run-local! []
-  (let [cluster (LocalCluster.)]</p>
-
-<pre><code>(.submitTopology cluster
-  "wordcount" {} (mk-topology))
-(Thread/sleep 30000)
-(.shutdown cluster)))
-</code></pre>
-
-<p>(defn submit-topology! [name]
-  (StormSubmitter/submitTopology</p>
-
-<pre><code>name {TOPOLOGY-WORKERS 3} (mk-topology)))
-</code></pre>
-
-<p>(defn -main
-  ([]</p>
-
-<pre><code>(run-local!))
-</code></pre>
-
-<p>  ([name]</p>
-
-<pre><code>(submit-topology! name)))
-</code></pre>
-
-<p>```</p>
-
-<p>我们为WordCount生成一个类，它的<code>main</code>函数在没有命令行参数时会以本地模式执行Topology，若传递了参数（即指定了脚本在Cluster运行时的名称），则提交至Cluster。</p>
-
-<p>这里直接使用了Storm的Java类，对参数有疑惑的可以参考<a href="http://nathanmarz.github.io/storm/doc-0.8.1/">Javadoc</a>。<code>TOPOLOGY-WORKERS</code>是在<code>backtype.storm.config</code>命名空间中定义的，我们在前面的代码中<code>:use</code>过了。Storm这个项目是用Java和Clojure混写的，所以查阅代码时还需仔细一些。</p>
-
-<h4>运行结果</h4>
-
-<p>首先我们直接用<code>lein</code>以本地模式运行该Topology：</p>
-
-<p><code>bash
-$ lein run -m cia-storm.wordcount
-6996 [Thread-18] INFO  cia-storm.wordcount  - doctor: 17, the: 31, a: 29, an: 17, ago: 13, seven: 13, and: 13
-6998 [Thread-21] INFO  cia-storm.wordcount  - four: 13, keeps: 17, away: 17, score: 13, petted: 7, brown: 12, little: 12, years: 13, man: 7, apple: 17, dog: 19, day: 17
-11997 [Thread-18] INFO  cia-storm.wordcount  - ago: 6, seven: 6, and: 6, doctor: 7, an: 7, the: 39, a: 28
-11998 [Thread-21] INFO  cia-storm.wordcount  - four: 6, keeps: 7, away: 7, score: 6, petted: 16, brown: 21, little: 21, years: 6, man: 16, apple: 7, dog: 37, day: 7
-</code></p>
-
-<p>Cluster模式需要搭建本地集群，可以参考<a href="https://github.com/nathanmarz/storm/wiki/Setting-up-a-Storm-cluster">这篇文档</a>。下文使用的<code>storm</code>命令则需要配置<code>~/.storm/storm.yaml</code>文件，具体请参考<a href="https://github.com/nathanmarz/storm/wiki/Setting-up-development-environment#starting-and-stopping-topologies-on-a-remote-cluster">这篇文章</a>。</p>
-
-<p><code>bash
-$ lein do clean, compile, uberjar
-$ storm jar target/cia-storm-0.1.0-SNAPSHOT-standalone.jar cia_storm.wordcount wordcount
-$ cd /path/to/storm/logs
-$ tail worker-6700.log
-2013-05-11 21:26:15 wordcount [INFO] four: 9, keeps: 15, away: 15, score: 9, petted: 16, brown: 9, little: 9, years: 9, man: 16, apple: 15, dog: 25, day: 15
-2013-05-11 21:26:20 wordcount [INFO] four: 10, keeps: 9, away: 9, score: 10, petted: 18, brown: 13, little: 13, years: 10, man: 18, apple: 9, dog: 31, day: 9
-$ tail worker-6701.log
-2013-05-11 21:27:10 wordcount [INFO] ago: 12, seven: 12, and: 12, doctor: 11, a: 31, an: 11, the: 25
-2013-05-11 21:27:15 wordcount [INFO] ago: 14, seven: 14, and: 14, doctor: 11, the: 43, a: 19, an: 11
-</code></p>
-
-<h2>小结</h2>
-
-<p>这一章我们简单介绍了Storm的设计初衷，它是如何通过分布式并行运算解决实时数据分析问题的。Storm目前已经十分稳定，且仍处于活跃的开发状态。它的一些高级特性如DRPC、Trident等，还请感兴趣的读者自行研究。</p>
-
-<p>本文使用的WordCount示例代码：<a href="https://github.com/jizhang/cia-storm">https://github.com/jizhang/cia-storm</a>。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Perl入门实战：JVM监控脚本（下）]]></title>
-    <link href="http://shzhangji.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/"/>
-    <updated>2013-03-28T15:28:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2</id>
-    <content type="html"><![CDATA[<h2>套接字</h2>
-
-<p>使用套接字（Socket）进行网络通信的基本流程是：</p>
-
-<ul>
-<li>服务端：监听端口、等待连接、接收请求、发送应答；</li>
-<li>客户端：连接服务端、发送请求、接收应答。</li>
-</ul>
-
-
-<p>```perl
-use IO::Socket::INET;</p>
-
-<p>my $server = IO::Socket::INET->new(</p>
-
-<pre><code>LocalPort =&gt; 10060,
-Type =&gt; SOCK_STREAM,
-Reuse =&gt; 1,
-Listen =&gt; SOMAXCONN
-</code></pre>
-
-<p>) || die &ldquo;服务创建失败\n&rdquo;;</p>
-
-<p>while (my $client = $server->accept()) {</p>
-
-<pre><code>my $line = &lt;$client&gt;;
-chomp($line);
-
-if ($line =~ /^JVMPORT ([0-9]+)$/) {
-    print "RECV $1\n";
-    print $client "OK\n";
-} else {
-    print "ERROR $line\n";
-    print $client "ERROR\n";
-}
-
-close($client);
-</code></pre>
-
-<p>}</p>
-
-<p>close($server);
-```</p>
-
-<!--more-->
-
-
-<ul>
-<li><code>IO::Socket::INET</code>是一个内置模块，<code>::</code>符号用来分隔命名空间。</li>
-<li><code>-&gt;new</code>运算符是用来创建一个类的实例的，这涉及到面向对象编程，我们暂且忽略。</li>
-<li><code>(key1 =&gt; value1, key2 =&gt; value2)</code>是用来定义一个哈希表的，也就是键值对。这里是将哈系表作为参数传递给了<code>new</code>函数。请看以下示例。对于哈系表的进一步操作，我们这里暂不详述。</li>
-</ul>
-
-
-<p>```perl
-sub hello {</p>
-
-<pre><code>my %params = @_;
-print "Hello, $params{'name'}!\n";
-</code></pre>
-
-<p>}</p>
-
-<p>hello(&lsquo;name&rsquo; => &lsquo;Jerry&rsquo;); # 输出 Hello, Jerry!
-```</p>
-
-<ul>
-<li><code>while (...) {...}</code>是另一种循环结构，当圆括号的表达式为真就会执行大括号中的语句。</li>
-<li><code>$server-&gt;accept()</code>表示调用<code>$server</code>对象的<code>accept()</code>函数，用来接受一个连接。执行这个函数时进程会阻塞（进入睡眠），当有连接过来时才会唤醒，并将该连接赋值给<code>$client</code>变量。</li>
-<li><code>&lt;...&gt;</code>运算符表示从文件中读取一行，如：</li>
-</ul>
-
-
-<p>```perl
-open my $fd, &lsquo;&lt;&rsquo;, &lsquo;/proc/diskstats&rsquo;;
-while (my $line = &lt;$fd>) {</p>
-
-<pre><code>print $line;
-</code></pre>
-
-<p>}
-```</p>
-
-<p>由于套接字也可以作为文件来看待，所以就能使用<code>&lt;...&gt;</code>运算符。关于<code>open</code>函数和其他文件操作，读者可参考<a href="http://perl5maven.com/open-and-read-from-files">这篇文章</a>。</p>
-
-<ul>
-<li><code>chomp()</code>函数用来将字符串末尾的换行符去掉。它的用法也比较奇特，不是<code>$line = chomp($line)</code>，而是<code>chomp($line)</code>，这里<code>$line</code>是一次引用传递。</li>
-<li>细心的读者会发现，第二句<code>print</code>增加了<code>$client</code>，可以猜到它是用来指定<code>print</code>的输出目标。默认情况下是标准输出。</li>
-</ul>
-
-
-<p>我们打开两个终端，一个终端执行服务端，另一个终端直接用Bash去调用。</p>
-
-<p>```bash</p>
-
-<h1>客户端</h1>
-
-<p>$ echo &lsquo;JVMPORT 2181&rsquo; | nc 127.0.0.1 10060
-OK
-$ echo &lsquo;hello&rsquo; | nc 127.0.0.1 10060
-ERROR</p>
-
-<h1>服务端</h1>
-
-<p>$ ./socket-server.pl
-RECV 2181
-ERROR hello
-```</p>
-
-<p>至于客户端，还请读者自行完成，可参考<a href="http://perldoc.perl.org/IO/Socket/INET.html">相关文档</a>。</p>
-
-<h2>子进程</h2>
-
-<p>上述代码中有这样一个问题：当客户端建立了连接，但迟迟没有发送内容，那么服务端就会阻塞在<code>$line = &lt;$client&gt;</code>这条语句，无法接收其他请求。有三种解决方案：</p>
-
-<ol>
-<li>服务端读取信息时采用一定的超时机制，如果3秒内还不能读到完整的一行就断开连接。可惜Perl中并没有提供边界的方法来实现这一机制，需要自行使用<code>IO::Select</code>这样的模块来编写，比较麻烦。</li>
-<li>接受新的连接后打开一个子进程或线程来处理连接，这样就不会因为一个连接挂起而使整个服务不可用。</li>
-<li>使用非阻塞事件机制，当有读写操作时才会去处理。</li>
-</ol>
-
-
-<p>这里我们使用第二种方案，即打开子进程来处理请求。</p>
-
-<p>```perl
-use IO::Socket::INET;</p>
-
-<p>sub REAPER {</p>
-
-<pre><code>my $pid;
-while (($pid = waitpid(-1, 'WNOHANG')) &gt; 0) {
-    print "SIGCHLD $pid\n";
-}
-</code></pre>
-
-<p>}</p>
-
-<p>my $interrupted = 0;
-sub INTERRUPTER {</p>
-
-<pre><code>$interrupted = 1;
-</code></pre>
-
-<p>}</p>
-
-<p>$SIG{CHLD} = &amp;REAPER;
-$SIG{TERM} = &amp;INTERRUPTER;
-$SIG{INT} = &amp;INTERRUPTER;</p>
-
-<p>my $server = &hellip;;</p>
-
-<p>while (!$interrupted) {</p>
-
-<pre><code>if (my $client = $server-&gt;accept()) {
-
-    my $pid = fork();
-
-    if ($pid &gt; 0) {
-        close($client);
-        print "PID $pid\n";
-    } elsif ($pid == 0) {
-        close($server);
-
-        my $line = &lt;$client&gt;;
-        ...
-        close($client);
-        exit;
-
-    } else {
-        print "fork()调用失败\n";
-    }
-}
-</code></pre>
-
-<p>}</p>
-
-<p>close($server);
-```</p>
-
-<p>我们先看下半部分的代码。系统执行<code>fork()</code>函数后，会将当前进程的所有内容拷贝一份，以新的进程号来运行，即子进程。通过<code>fork()</code>的返回值可以知道当前进程是父进程还是子进程：大于0的是父进程；等于0的是子进程。子进程中的代码做了省略，执行完后直接<code>exit</code>。</p>
-
-<p>上半部分的信号处理是做什么用的呢？这就是在多进程模型中需要特别注意的问题：僵尸进程。具体可以参考<a href="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/">这篇文章</a>。</p>
-
-<p>而<code>$interrupted</code>变量则是用来控制程序是否继续执行的。当进程收到<code>SIGTERM</code>或<code>SIGINT</code>信号时，该变量就会置为真，使进程自然退出。</p>
-
-<p>为何不直接使用<code>while (my $client = $server-&gt;accept()) {...}</code>呢？因为子进程退出时会向父进程发送<code>SIGCHLD</code>信号，而<code>accept()</code>函数在接收到任何信号后都会中断并返回空，使得<code>while</code>语句退出。</p>
-
-<h2>命令行参数</h2>
-
-<p>这个服务脚本所监听的端口后是固写在脚本中的，如果想通过命令行指定呢？我们可以使用Perl的内置模块<code>Getopt::Long</code>。</p>
-
-<p>```perl
-use Getopt::Long;
-use Pod::Usage;</p>
-
-<p>my $help = 0;
-my $port = 10060;</p>
-
-<p>GetOptions(</p>
-
-<pre><code>'help|?' =&gt; \$help,
-'port=i' =&gt; \$port
-</code></pre>
-
-<p>) || pod2usage(2);
-pod2usage(1) if $help;</p>
-
-<p>print &ldquo;PORT $port\n&rdquo;;</p>
-
-<p><strong>END</strong></p>
-
-<p>=head1 NAME</p>
-
-<p>getopt</p>
-
-<p>=head1 SYNOPSIS</p>
-
-<p>getopt.pl [options]</p>
-
-<p> Options:
-   -help brief help message
-   -port bind to tcp port</p>
-
-<p>=cut
-```</p>
-
-<p>使用方法是：</p>
-
-<p>```bash
-$ ./getopt.pl -h
-Usage:</p>
-
-<pre><code>getopt.pl [options]
-...
-</code></pre>
-
-<p>$ ./getopt.pl
-PORT 10060
-$ ./getopt.pl -p 12345
-PORT 12345
-```</p>
-
-<p><code>'port=i' =&gt; \$port</code>表示从命令行中接收名为<code>-port</code>的参数，并将接收到的值转换为整数（<code>i</code>指整数）。<code>\$</code>又是一种引用传递了，这里暂不详述。</p>
-
-<p>至于<code>||</code>运算符，之前在建立<code>$server</code>时也遇到过，它实际上是一种逻辑运算符，表示“或”的关系。这里的作用则是“如果GetOptions返回的值不为真，则程序退出”。</p>
-
-<p><code>pod2usage(1) if $help</code>表示如果<code>$help</code>为真则执行<code>pod2usage(1)</code>。你也可以写为<code>$help &amp;&amp; pod2usage(1)</code>。</p>
-
-<p>我们再来看看<code>__END__</code>之后的代码，它是一种Pod文档（Plain Old Documentation），可以是单独的文件，也可以像这样直接附加到Perl脚本末尾。具体格式可以参考<a href="http://perldoc.perl.org/perlpod.html">perlpod</a>。<code>pod2usage()</code>函数顾名思义是将附加的Pod文档转化成帮助信息显示在控制台上。</p>
-
-<h2>小结</h2>
-
-<p>完整的脚本可以见这个链接<a href="https://github.com/jizhang/zabbix-templates/blob/master/jvm/jvm-service.pl">jvm-service.pl</a>。调用该服务的脚本可以见<a href="https://github.com/jizhang/zabbix-templates/blob/master/jvm/jvm-check.pl">jvm-check.pl</a>。</p>
-
-<p>Perl语言历史悠久，语法丰富，还需多使用、多积累才行。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Perl入门实战：JVM监控脚本（上）]]></title>
-    <link href="http://shzhangji.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1/"/>
-    <updated>2013-03-26T23:00:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1</id>
-    <content type="html"><![CDATA[<p>由于最近在搭建Zabbix监控服务，需要制作各类监控的模板，如iostat、Nginx、MySQL等，因此会写一些脚本来完成数据采集的工作。又因为近期对Perl语言比较感兴趣，因此决定花些时间学一学，写一个脚本来练练手，于是就有了这样一份笔记。</p>
-
-<h2>需求描述</h2>
-
-<p>我们将编写一个获取JVM虚拟机状态信息的脚本：</p>
-
-<ol>
-<li>启动一个服务进程，通过套接字接收形如“JVMPORT 2181”的请求；</li>
-<li>执行<code>netstat</code>命令，根据端口获取进程号；</li>
-<li>执行<code>jstat</code>命令获取JVM的GC信息；<code>jstack</code>获取线程信息；<code>ps -o pcpu,rss</code>获取CPU和内存使用情况；</li>
-<li>将以上信息返回给客户端；</li>
-</ol>
-
-
-<p>之所以需要这样一个服务是因为Zabbix Agent会运行在zabbix用户下，无法获取运行在其他用户下的JVM信息。</p>
-
-<p>此外，Zabbix Agent也需要编写一个脚本来调用上述服务，这个在文章末尾会给出范例代码。</p>
-
-<!-- more -->
-
-
-<h2>Hello, world!</h2>
-
-<p>还是要不免俗套地来一个helloworld，不过我们的版本会稍稍丰富些：</p>
-
-<p>```perl</p>
-
-<h1>!/usr/bin/perl</h1>
-
-<p>use strict;
-my $name = &lsquo;Jerry&rsquo;;
-print &ldquo;Hello, $name!\n&rdquo;; # 输出 Hello, Jerry!
-```</p>
-
-<p>将该文件保存为<code>hello.pl</code>，可以用两种方式执行：</p>
-
-<p><code>bash
-$ perl hello.pl
-Hello, Jerry!
-$ chmod 755 hello.pl
-$ ./hello.pl
-Hello, Jerry!
-</code></p>
-
-<ul>
-<li>所有的语句都以分号结尾，因此一行中可以有多条语句，但并不提倡这样做。</li>
-<li><code>use</code>表示加载某个模块，加载<a href="http://search.cpan.org/~rjbs/perl-5.16.3/lib/strict.pm"><code>strict</code>模块</a>表示会对当前文件的语法做出一些规范和约束。比如将<code>my $name ...</code>前的<code>my</code>去掉，执行后Perl解释器会报错。建议坚持使用该模块。</li>
-<li><code>$name</code>，一个Perl变量。<code>$</code>表示该变量是一个标量，可以存放数值、字符串等基本类型。其它符号有<code>@</code>和<code>%</code>，分别对应数组和哈希表。</li>
-<li><code>my</code>表示声明一个变量，类似的有<code>our</code>、<code>local</code>等，将来接触到变量作用域时会了解。</li>
-<li>字符串可以用单引号或双引号括起来，区别是双引号中的变量会被替换成实际值以及进行转移，单引号则不会。如<code>'Hello, $name!\n'</code>中的<code>$name</code>和<code>\n</code>会按原样输出，而不是替换为“Jerry”和换行符。</li>
-<li><code>print</code>语句用于将字符串输出到标准输出上。</li>
-<li><code>#</code>表示注释。</li>
-</ul>
-
-
-<h2>正则表达式</h2>
-
-<p>我们第一个任务是从“JVMPORT 2181”这样的字符串中提取“2181”这个端口号。解决方案当然是使用正则，而且Perl的强项之一正是文本处理：</p>
-
-<p>```perl
-my $line = &lsquo;JVMPORT 2181&rsquo;;
-if ($line =~ /^JVMPORT ([0-9]+)$/) {</p>
-
-<pre><code>print $1, "\n"; # 输出 2181
-</code></pre>
-
-<p>} else {</p>
-
-<pre><code>print '匹配失败', "\n";
-</code></pre>
-
-<p>}
-```</p>
-
-<p>这里假设你知道如何使用正则表达式。</p>
-
-<ul>
-<li><code>=~</code>运算符表示将变量和正则表达式进行匹配，如果匹配成功则返回真，失败则返回假。</li>
-<li>匹配成功后，Perl会对全局魔术变量——<code>$0</code>至<code>$9</code>进行赋值，分别表示正则表达式完全匹配到的字符串、第一个子模式匹配到的字符串、第二个子模式，依此类推。</li>
-<li><code>if...else...</code>是条件控制语句，其中<code>...} else if (...</code>可以简写为<code>...} elsif (...</code>。</li>
-</ul>
-
-
-<h2>调用命令行</h2>
-
-<p>使用反引号（即大键盘数字1左边的按键）：</p>
-
-<p><code>perl
-my $uname = `uname`;
-print $uname; # 输出 Linux
-my $pid = '1234';
-$line = `ps -ef | grep $pid`; # 支持管道符和变量替换
-</code></p>
-
-<p>对于返回多行结果的命令，我们需要对每一行的内容进行遍历，因此会使用数组和<code>foreach</code>语句：</p>
-
-<p><code>``perl
-my $pid;
-my $jvmport = '2181';
-my @netstat =</code>netstat -lntp 2>/dev/null`;
-foreach my $line (@netstat) {</p>
-
-<pre><code>if ($line =~ /.*?:$jvmport\s.*?([0-9]+)\/java\s*$/) {
-    $pid = $1;
-    last;
-}
-</code></pre>
-
-<p>}
-if ($pid) {</p>
-
-<pre><code>print $pid, "\n";
-</code></pre>
-
-<p>} else {</p>
-
-<pre><code>print '端口不存在', "\n";
-</code></pre>
-
-<p>}
-```</p>
-
-<ul>
-<li><code>$pid</code>变量的结果是2181端口对应的进程号。</li>
-<li>这个正则可能稍难理解，但对照<code>netstat</code>的输出结果来看就可以了。</li>
-<li><code>foreach</code>是循环语句的一种，用来遍历一个数组的元素，这里则是遍历<code>netstat</code>命令每一行的内容。注意，<code>foreach</code>可以直接用<code>for</code>代替，即<code>for my $line (@netstat) { ... }</code>。</li>
-<li><code>last</code>表示退出循环。如果要进入下一次循环，可使用<code>next</code>语句。</li>
-</ul>
-
-
-<h2>数组</h2>
-
-<p>下面我们要根据进程号来获取JVM的GC信息：（“2017”为上文获取到的进程号）</p>
-
-<p><code>bash
-$ jstat -gc 2017
- S0C    S1C    S0U    S1U      EC       EU        OC         OU       PC     PU    YGC     YGCT    FGC    FGCT     GCT   
-192.0  192.0   0.0    50.1   1792.0   682.8     4480.0     556.3    21248.0 9483.2      3    0.008   0      0.000    0.008
-</code></p>
-
-<p>如何将以上输出结果转换为以下形式？</p>
-
-<p><code>
-s0c 192.0
-s1c 192.0
-...
-</code></p>
-
-<p>这时我们就需要更多地使用数组这一数据结构：</p>
-
-<p><code>``perl
-my $pid = 2017;
-my @jstat =</code>jstat -gc $pid`;</p>
-
-<p>$jstat[0] =~ s/^\s+|\s+$//;
-$jstat[1] =~ s/^\s+|\s+$//;</p>
-
-<p>my @kv_keys = split(/\s+/, $jstat[0]);
-my @kv_vals = split(/\s+/, $jstat[1]);</p>
-
-<p>my $result = &lsquo;&rsquo;;
-for my $i (0 .. $#kv_keys) {</p>
-
-<pre><code>$result .= "$kv_keys[$i] $kv_vals[$i]\n";
-</code></pre>
-
-<p>}</p>
-
-<p>print $result;
-```</p>
-
-<ul>
-<li>使用<code>$jstat[0]</code>获取数组的第一个元素，数组的下标从0开始，注意这里的<code>$</code>符号，而非<code>@</code>。</li>
-<li><code>$#kv_keys</code>返回的是数组最大的下标，而非数组的长度。</li>
-<li><code>for my $i (0 .. 10) {}</code>则是另一种循环结构，<code>$i</code>的值从0到10（含0和10）。</li>
-</ul>
-
-
-<p>对于正则表达式，这里也出现了两个新的用法：</p>
-
-<ul>
-<li><code>s/A/B/</code>表示将A的值替换为B，上述代码中是将首尾的空格去除；</li>
-<li><code>split(A, B)</code>函数表示将字符串B按照正则A进行分割，并返回一个数组。</li>
-</ul>
-
-
-<p>另外在学习过程中还发现了这样一种写法：</p>
-
-<p>```perl
-my @jstat;</p>
-
-<p>$jstat[0] =~ s/^\s+|\s+$//;
-$jstat[1] =~ s/^\s+|\s+$//;</p>
-
-<p>map { s/^\s+|\s+$// } @jstat;
-```</p>
-
-<p><code>map</code>函数会对数组中的每个元素应用第一个参数指向的函数（这里是一个匿名函数），当需要处理的数组元素很多时，这种是首选做法。具体内容读者可以自己去了解。</p>
-
-<h2>函数</h2>
-
-<p>我们可以用以下命令来获取指定进程的CPU和内存使用率：</p>
-
-<p><code>bash
-$ ps -o pcpu,rss -p 2017
-%CPU   RSS
- 0.1 21632
-</code></p>
-
-<p>格式和<code>jstat</code>是一样的，为了不再写一遍上文中的代码，我们可以将其封装为函数。</p>
-
-<p>```perl
-sub kv_parse {</p>
-
-<pre><code>my @kv_data = @_;
-
-map { s/^\s+|\s+$// } @kv_data;
-
-my @kv_keys = split(/\s+/, $kv_data[0]);
-my @kv_vals = split(/\s+/, $kv_data[1]);
-
-my $result = '';
-for my $i (0 .. $#kv_keys) {
-    $result .= "$kv_keys[$i] $kv_vals[$i]\n";
-}
-
-return $result;
-</code></pre>
-
-<p>}</p>
-
-<p>my $pid = 2017;
-my @jstat = <code>jstat -gc $pid</code>;
-my @ps = <code>ps -o pcpu,rss -p $pid</code>;</p>
-
-<p>print kv_parse(@jstat);
-print kv_parse(@ps);
-```</p>
-
-<p><code>sub</code>表示定义一个函数（subroutine），和其他语言不同的是，它没有参数列表，获取参数使用的是魔术变量<code>@_</code>：</p>
-
-<p>```perl
-sub hello {</p>
-
-<pre><code>my $name1 = $_[0];
-$name1 = shift @_;
-my $name2 = shift(@_);
-my $name3 = shift;
-</code></pre>
-
-<p>}</p>
-
-<p>hello(&lsquo;111&rsquo;, &lsquo;222&rsquo;, &lsquo;333&rsquo;);
-hello &lsquo;111&rsquo;, &lsquo;222&rsquo;, &lsquo;333&rsquo;;
-&amp;hello(&lsquo;111&rsquo;, &lsquo;222&rsquo;, &lsquo;333&rsquo;);
-```</p>
-
-<ul>
-<li><code>$_[0]</code>和<code>shift @_</code>返回的都是第一参数。不同的是，<code>shift</code>函数会将这个参数从<code>@_</code>数组中移除；</li>
-<li><code>shift @_</code>和<code>shift(@_)</code>是等价的，因为调用函数时参数列表可以不加括号；</li>
-<li><code>shift @_</code>和只写<code>shift</code>也是等价的，该函数若不指定参数，则默认使用<code>@_</code>数组。</li>
-<li><code>&amp;</code>符号也是比较特别的，主要作用有两个：一是告诉Perl解释器<code>hello</code>将是一个用户定义的函数，这样就不会和Perl原生关键字冲突；二是忽略函数原型（prototype）。具体可以参考这篇文章：<a href="https://www.socialtext.net/perl5/subroutines_called_with_the_ampersand">Subroutines Called With The Ampersand</a>。</li>
-</ul>
-
-
-<p>当传递一个数组给函数时，该数组不会被作为<code>@_</code>的第一个元素，而是作为<code>@_</code>本身。这也是很特别的地方。当传递多个数组，Perl会将这些数组进行拼接：</p>
-
-<p>```perl
-sub hello {</p>
-
-<pre><code>for my $i (@_) {
-    print $i;
-}
-</code></pre>
-
-<p>}</p>
-
-<p>my @arr1 = (1, 2); # 使用圆括号定义一个数组，元素以逗号分隔。
-my @arr2 = (3, 4);</p>
-
-<p>hello @arr1, @arr2; # 输出 1234
-```</p>
-
-<h2>小结</h2>
-
-<p>对于初学者来讲，本文的信息量可能有些大了。但如果你已经有一定的编程经验（包括Bash），应该可以理解这些内容。</p>
-
-<p>Perl文化的特色是“不只一种做法来完成一件事情”，所以我们可以看到很多不同的写法。但也有一些是大家普遍接受的写法，所以也算是一种规范吧。</p>
-
-<p>下一章我们会继续完成这个监控脚本。</p>
-
-<p>PS：本文的示例代码可以从<a href="https://github.com/jizhang/perl-jvm-monitoring-example">Github</a>中下载。</p>
 ]]></content>
   </entry>
   

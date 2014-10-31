@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="Session和Cookie 做网络编程的人肯定对这两个概念不陌生，因此这里就不介绍它们的定义和作用了。我们要实现的需求也很简单：用户通过一个表单登录，在当前窗口中保持登录状态，并可以选择“记住我”来免去关闭并新开窗口之后的重登录。显然，前者使用Session，后者使用Cookie。 &hellip;">
+  <meta name="description" content="Hadoop简介 众所周知，我们已经进入了大数据时代，每天都有PB级的数据需要处理、分析，从中提取出有用的信息。Hadoop就是这一时代背景下的产物。它是Apache基金会下的开源项目，受Google两篇论文的启发，采用分布式的文件系统HDFS，以及通用的MapReduce解决方案， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +81,174 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/02/09/cia-hadoop/">Clojure实战(4)：编写Hadoop MapReduce脚本</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-02-09T16:43:00+08:00" pubdate data-updated="true">Feb 9<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>Hadoop简介</h2>
+
+<p>众所周知，我们已经进入了大数据时代，每天都有PB级的数据需要处理、分析，从中提取出有用的信息。Hadoop就是这一时代背景下的产物。它是Apache基金会下的开源项目，受<a href="http://en.wikipedia.org/wiki/Apache_Hadoop#Papers">Google两篇论文</a>的启发，采用分布式的文件系统HDFS，以及通用的MapReduce解决方案，能够在数千台物理节点上进行分布式并行计算。</p>
+
+<p>对于Hadoop的介绍这里不再赘述，读者可以<a href="http://hadoop.apache.org/">访问其官网</a>，或阅读<a href="http://product.dangdang.com/main/product.aspx?product_id=21127813">Hadoop权威指南</a>。</p>
+
+<p>Hadoop项目是由Java语言编写的，运行在JVM之上，因此我们可以直接使用Clojure来编写MapReduce脚本，这也是本文的主题。Hadoop集群的搭建不在本文讨论范围内，而且运行MapReduce脚本也无需搭建测试环境。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/02/09/cia-hadoop/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/01/04/clojure-style-guide/">Clojure 代码规范</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-04T20:49:00+08:00" pubdate data-updated="true">Jan 4<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>原文地址：<a href="https://github.com/bbatsov/clojure-style-guide">https://github.com/bbatsov/clojure-style-guide</a></p>
+
+<p>这份Clojure代码规范旨在提供一系列的最佳实践，让现实工作中的Clojure程序员能够写出易于维护的代码，并能与他人协作和共享。一份反应真实需求的代码规范才能被人接收，而那些理想化的、甚至部分观点遭到程序员拒绝的代码规范注定不会长久——无论它有多出色。</p>
+
+<p>这份规范由多个章节组成，每个章节包含一组相关的规则。我会尝试去描述每条规则背后的理念（过于明显的理念我就省略了）。</p>
+
+<p>这些规则并不是我凭空想象的，它们出自于我作为一个专业软件开发工程师长久以来的工作积累，以及Clojure社区成员们的反馈和建议，还有各种广为流传的Clojure编程学习资源，如<a href="http://www.clojurebook.com/">《Clojure Programming》</a>、<a href="http://joyofclojure.com/">《The Joy of Clojure》</a>等。</p>
+
+<p>这份规范还处于编写阶段，部分章节有所缺失，内容并不完整；部分规则没有示例，或者示例还不能完全将其描述清楚。未来这些问题都会得到改进，只是请你了解这一情况。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/01/04/clojure-style-guide/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/23/nginx-live-upgrade/">Nginx热升级</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-23T22:11:00+08:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>系统管理员可以使用Nginx提供的信号机制来对其进行维护，比较常用的是<code>kill -HUP &lt;master pid&gt;</code>命令，它能通知Nginx使用新的配置文件启动工作进程，并逐个关闭旧进程，完成平滑切换。当需要对Nginx进行版本升级或增减模块时，为了不丢失请求，可以结合使用<code>USR2</code>、<code>WINCH</code>等信号进行平滑过度，达到热升级的目的。如果中途遇到问题，也能立刻回退至原版本。</p>
+
+<h2>操作步骤</h2>
+
+<p>1、备份原Nginx二进制文件；</p>
+
+<p>2、编译新Nginx源码，安装路径需与旧版一致；</p>
+
+<p>3、向主进程发送<code>USR2</code>信号，Nginx会启动一个新版本的master进程和工作进程，和旧版一起处理请求：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>prey:~ root# ps -ef|grep nginx
+</span><span class='line'> 127     1   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+</span><span class='line'> 129   127   nginx: worker process
+</span><span class='line'>prey:~ root# <span class="nb">kill</span> -USR2 127
+</span><span class='line'>prey:~ root# ps -ef|grep nginx
+</span><span class='line'> 127     1   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+</span><span class='line'> 129   127   nginx: worker process
+</span><span class='line'>5180   127   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+</span><span class='line'>5182  5180   nginx: worker process
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/23/nginx-live-upgrade/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -428,23 +596,23 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/10/30/guidetodatamining-4/">数据挖掘指南[4]分类</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/14/mysql-incorrent-utf8-value/">MySQL异常UTF-8字符的处理</a>
       </li>
     
       <li class="post">
+        <a href="/blog/2014/09/29/guidetodatamining-3/">数据挖掘指南[3]隐式评价和基于物品的过滤算法</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/29/guidetodatamining-2/">数据挖掘指南[2]推荐系统入门</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/08/09/guidetodatamining-1/">数据挖掘指南[1]简介</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/">在CDH 4.5上安装Shark 0.9</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Use WebJars in Scalatra Project</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/01/25/java-reflection-tutorial/">Java反射机制</a>
       </li>
     
   </ul>
