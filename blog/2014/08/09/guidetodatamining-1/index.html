@@ -5,19 +5,16 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Hive并发情况下报DELETEME表不存在的异常 - Ji ZHANG's Blog</title>
+  <title>数据挖掘指南[1]简介 - Ji ZHANG's Blog</title>
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="在每天运行的Hive脚本中，偶尔会抛出以下错误： 1
-2
-3
-4
-5
-6
-7
-8
-2013-09-03 01:39:00,973 ERROR parse.SemanticAnalyzer (SemanticAnalyzer.java:getMetaData(1128)) - org.apache. &hellip;">
+  <meta name="description" content="原文链接：http://guidetodatamining.com/chapter-1/ 内容：
+* 寻找事物
+* 本书结构
+* 阅读完本书后你可以做些什么？
+* 为什么数据挖掘很重要？哪些内容可以为我所用？
+* 标题里的“Numerati的古老艺术”是什么意思？ 序 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -26,7 +23,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://shzhangji.com/blog/2013/09/06/hive-deleteme-error">
+  <link rel="canonical" href="http://shzhangji.com/blog/2014/08/09/guidetodatamining-1">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
@@ -92,7 +89,7 @@
   
   <header>
     
-      <h1 class="entry-title">Hive并发情况下报DELETEME表不存在的异常</h1>
+      <h1 class="entry-title">数据挖掘指南[1]简介</h1>
     
     
       <p class="meta">
@@ -108,85 +105,40 @@
   
 
 
-<time datetime="2013-09-06T11:20:00+08:00" pubdate data-updated="true">Sep 6<span>th</span>, 2013</time>
+<time datetime="2014-08-09T12:00:00+08:00" pubdate data-updated="true">Aug 9<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>在每天运行的Hive脚本中，偶尔会抛出以下错误：</p>
+<div class="entry-content"><p>原文链接：<a href="http://guidetodatamining.com/chapter-1/">http://guidetodatamining.com/chapter-1/</a></p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>2013-09-03 01:39:00,973 ERROR parse.SemanticAnalyzer (SemanticAnalyzer.java:getMetaData(1128)) - org.apache.hadoop.hive.ql.metadata.HiveException: Unable to fetch table dw_xxx_xxx
-</span><span class='line'>        at org.apache.hadoop.hive.ql.metadata.Hive.getTable(Hive.java:896)
-</span><span class='line'>        ...
-</span><span class='line'>Caused by: javax.jdo.JDODataStoreException: Exception thrown obtaining schema column information from datastore
-</span><span class='line'>NestedThrowables:
-</span><span class='line'>com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Table 'hive.DELETEME1378143540925' doesn't exist
-</span><span class='line'>        at org.datanucleus.jdo.NucleusJDOHelper.getJDOExceptionForNucleusException(NucleusJDOHelper.java:313)
-</span><span class='line'>        ...</span></code></pre></td></tr></table></div></figure>
+<p>内容：
+* 寻找事物
+* 本书结构
+* 阅读完本书后你可以做些什么？
+* 为什么数据挖掘很重要？哪些内容可以为我所用？
+* 标题里的“Numerati的古老艺术”是什么意思？</p>
+
+<h2>序</h2>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-1/chapter-1-1.png" alt="Shoshin" /></p>
+
+<p>如果你每天都能重复做这些简单的事，你就会获得某种特别的力量。在你获得之前，这是特别的，但获得之后，就没什么大不了的了。</p>
+
+<p align="right">——鈴木 俊隆</p>
 
 
-<p>查阅了网上的资料，是DataNucleus的问题。</p>
+<p>在阅读本书之前，你可能会认为像潘多拉、亚马逊那样的推荐系统、或是恐怖分子用的数据挖掘系统，一定会非常复杂，只有拥有博士学位的人才能够了解其中的算法。你也许会认为设计出这些系统的人都是研究火箭技术的。而我撰写本书的目的之一就是希望能够揭开这些系统的神秘面纱，展示它们所使用的基本原理。虽然的确会有像Google工程师或是在国家安全局工作的天才技术人员，数据挖掘却是建立在一些基本逻辑和方法之上的，非常易于理解。在阅读本书之前，你可能会认为数据挖掘是一种让人震惊的技术，但阅读之后你会发现，其实也没什么大不了的。</p>
 
-<p>背景1：我们知道MySQL中的库表信息是存放在information_schema库中的，Hive也有类似的机制，它会将库表信息存放在一个第三方的RDBMS中，目前我们线上配置的是本机MySQL，即：</p>
+<p>上图中的日本文字“初心”，表示要始终保持一颗“初学者的心”，也就是一种开放的心态，接受各种可能性。下面这个故事你可能在哪儿听过（很有可能是来自李小龙的“龙争虎斗”）：一位教授想要寻求指引，于是来到一位智者面前，希望能得到点化。这个教授不停地说着自己毕生学到了什么，发表了多少论文等等。这时，智者问他：“喝茶吗？”然后开始向教授的杯子里倒茶，一直倒，最后溢到了桌子上、地上。“你在干什么？”教授大叫道。智者说：“我在倒茶。你的思想就像这个茶杯，已经倒满了茶，容不下任何其他东西。你必须先放空你的思想，我们才能继续往下说。”</p>
 
-<p>$ mysql -uhive -ppassword hive</p>
+<p>在我看来，优秀的程序员就像是空的茶杯，他不断地探索着新的技术（noSQL、node-js等等）。普通的程序员沉浸在那些固有的想法中：C++很棒，Java不好，PHP只能用来编写网页，MySQL是数据库的唯一选择。我希望你能够以开放的心态阅读本书，从而发现一些有价值的东西。正如铃木俊隆所说：</p>
 
-<p><img src="/images/hive-deleteme-error/1.png" alt="1.png" /></p>
+<p>在初学者眼中，世界充满了可能；专家眼中，世界大都已经既定。</p>
 
-<!--more-->
-
-
-<p>背景2：Hive使用的是DataNuclues ORM库来操作数据库的，而基本上所有的ORM框架（对象关系映射）都会提供自动建表的功能，即开发者只需编写Java对象，ORM会自动生成DDL。DataNuclues也有这一功能，而且它在初始化时会通过生成临时表的方式来获取数据库的Catalog和Schema，也就是 DELETEME表：</p>
-
-<p><img src="/images/hive-deleteme-error/2.png" alt="2.png" /></p>
-
-<p>这样就有一个问题：在并发量大的情况下，DELETEME表名中的毫秒数可能相同，那在pt.drop(conn)的时候就会产生找不到表的报错。</p>
-
-<p>解决办法已经可以在代码中看到了：将datanucleus.fixedDataStore选项置为true，即告知DataNuclues该数据库的表结构是既定的，不允许执行DDL操作。</p>
-
-<p>这样配置会有什么问题？让我们回忆一下Hive的安装步骤：</p>
-
-<ol>
-<li>解压hive-xyz.tar.gz；</li>
-<li>在conf/hive-site.xml中配置Hadoop以及用于存放库表信息的第三方数据库；</li>
-<li>执行bin/hive -e &ldquo;&hellip;&#8221;即可使用。DataNucleus会按需创建上述的DBS等表。</li>
-</ol>
-
-
-<p>这对新手来说很有用，因为不需要手动去执行建表语句，但对生产环境来说，普通帐号是没有DDL权限的，我们公司建表也都是提DB-RT给DBA操作。同理，线上Hive数据库也应该采用手工创建的方式，导入scripts/metastore/upgrade/mysql/hive-schema-0.9.0.mysql.sql文件即可。这样一来，就可以放心地配置datanucleus.fixedDataStore以及 datanecleus.autoCreateSchema两个选项了。</p>
-
-<p>这里我们也明确了一个问题：设置datanucleus.fixedDataStore=true不会影响Hive建库建表，因为Hive中的库表只是DBS、TBLS表中的一条记录而已。</p>
-
-<p>建议的操作：</p>
-
-<ol>
-<li>在线上导入hive-schema-0.9.0.mysql.sql，将尚未创建的表创建好（比如我们没有用过Hive的权限管理，所以DataNucleus没有自动创建DB_PRIVS表）；</li>
-<li>在hive-site.xml中配置 datanucleus.fixedDataStore=true；datanecleus.autoCreateSchema=false。</li>
-</ol>
-
-
-<p>这样就可以彻底解决这个异常了。</p>
-
-<p>为什么HWI没有遇到类似问题？因为它是常驻内存的，DELETEME表只会在启动的时候创建，后续的查询不会创建。而我们这里每次调用hive命令行都会去创建，所以才有这样的问题。</p>
-
-<p>参考链接：</p>
-
-<ul>
-<li><a href="http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html">http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html</a></li>
-<li><a href="https://github.com/dianping/cosmos-hive/issues/10">https://github.com/dianping/cosmos-hive/issues/10</a></li>
-<li><a href="https://issues.apache.org/jira/browse/HIVE-1841">https://issues.apache.org/jira/browse/HIVE-1841</a></li>
-</ul>
-
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-1.md">前往GitHub阅读全文</a></p>
 </div>
 
 
@@ -209,12 +161,12 @@
   
 
 
-<time datetime="2013-09-06T11:20:00+08:00" pubdate data-updated="true">Sep 6<span>th</span>, 2013</time>
+<time datetime="2014-08-09T12:00:00+08:00" pubdate data-updated="true">Aug 9<span>th</span>, 2014</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a>
+    <a class='category' href='/blog/categories/tutorial/'>Tutorial</a>
   
 </span>
 
@@ -223,7 +175,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2014/08/09/guidetodatamining-1/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2014/08/09/guidetodatamining-1/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -236,10 +188,10 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2013/06/11/ansible-faq/" title="Previous Post: Ansible FAQ">&laquo; Ansible FAQ</a>
+        <a class="basic-alignment left" href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/" title="Previous Post: 在CDH 4.5上安装Shark 0.9">&laquo; 在CDH 4.5上安装Shark 0.9</a>
       
       
-        <a class="basic-alignment right" href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" title="Next Post: Generate Auto-increment Id in Map-reduce Job">Generate Auto-increment Id in Map-reduce Job &raquo;</a>
+        <a class="basic-alignment right" href="/blog/2014/10/14/mysql-incorrent-utf8-value/" title="Next Post: MySQL异常UTF-8字符的处理">MySQL异常UTF-8字符的处理 &raquo;</a>
       
     </p>
   </footer>
@@ -356,8 +308,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/';
-        var disqus_url = 'http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/';
+        var disqus_identifier = 'http://shzhangji.com/blog/2014/08/09/guidetodatamining-1/';
+        var disqus_url = 'http://shzhangji.com/blog/2014/08/09/guidetodatamining-1/';
         var disqus_script = 'embed.js';
       
     (function () {
