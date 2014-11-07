@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Translation | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/translation/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-10-31T11:40:52+08:00</updated>
+  <updated>2014-11-07T16:38:24+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,203 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[数据挖掘指南[4]分类]]></title>
+    <link href="http://shzhangji.com/blog/2014/10/30/guidetodatamining-4/"/>
+    <updated>2014-10-30T12:00:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/10/30/guidetodatamining-4</id>
+    <content type="html"><![CDATA[<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
+
+<p>内容：</p>
+
+<ul>
+<li>潘多拉推荐系统简介</li>
+<li>特征值选择的重要性</li>
+<li>示例：音乐特征值和邻域算法</li>
+<li>数据标准化</li>
+<li>修正的标准分数</li>
+<li>Python代码：音乐，特征，以及简单的邻域算法实现</li>
+<li>一个和体育相关的示例</li>
+<li>特征值抽取方式一览</li>
+</ul>
+
+
+<h2>根据物品特征进行分类</h2>
+
+<p>前几章我们讨论了如何使用协同过滤来进行推荐，由于使用的是用户产生的各种数据，因此又称为社会化过滤算法。比如你购买了Phoenix专辑，我们网站上其他购买过这张专辑的用户还会去购买Vampire的专辑，因此会把它推荐给你；我在Netflix上观看了Doctor Who，网站会向我推荐Quantum Leap，用的是同样的原理。我们同时也讨论了协同过滤会遇到的种种问题，包括数据的稀疏性和算法的可扩展性。此外，协同过滤算法倾向于推荐那些已经很流行的物品。试想一个极端的例子：一个新乐队发布了专辑，这张专辑还没有被任何用户评价或购买过，那它将永远不会出现在推荐列表中。</p>
+
+<blockquote><p><strong>这类推荐系统会让流行的物品更为流行，冷门的物品更无人问津。</strong></p>
+
+<p>&mdash; Daniel Fleder &amp; Kartik Hosanagar 2009 《推荐系统对商品分类的影响》</p></blockquote>
+
+<p>这一章我们来看另一种推荐方法。以潘多拉音乐站举例，在这个站点上你可以设立各种音乐频道，只需为这个频道添加一个歌手，潘多拉就会播放和这个歌手风格相类似的歌曲。比如我添加了Phoenix乐队，潘多拉便会播放El Ten Eleven的歌曲。它并没有使用协同过滤，而是通过计算得到这两个歌手的音乐风格是相似的。其实在播放界面上可以看到推荐理由：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-4/chapter-4-1.png" alt="" /></p>
+
+<p>“根据你目前告知的信息，我们播放的这首歌曲有着相似的旋律，使用了声响和电音的组合，即兴的吉他伴奏。”在我的Hiromi音乐站上，潘多拉会播放E.S.T.的歌曲，因为“它有着古典爵士乐风，一段高水准的钢琴独奏，轻盈的打击乐，以及有趣的歌曲结构。”</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-4/chapter-4-2.png" alt="" /></p>
+
+<p>潘多拉网站的推荐系统是基于一个名为音乐基因的项目。他们雇佣了专业的音乐家对歌曲进行分类（提取它们的“基因”）。这些音乐家会接受超过150小时的训练，之后便可用20到30分钟的时间来分析一首歌曲。这些乐曲特征是很专业的：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-4/chapter-4-3.png" alt="" /></p>
+
+<p>这些专家要甄别400多种特征，平均每个月会有15000首新歌曲，因此这是一项非常消耗人力的工程。</p>
+
+<blockquote><p>注意：潘多拉的音乐基因项目是商业机密，我不曾了解它的任何信息。下文讲述的是如何构造一个类似的系统。</p></blockquote>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-4.md">前往GitHub阅读全文</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[数据挖掘指南[3]隐式评价和基于物品的过滤算法]]></title>
+    <link href="http://shzhangji.com/blog/2014/09/29/guidetodatamining-3/"/>
+    <updated>2014-09-29T12:00:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/09/29/guidetodatamining-3</id>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-3/">http://guidetodatamining.com/chapter-3/</a></p>
+
+<p>本章会从用户的评价类型开始讨论，包括显式评价（赞一下、踩一脚、五星评价等等）和隐式评价（比如在亚马逊上购买了MP3，我们可以认为他喜欢这个产品）。</p>
+
+<p>内容：</p>
+
+<ul>
+<li>显式评价</li>
+<li>隐式评价</li>
+<li>哪种评价方式更准确？</li>
+<li>基于用户的协同过滤</li>
+<li>基于物品的协同过滤</li>
+<li>修正的余弦相似度</li>
+<li>Slope One算法</li>
+<li>Slope One的Python实现</li>
+<li>MovieLens数据</li>
+</ul>
+
+
+<p>第二章中我们学习了协同过滤和推荐系统的基本知识，其中讲述的算法是比较通用的，可以适用于多种数据集。用户使用5到10分的标尺来对不同的物品进行打分，通过计算得到相似的用户。但是，也有迹象表明用户通常不会有效地使用这种度量方式，而更倾向于给出极好或极差的评价，这种做法会使推荐结果变得不可用。这一章我们将继续探讨这个问题，尝试使用高效的方法给出更精确的推荐。</p>
+
+<h2>显式评价</h2>
+
+<p>用户的评价类型可以分为显式评价和隐式评价。显式评价指的是用户明确地给出对物品的评价，最常见的例子是Pandora和YouTube上的“喜欢”和“不喜欢”按钮：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-1.png" alt="" /></p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-2.png" alt="" /></p>
+
+<p>以及亚马逊的星级系统：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-3.png" alt="" /></p>
+
+<h2>隐式评价</h2>
+
+<p>所谓隐式评价，就是我们不让用户明确给出对物品的评价，而是通过观察他们的行为来获得偏好信息。示例之一是记录用户在纽约时报网上的点击记录。</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-4.png" alt="" /></p>
+
+<p>经过几周的观察之后，我们就可以为用户刻画出一个合理的模型了——她不喜欢体育新闻，但关注科技新闻；如果用户连续看了两篇文章：《快速减肥方法》和《不反弹的减肥方式》，那她很可能正在减肥；如果她点击了iPhone的广告，就表明她或许对这款产品感兴趣。</p>
+
+<p>试想一下，如果我们记录了用户在亚马逊上的操作记录，可以得出一些什么结论。你的首页上可能有这样的内容：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-5.png" alt="" /></p>
+
+<p>在这个示例中，亚马逊记录了用户的点击操作，因此它会知道浏览了Jupter Travel这本书的用户还浏览了Long Way Round这部DVD，其详细记录了演员伊万环球骑行的旅程。因此，亚马逊就用这些信息来做出“看过还看过”的推荐。</p>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-3.md">前往GitHub阅读全文</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[数据挖掘指南[2]推荐系统入门]]></title>
+    <link href="http://shzhangji.com/blog/2014/08/29/guidetodatamining-2/"/>
+    <updated>2014-08-29T12:00:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/08/29/guidetodatamining-2</id>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-2/">http://guidetodatamining.com/chapter-2/</a></p>
+
+<p>内容：</p>
+
+<ul>
+<li>推荐系统工作原理</li>
+<li>社会化协同过滤工作原理</li>
+<li>如何找到相似物品</li>
+<li>曼哈顿距离</li>
+<li>欧几里得距离</li>
+<li>闵可夫斯基距离</li>
+<li>皮尔逊相关系数</li>
+<li>余弦相似度</li>
+<li>使用Python实现K最邻近算法</li>
+<li>图书漂流站（BookCrossing）数据集</li>
+</ul>
+
+
+<h2>你喜欢的东西我也喜欢</h2>
+
+<p>我们将从推荐系统开始，开启数据挖掘之旅。推荐系统无处不在，如亚马逊网站的“看过这件商品的顾客还购买过”板块：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-1.png" alt="" /></p>
+
+<p>last.fm上对音乐和演唱会的推荐（相似歌手）：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-2.png" alt="" /></p>
+
+<p>在亚马逊的例子里，它用了两个元素来进行推荐：一是我浏览了里维斯翻译的《法华经》一书；二是其他浏览过该书的顾客还浏览过的译作。</p>
+
+<p>本章我们讲述的推荐方法称为协同过滤。顾名思义，这个方法是利用他人的喜好来进行推荐，也就是说，是大家一起产生的推荐。他的工作原理是这样的：如果要推荐一本书给你，我会在网站上查找一个和你类似的用户，然后将他喜欢的书籍推荐给你——比如巴奇加卢比的《发条女孩》。</p>
+
+<h3>如何找到相似的用户？</h3>
+
+<p>所以首先要做的工作是找到相似的用户。这里用最简单的二维模型来描述。假设用户会在网站用五颗星来评价一本书——没有星表示书写得很糟，五颗星表示很好。因为我们用的是二维模型，所以仅对两本书进行评价：史蒂芬森的《雪崩》（纵轴）和拉尔森的《龙纹身的女孩》（横轴）。</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-3.png" alt="" /></p>
+
+<p>首先，下表显示有三位用户对这两本书做了评价：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-4.png" alt="" /></p>
+
+<p>现在我想为神秘的X先生推荐一本书，他给《雪崩》打了四星，《龙纹身的女孩》两星。第一个任务是找出哪个用户和他最为相似。我们用距离来表示。</p>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-2.md">前往GitHub阅读全文</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[数据挖掘指南[1]简介]]></title>
+    <link href="http://shzhangji.com/blog/2014/08/09/guidetodatamining-1/"/>
+    <updated>2014-08-09T12:00:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/08/09/guidetodatamining-1</id>
+    <content type="html"><![CDATA[<p>原文链接：<a href="http://guidetodatamining.com/chapter-1/">http://guidetodatamining.com/chapter-1/</a></p>
+
+<p>内容：</p>
+
+<ul>
+<li>寻找事物</li>
+<li>本书结构</li>
+<li>阅读完本书后你可以做些什么？</li>
+<li>为什么数据挖掘很重要？哪些内容可以为我所用？</li>
+<li>标题里的“Numerati的古老艺术”是什么意思？</li>
+</ul>
+
+
+<h2>序</h2>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-1/chapter-1-1.png" alt="Shoshin" /></p>
+
+<p>如果你每天都能重复做这些简单的事，你就会获得某种特别的力量。在你获得之前，这是特别的，但获得之后，就没什么大不了的了。</p>
+
+<p align="right">——鈴木 俊隆</p>
+
+
+<p>在阅读本书之前，你可能会认为像潘多拉、亚马逊那样的推荐系统、或是恐怖分子用的数据挖掘系统，一定会非常复杂，只有拥有博士学位的人才能够了解其中的算法。你也许会认为设计出这些系统的人都是研究火箭技术的。而我撰写本书的目的之一就是希望能够揭开这些系统的神秘面纱，展示它们所使用的基本原理。虽然的确会有像Google工程师或是在国家安全局工作的天才技术人员，数据挖掘却是建立在一些基本逻辑和方法之上的，非常易于理解。在阅读本书之前，你可能会认为数据挖掘是一种让人震惊的技术，但阅读之后你会发现，其实也没什么大不了的。</p>
+
+<p>上图中的日本文字“初心”，表示要始终保持一颗“初学者的心”，也就是一种开放的心态，接受各种可能性。下面这个故事你可能在哪儿听过（很有可能是来自李小龙的“龙争虎斗”）：一位教授想要寻求指引，于是来到一位智者面前，希望能得到点化。这个教授不停地说着自己毕生学到了什么，发表了多少论文等等。这时，智者问他：“喝茶吗？”然后开始向教授的杯子里倒茶，一直倒，最后溢到了桌子上、地上。“你在干什么？”教授大叫道。智者说：“我在倒茶。你的思想就像这个茶杯，已经倒满了茶，容不下任何其他东西。你必须先放空你的思想，我们才能继续往下说。”</p>
+
+<p>在我看来，优秀的程序员就像是空的茶杯，他不断地探索着新的技术（noSQL、node-js等等）。普通的程序员沉浸在那些固有的想法中：C++很棒，Java不好，PHP只能用来编写网页，MySQL是数据库的唯一选择。我希望你能够以开放的心态阅读本书，从而发现一些有价值的东西。正如铃木俊隆所说：</p>
+
+<p>在初学者眼中，世界充满了可能；专家眼中，世界大都已经既定。</p>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-1.md">前往GitHub阅读全文</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Java反射机制]]></title>
@@ -356,611 +553,6 @@ a b c d e null null null null null
 <li><a href="http://docs.oracle.com/javase/tutorial/reflect/">http://docs.oracle.com/javase/tutorial/reflect/</a></li>
 </ol>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[抽象泄漏定律]]></title>
-    <link href="http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions/"/>
-    <updated>2013-12-17T13:05:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions</id>
-    <content type="html"><![CDATA[<p>原文：<a href="http://www.joelonsoftware.com/articles/LeakyAbstractions.html">http://www.joelonsoftware.com/articles/LeakyAbstractions.html</a></p>
-
-<p>TCP协议是互联网的基石，我们每天都需要依靠它来构建各类互联网应用。也正是在这一协议中，时刻发生着一件近乎神奇的事情。</p>
-
-<p>TCP是一种 <em>可靠的</em> 数据传输协议，也就是说，当你通过TCP协议在网络上传输一条消息时，它一定会到达目的地，而且不会失真或毁坏。</p>
-
-<p>我们可以使用TCP来做很多事情，从浏览网页信息到收发邮件。TCP的可靠性使得东非贪污受贿的新闻能够一字一句地传递到世界各地。真是太棒了！</p>
-
-<p>和TCP协议相比，IP协议也是一种传输协议，但它是 <em>不可靠的</em> 。没有人可以保证你的数据一定会到达目的地，或者在它到达前就已经被破坏了。如果你发送了一组消息，不要惊讶为何只有一半的消息到达，有些消息的顺序会不正确，甚至消息的内容被替换成了黑猩猩宝宝的图片，或是一堆无法阅读的垃圾数据，像极了台湾人的邮件标题。</p>
-
-<p>这就是TCP协议神奇的地方：它是构建在IP协议之上的。换句话说，TCP协议能够 <em>使用一个不可靠的工具来可靠地传输数据</em> 。</p>
-
-<!--more-->
-
-
-<p>为了更好地说明这有多么神奇，让我们设想下面的场景。虽然有些荒诞，但本质上是相同的。</p>
-
-<p>假设我们用一辆辆汽车将百老汇的演员们运送到好莱坞，这是一条横跨美国的漫长线路。其中一些汽车出了交通事故，车上的演员在事故中死亡。有些演员则在车上酗酒嗑药，兴奋之余将自己的头发剃了，或是纹上了丑陋的纹身，这样一来就失去了他们原先的样貌，无法在好莱坞演出。更普遍的情况是，演员们没有按照出发的顺序到达目的地，因为他们走的都是不同的线路。现在再让我们设想有一个名为“好莱坞快线”的运输服务，在运送这些演员时能够保证三点：他们都能够到达；到达顺序和出发顺序一致；并且都完好无损。神奇的是，好莱坞快线除了用汽车来运输这些演员之外，没有任何其他的方法。所以它能做的就是检查每一个到达目的地的演员，看他们是否和原先的相貌一致。如果有所差别，它就立刻通知百老汇的办公室，派出该演员的双胞胎兄妹，重新发送过来。如果演员到达的顺序不同，好莱坞快线会负责重新排序。如果有一架UFO在飞往51区的途中不慎坠毁在内华达州，造成高速公路阻塞，这时所有打算从这条路经过的演员会绕道亚利桑那州。好莱坞快线不会告诉加利福尼亚州的导演路上发生了什么，只是这些演员到的比较迟而已。</p>
-
-<p>这大致上就是TCP协议的神奇之处，计算机科学家们通常会将其称作为“抽象”：将复杂的问题用简单的方式表现出来。事实上，很多计算机编程工作都是在进行抽象。字符串库做了什么？它能让我们觉得计算机可以像处理数字那样处理文字。文件系统是什么？它让硬盘不再是一组高速旋转的磁性盘块，而是一个有着目录层级结构、能够按字节存储字符信息的设备。</p>
-
-<p>我们继续说TCP。刚才我打了一个比方，有些人可能觉得那很疯狂。但是，当我说TCP协议可以保证消息一定能够到达，事实上并非如此。如果你的宠物蛇把网线给咬坏了，那即便是TCP协议也无法传输数据；如果你和网络管理员闹了矛盾，他将你的网口接到了一台负载很高的交换机上，那即便你的数据包可以传输，速度也会奇慢无比。</p>
-
-<p>这就是我所说的“抽象泄漏”。TCP协议试图提供一个完整的抽象，将底层不可靠的数据传输包装起来，但是，底层的传输有时也会发生问题，即便是TCP协议也无法解决，这时你会发现，它也不是万能的。TCP协议就是“抽象泄漏定律”的示例之一，其实，几乎所有的抽象都是泄漏的。这种泄漏有时很小，有时会很严重。下面再举一些例子：</p>
-
-<ul>
-<li><p>对于一个简单的操作，如循环遍历一个二维数组，当遍历的方式不同（横向或纵向），也会对性能造成很大影响，这主要取决于数组中数据的分布——按某个方向遍历时可能会产生更多的页缺失（page fault），而页缺失往往是非常消耗性能的。即使是汇编程序员，他们在编写代码时也会假设程序的内存空间是连续的，这是系统底层的虚拟内存机制提供的抽象，而这一机制在遇到页缺失时就会消耗更多时间。</p></li>
-<li><p>SQL语言意图将过程式的数据库访问操作封装起来，你只需要告诉操作系统你想要的数据，系统会自动生成各个步骤并加以执行。但在有些情况下，某些SQL查询会比其逻辑等同的查询语句要慢得多。一个著名的示例是，对大多数SQL服务器，指定“WHERE a = b AND b = c AND a = c”要比单纯指定“WHERE a = b AND b = c”快的多，即便它们的结果集是一致的。在使用SQL时，我们不需要思考过程，只需关注定义。但有时，这种抽象会造成性能上的大幅下降，你需要去了解SQL语法分析器的工作原理，找出问题的原因，并想出应对措施，让自己的查询运行得更快。</p></li>
-<li><p>即便有NFS、SMB这样的协议可以让你像在处理本地文件一样处理远程文件，如果网络传输很慢，或是完全中断了，程序员就需要手动处理这种情况。所以，这种“远程文件即本地文件”的抽象机制是存在<a href="http://www.joelonsoftware.com/articles/fog0000000041.html">泄漏</a>的。这里举一个现实的例子：如果你将用户的home目录加载到NFS上（一次抽象），你的用户创建了.forward文件，用来转发他所有的电子邮件（二次抽象），当NFS服务器宕机，.forward文件会找不到，这样就无法转发邮件了，造成丢失。</p></li>
-<li><p>C++的字符串处理类库相当于增加了一种基础数据类型：字符串，将<a href="http://www.joelonsoftware.com/articles/fog0000000319.html">各种操作细节</a>封装起来，让程序员可以方便地使用它。几乎所有的C++字符串类都会重载+操作符，这样你就能用 <em>s + &ldquo;bar&rdquo;</em> 来拼接字符串了。但是，无论哪种类库都无法实现 <em>&ldquo;foo&rdquo; + &ldquo;bar&rdquo;</em> 这种语句，因为在C++中，字符串字面量（string literal）都是char *类型的。这就是一种泄漏。（有趣的是，C++语言的发展历程很大一部分是在争论字符串是否应该在语言层面支持。我个人并不太能理解这为何需要争论。）</p></li>
-<li><p>当你在雨天开车，虽然你坐在车里，前窗有雨刷，车内有空调，这些措施将“天气”给抽象走了。但是，你还是要小心雨天的轮胎打滑，有时这雨下得太大，可见度很糟，所以你还是得慢行。也就是说，“天气”因素并没有被完全抽象走，它也是存在泄漏的。</p></li>
-</ul>
-
-
-<p>抽象泄漏引发的麻烦之一是，它并没有完全简化我们的工作。当我指导别人学习C++时，我当然希望可以跳过char *和指针运算，直接讲解STL字符串类库的使用。但是，当某一天他写出了 <em>&ldquo;foo&rdquo; + &ldquo;bar&rdquo;</em> 这样的代码，并询问我为什么编译错误时，我还是需要告诉它char *的存在。或者说，当他需要调用一个Windows API，需要指定OUT LPTSTR参数，这时他就必须学习char *、指针、Unicode、wchar_t、TCHAR头文件等一系列知识，这些都是抽象泄漏。</p>
-
-<p>在指导COM编程时，我希望可以直接让大家如何使用Visual Studio的代码生成向导。但将来如果出现问题，学员面对这些生成的代码会不知所从，这时还是要回过头来学习IUnknown、CLSID、ProgIDS等等。天呐！</p>
-
-<p>在指导ASP.NET编程时，我希望可以直接告诉大家双击页面上的控件，在弹出的代码框中输入点击响应事件。的确，ASP.NET将处理点击的HTML代码抽象掉了，但问题在于，ASP.NET的设计者需要动用JS来模拟表单的提交，因为HTML中的&lt;a/&gt;标签是没有这一功能的。这样一来，如果终端用户将JS禁止了，这个程序将无法运行。初学者会不知所措，直至他了解ASP.NET的运作方式，了解它究竟将什么样的工作封装起来了，才能进一步排查。</p>
-
-<p>由于抽象定律的存在，每当有人说自己发现了一款新的代码生成工具，能够大大提高我们的编程效率时，你会听很多人说“先学习手工编写，再去用工具生成”。代码生成工具是一种抽象，同样也会泄漏，唯一的解决方法是学习它的实现原理，即它抽象了什么。所以说抽象只是用于提高我们的工作效率的，而不会节省我们的学习时间。</p>
-
-<p>这就形成了一个悖论：当我们拥有越来越高级的开发工具，越来越好的“抽象”，要成为一个高水平的程序员反而越来越困难了。</p>
-
-<p>我在微软实习的第一年，是为Macintosh编写字符串处理类库。很普通的一个任务：编写 <em>strcat</em> 函数，返回一个指针，指向新字符串的尾部。几行C语言代码就能实现了，这些都是从K&amp;R这本C语言编程书上学习到的。</p>
-
-<p>如今，我在CityDesk供职，需要使用Visual Basic、COM、ATL、C++、InnoSetup、Internet Explorer原理、正则表达式、DOM、HTML、CSS、XML等等，这些相对于古老的K&amp;R来说都是非常高级的工具，但是我仍然需要用到K&amp;R的相关知识，否则会困难重重。</p>
-
-<p>十年前，我们会想象未来能够出现各种新式的编程范型，简化我们的工作。的确，这些年我们创造的各类抽象使得开发复杂的大型软件变得比十五年前要简单得多，就像GUI和网络编程。现代的面向对象编程语言让我们的工作变得高效快速。但突然有一天，这种抽象泄漏出一个问题，解决它需要耗费两星期。如果你需要招录一个VB程序员，那不是一个好主意，因为当他碰到VB语言泄漏的问题时，他会变得寸步难行。</p>
-
-<p>抽象泄漏定律正在阻碍我们前进。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Ansible FAQ]]></title>
-    <link href="http://shzhangji.com/blog/2013/06/11/ansible-faq/"/>
-    <updated>2013-06-11T21:18:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/06/11/ansible-faq</id>
-    <content type="html"><![CDATA[<p>本文是从原Ansible官网的FAQ页面翻译而来，网站改版后该页面已无法访问，但可以从<a href="https://github.com/ansible/ansible.github.com/blob/4a2bf7f60a020f0d0a7b042056fc3dd8716588f2/faq.html">Github历史提交</a>中获得。翻译这篇原始FAQ文档是因为它陈述了Ansible这款工具诞生的原因，设计思路和特性，以及与Puppet、Fabric等同类软件的比较，可以让我们对Ansible有一个整体的了解，所以值得使用者一读。</p>
-
-<h2>目录</h2>
-
-<ul>
-<li>为什么命名为“Ansible”？</li>
-<li>Ansible受到了谁的启发？</li>
-<li>与同类软件比较
-
-<ul>
-<li>Func？</li>
-<li>Puppet？</li>
-<li>Chef？</li>
-<li>Capistrano/Fabric？</li>
-</ul>
-</li>
-<li>其它问题
-
-<ul>
-<li>Ansible的安全性如何？</li>
-<li>Ansible如何扩展？</li>
-<li>是否支持SSH以外的协议？</li>
-<li>Ansible的适用场景有哪些？</li>
-</ul>
-</li>
-</ul>
-
-
-<h2>为什么命名为“Ansible”？</h2>
-
-<p>我最喜爱的书籍之一是奥森·斯科特·卡特的《安德的游戏》。在这本书中，“Ansible”是一种能够跨越时空的即时通讯工具。强烈推荐这本书！</p>
-
-<!-- more -->
-
-
-<h2>Ansible受到了谁的启发？</h2>
-
-<p>我在Red Hat任职期间主要开发Cobbler，很快我和几个同事就发现在部署工具（Cobbler）和配置管理工具（cfengine、Puppet等）之间有一个空缺，即如何更高效地执行临时性的任务。虽然当时有一些并行调用SSH脚本的方案，但并没有形成统一的API。所以我们（Adrian Likins、Seth Vidal、我）就开发了一个SSH分布式脚本框架——Func。</p>
-
-<p>我一直想在Func的基础上开发一个配置管理工具，但因为忙于Cobbler和其他项目的开发，一直没有动手。在此期间，John Eckersberg开发了名为Taboot的自动化部署工具，它基于Func，采用YAML描述，和目前Ansible中的Playbooks很像。</p>
-
-<p>近期我在一家新公司尝试引入Func，但遇到一些SSL和DNS方面的问题，所以想要开发一个更为简单的工具，吸收Func中优秀的理念，并与我在Puppet Labs的工作经验相结合。我希望这一工具能够易于学习，且不需要进行任何安装步骤。使用它不需要引入一整套新的理论，像Puppet和Chef那样，从而降低被某些运维团队排挤的可能。</p>
-
-<p>我也曾参与过一些大型网站的应用部署，发觉现有的配置管理工具都太过复杂了，超过了这些公司的需求。程序发布的过程很繁复，需要一个简单的工具来帮助开发和运维人员。我不想教授他们Puppet或Chef，而且他们也不愿学习这些工具。</p>
-
-<p>于是我便思考，应用程序的部署就应该那么复杂吗？答案是否定的。</p>
-
-<p>我是否能开发一款工具，让运维人员能够在15分钟内学会使用，并用自己熟悉的语言来扩展它？这就是Ansible的由来。运维人员对自己的服务器设施最清楚，Ansible深知这一点，并将同类工具中最核心的功能提取出来，供我们使用。</p>
-
-<p>Ansible不仅易于学习和扩展，它更是集配置管理、应用部署、临时任务等功能于一身。它非常强大，甚至前所未有。</p>
-
-<p>我很想知道你对Ansible的看法，到邮件列表里发表一下意见吧。</p>
-
-<h2>与同类软件比较</h2>
-
-<h3>Func？</h3>
-
-<p>Ansible默认使用SSH，而非SSL和守护进程，无需在远程服务器上安装任何软件。你可以使用任何语言编写插件，只要它能够返回JSON格式即可。Ansible的API深受Func的影响，但它和Func相较提供了配置管理和多节点统一化部署（Playbooks）等功能。</p>
-
-<h3>Puppet？</h3>
-
-<p>首先我要强调的是，如果没有Puppet，就不会有Ansible。Puppet从cfengine中吸收了配置管理的概念，并更合理地加以实现。但是，我依旧认为它可以再简单一些。</p>
-
-<p>Ansible的playbook是一套完整的配置管理系统。和Puppet不同，playbook在编写时就隐含了执行顺序（和Chef类似），但同时也提供了事件机制（和Puppet类似），可以说是结合了两者的优点。</p>
-
-<p>Ansible没有中心节点的概念，从而避免了惊群效应。它一开始就是为多节点部署设计的，这点Puppet很难做到，因为它是一种“拉取”的架构。Ansible以“推送”为基础，从而能够定义执行顺序，同时只操作一部分服务器，无需关注它们的依赖关系。又因为Ansible可以用任何语言进行扩展，因此并不是只有专业的程序员才能为其开发插件。</p>
-
-<p>Ansible中资源的概念深受Puppet的启发，甚至“state”这一关键字直接来自Puppet的“ensure”一词。和Puppet不同的是，Ansbile可以用任何语言进行扩展，甚至是Bash，只需返回JSON格式的输出即可。你不需要懂得Ruby。</p>
-
-<p>和Puppet不同，Ansible若在配置某台服务器时发生错误，它会立即终止这台服务器的配置过程。它提倡的是“提前崩溃”，修正错误，而非最大化应用。这一点在我们需要配置包含依赖关系的服务器架构时尤为重要。</p>
-
-<p>Ansible的学习曲线非常平滑，你不需要掌握编程技能，更不需要学习新的语言。Ansible内置的功能应该能够满足超过80%的用户需求，而且它不会遇到扩展性方面的瓶颈（因为没有中心节点）。</p>
-
-<p>如果系统中安装了factor，Ansible同样支持从中获取系统信息。Ansible使用jinja2作为模板语言，类似于Puppet使用erb文件作为模板。Ansible可以使用自己的信息收集工具，因此factor并不是必需的。</p>
-
-<h3>Chef？</h3>
-
-<p>Ansible与Chef的区别和Puppet类似。Chef的配置非常困难，而且需要你掌握Ruby语言。也因为如此，Chef在Rails使用者中很流行。</p>
-
-<p>Ansible是按照编写顺序来执行任务的，而不是显示地定义依赖关系，这点和Chef相似。但Ansible更进一步，它支持事件触发，比如修改了Apache的配置文件，Apache就会被重启。</p>
-
-<p>和Chef不同的是，Ansible的playbook不是一门编程语言，而是一种可以存储的数据结构。这就意味着你的运维工作不是一项开发型的任务，测试起来也相对简单。</p>
-
-<p>无论你有怎样的语言背景，都可以使用Ansible。Chef和Puppet有超过六万行的代码，而Ansible则是一段小巧简单的程序。我相信这一点会使得Ansible更加健壮和可靠，并汇聚一批活跃的社区贡献者——因为任何人都可以提交补丁或是模块。</p>
-
-<p>Ansible同样支持从ohai中获取系统信息，当然这同样不是必需的。</p>
-
-<h3>Capistrano/Fabric？</h3>
-
-<p>这些工具并不适合用作服务器配置工具，它们主要用于应用程序的部署。</p>
-
-<p>而Ansible则提供了完整的配置管理，以及在扩展性方面提供了一些高级特性。</p>
-
-<p>Ansible playbook的语法简介只占一个HTML页面，有着非常平缓的学习曲线。由于Ansible使用了“推送”的设计，因此对系统管理员（不仅仅是开发者）同样适用，并能用它处理各种临时性的任务。</p>
-
-<h2>其它问题</h2>
-
-<h3>Ansible的安全性如何？</h3>
-
-<p>Ansible没有守护进程，主要使用OpenSSH进行通信，这是一款已被反复检验并广泛使用的软件。其它工具都会在远程服务器上以root用户运行守护进程，因此相较于这些工具，Ansible会更为安全，且无需担心网络方面的问题。</p>
-
-<p>如果你的中心节点遭到入侵（或是被恶意员工登录），只要你是使用SSH-agent、或是经过加密的密码，那你的密钥仍然是被锁定的，别人无法操控你的节点。而对于Chef、Puppet等工具来说，一旦配置文件遭到篡改，那危及的将是整个网络。</p>
-
-<p>此外，由于Ansible没有守护进程，可以节省下一部分内存和计算资源，这对需要最大化性能的用户来说也是一个优点。</p>
-
-<h3>Ansible如何扩展？</h3>
-
-<p>无论是在单次执行模式还是playbook模式下，Ansible都可以并行执行任务，这要感谢Python提供的多进程处理模块。</p>
-
-<p>你可以自行决定要一次性配置5台还是50台服务器，这取决于服务器的计算能力，以及你想要多快完成任务。</p>
-
-<p>由于没有守护进程，所以平时不会占用任何资源，而且你不用担心一次性有太多节点一起从控制节点上获取信息。</p>
-
-<p>对于SSH，Ansible默认使用paramiko库，当然也能使用原始的openssh。Ansible可以利用SSH的ControlMaster特性来重用网络连接。</p>
-
-<p>当要维护上万个节点时，单个Ansible playbook可能不太合理，这时你就能使用Ansible的“拉取”模式。这种模式下需要配合git和cron，可以扩展到任意多台服务器。“拉取”模式可以使用本地连接，或是SSH。关于这个模式的详细说明可以在帮助文档的“Advanced Playbooks”一节查阅。即使在“拉取”模式下，你同样能够享受到Ansible的种种便利。</p>
-
-<p>如果你想进一步探讨扩展性，可以加入到邮件列表中。</p>
-
-<h3>是否支持SSH以外的协议？</h3>
-
-<p>目前Ansible支持SSH和本地连接，但它的接口实际上是非常易于扩展的，因此你可以编写补丁来使Ansible运行于消息系统或XMPP协议之上。</p>
-
-<p>如果你有任何建议，可以加入到邮件列表中一起探讨。Ansible中对于连接的管理都已单独抽象出来，有很强的可扩性。</p>
-
-<h3>Ansible的适用场景有哪些？</h3>
-
-<p>最适场景？使用playbook进行多节点云主机部署；从一个初始的操作系统开始部署应用，或是配置一个现有的系统。</p>
-
-<p>Ansible同样适用于执行临时性的任务，能够用于各类 Unix-like 系统，因为它使用的就是系统本身自带的工具，无需安装额外软件。</p>
-
-<p>你还可以用Ansible来编写各类脚本，用于收集信息、执行各种任务，对QA、运维等团队均适用。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Hadoop YARN - 项目背景与简介]]></title>
-    <link href="http://shzhangji.com/blog/2013/05/25/apache-hadoop-yarn-background-and-an-overview/"/>
-    <updated>2013-05-25T10:57:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/05/25/apache-hadoop-yarn-background-and-an-overview</id>
-    <content type="html"><![CDATA[<p>原文：<a href="http://hortonworks.com/blog/apache-hadoop-yarn-background-and-an-overview/">http://hortonworks.com/blog/apache-hadoop-yarn-background-and-an-overview/</a></p>
-
-<p>日前，Apache Hadoop YARN已被提升为Apache软件基金会的子项目，这是一个值得庆祝的里程碑。这里我们也第一时间为各位献上Apache Hadoop YARN项目的系列介绍文章。YARN是一个普适的、分布式的应用管理框架，运行于Hadoop集群之上，用以替代传统的Apache Hadoop MapReduce框架。</p>
-
-<h2>MapReduce 模式</h2>
-
-<p>本质上来说，MapReduce模型包含两个部分：一是Map过程，将数据拆分成若干份，分别处理，彼此之间没有依赖关系；二是Reduce过程，将中间结果汇总计算成最终结果。这是一种简单而又条件苛刻的模型，但也促使它成为高效和极易扩展的并行计算方式。</p>
-
-<p>Apache Hadoop MapReduce是当下最流行的开源MapReduce模型。</p>
-
-<p>特别地，当MapReduce配合分布式文件系统，类似Apache Hadoop HDFS，就能在大集群上提供高吞吐量的计算，这一经济效应是Hadoop得以流行的重要原因。</p>
-
-<p>这一模式成功的原因之一是，它使用的是“移动计算能力至数据节点”而非通过网络“移动数据至计算节点”的方式。具体来说，一个MapReduce任务会被调度到输入数据所在的HDFS节点执行，这会极大地减少I/O支出，因为大部分I/O会发生在本地磁盘或是同一机架中——这是核心优势。</p>
-
-<!-- more -->
-
-
-<h3>回顾2011年的Apache Hadoop MapReduce</h3>
-
-<p>Apache Hadoop MapReduce是<a href="http://www.apache.org/">Apache基金会</a>下的开源项目，实现了如上所述的MapReduce编程模式。作为一个在该项目中全职开发了六年的工作者，我通常会将它细分为以下几个部分：</p>
-
-<ul>
-<li>提供给最终用户使用的 <strong>MapReduce API</strong> ，用来编写MapReduce应用程序。</li>
-<li><strong>MapReduce框架</strong> ，用来实现运行时的各个阶段，即map、sort/shuffle/merge、reduce。</li>
-<li><strong>MapReduce系统</strong> ，一个完整的后端系统，用来运行用户的MapReduce应用程序，管理集群资源，调度上千个并发脚本。</li>
-</ul>
-
-
-<p>这样的划分可以带来非常明显的优势，即最终用户只需关心MapReduce API，而让框架和后端系统去处理资源管理、容错、调度等细节。</p>
-
-<p>目前，Apache Hadoop MapReduce系统由一个JobTracker和多个TaskTracker组成，也分别称他们为master和slave节点。</p>
-
-<p><img src="http://hortonworks.com/wp-content/uploads/2012/08/MRArch.png" alt="MRArch.png" /></p>
-
-<p>JobTracker负责的工作包括资源管理（即管理工作节点TaskTracker），跟踪资源消耗和可用情况，以及每个脚本的生命周期（脚本调度，进度跟踪，容错等）。</p>
-
-<p>TaskTracker的职责比较简单：根据JobTracker的指令来启动和关闭工作进程，并定时向JobTracker汇报处理进度。</p>
-
-<p>其实很早我们就意识到Hadoop的MapReduce框架需要被拆解和调整，特别是JobTracker，我们需要提升它的可扩展性，提高对集群的利用率，让用户能够方便地进行升级（即用户需要的敏捷性），并能支持MapReduce以外的脚本类型。</p>
-
-<p>长久以来，我们都在做修复和更新，如近期加入的JobTracker高可用和HDFS故障恢复（这两个特性都已包含在<a href="http://hortonworks.com/download/">Hortonworks Data Platform v1</a>中）。但我们渐渐发现，这些特性会增加维护成本，而且并不能解决一些核心问题，如支持非MapReduce脚本，以及敏捷性。</p>
-
-<h3>为什么要支持非MapReduce类型的脚本？</h3>
-
-<p>MapReduce对大部分应用程序来说已经足够，但仍有一些场景并不适用，如图形计算（<a href="http://googleresearch.blogspot.com/2009/06/large-scale-graph-computing-at-google.html">Google Pregel</a> / <a href="http://giraph.apache.org/">Apache Giraph</a>）、交互式建模（<a href="http://en.wikipedia.org/wiki/Message_Passing_Interface">MPI</a>）。当所有的企业数据都已存放在Hadoop HDFS中时，支持多种处理模型就变得额外重要。</p>
-
-<p>此外，MapReduce本质上是以批量处理为核心的，对于日益增长的实时和近实时处理的客户需求，如流式计算以及CEPFresil等，就无能为力了。</p>
-
-<p>如果Hadoop能够支持这一特性，企业会从对Hadoop的投资中得到更多回报，因为他们可以减少数据迁移所需要的管理和维护成本。</p>
-
-<h3>为何要提升可扩展性？</h3>
-
-<p>根据摩尔定律，同样的价格所能购买到的计算能力一直在大幅上升。让我们看看以下两组数字：</p>
-
-<ul>
-<li>2009年：8核CPU，16GB内存，4x1TB硬盘；</li>
-<li>2012年：16核以上的CPU，48至96GB内存，12x2TB或12x3TB的硬盘。</li>
-</ul>
-
-
-<p>同样价格的服务器，其各方面的计算能力要比两到三年以前提升了两倍。Hadoop的MapReduce在2009年便能支持约5000台节点，所以随着机器性能的提升，对其高可扩的要求也与日俱增。</p>
-
-<h3>集群资源利用率不高的典型症候是？</h3>
-
-<p>在现有的系统中，集群由节点组成，节点上有map槽位和reduce槽位，两者不能互相替代。这样一来，很有可能map槽位已经耗尽，而reduce还是空闲的，反之亦然。修复这一问题对于提升集群资源利用率来说是必不可少的。</p>
-
-<h3>敏捷性为何重要？</h3>
-
-<p>在现实应用中，Hadoop通常会部署在共享的、多租户的系统上。所以，对Hadoop进行升级时会影响很大一部分甚至是所有的应用。基于这一点，用户会对升级持保守态度，因为不想因此引发一系列的问题。所以，一个支持多版本Hadoop的架构就变得非常重要。</p>
-
-<h2>Apache Hadoop YARN 诞生</h2>
-
-<p>YARN的核心思想是将JobTracker的两个职能，即资源管理和脚本调度/监控，分解为两个独立的组件：全局ResourceManager以及按应用拆分的ApplicationMaster（AM）。</p>
-
-<p>主节点的ResourceManager以及其它节电的NodeManager（NM），形成了一个新的更为通用的分布式应用管理模式。</p>
-
-<p>ResourceManager负责应用程序的资源分配。ApplicationMaster会和ResourceManager进行协商，并与节点上的NodeManager协作，运行和监控每个工作进程。</p>
-
-<p>ResourceManager的调度器是可定制的，能够根据计算能力、队列大小进行资源调配。调度器不包含任何对工作进程的监控和跟踪，不会去重启失败的脚本。调度器会根据应用程序申请的资源进行分配，它是建立在一个资源容器抽象层（Resource Container）之上的，其中包括了内存、CPU、硬盘、网络等要素信息。</p>
-
-<p>NodeManager运行在每个节点之上，负责运行应用程序的工作进程，监控它们的资源占用情况，并向ResourceManager汇报。</p>
-
-<p>每个应用都会有一个专属的ApplicationMaster，它会负责和调度器协商资源分配，跟踪工作进程的状态和进度。ApplicationMaster本身也是以一个工作进程来运行的。</p>
-
-<p>以下是YARN的架构图：</p>
-
-<p><img src="http://hortonworks.com/wp-content/uploads/2012/08/YARNArch.png" alt="YARNArch.png" /></p>
-
-<p>值得一提的是，我们在为YARN开发MapReduce API时没有做任何较大的改动，所以现有的程序可以很方便地进行迁移。关于这点我们会在以后的文章中详述。</p>
-
-<p>下一节我们会深入了解YARN的架构，阐述它所带来的各种优点，如高可扩、支持多类型脚本（MapReduce、MPI等），以及它是如何提升集群资源利用率的。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Cascalog：基于Clojure的Hadoop查询语言]]></title>
-    <link href="http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/"/>
-    <updated>2013-05-01T18:01:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado</id>
-    <content type="html"><![CDATA[<p>原文：<a href="http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html">http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html</a></p>
-
-<p>我非常兴奋地告诉大家，<a href="http://github.com/nathanmarz/cascalog">Cascalog</a>开源了！Cascalog受<a href="http://en.wikipedia.org/wiki/Datalog">Datalog</a>启发，是一种基于Clojure、运行于Hadoop平台上的查询语言。</p>
-
-<h2>特点</h2>
-
-<ul>
-<li><strong>简单</strong> &ndash; 使用相同的语法编写函数、过滤规则、聚合运算；数据联合（join）变得简单而自然。</li>
-<li><strong>表达能力强</strong> &ndash; 强大的逻辑组合条件，你可以在查询语句中任意编写Clojure函数。</li>
-<li><strong>交互性</strong> &ndash; 可以在Clojure REPL中执行查询语句。</li>
-<li><strong>可扩展</strong> &ndash; Cascalog的查询语句是一组MapReduce脚本。</li>
-<li><strong>任意数据源</strong> &ndash; HDFS、数据库、本地数据、以及任何能够使用Cascading的<code>Tap</code>读取的数据。</li>
-<li><strong>正确处理空值</strong> &ndash; 空值往往让事情变得棘手。Cascalog提供了内置的“非空变量”来自动过滤空值。</li>
-<li><strong>与Cascading结合</strong> &ndash; 使用Cascalog定义的流程可以在Cascading中直接使用，反之亦然。</li>
-<li><strong>与Clojure结合</strong> &ndash; 能够使用普通的Clojure函数来编写操作流程、过滤规则，又因为Cascalog是一种Clojure DSL，因此也能在其他Clojure代码中使用。</li>
-</ul>
-
-
-<!--more-->
-
-
-<p>好，下面就让我们开始Cascalog的学习之旅！我会用一系列的示例来介绍Cascalog。这些示例会使用到项目本身提供的“试验场”数据集。我建议你立刻下载Cascalog，一边阅读本文一边在REPL中操作。（安装启动过程只有几分钟，README中有步骤）</p>
-
-<h2>基本查询</h2>
-
-<p>首先让我们启动REPL，并加载“试验场”数据集：</p>
-
-<p><code>clojure
-lein repl
-user=&gt; (use 'cascalog.playground) (bootstrap)
-</code></p>
-
-<p>以上语句会加载本文用到的所有模块和数据。你可以阅读项目中的<code>playground.clj</code>文件来查看这些数据。下面让我们执行第一个查询语句，找出年龄为25岁的人：</p>
-
-<p><code>clojure
-user=&gt; (?&lt;- (stdout) [?person] (age ?person 25))
-</code></p>
-
-<p>这条查询语句可以这样阅读：找出所有<code>age</code>等于25的<code>?person</code>。执行过程中你可以看到Hadoop输出的日志信息，几秒钟后就能看到查询结果。</p>
-
-<p>好，让我们尝试稍复杂的例子。我们来做一个范围查询，找出年龄小于30的人：</p>
-
-<p><code>clojure
-user=&gt; (?&lt;- (stdout) [?person] (age ?person ?age) (&lt; ?age 30))
-</code></p>
-
-<p>看起来也不复杂。这条语句中，我们将人的年龄绑定到了<code>?age</code>变量中，并对该变量做出了“小于30”的限定。</p>
-
-<p>我们重新执行这条语句，只是这次会将人的年龄也输出出来：</p>
-
-<p>```clojure
-user=> (?&lt;&ndash; (stdout) [?person ?age] (age ?person ?age)</p>
-
-<pre><code>        (&lt; ?age 30))
-</code></pre>
-
-<p>```</p>
-
-<p>我们要做的仅仅是将<code>?age</code>添加到向量中去。</p>
-
-<p>让我们执行另一条查询，找出艾米丽关注的所有男性：</p>
-
-<p>```clojure
-user=> (?&lt;&ndash; (stdout) [?person] (follows &ldquo;emily&rdquo; ?person)</p>
-
-<pre><code>        (gender ?person "m"))
-</code></pre>
-
-<p>```</p>
-
-<p>可能你没有注意到，这条语句使用了联合查询。各个数据集中的<code>?person</code>值都必须对应，而<code>follows</code>和<code>gender</code>分属于不同的数据集，Cascalog便会使用联合查询。</p>
-
-<h2>查询语句的结构</h2>
-
-<p>让我们分析一下查询语句的结构，以下面这条语句为例：</p>
-
-<p>```clojure
-user=> (?&lt;&ndash; [stdout] [?person ?a2] (age ?person ?age)</p>
-
-<pre><code>        (&lt; ?age 30) (* 2 ?age :&gt; ?a2))
-</code></pre>
-
-<p>```</p>
-
-<p><code>?&lt;-</code>操作符出现的频率很高，它能同时定义并执行一条查询。<code>?&lt;-</code>实际上是对<code>&lt;-</code>和<code>?-</code>的包装。我们之后会看到如何使用这些操作符编写更为复杂的查询语句。</p>
-
-<p>首先，我们指定了查询结果的输出目的地，就是这里的<code>(stdout)</code>。<code>(stdout)</code>会创建一个Cascading的<code>tap</code>组件，它会在查询结束后将结果打印到标准输出中。我们可以使用任意一种Cascading的<code>tap</code>组件，也就是说输出结果的格式可以是序列文件（Sequence file）、文本文件等等；也可以输出到任何地方，如本地磁盘、HDFS、数据库等。</p>
-
-<p>在定义了输出目的地后，我们使用Clojure的向量结构来定义输出结果所包含的内容。本例中，我们定义的是<code>?person</code>和<code>?a2</code>。</p>
-
-<p>接下来，我们定义了一系列的约束条件。Cascalog有三种约束条件：</p>
-
-<ol>
-<li>生成器（Generator）：表示一个数据源，可以是以下两种类型：
-
-<ul>
-<li>Cascading Tap：如HDFS上某个路径中的文件；</li>
-<li>一个已经使用<code>&lt;-</code>定义的查询。</li>
-</ul>
-</li>
-<li>操作器（Operation）：引入预定义的变量，将其绑定至新的变量，或是设定一个过滤条件。</li>
-<li>集合器（Aggregator）：计数、求和、最小值、最大值等等。</li>
-</ol>
-
-
-<p>约束条件由名称、一组输入变量、以及一组输出变量构成。上述查询中的约束条件有：</p>
-
-<ul>
-<li>(age ?person ?age)</li>
-<li>(&lt; ?age 30)</li>
-<li>(* 2 ?age :> ?a2)</li>
-</ul>
-
-
-<p>其中，<code>:&gt;</code>关键字用于将输入变量和输出变量隔开。如果没有这个关键字，那么该变量在操作器中就会被识别为输入变量，在生成器和集合器中会被认为是输出变量。</p>
-
-<p><code>age</code>约束指向<code>playground.clj</code>中定义的一个<code>tap</code>，所以它是一个生成器，会输出<code>?person</code>和<code>?age</code>这两个数据。</p>
-
-<p><code>&lt;</code>约束是一个Clojure函数，因为没有指定输出变量，所以这条约束会构成一个过滤器，将<code>?age</code>小于30的记录筛选出来。如果我们这样写：</p>
-
-<p><code>clojure
-(&lt; ?age 30 :&gt; ?young)
-</code></p>
-
-<p>那么<code>&lt;</code>约束会将“年龄是否小于30”作为一个布尔值传递给<code>?young</code>变量。</p>
-
-<p>约束之间的顺序不重要，因为Cascalog是声明式语言。</p>
-
-<h2>变量替换为常量</h2>
-
-<p>变量是以<code>?</code>或<code>!</code>起始的标识。有时你不在意变量的值，可以直接用<code>_</code>代替。其他的变量则会在解析时替换成常量。我们已经在很多示例中用到这一特性了。下面这个示例中，我们将输出变量作为一种过滤条件：</p>
-
-<p><code>clojure
-(* 4 ?v2 :&gt; 100)
-</code></p>
-
-<p>这里使用了两个常量：4和100。4是一个输入变量，100则是作为一个过滤条件，只有满足<code>?v2</code>乘以4等于100的记录才会被筛选出来。字符串、数字、以及其他基本类型和对象类型，只要在Hadoop有对应的序列化操作，都可以被作为常量使用。</p>
-
-<p>让我们回到示例中。找出所有关注了比自己年龄小的用户的列表：</p>
-
-<p>```clojure
-user=> (?&lt;&ndash; (stdout) [?person1 ?person2]</p>
-
-<pre><code>        (age ?person1 ?age1) (follows ?person1 ?person2)
-        (age ?person2 ?age2) (&lt; ?age2 ?age1))
-</code></pre>
-
-<p>```</p>
-
-<p>同时，我们将年龄差异也输出出来：</p>
-
-<p>```clojure
-user=> (?&lt;&ndash; (stdout) [?person1 ?person2 ?delta]</p>
-
-<pre><code>        (age ?person1 ?age1) (follows ?person1 ?person2)
-        (age ?person2 ?age2) (- ?age2 ?age1 :&gt; ?delta)
-        (&lt; ?delta 0))
-</code></pre>
-
-<p>```</p>
-
-<h2>聚合</h2>
-
-<p>下面让我们看看聚合查询的使用方法。统计所有年龄小于30的用户人数：</p>
-
-<p>```clojure
-user=> (?&lt;&ndash; (stdout) [?count] (age _ ?a) (&lt; ?a 30)</p>
-
-<pre><code>        (c/count ?count))
-</code></pre>
-
-<p>```</p>
-
-<p>这条查询会统计所有的记录。我们也可以只聚合部分记录。比如，让我们找出每个人所关注的用户的数量：</p>
-
-<p>```clojure
-user=> (?&lt;&ndash; (stdout) [?person ?count] (follows ?person _)</p>
-
-<pre><code>        (c/count ?count))
-</code></pre>
-
-<p>```</p>
-
-<p>因为我们在输出结果中指定了<code>?person</code>这个变量，所以Cascalog会将数据记录按照用户来分组，然后使用<code>c/count</code>进行聚合运算。</p>
-
-<p>你可以在单个查询中使用多个聚合条件，它们的分组方式是一致的。例如，我们可以计算每个国家的用户的平均年龄，使用计数和求和这两种聚合方式：</p>
-
-<p>```clojure
-user=> (?&lt;&ndash; (stdout) [?country ?avg]</p>
-
-<pre><code>        (location ?person ?country _ _) (age ?person ?age)
-        (c/count ?count) (c/sum ?age :&gt; ?sum)
-        (div ?sum ?count :&gt; ?avg))
-</code></pre>
-
-<p>```</p>
-
-<p>可以看到，我们对<code>?sum</code>和<code>?count</code>这两个聚合结果执行了<code>div</code>操作，该操作会在聚合过程结束后进行。</p>
-
-<h2>自定义操作</h2>
-
-<p>下面我们来编写一个查询，统计几句话中每个单词的出现次数。首先，我们编写一个自定义操作：</p>
-
-<p>```clojure
-user=> (defmapcatop split [sentence]</p>
-
-<pre><code>     (seq (.split sentence "\\s+")))
-</code></pre>
-
-<p>user=> (?&lt;&ndash; (stdout) [?word ?count] (sentence ?s)</p>
-
-<pre><code>        (split ?s :&gt; ?word) (c/count ?count))
-</code></pre>
-
-<p>```</p>
-
-<p><code>defmapcatop split</code>定义了一个方法，这个方法接收一个参数<code>sentence</code>，并会输出0个或多个元组（tuple）。<code>deffilterop</code>可以用来定义一个返回布尔型的方法，用来筛选记录；<code>defmapop</code>定义的函数会返回一个元组；<code>defaggregateop</code>定义一个聚合函数。这些函数都能在Cascalog工作流API中使用，我会在另一篇博客中叙述。</p>
-
-<p>在上述查询中，如果单词字母大小写不一致，会被分别统计。我们用以下方法来修复这个问题：</p>
-
-<p>```clojure
-user=> (defn lowercase [w] (.toLowerCase w))
-user=> (?&lt;&ndash; (stdout) [?word ?count]</p>
-
-<pre><code>        (sentence ?s) (split ?s :&gt; ?word1)
-        (lowercase ?word1 :&gt; ?word) (c/count ?count))
-</code></pre>
-
-<p>```</p>
-
-<p>可以看到，这里直接使用了纯Clojure编写的函数。当这个函数不包含输出变量时，会被作为过滤条件来执行；当包含一个返回值时，则会作为<code>defmapop</code>来解析。而对于返回0个或多个元组的函数，则必须使用<code>defmapcatop</code>来定义。</p>
-
-<p>下面这个查询会按照性别和年龄范围来统计用户数量：</p>
-
-<p>```clojure
-user=> (defn agebucket [age]</p>
-
-<pre><code>     (find-first (partial &lt;= age) [17 25 35 45 55 65 100 200]))
-</code></pre>
-
-<p>user=> (?&lt;&ndash; (stdout) [?bucket ?gender ?count]</p>
-
-<pre><code>        (age ?person ?age) (gender ?person ?gender)
-        (agebucket ?age :&gt; ?bucket) (c/count ?count))
-</code></pre>
-
-<p>```</p>
-
-<h2>非空变量</h2>
-
-<p>Cascalog提供了“非空变量”这样的机制来帮助用户处理空值的情况。其实我们每个示例中都在使用这一特性。以<code>?</code>开头的变量都是非空变量，而以<code>!</code>开头的则是可空变量。Cascalog会在执行过程中将空值排除在外。</p>
-
-<p>为了体验非空变量的效果，让我们对比下面这两条查询语句：</p>
-
-<p><code>clojure
-user=&gt; (?&lt;- (stdout) [?person ?city] (location ?person _ _ ?city)
-user=&gt; (?&lt;- (stdout) [?person !city] (location ?person _ _ !city)
-</code></p>
-
-<p>第二组查询结果中会包含空值。</p>
-
-<h2>子查询</h2>
-
-<p>最后，我们来看看更为复杂的查询，我们会用到子查询这一特性。让我们找出关注了两人以上的用户列表，并找出这些用户之间的关注关系：</p>
-
-<p>```clojure
-user=> (let [many-follows (&lt;&ndash; [?person] (follows ?person _)</p>
-
-<pre><code>                          (c/count ?c) (&gt; ?c 2))]
-        (?&lt;- (stdout) [?person1 ?person2] (many-follows ?person1)
-             (many-follows ?person2) (follows ?person1 ?person2)))
-</code></pre>
-
-<p>```</p>
-
-<p>这里，我们使用<code>let</code>来定义了一个子查询<code>many-follows</code>。这个子查询是用<code>&lt;-</code>定义的。之后，我们便可以在后续查询中使用这个子查询了。</p>
-
-<p>我们还可以在一个查询中指定多个输出目的地。比如我们想要同时得到<code>many-follows</code>的查询结果：</p>
-
-<p>```clojure
-user=> (let [many-follows (&lt;&ndash; [?person] (follows ?person _)</p>
-
-<pre><code>                          (c/count ?c) (&gt; ?c 2))
-         active-follows (&lt;- [?p1 ?p2] (many-follows ?p1)
-                            (many-follows ?p2) (follows ?p1 ?p2))]
-        (?- (stdout) many-follows (stdout) active-follows))
-</code></pre>
-
-<p>```</p>
-
-<p>这里我们分别定义了两个查询，没有立刻执行它们，而是在后续的<code>?-</code>中将两个查询分别绑定到了两个<code>tap</code>上，并同时执行。</p>
-
-<h2>小结</h2>
-
-<p>Cascalog目前在还不断的改进中，未来会增加更多查询特性，以及对查询过程的优化。</p>
-
-<p>我非常希望能够得到你对Cascalog的反馈，如果你有任何评论、问题、或是顾虑，请留言，或者在<a href="http://twitter.com/nathanmarz">Twitter</a>上联系我，给我发送邮件<a href="nathan.marz@gmail.com">nathan.marz@gmail.com</a>，或是在freenode的#cascading频道和我聊天。</p>
-
-<p><a href="http://nathanmarz.com/blog/new-cascalog-features">下一篇博客</a>会介绍Cascalog的外联合、排序、组合等特性。</p>
 ]]></content>
   </entry>
   

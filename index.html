@@ -9,12 +9,10 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。 内容： 潘多拉推荐系统简介
-特征值选择的重要性
-示例：音乐特征值和邻域算法
-数据标准化
-修正的标准分数
-Python代码：音乐，特征，以及简单的邻域算法实现 &hellip;">
+  <meta name="description" content="在公司网络中使用sbt、Maven等项目构建工具时，我们通常会搭建一个公用的Nexus镜像服务，原因有以下几个： 避免重复下载依赖，节省公司带宽；
+国内网络环境不理想，下载速度慢；
+IDC服务器没有外网访问权限；
+用于发布内部模块。 sbt的依赖管理是基于ivy的， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -86,6 +84,57 @@ Python代码：音乐，特征，以及简单的邻域算法实现 &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/07/sbt-offline/">离线环境下构建sbt项目</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-07T15:02:00+08:00" pubdate data-updated="true">Nov 7<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>在公司网络中使用<a href="http://www.scala-sbt.org/">sbt</a>、<a href="http://maven.apache.org/">Maven</a>等项目构建工具时，我们通常会搭建一个公用的<a href="http://www.sonatype.org/nexus/">Nexus</a>镜像服务，原因有以下几个：</p>
+
+<ul>
+<li>避免重复下载依赖，节省公司带宽；</li>
+<li>国内网络环境不理想，下载速度慢；</li>
+<li>IDC服务器没有外网访问权限；</li>
+<li>用于发布内部模块。</li>
+</ul>
+
+
+<p>sbt的依赖管理是基于<a href="http://ant.apache.org/ivy/">ivy</a>的，虽然它能直接使用<a href="http://search.maven.org/">Maven中央仓库</a>中的Jar包，在配置时还是有一些注意事项的。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/11/07/sbt-offline/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -701,67 +750,6 @@ Python代码：音乐，特征，以及简单的邻域算法实现 &hellip;">
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/">Generate Auto-increment Id in Map-reduce Job</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-31T09:35:00+08:00" pubdate data-updated="true">Oct 31<span>st</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>In DBMS world, it&rsquo;s easy to generate a unique, auto-increment id, using MySQL&rsquo;s <a href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html">AUTO_INCREMENT attribute</a> on a primary key or MongoDB&rsquo;s <a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it&rsquo;ll take some steps.</p>
-
-<h2>Solution A: Single Reducer</h2>
-
-<p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">job</span><span class="o">.</span><span class="na">setNumReduceTasks</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And also obvious, there are several demerits:</p>
-
-<ol>
-<li>All mappers output will be copied to one task tracker.</li>
-<li>Only one process is working on shuffel &amp; sort.</li>
-<li>When producing output, there&rsquo;s also only one process.</li>
-</ol>
-
-
-<p>The above is not a problem for small data sets, or at least small mapper outputs. And it is also the approach that Pig and Hive use when they need to perform a total sort. But when hitting a certain threshold, the sort and copy phase will become very slow and unacceptable.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -777,6 +765,10 @@ Python代码：音乐，特征，以及简单的邻域算法实现 &hellip;">
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/11/07/sbt-offline/">离线环境下构建sbt项目</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/30/guidetodatamining-4/">数据挖掘指南[4]分类</a>
       </li>
     
@@ -790,10 +782,6 @@ Python代码：音乐，特征，以及简单的邻域算法实现 &hellip;">
     
       <li class="post">
         <a href="/blog/2014/08/29/guidetodatamining-2/">数据挖掘指南[2]推荐系统入门</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/08/09/guidetodatamining-1/">数据挖掘指南[1]简介</a>
       </li>
     
   </ul>

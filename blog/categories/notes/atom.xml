@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Notes | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-10-31T11:40:52+08:00</updated>
+  <updated>2014-11-07T16:38:24+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,74 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[离线环境下构建sbt项目]]></title>
+    <link href="http://shzhangji.com/blog/2014/11/07/sbt-offline/"/>
+    <updated>2014-11-07T15:02:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/11/07/sbt-offline</id>
+    <content type="html"><![CDATA[<p>在公司网络中使用<a href="http://www.scala-sbt.org/">sbt</a>、<a href="http://maven.apache.org/">Maven</a>等项目构建工具时，我们通常会搭建一个公用的<a href="http://www.sonatype.org/nexus/">Nexus</a>镜像服务，原因有以下几个：</p>
+
+<ul>
+<li>避免重复下载依赖，节省公司带宽；</li>
+<li>国内网络环境不理想，下载速度慢；</li>
+<li>IDC服务器没有外网访问权限；</li>
+<li>用于发布内部模块。</li>
+</ul>
+
+
+<p>sbt的依赖管理是基于<a href="http://ant.apache.org/ivy/">ivy</a>的，虽然它能直接使用<a href="http://search.maven.org/">Maven中央仓库</a>中的Jar包，在配置时还是有一些注意事项的。</p>
+
+<!-- more -->
+
+
+<h2>配置Nexus镜像</h2>
+
+<p>根据这篇<a href="http://www.scala-sbt.org/0.13/docs/Proxy-Repositories.html">官方文档</a>的描述，Ivy和Maven在依赖管理方面有些许差异，因此不能直接将两者的镜像仓库配置成一个，而需分别建立两个虚拟镜像组。</p>
+
+<p><img src="http://www.scala-sbt.org/0.13/docs/files/proxy-ivy-mvn-setup.png" alt="" /></p>
+
+<p>安装Nexus后默认会有一个Public Repositories组，可以将其作为Maven的镜像组，并添加一些常用的第三方镜像：</p>
+
+<ul>
+<li>cloudera: <a href="https://repository.cloudera.com/artifactory/cloudera-repos/">https://repository.cloudera.com/artifactory/cloudera-repos/</a></li>
+<li>spring: <a href="http://repo.springsource.org/libs-release-remote/">http://repo.springsource.org/libs-release-remote/</a></li>
+<li>scala-tools: <a href="https://oss.sonatype.org/content/groups/scala-tools/">https://oss.sonatype.org/content/groups/scala-tools/</a></li>
+</ul>
+
+
+<p>对于Ivy镜像，我们创建一个新的虚拟组：ivy-releases，并添加以下两个镜像：</p>
+
+<ul>
+<li>type-safe: <a href="http://repo.typesafe.com/typesafe/ivy-releases/">http://repo.typesafe.com/typesafe/ivy-releases/</a></li>
+<li>sbt-plugin: <a href="http://dl.bintray.com/sbt/sbt-plugin-releases/">http://dl.bintray.com/sbt/sbt-plugin-releases/</a></li>
+</ul>
+
+
+<p>对于sbt-plugin，由于一些原因，Nexus会将其置为Automatically Blocked状态，因此要在配置中将这个选项关闭，否则将无法下载远程的依赖包。</p>
+
+<h2>配置sbt</h2>
+
+<p>为了让sbt使用Nexus镜像，需要创建一个~/.sbt/repositories文件，内容为：</p>
+
+<p><code>
+[repositories]
+  local
+  my-ivy-proxy-releases: http://10.x.x.x:8081/nexus/ivy-releases/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
+  my-maven-proxy-releases: http://10.x.x.x:8081/nexus/public/
+</code></p>
+
+<p>这样配置对大部分项目来说是足够了。但是有些项目会在构建描述文件中添加其它仓库，我们需要覆盖这种行为，方法是：</p>
+
+<p><code>bash
+$ sbt -Dsbt.override.build.repos=true
+</code></p>
+
+<p>你也可以通过设置SBT_OPTS环境变量来进行全局配置。</p>
+
+<p>经过以上步骤，sbt执行过程中就不需要访问外网了，因此速度会有很大提升。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[MySQL异常UTF-8字符的处理]]></title>
@@ -693,85 +761,6 @@ job.setInputFormatClass(NonSplitableSequence.class);
 <p>And that&rsquo;s it, we are able to generate a unique, auto-increment id for a sorted collection, with Hadoop&rsquo;s parallel computing capability. The process is rather complicated, which requires several techniques about Hadoop. It&rsquo;s worthwhile to dig.</p>
 
 <p>A workable example can be found in my <a href="https://github.com/jizhang/mapred-sandbox/blob/master/src/main/java/com/shzhangji/mapred_sandbox/AutoIncrementId2Job.java">Github repository</a>. If you have some more straight-forward approach, please do let me know.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Hive并发情况下报DELETEME表不存在的异常]]></title>
-    <link href="http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/"/>
-    <updated>2013-09-06T11:20:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/09/06/hive-deleteme-error</id>
-    <content type="html"><![CDATA[<p>在每天运行的Hive脚本中，偶尔会抛出以下错误：</p>
-
-<p>```
-2013-09-03 01:39:00,973 ERROR parse.SemanticAnalyzer (SemanticAnalyzer.java:getMetaData(1128)) &ndash; org.apache.hadoop.hive.ql.metadata.HiveException: Unable to fetch table dw_xxx_xxx</p>
-
-<pre><code>    at org.apache.hadoop.hive.ql.metadata.Hive.getTable(Hive.java:896)
-    ...
-</code></pre>
-
-<p>Caused by: javax.jdo.JDODataStoreException: Exception thrown obtaining schema column information from datastore
-NestedThrowables:
-com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Table &lsquo;hive.DELETEME1378143540925&rsquo; doesn&rsquo;t exist</p>
-
-<pre><code>    at org.datanucleus.jdo.NucleusJDOHelper.getJDOExceptionForNucleusException(NucleusJDOHelper.java:313)
-    ...
-</code></pre>
-
-<p>```</p>
-
-<p>查阅了网上的资料，是DataNucleus的问题。</p>
-
-<p>背景1：我们知道MySQL中的库表信息是存放在information_schema库中的，Hive也有类似的机制，它会将库表信息存放在一个第三方的RDBMS中，目前我们线上配置的是本机MySQL，即：</p>
-
-<p>$ mysql -uhive -ppassword hive</p>
-
-<p><img src="/images/hive-deleteme-error/1.png" alt="1.png" /></p>
-
-<!--more-->
-
-
-<p>背景2：Hive使用的是DataNuclues ORM库来操作数据库的，而基本上所有的ORM框架（对象关系映射）都会提供自动建表的功能，即开发者只需编写Java对象，ORM会自动生成DDL。DataNuclues也有这一功能，而且它在初始化时会通过生成临时表的方式来获取数据库的Catalog和Schema，也就是 DELETEME表：</p>
-
-<p><img src="/images/hive-deleteme-error/2.png" alt="2.png" /></p>
-
-<p>这样就有一个问题：在并发量大的情况下，DELETEME表名中的毫秒数可能相同，那在pt.drop(conn)的时候就会产生找不到表的报错。</p>
-
-<p>解决办法已经可以在代码中看到了：将datanucleus.fixedDataStore选项置为true，即告知DataNuclues该数据库的表结构是既定的，不允许执行DDL操作。</p>
-
-<p>这样配置会有什么问题？让我们回忆一下Hive的安装步骤：</p>
-
-<ol>
-<li>解压hive-xyz.tar.gz；</li>
-<li>在conf/hive-site.xml中配置Hadoop以及用于存放库表信息的第三方数据库；</li>
-<li>执行bin/hive -e &ldquo;&hellip;"即可使用。DataNucleus会按需创建上述的DBS等表。</li>
-</ol>
-
-
-<p>这对新手来说很有用，因为不需要手动去执行建表语句，但对生产环境来说，普通帐号是没有DDL权限的，我们公司建表也都是提DB-RT给DBA操作。同理，线上Hive数据库也应该采用手工创建的方式，导入scripts/metastore/upgrade/mysql/hive-schema-0.9.0.mysql.sql文件即可。这样一来，就可以放心地配置datanucleus.fixedDataStore以及 datanecleus.autoCreateSchema两个选项了。</p>
-
-<p>这里我们也明确了一个问题：设置datanucleus.fixedDataStore=true不会影响Hive建库建表，因为Hive中的库表只是DBS、TBLS表中的一条记录而已。</p>
-
-<p>建议的操作：</p>
-
-<ol>
-<li>在线上导入hive-schema-0.9.0.mysql.sql，将尚未创建的表创建好（比如我们没有用过Hive的权限管理，所以DataNucleus没有自动创建DB_PRIVS表）；</li>
-<li>在hive-site.xml中配置 datanucleus.fixedDataStore=true；datanecleus.autoCreateSchema=false。</li>
-</ol>
-
-
-<p>这样就可以彻底解决这个异常了。</p>
-
-<p>为什么HWI没有遇到类似问题？因为它是常驻内存的，DELETEME表只会在启动的时候创建，后续的查询不会创建。而我们这里每次调用hive命令行都会去创建，所以才有这样的问题。</p>
-
-<p>参考链接：</p>
-
-<ul>
-<li><a href="http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html">http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html</a></li>
-<li><a href="https://github.com/dianping/cosmos-hive/issues/10">https://github.com/dianping/cosmos-hive/issues/10</a></li>
-<li><a href="https://issues.apache.org/jira/browse/HIVE-1841">https://issues.apache.org/jira/browse/HIVE-1841</a></li>
-</ul>
-
 ]]></content>
   </entry>
   
