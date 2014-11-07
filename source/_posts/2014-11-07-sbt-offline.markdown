@@ -14,7 +14,7 @@ published: true
 * IDC服务器没有外网访问权限；
 * 用于发布内部模块。
 
-sbt的依赖管理是基于[ivy](http://ant.apache.org/ivy/)的，虽然它能直接使用[Maven中央仓库](http://search.maven.org/)中的Jar包，在配置时还是有一些注意事项的。
+sbt的依赖管理基于[Ivy](http://ant.apache.org/ivy/)，虽然它能直接使用[Maven中央仓库](http://search.maven.org/)中的Jar包，在配置时还是有一些注意事项的。
 
 <!-- more -->
 
@@ -44,8 +44,8 @@ sbt的依赖管理是基于[ivy](http://ant.apache.org/ivy/)的，虽然它能�
 ```
 [repositories]
   local
-  my-ivy-proxy-releases: http://10.x.x.x:8081/nexus/ivy-releases/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
-  my-maven-proxy-releases: http://10.x.x.x:8081/nexus/public/
+  my-ivy-proxy-releases: http://10.x.x.x:8081/nexus/content/groups/ivy-releases/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
+  my-maven-proxy-releases: http://10.x.x.x:8081/nexus/content/groups/public/
 ```
 
 这样配置对大部分项目来说是足够了。但是有些项目会在构建描述文件中添加其它仓库，我们需要覆盖这种行为，方法是：
