@@ -1,0 +1,494 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Hive小文件问题的处理 - Ji ZHANG's Blog</title>
+  <meta name="author" content="Ji ZHANG">
+
+  
+  <meta name="description" content="Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。 小文件带来的问题 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://shzhangji.com/blog/2014/04/07/hive-small-files">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/libs/jquery.min.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>-->
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-37223379-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ji ZHANG's Blog</a></h1>
+  
+    <h2>If I rest, I rust.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:shzhangji.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/categories/tutorial">Tutorial</a></li>
+  <li><a href="/blog/categories/translation">Translation</a></li>
+  <li><a href="/blog/categories/notes">Notes</a></li>
+  <li><a href="/blog/categories/big-data">Big Data</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Hive小文件问题的处理</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-07T17:09:00+08:00" pubdate data-updated="true">Apr 7<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。</p>
+
+<h2>小文件带来的问题</h2>
+
+<p>关于这个问题的阐述可以读一读Cloudera的<a href="http://blog.cloudera.com/blog/2009/02/the-small-files-problem/">这篇文章</a>。简单来说，HDFS的文件元信息，包括位置、大小、分块信息等，都是保存在NameNode的内存中的。每个对象大约占用150个字节，因此一千万个文件及分块就会占用约3G的内存空间，一旦接近这个量级，NameNode的性能就会开始下降了。</p>
+
+<p>此外，HDFS读写小文件时也会更加耗时，因为每次都需要从NameNode获取元信息，并与对应的DataNode建立连接。对于MapReduce程序来说，小文件还会增加Mapper的个数，每个脚本只处理很少的数据，浪费了大量的调度时间。当然，这个问题可以通过使用CombinedInputFile和JVM重用来解决。</p>
+
+<!-- more -->
+
+
+<h2>Hive小文件产生的原因</h2>
+
+<p>前面已经提到，汇总后的数据量通常比源数据要少得多。而为了提升运算速度，我们会增加Reducer的数量，Hive本身也会做类似优化——Reducer数量等于源数据的量除以hive.exec.reducers.bytes.per.reducer所配置的量（默认1G）。Reducer数量的增加也即意味着结果文件的增加，从而产生小文件的问题。</p>
+
+<h2>配置Hive结果合并</h2>
+
+<p>我们可以通过一些配置项来使Hive在执行结束后对结果文件进行合并：</p>
+
+<ul>
+<li><code>hive.merge.mapfiles</code> 在map-only job后合并文件，默认<code>true</code></li>
+<li><code>hive.merge.mapredfiles</code> 在map-reduce job后合并文件，默认<code>false</code></li>
+<li><code>hive.merge.size.per.task</code> 合并后每个文件的大小，默认<code>256000000</code></li>
+<li><code>hive.merge.smallfiles.avgsize</code> 平均文件大小，是决定是否执行合并操作的阈值，默认<code>16000000</code></li>
+</ul>
+
+
+<p>Hive在对结果文件进行合并时会执行一个额外的map-only脚本，mapper的数量是文件总大小除以size.per.task参数所得的值，触发合并的条件是：</p>
+
+<ol>
+<li>根据查询类型不同，相应的mapfiles/mapredfiles参数需要打开；</li>
+<li>结果文件的平均大小需要大于avgsize参数的值。</li>
+</ol>
+
+
+<p>示例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="c1">-- map-red job，5个reducer，产生5个60K的文件。</span>
+</span><span class='line'><span class="k">create</span> <span class="k">table</span> <span class="n">dw_stage</span><span class="p">.</span><span class="n">zj_small</span> <span class="k">as</span>
+</span><span class='line'><span class="k">select</span> <span class="n">paid</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+</span><span class='line'><span class="k">from</span> <span class="n">dw_db</span><span class="p">.</span><span class="n">dw_soj_imp_dtl</span>
+</span><span class='line'><span class="k">where</span> <span class="n">log_dt</span> <span class="o">=</span> <span class="s1">&#39;2014-04-14&#39;</span>
+</span><span class='line'><span class="k">group</span> <span class="k">by</span> <span class="n">paid</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">-- 执行额外的map-only job，一个mapper，产生一个300K的文件。</span>
+</span><span class='line'><span class="k">set</span> <span class="n">hive</span><span class="p">.</span><span class="n">merge</span><span class="p">.</span><span class="n">mapredfiles</span><span class="o">=</span><span class="k">true</span><span class="p">;</span>
+</span><span class='line'><span class="k">create</span> <span class="k">table</span> <span class="n">dw_stage</span><span class="p">.</span><span class="n">zj_small</span> <span class="k">as</span>
+</span><span class='line'><span class="k">select</span> <span class="n">paid</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+</span><span class='line'><span class="k">from</span> <span class="n">dw_db</span><span class="p">.</span><span class="n">dw_soj_imp_dtl</span>
+</span><span class='line'><span class="k">where</span> <span class="n">log_dt</span> <span class="o">=</span> <span class="s1">&#39;2014-04-14&#39;</span>
+</span><span class='line'><span class="k">group</span> <span class="k">by</span> <span class="n">paid</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">-- map-only job，45个mapper，产生45个25M左右的文件。</span>
+</span><span class='line'><span class="k">create</span> <span class="k">table</span> <span class="n">dw_stage</span><span class="p">.</span><span class="n">zj_small</span> <span class="k">as</span>
+</span><span class='line'><span class="k">select</span> <span class="o">*</span>
+</span><span class='line'><span class="k">from</span> <span class="n">dw_db</span><span class="p">.</span><span class="n">dw_soj_imp_dtl</span>
+</span><span class='line'><span class="k">where</span> <span class="n">log_dt</span> <span class="o">=</span> <span class="s1">&#39;2014-04-14&#39;</span>
+</span><span class='line'><span class="k">and</span> <span class="n">paid</span> <span class="k">like</span> <span class="s1">&#39;%baidu%&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">-- 执行额外的map-only job，4个mapper，产生4个250M左右的文件。</span>
+</span><span class='line'><span class="k">set</span> <span class="n">hive</span><span class="p">.</span><span class="n">merge</span><span class="p">.</span><span class="n">smallfiles</span><span class="p">.</span><span class="n">avgsize</span><span class="o">=</span><span class="mi">100000000</span><span class="p">;</span>
+</span><span class='line'><span class="k">create</span> <span class="k">table</span> <span class="n">dw_stage</span><span class="p">.</span><span class="n">zj_small</span> <span class="k">as</span>
+</span><span class='line'><span class="k">select</span> <span class="o">*</span>
+</span><span class='line'><span class="k">from</span> <span class="n">dw_db</span><span class="p">.</span><span class="n">dw_soj_imp_dtl</span>
+</span><span class='line'><span class="k">where</span> <span class="n">log_dt</span> <span class="o">=</span> <span class="s1">&#39;2014-04-14&#39;</span>
+</span><span class='line'><span class="k">and</span> <span class="n">paid</span> <span class="k">like</span> <span class="s1">&#39;%baidu%&#39;</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>压缩文件的处理</h3>
+
+<p>如果结果表使用了压缩格式，则必须配合SequenceFile来存储，否则无法进行合并，以下是示例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">set</span> <span class="n">mapred</span><span class="p">.</span><span class="k">output</span><span class="p">.</span><span class="n">compression</span><span class="p">.</span><span class="k">type</span><span class="o">=</span><span class="n">BLOCK</span><span class="p">;</span>
+</span><span class='line'><span class="k">set</span> <span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="n">compress</span><span class="p">.</span><span class="k">output</span><span class="o">=</span><span class="k">true</span><span class="p">;</span>
+</span><span class='line'><span class="k">set</span> <span class="n">mapred</span><span class="p">.</span><span class="k">output</span><span class="p">.</span><span class="n">compression</span><span class="p">.</span><span class="n">codec</span><span class="o">=</span><span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">hadoop</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">compress</span><span class="p">.</span><span class="n">LzoCodec</span><span class="p">;</span>
+</span><span class='line'><span class="k">set</span> <span class="n">hive</span><span class="p">.</span><span class="n">merge</span><span class="p">.</span><span class="n">smallfiles</span><span class="p">.</span><span class="n">avgsize</span><span class="o">=</span><span class="mi">100000000</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">drop</span> <span class="k">table</span> <span class="n">if</span> <span class="k">exists</span> <span class="n">dw_stage</span><span class="p">.</span><span class="n">zj_small</span><span class="p">;</span>
+</span><span class='line'><span class="k">create</span> <span class="k">table</span> <span class="n">dw_stage</span><span class="p">.</span><span class="n">zj_small</span>
+</span><span class='line'><span class="n">STORED</span> <span class="k">AS</span> <span class="n">SEQUENCEFILE</span>
+</span><span class='line'><span class="k">as</span> <span class="k">select</span> <span class="o">*</span>
+</span><span class='line'><span class="k">from</span> <span class="n">dw_db</span><span class="p">.</span><span class="n">dw_soj_imp_dtl</span>
+</span><span class='line'><span class="k">where</span> <span class="n">log_dt</span> <span class="o">=</span> <span class="s1">&#39;2014-04-14&#39;</span>
+</span><span class='line'><span class="k">and</span> <span class="n">paid</span> <span class="k">like</span> <span class="s1">&#39;%baidu%&#39;</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>使用HAR归档文件</h2>
+
+<p>Hadoop的<a href="http://hadoop.apache.org/docs/stable1/hadoop_archives.html">归档文件</a>格式也是解决小文件问题的方式之一。而且Hive提供了<a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Archiving">原生支持</a>：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">set</span> <span class="n">hive</span><span class="p">.</span><span class="n">archive</span><span class="p">.</span><span class="n">enabled</span><span class="o">=</span><span class="k">true</span><span class="p">;</span>
+</span><span class='line'><span class="k">set</span> <span class="n">hive</span><span class="p">.</span><span class="n">archive</span><span class="p">.</span><span class="n">har</span><span class="p">.</span><span class="n">parentdir</span><span class="p">.</span><span class="n">settable</span><span class="o">=</span><span class="k">true</span><span class="p">;</span>
+</span><span class='line'><span class="k">set</span> <span class="n">har</span><span class="p">.</span><span class="n">partfile</span><span class="p">.</span><span class="k">size</span><span class="o">=</span><span class="mi">1099511627776</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">srcpart</span> <span class="n">ARCHIVE</span> <span class="n">PARTITION</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="s1">&#39;2008-04-08&#39;</span><span class="p">,</span> <span class="n">hr</span><span class="o">=</span><span class="s1">&#39;12&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">srcpart</span> <span class="n">UNARCHIVE</span> <span class="n">PARTITION</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="s1">&#39;2008-04-08&#39;</span><span class="p">,</span> <span class="n">hr</span><span class="o">=</span><span class="s1">&#39;12&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果使用的不是分区表，则可创建成外部表，并使用<code>har://</code>协议来指定路径。</p>
+
+<h2>HDFS Federation</h2>
+
+<p>Hadoop V2引入了HDFS Federation的概念：</p>
+
+<p><img src="http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/images/federation.gif" alt="" /></p>
+
+<p>实则是将NameNode做了拆分，从而增强了它的扩展性，小文件的问题也能够得到缓解。</p>
+
+<h2>其他工具</h2>
+
+<p>对于通常的应用，使用Hive结果合并就能达到很好的效果。如果不想因此增加运行时间，可以自行编写一些脚本，在系统空闲时对分区内的文件进行合并，也能达到目的。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ji ZHANG</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-07T17:09:00+08:00" pubdate data-updated="true">Apr 7<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2014/04/07/hive-small-files/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2014/04/07/hive-small-files/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/01/25/java-reflection-tutorial/" title="Previous Post: Java反射机制">&laquo; Java反射机制</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/05/27/use-webjars-in-scalatra-project/" title="Next Post: Use WebJars in Scalatra Project">Use WebJars in Scalatra Project &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/11/07/sbt-offline/">离线环境下构建sbt项目</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/30/guidetodatamining-4/">数据挖掘指南[4]分类</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/14/mysql-incorrent-utf8-value/">MySQL异常UTF-8字符的处理</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/29/guidetodatamining-3/">数据挖掘指南[3]隐式评价和基于物品的过滤算法</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/29/guidetodatamining-2/">数据挖掘指南[2]推荐系统入门</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jizhang">@jizhang</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jizhang',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+<a href="http://stackoverflow.com/users/1030720/jerry">
+<img src="http://stackoverflow.com/users/flair/1030720.png?theme=clean" width="208" height="58" alt="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers" title="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers">
+</a>
+</section>
+
+<section>
+  <h1>On Delicious</h1>
+  <div id="delicious"></div>
+  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/zjerryj?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
+  <p><a href="http://delicious.com/zjerryj">My Delicious Bookmarks &raquo;</a></p>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/zhangji87@gmail.com?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Ji ZHANG -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jizhang';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://shzhangji.com/blog/2014/04/07/hive-small-files/';
+        var disqus_url = 'http://shzhangji.com/blog/2014/04/07/hive-small-files/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

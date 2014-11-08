@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Notes | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-11-07T16:38:24+08:00</updated>
+  <updated>2014-11-08T19:14:08+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -28,7 +28,7 @@
 </ul>
 
 
-<p>sbt的依赖管理是基于<a href="http://ant.apache.org/ivy/">ivy</a>的，虽然它能直接使用<a href="http://search.maven.org/">Maven中央仓库</a>中的Jar包，在配置时还是有一些注意事项的。</p>
+<p>sbt的依赖管理基于<a href="http://ant.apache.org/ivy/">Ivy</a>，虽然它能直接使用<a href="http://search.maven.org/">Maven中央仓库</a>中的Jar包，在配置时还是有一些注意事项的。</p>
 
 <!-- more -->
 
@@ -65,8 +65,8 @@
 <p><code>
 [repositories]
   local
-  my-ivy-proxy-releases: http://10.x.x.x:8081/nexus/ivy-releases/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
-  my-maven-proxy-releases: http://10.x.x.x:8081/nexus/public/
+  my-ivy-proxy-releases: http://10.x.x.x:8081/nexus/content/groups/ivy-releases/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
+  my-maven-proxy-releases: http://10.x.x.x:8081/nexus/content/groups/public/
 </code></p>
 
 <p>这样配置对大部分项目来说是足够了。但是有些项目会在构建描述文件中添加其它仓库，我们需要覆盖这种行为，方法是：</p>
@@ -460,307 +460,125 @@ require([
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Generate Auto-increment Id in Map-reduce Job]]></title>
-    <link href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/"/>
-    <updated>2013-10-31T09:35:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job</id>
-    <content type="html"><![CDATA[<p>In DBMS world, it&rsquo;s easy to generate a unique, auto-increment id, using MySQL&rsquo;s <a href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html">AUTO_INCREMENT attribute</a> on a primary key or MongoDB&rsquo;s <a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it&rsquo;ll take some steps.</p>
+    <title type="html"><![CDATA[Hive小文件问题的处理]]></title>
+    <link href="http://shzhangji.com/blog/2014/04/07/hive-small-files/"/>
+    <updated>2014-04-07T17:09:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/04/07/hive-small-files</id>
+    <content type="html"><![CDATA[<p>Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。</p>
 
-<h2>Solution A: Single Reducer</h2>
+<h2>小文件带来的问题</h2>
 
-<p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
+<p>关于这个问题的阐述可以读一读Cloudera的<a href="http://blog.cloudera.com/blog/2009/02/the-small-files-problem/">这篇文章</a>。简单来说，HDFS的文件元信息，包括位置、大小、分块信息等，都是保存在NameNode的内存中的。每个对象大约占用150个字节，因此一千万个文件及分块就会占用约3G的内存空间，一旦接近这个量级，NameNode的性能就会开始下降了。</p>
 
-<p><code>java
-job.setNumReduceTasks(1);
-</code></p>
-
-<p>And also obvious, there are several demerits:</p>
-
-<ol>
-<li>All mappers output will be copied to one task tracker.</li>
-<li>Only one process is working on shuffel &amp; sort.</li>
-<li>When producing output, there&rsquo;s also only one process.</li>
-</ol>
-
-
-<p>The above is not a problem for small data sets, or at least small mapper outputs. And it is also the approach that Pig and Hive use when they need to perform a total sort. But when hitting a certain threshold, the sort and copy phase will become very slow and unacceptable.</p>
+<p>此外，HDFS读写小文件时也会更加耗时，因为每次都需要从NameNode获取元信息，并与对应的DataNode建立连接。对于MapReduce程序来说，小文件还会增加Mapper的个数，每个脚本只处理很少的数据，浪费了大量的调度时间。当然，这个问题可以通过使用CombinedInputFile和JVM重用来解决。</p>
 
 <!-- more -->
 
 
-<h2>Solution B: Increment by Number of Tasks</h2>
+<h2>Hive小文件产生的原因</h2>
 
-<p>Inspired by a <a href="http://mail-archives.apache.org/mod_mbox/hadoop-common-user/200904.mbox/%3C49E13557.7090504@domaintools.com%3E">mailing list</a> that is quite hard to find, which is inspired by MySQL master-master setup (with auto_increment_increment and auto_increment_offset), there&rsquo;s a brilliant way to generate a globally unique integer id across mappers or reducers. Let&rsquo;s take mapper for example:</p>
+<p>前面已经提到，汇总后的数据量通常比源数据要少得多。而为了提升运算速度，我们会增加Reducer的数量，Hive本身也会做类似优化——Reducer数量等于源数据的量除以hive.exec.reducers.bytes.per.reducer所配置的量（默认1G）。Reducer数量的增加也即意味着结果文件的增加，从而产生小文件的问题。</p>
 
-<p>```java
-public static class JobMapper extends Mapper&lt;LongWritable, Text, LongWritable, Text> {</p>
+<h2>配置Hive结果合并</h2>
 
-<pre><code>private long id;
-private int increment;
+<p>我们可以通过一些配置项来使Hive在执行结束后对结果文件进行合并：</p>
 
-@Override
-protected void setup(Context context) throws IOException,
-        InterruptedException {
+<ul>
+<li><code>hive.merge.mapfiles</code> 在map-only job后合并文件，默认<code>true</code></li>
+<li><code>hive.merge.mapredfiles</code> 在map-reduce job后合并文件，默认<code>false</code></li>
+<li><code>hive.merge.size.per.task</code> 合并后每个文件的大小，默认<code>256000000</code></li>
+<li><code>hive.merge.smallfiles.avgsize</code> 平均文件大小，是决定是否执行合并操作的阈值，默认<code>16000000</code></li>
+</ul>
 
-    super.setup(context);
 
-    id = context.getTaskAttemptID().getTaskID().getId();
-    increment = context.getConfiguration().getInt("mapred.map.tasks", 0);
-    if (increment == 0) {
-        throw new IllegalArgumentException("mapred.map.tasks is zero");
-    }
-}
-
-@Override
-protected void map(LongWritable key, Text value, Context context)
-        throws IOException, InterruptedException {
-
-    id += increment;
-    context.write(new LongWritable(id),
-            new Text(String.format("%d, %s", key.get(), value.toString())));
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>The basic idea is simple:</p>
+<p>Hive在对结果文件进行合并时会执行一个额外的map-only脚本，mapper的数量是文件总大小除以size.per.task参数所得的值，触发合并的条件是：</p>
 
 <ol>
-<li>Set the initial id to current tasks&rsquo;s id.</li>
-<li>When mapping each row, increment the id by the number of tasks.</li>
+<li>根据查询类型不同，相应的mapfiles/mapredfiles参数需要打开；</li>
+<li>结果文件的平均大小需要大于avgsize参数的值。</li>
 </ol>
 
 
-<p>It&rsquo;s also applicable to reducers.</p>
+<p>示例：</p>
 
-<h2>Solution C: Sorted Auto-increment Id</h2>
+<p>```sql
+&mdash; map-red job，5个reducer，产生5个60K的文件。
+create table dw_stage.zj_small as
+select paid, count(*)
+from dw_db.dw_soj_imp_dtl
+where log_dt = &lsquo;2014-04-14&rsquo;
+group by paid;</p>
 
-<p>Here&rsquo;s a real senario: we have several log files pulled from different machines, and we want to identify each row by an auto-increment id, and they should be in time sequence order.</p>
+<p>&mdash; 执行额外的map-only job，一个mapper，产生一个300K的文件。
+set hive.merge.mapredfiles=true;
+create table dw_stage.zj_small as
+select paid, count(*)
+from dw_db.dw_soj_imp_dtl
+where log_dt = &lsquo;2014-04-14&rsquo;
+group by paid;</p>
 
-<p>We know Hadoop has a sort phase, so we can use timestamp as the mapper output key, and the framework will do the trick. But the sorting thing happends in one reducer (partition, in fact), so when using multiple reducer tasks, the result is not in total order. To achieve this, we can use the <a href="http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapred/lib/TotalOrderPartitioner.html">TotalOrderPartitioner</a>.</p>
+<p>&mdash; map-only job，45个mapper，产生45个25M左右的文件。
+create table dw_stage.zj_small as
+select *
+from dw_db.dw_soj_imp_dtl
+where log_dt = &lsquo;2014-04-14&rsquo;
+and paid like &lsquo;%baidu%&rsquo;;</p>
 
-<p>How about the incremental id? Even though the outputs are in total order, Solution B is not applicable here. So we take another approach: seperate the job in two phases, use the reducer to do sorting <em>and</em> counting, then use the second mapper to generate the id.</p>
-
-<p>Here&rsquo;s what we gonna do:</p>
-
-<ol>
-<li>Use TotalOrderPartitioner, and generate the partition file.</li>
-<li>Parse logs in mapper A, use time as the output key.</li>
-<li>Let the framework do partitioning and sorting.</li>
-<li>Count records in reducer, write it with <a href="http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapreduce/lib/output/MultipleOutputs.html">MultipleOutput</a>.</li>
-<li>In mapper B, use count as offset, and increment by 1.</li>
-</ol>
-
-
-<p>To simplify the situation, we assume to have the following inputs and outputs:</p>
-
-<p>```text
- Input       Output</p>
-
-<p>11:00 a     1 11:00 a
-12:00 b     2 11:01 aa
-13:00 c     3 11:02 aaa</p>
-
-<p>11:01 aa    4 12:00 b
-12:01 bb    5 12:01 bb
-13:01 cc    6 12:02 bbb</p>
-
-<p>11:02 aaa   7 13:00 c
-12:02 bbb   8 13:01 cc
-13:02 ccc   9 13:02 ccc
+<p>&mdash; 执行额外的map-only job，4个mapper，产生4个250M左右的文件。
+set hive.merge.smallfiles.avgsize=100000000;
+create table dw_stage.zj_small as
+select *
+from dw_db.dw_soj_imp_dtl
+where log_dt = &lsquo;2014-04-14&rsquo;
+and paid like &lsquo;%baidu%&rsquo;;
 ```</p>
 
-<h3>Generate Partition File</h3>
+<h3>压缩文件的处理</h3>
 
-<p>To use TotalOrderpartitioner, we need a partition file (i.e. boundaries) to tell the partitioner how to partition the mapper outputs. Usually we&rsquo;ll use <a href="https://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapreduce/lib/partition/InputSampler.RandomSampler.html">InputSampler.RandomSampler</a> class, but this time let&rsquo;s use a manual partition file.</p>
+<p>如果结果表使用了压缩格式，则必须配合SequenceFile来存储，否则无法进行合并，以下是示例：</p>
 
-<p>```java
-SequenceFile.Writer writer = new SequenceFile.Writer(fs, getConf(), partition,</p>
+<p>```sql
+set mapred.output.compression.type=BLOCK;
+set hive.exec.compress.output=true;
+set mapred.output.compression.codec=org.apache.hadoop.io.compress.LzoCodec;
+set hive.merge.smallfiles.avgsize=100000000;</p>
 
-<pre><code>    Text.class, NullWritable.class);
-</code></pre>
-
-<p>Text key = new Text();
-NullWritable value = NullWritable.get();
-key.set(&ldquo;12:00&rdquo;);
-writer.append(key, value);
-key.set(&ldquo;13:00&rdquo;);
-writer.append(key, value);
-writer.close();
+<p>drop table if exists dw_stage.zj_small;
+create table dw_stage.zj_small
+STORED AS SEQUENCEFILE
+as select *
+from dw_db.dw_soj_imp_dtl
+where log_dt = &lsquo;2014-04-14&rsquo;
+and paid like &lsquo;%baidu%&rsquo;;
 ```</p>
 
-<p>So basically, the partitioner will partition the mapper outputs into three parts, the first part will be less than &ldquo;12:00&rdquo;, seceond part [&ldquo;12:00&rdquo;, &ldquo;13:00&rdquo;), thrid [&ldquo;13:00&rdquo;, ).</p>
+<h2>使用HAR归档文件</h2>
 
-<p>And then, indicate the job to use this partition file:</p>
+<p>Hadoop的<a href="http://hadoop.apache.org/docs/stable1/hadoop_archives.html">归档文件</a>格式也是解决小文件问题的方式之一。而且Hive提供了<a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Archiving">原生支持</a>：</p>
 
-<p>```java
-job.setPartitionerClass(TotalOrderPartitioner.class);
-otalOrderPartitioner.setPartitionFile(job.getConfiguration(), partition);</p>
+<p>```
+set hive.archive.enabled=true;
+set hive.archive.har.parentdir.settable=true;
+set har.partfile.size=1099511627776;</p>
 
-<p>// The number of reducers should equal the number of partitions.
-job.setNumReduceTasks(3);
+<p>ALTER TABLE srcpart ARCHIVE PARTITION(ds=&lsquo;2008-04-08&rsquo;, hr=&lsquo;12&rsquo;);</p>
+
+<p>ALTER TABLE srcpart UNARCHIVE PARTITION(ds=&lsquo;2008-04-08&rsquo;, hr=&lsquo;12&rsquo;);
 ```</p>
 
-<h3>Use MutipleOutputs</h3>
+<p>如果使用的不是分区表，则可创建成外部表，并使用<code>har://</code>协议来指定路径。</p>
 
-<p>In the reducer, we need to note down the row count of this partition, to do that, we&rsquo;ll need the MultipleOutputs class, which let use output multiple result files apart from the default &ldquo;part-r-xxxxx&rdquo;. The reducer&rsquo;s code is as following:</p>
+<h2>HDFS Federation</h2>
 
-<p>```java
-public static class JobReducer extends Reducer&lt;Text, Text, NullWritable, Text> {</p>
+<p>Hadoop V2引入了HDFS Federation的概念：</p>
 
-<pre><code>private MultipleOutputs&lt;NullWritable, Text&gt; mos;
-private long count;
+<p><img src="http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/images/federation.gif" alt="" /></p>
 
-@Override
-protected void setup(Context context)
-        throws IOException, InterruptedException {
+<p>实则是将NameNode做了拆分，从而增强了它的扩展性，小文件的问题也能够得到缓解。</p>
 
-    super.setup(context);
-    mos = new MultipleOutputs&lt;NullWritable, Text&gt;(context);
-    count = 0;
-}
+<h2>其他工具</h2>
 
-@Override
-protected void reduce(Text key, Iterable&lt;Text&gt; values, Context context)
-        throws IOException, InterruptedException {
-
-    for (Text value : values) {
-        context.write(NullWritable.get(), value);
-        ++count;
-    }
-}
-
-@Override
-protected void cleanup(Context context)
-        throws IOException, InterruptedException {
-
-    super.cleanup(context);
-    mos.write("count", NullWritable.get(), new LongWritable(count));
-    mos.close();
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>There&rsquo;re several things to pay attention to:</p>
-
-<ol>
-<li>MultipleOutputs is declared as class member, defined in Reducer#setup method, and must be closed at Reducer#cleanup (otherwise the file will be empty).</li>
-<li>When instantiating MultipleOutputs class, the generic type needs to be the same as reducer&rsquo;s output key/value class.</li>
-<li>In order to use a different output key/value class, additional setup needs to be done at job definition:</li>
-</ol>
-
-
-<p>```java
-Job job = new Job(getConf());
-MultipleOutputs.addNamedOutput(job, &ldquo;count&rdquo;, SequenceFileOutputFormat.class,</p>
-
-<pre><code>NullWritable.class, LongWritable.class);
-</code></pre>
-
-<p>```</p>
-
-<p>For example, if the output folder is &ldquo;/tmp/total-sort/&rdquo;, there&rsquo;ll be the following files when job is done:</p>
-
-<p><code>text
-/tmp/total-sort/count-r-00001
-/tmp/total-sort/count-r-00002
-/tmp/total-sort/count-r-00003
-/tmp/total-sort/part-r-00001
-/tmp/total-sort/part-r-00002
-/tmp/total-sort/part-r-00003
-</code></p>
-
-<h3>Pass Start Ids to Mapper</h3>
-
-<p>When the second mapper processes the inputs, we want them to know the initial id of its partition, which can be calculated from the &ldquo;count-*&rdquo; files we produce before. To pass this information, we can use the job&rsquo;s Configuration object.</p>
-
-<p>```java
-// Read and calculate the start id from those row-count files.
-Map&lt;String, Long> startIds = new HashMap&lt;String, Long>();
-long startId = 1;
-FileSystem fs = FileSystem.get(getConf());
-for (FileStatus file : fs.listStatus(countPath)) {</p>
-
-<pre><code>Path path = file.getPath();
-String name = path.getName();
-if (!name.startsWith("count-")) {
-    continue;
-}
-
-startIds.put(name.substring(name.length() - 5), startId);
-
-SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, getConf());
-NullWritable key = NullWritable.get();
-LongWritable value = new LongWritable();
-if (!reader.next(key, value)) {
-    continue;
-}
-startId += value.get();
-reader.close();
-</code></pre>
-
-<p>}</p>
-
-<p>// Serialize the map and pass it to Configuration.
-job.getConfiguration().set(&ldquo;startIds&rdquo;, Base64.encodeBase64String(</p>
-
-<pre><code>    SerializationUtils.serialize((Serializable) startIds)));
-</code></pre>
-
-<p>// Recieve it in Mapper#setup
-public static class JobMapperB extends Mapper&lt;NullWritable, Text, LongWritable, Text> {</p>
-
-<pre><code>private Map&lt;String, Long&gt; startIds;
-private long startId;
-
-@SuppressWarnings("unchecked")
-@Override
-protected void setup(Context context)
-        throws IOException, InterruptedException {
-
-    super.setup(context);
-    startIds = (Map&lt;String, Long&gt;) SerializationUtils.deserialize(
-            Base64.decodeBase64(context.getConfiguration().get("startIds")));
-    String name = ((FileSplit) context.getInputSplit()).getPath().getName();
-    startId = startIds.get(name.substring(name.length() - 5));
-}
-
-@Override
-protected void map(NullWritable key, Text value, Context context)
-        throws IOException, InterruptedException {
-
-    context.write(new LongWritable(startId++), value);
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>Set the Input Non-splitable</h3>
-
-<p>When the file is bigger than a block or so (depending on some configuration entries), Hadoop will split it, which is not good for us. So let&rsquo;s define a new InputFormat class to disable the splitting behaviour:</p>
-
-<p>```java
-public static class NonSplitableSequence extends SequenceFileInputFormat&lt;NullWritable, Text> {</p>
-
-<pre><code>@Override
-protected boolean isSplitable(JobContext context, Path filename) {
-    return false;
-}
-</code></pre>
-
-<p>}</p>
-
-<p>// use it
-job.setInputFormatClass(NonSplitableSequence.class);
-```</p>
-
-<p>And that&rsquo;s it, we are able to generate a unique, auto-increment id for a sorted collection, with Hadoop&rsquo;s parallel computing capability. The process is rather complicated, which requires several techniques about Hadoop. It&rsquo;s worthwhile to dig.</p>
-
-<p>A workable example can be found in my <a href="https://github.com/jizhang/mapred-sandbox/blob/master/src/main/java/com/shzhangji/mapred_sandbox/AutoIncrementId2Job.java">Github repository</a>. If you have some more straight-forward approach, please do let me know.</p>
+<p>对于通常的应用，使用Hive结果合并就能达到很好的效果。如果不想因此增加运行时间，可以自行编写一些脚本，在系统空闲时对分区内的文件进行合并，也能达到目的。</p>
 ]]></content>
   </entry>
   
