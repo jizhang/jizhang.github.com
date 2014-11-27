@@ -11,7 +11,7 @@ published: true
 
 让我们回到上一章中运动项目的例子。
 
-![](img/chapter-5/chapter-5-1.png)
+![](https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-5/chapter-5-1.png)
 
 在那个例子中，我们编写了一个分类器程序，通过运动员的身高和体重来判断她参与的运动项目——体操、田径、篮球等。
 
@@ -36,6 +36,6 @@ published: true
 * 结果理想吗？
 * 如何与其它分类器做比较？
 
-![](img/chapter-5/chapter-5-2.png)
+![](https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-5/chapter-5-2.png)
 
 [前往GitHub阅读全文](https://github.com/jizhang/guidetodatamining/blob/master/chapter-5.md)
