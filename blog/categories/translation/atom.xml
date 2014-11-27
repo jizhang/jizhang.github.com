@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Translation | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/translation/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-11-08T19:14:08+08:00</updated>
+  <updated>2014-11-27T12:07:29+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,51 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[数据挖掘指南[5]进一步探索分类]]></title>
+    <link href="http://shzhangji.com/blog/2014/11/27/guidetodatamining-5/"/>
+    <updated>2014-11-27T12:00:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/11/27/guidetodatamining-5</id>
+    <content type="html"><![CDATA[<h2>效果评估算法和kNN</h2>
+
+<p>让我们回到上一章中运动项目的例子。</p>
+
+<p><img src="img/chapter-5/chapter-5-1.png" alt="" /></p>
+
+<p>在那个例子中，我们编写了一个分类器程序，通过运动员的身高和体重来判断她参与的运动项目——体操、田径、篮球等。</p>
+
+<p>上图中的Marissa Coleman，身高6尺1寸，重160磅，我们的分类器可以正确的进行预测：</p>
+
+<p>```python</p>
+
+<blockquote><blockquote><blockquote><p>cl = Classifier(&lsquo;athletesTrainingSet.txt&rsquo;)
+cl.classify([73, 160])
+&lsquo;Basketball&rsquo;
+```</p></blockquote></blockquote></blockquote>
+
+<p>对于身高4尺9寸，90磅重的人：</p>
+
+<p>```python</p>
+
+<blockquote><blockquote><blockquote><p>cl.classify([59, 90])
+&lsquo;Gymnastics&rsquo;
+```</p></blockquote></blockquote></blockquote>
+
+<p>当我们构建完一个分类器后，应该问以下问题：</p>
+
+<ul>
+<li>分类器的准确度如何？</li>
+<li>结果理想吗？</li>
+<li>如何与其它分类器做比较？</li>
+</ul>
+
+
+<p><img src="img/chapter-5/chapter-5-2.png" alt="" /></p>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-5.md">前往GitHub阅读全文</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[数据挖掘指南[4]分类]]></title>
@@ -207,352 +252,6 @@
 <p>在初学者眼中，世界充满了可能；专家眼中，世界大都已经既定。</p>
 
 <p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-1.md">前往GitHub阅读全文</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Java反射机制]]></title>
-    <link href="http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/"/>
-    <updated>2014-01-25T09:42:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial</id>
-    <content type="html"><![CDATA[<p>原文：<a href="http://www.programcreek.com/2013/09/java-reflection-tutorial/">http://www.programcreek.com/2013/09/java-reflection-tutorial/</a></p>
-
-<p>什么是反射？它有何用处？</p>
-
-<h2>1. 什么是反射？</h2>
-
-<p>“反射（Reflection）能够让运行于JVM中的程序检测和修改运行时的行为。”这个概念常常会和内省（Introspection）混淆，以下是这两个术语在Wikipedia中的解释：</p>
-
-<ol>
-<li>内省用于在运行时检测某个对象的类型和其包含的属性；</li>
-<li>反射用于在运行时检测和修改某个对象的结构及其行为。</li>
-</ol>
-
-
-<p>从他们的定义可以看出，内省是反射的一个子集。有些语言支持内省，但并不支持反射，如C++。</p>
-
-<p><img src="http://www.programcreek.com/wp-content/uploads/2013/09/reflection-introspection-650x222.png" alt="反射和内省" /></p>
-
-<!-- more -->
-
-
-<p>内省示例：<code>instanceof</code>运算符用于检测某个对象是否属于特定的类。</p>
-
-<p>```java
-if (obj instanceof Dog) {</p>
-
-<pre><code>Dog d = (Dog) obj;
-d.bark();
-</code></pre>
-
-<p>}
-```</p>
-
-<p>反射示例：<code>Class.forName()</code>方法可以通过类或接口的名称（一个字符串或完全限定名）来获取对应的<code>Class</code>对象。<code>forName</code>方法会触发类的初始化。</p>
-
-<p><code>java
-// 使用反射
-Class&lt;?&gt; c = Class.forName("classpath.and.classname");
-Object dog = c.newInstance();
-Method m = c.getDeclaredMethod("bark", new Class&lt;?&gt;[0]);
-m.invoke(dog);
-</code></p>
-
-<p>在Java中，反射更接近于内省，因为你无法改变一个对象的结构。虽然一些API可以用来修改方法和属性的可见性，但并不能修改结构。</p>
-
-<h2>2. 我们为何需要反射？</h2>
-
-<p>反射能够让我们：</p>
-
-<ul>
-<li>在运行时检测对象的类型；</li>
-<li>动态构造某个类的对象；</li>
-<li>检测类的属性和方法；</li>
-<li>任意调用对象的方法；</li>
-<li>修改构造函数、方法、属性的可见性；</li>
-<li>以及其他</li>
-</ul>
-
-
-<p>反射是框架中常用的方法。</p>
-
-<p>例如，<a href="http://www.programcreek.com/2012/02/junit-tutorial-2-annotations/">JUnit</a>通过反射来遍历包含 <em>@Test</em> 注解的方法，并在运行单元测试时调用它们。（<a href="http://www.programcreek.com/2012/02/junit-tutorial-2-annotations/">这个连接</a>中包含了一些JUnit的使用案例）</p>
-
-<p>对于Web框架，开发人员在配置文件中定义他们对各种接口和类的实现。通过反射机制，框架能够快速地动态初始化所需要的类。</p>
-
-<p>例如，Spring框架使用如下的配置文件：</p>
-
-<p>```xml
-<bean id="someID" class="com.programcreek.Foo"></p>
-
-<pre><code>&lt;property name="someField" value="someValue" /&gt;
-</code></pre>
-
-<p></bean>
-```</p>
-
-<p>当Spring容器处理&lt;bean&gt;元素时，会使用<code>Class.forName("com.programcreek.Foo")</code>来初始化这个类，并再次使用反射获取&lt;property&gt;元素对应的<code>setter</code>方法，为对象的属性赋值。</p>
-
-<p>Servlet也会使用相同的机制：</p>
-
-<p>```xml
-<servlet></p>
-
-<pre><code>&lt;servlet-name&gt;someServlet&lt;/servlet-name&gt;
-&lt;servlet-class&gt;com.programcreek.WhyReflectionServlet&lt;/servlet-class&gt;
-</code></pre>
-
-<p><servlet>
-```</p>
-
-<h2>3. 如何使用反射？</h2>
-
-<p>让我们通过几个典型的案例来学习如何使用反射。</p>
-
-<p>示例1：获取对象的类型名称。</p>
-
-<p>```java
-package myreflection;
-import java.lang.reflect.Method;</p>
-
-<p>public class ReflectionHelloWorld {</p>
-
-<pre><code>public static void main(String[] args){
-    Foo f = new Foo();
-    System.out.println(f.getClass().getName());         
-}
-</code></pre>
-
-<p>}</p>
-
-<p>class Foo {</p>
-
-<pre><code>public void print() {
-    System.out.println("abc");
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>输出：</p>
-
-<p><code>text
-myreflection.Foo
-</code></p>
-
-<p>示例2：调用未知对象的方法。</p>
-
-<p>在下列代码中，设想对象的类型是未知的。通过反射，我们可以判断它是否包含<code>print</code>方法，并调用它。</p>
-
-<p>```java
-package myreflection;
-import java.lang.reflect.Method;</p>
-
-<p>public class ReflectionHelloWorld {</p>
-
-<pre><code>public static void main(String[] args){
-    Foo f = new Foo();
-
-    Method method;
-    try {
-        method = f.getClass().getMethod("print", new Class&lt;?&gt;[0]);
-        method.invoke(f);
-    } catch (Exception e) {
-        e.printStackTrace();
-    }           
-}
-</code></pre>
-
-<p>}</p>
-
-<p>class Foo {</p>
-
-<pre><code>public void print() {
-    System.out.println("abc");
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p><code>text
-abc
-</code></p>
-
-<p>示例3：创建对象</p>
-
-<p>```java
-package myreflection;</p>
-
-<p>public class ReflectionHelloWorld {</p>
-
-<pre><code>public static void main(String[] args){
-    // 创建Class实例
-    Class&lt;?&gt; c = null;
-    try{
-        c=Class.forName("myreflection.Foo");
-    }catch(Exception e){
-        e.printStackTrace();
-    }
-
-    // 创建Foo实例
-    Foo f = null;
-
-    try {
-        f = (Foo) c.newInstance();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }   
-
-    f.print();
-}
-</code></pre>
-
-<p>}</p>
-
-<p>class Foo {</p>
-
-<pre><code>public void print() {
-    System.out.println("abc");
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>示例4：获取构造函数，并创建对象。</p>
-
-<p>```java
-package myreflection;</p>
-
-<p>import java.lang.reflect.Constructor;</p>
-
-<p>public class ReflectionHelloWorld {</p>
-
-<pre><code>public static void main(String[] args){
-    // 创建Class实例
-    Class&lt;?&gt; c = null;
-    try{
-        c=Class.forName("myreflection.Foo");
-    }catch(Exception e){
-        e.printStackTrace();
-    }
-
-    // 创建Foo实例
-    Foo f1 = null;
-    Foo f2 = null;
-
-    // 获取所有的构造函数
-    Constructor&lt;?&gt; cons[] = c.getConstructors();
-
-    try {
-        f1 = (Foo) cons[0].newInstance();
-        f2 = (Foo) cons[1].newInstance("abc");
-    } catch (Exception e) {
-        e.printStackTrace();
-    }   
-
-    f1.print();
-    f2.print();
-}
-</code></pre>
-
-<p>}</p>
-
-<p>class Foo {</p>
-
-<pre><code>String s; 
-
-public Foo(){}
-
-public Foo(String s){
-    this.s=s;
-}
-
-public void print() {
-    System.out.println(s);
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p><code>text
-null
-abc
-</code></p>
-
-<p>此外，你可以通过<code>Class</code>实例来获取该类实现的接口、父类、声明的属性等。</p>
-
-<p>示例5：通过反射来修改数组的大小。</p>
-
-<p>```java
-package myreflection;</p>
-
-<p>import java.lang.reflect.Array;</p>
-
-<p>public class ReflectionHelloWorld {</p>
-
-<pre><code>public static void main(String[] args) {
-    int[] intArray = { 1, 2, 3, 4, 5 };
-    int[] newIntArray = (int[]) changeArraySize(intArray, 10);
-    print(newIntArray);
-
-    String[] atr = { "a", "b", "c", "d", "e" };
-    String[] str1 = (String[]) changeArraySize(atr, 10);
-    print(str1);
-}
-
-// 修改数组的大小
-public static Object changeArraySize(Object obj, int len) {
-    Class&lt;?&gt; arr = obj.getClass().getComponentType();
-    Object newArray = Array.newInstance(arr, len);
-
-    // 复制数组
-    int co = Array.getLength(obj);
-    System.arraycopy(obj, 0, newArray, 0, co);
-    return newArray;
-}
-
-// 打印
-public static void print(Object obj) {
-    Class&lt;?&gt; c = obj.getClass();
-    if (!c.isArray()) {
-        return;
-    }
-
-    System.out.println("\nArray length: " + Array.getLength(obj));
-
-    for (int i = 0; i &lt; Array.getLength(obj); i++) {
-        System.out.print(Array.get(obj, i) + " ");
-    }
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>输出：</p>
-
-<p><code>text
-Array length: 10
-1 2 3 4 5 0 0 0 0 0
-Array length: 10
-a b c d e null null null null null
-</code></p>
-
-<h2>总结</h2>
-
-<p>上述示例代码仅仅展现了Java反射机制很小一部分的功能。如果你觉得意犹未尽，可以前去阅读<a href="http://docs.oracle.com/javase/tutorial/reflect/">官方文档</a>。</p>
-
-<p>参考资料：</p>
-
-<ol>
-<li><a href="http://en.wikipedia.org/wiki/Reflection_">http://en.wikipedia.org/wiki/Reflection_</a>(computer_programming)</li>
-<li><a href="http://docs.oracle.com/javase/tutorial/reflect/">http://docs.oracle.com/javase/tutorial/reflect/</a></li>
-</ol>
-
 ]]></content>
   </entry>
   

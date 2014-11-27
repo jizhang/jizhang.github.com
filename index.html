@@ -9,10 +9,10 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="在公司网络中使用sbt、Maven等项目构建工具时，我们通常会搭建一个公用的Nexus镜像服务，原因有以下几个： 避免重复下载依赖，节省公司带宽；
-国内网络环境不理想，下载速度慢；
-IDC服务器没有外网访问权限；
-用于发布内部模块。 sbt的依赖管理基于Ivy， &hellip;">
+  <meta name="description" content="效果评估算法和kNN 让我们回到上一章中运动项目的例子。 在那个例子中，我们编写了一个分类器程序，通过运动员的身高和体重来判断她参与的运动项目——体操、田径、篮球等。 上图中的Marissa Coleman，身高6尺1寸，重160磅，我们的分类器可以正确的进行预测： 1
+2
+3
+&gt;&gt;& &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -84,6 +84,81 @@ IDC服务器没有外网访问权限；
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/27/guidetodatamining-5/">数据挖掘指南[5]进一步探索分类</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-27T12:00:00+08:00" pubdate data-updated="true">Nov 27<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>效果评估算法和kNN</h2>
+
+<p>让我们回到上一章中运动项目的例子。</p>
+
+<p><img src="img/chapter-5/chapter-5-1.png" alt="" /></p>
+
+<p>在那个例子中，我们编写了一个分类器程序，通过运动员的身高和体重来判断她参与的运动项目——体操、田径、篮球等。</p>
+
+<p>上图中的Marissa Coleman，身高6尺1寸，重160磅，我们的分类器可以正确的进行预测：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">cl</span> <span class="o">=</span> <span class="n">Classifier</span><span class="p">(</span><span class="s">&#39;athletesTrainingSet.txt&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">cl</span><span class="o">.</span><span class="n">classify</span><span class="p">([</span><span class="mi">73</span><span class="p">,</span> <span class="mi">160</span><span class="p">])</span>
+</span><span class='line'><span class="s">&#39;Basketball&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>对于身高4尺9寸，90磅重的人：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">cl</span><span class="o">.</span><span class="n">classify</span><span class="p">([</span><span class="mi">59</span><span class="p">,</span> <span class="mi">90</span><span class="p">])</span>
+</span><span class='line'><span class="s">&#39;Gymnastics&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>当我们构建完一个分类器后，应该问以下问题：</p>
+
+<ul>
+<li>分类器的准确度如何？</li>
+<li>结果理想吗？</li>
+<li>如何与其它分类器做比较？</li>
+</ul>
+
+
+<p><img src="img/chapter-5/chapter-5-2.png" alt="" /></p>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-5.md">前往GitHub阅读全文</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -689,63 +764,6 @@ IDC服务器没有外网访问权限；
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/01/25/java-reflection-tutorial/">Java反射机制</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-25T09:42:00+08:00" pubdate data-updated="true">Jan 25<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://www.programcreek.com/2013/09/java-reflection-tutorial/">http://www.programcreek.com/2013/09/java-reflection-tutorial/</a></p>
-
-<p>什么是反射？它有何用处？</p>
-
-<h2>1. 什么是反射？</h2>
-
-<p>“反射（Reflection）能够让运行于JVM中的程序检测和修改运行时的行为。”这个概念常常会和内省（Introspection）混淆，以下是这两个术语在Wikipedia中的解释：</p>
-
-<ol>
-<li>内省用于在运行时检测某个对象的类型和其包含的属性；</li>
-<li>反射用于在运行时检测和修改某个对象的结构及其行为。</li>
-</ol>
-
-
-<p>从他们的定义可以看出，内省是反射的一个子集。有些语言支持内省，但并不支持反射，如C++。</p>
-
-<p><img src="http://www.programcreek.com/wp-content/uploads/2013/09/reflection-introspection-650x222.png" alt="反射和内省" /></p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/01/25/java-reflection-tutorial/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -761,6 +779,10 @@ IDC服务器没有外网访问权限；
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/11/27/guidetodatamining-5/">数据挖掘指南[5]进一步探索分类</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/07/sbt-offline/">离线环境下构建sbt项目</a>
       </li>
     
@@ -774,10 +796,6 @@ IDC服务器没有外网访问权限；
     
       <li class="post">
         <a href="/blog/2014/09/29/guidetodatamining-3/">数据挖掘指南[3]隐式评价和基于物品的过滤算法</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/08/29/guidetodatamining-2/">数据挖掘指南[2]推荐系统入门</a>
       </li>
     
   </ul>
