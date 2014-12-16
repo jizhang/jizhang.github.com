@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Translation | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/translation/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-11-27T12:09:37+08:00</updated>
+  <updated>2014-12-16T20:57:58+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -18,7 +18,9 @@
     <link href="http://shzhangji.com/blog/2014/11/27/guidetodatamining-5/"/>
     <updated>2014-11-27T12:00:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/11/27/guidetodatamining-5</id>
-    <content type="html"><![CDATA[<h2>效果评估算法和kNN</h2>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-5">http://guidetodatamining.com/chapter-5</a></p>
+
+<h2>效果评估算法和kNN</h2>
 
 <p>让我们回到上一章中运动项目的例子。</p>
 
@@ -63,7 +65,9 @@ cl.classify([73, 160])
     <link href="http://shzhangji.com/blog/2014/10/30/guidetodatamining-4/"/>
     <updated>2014-10-30T12:00:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/10/30/guidetodatamining-4</id>
-    <content type="html"><![CDATA[<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-4">http://guidetodatamining.com/chapter-4</a></p>
+
+<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
 
 <p>内容：</p>
 
