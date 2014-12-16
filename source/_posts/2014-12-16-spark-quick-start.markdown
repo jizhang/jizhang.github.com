@@ -37,3 +37,45 @@ java $SBT_OPTS -jar `dirname $0`/sbt-launch.jar "$@"
 ```
 
 <!-- more -->
+
+## 日志分析示例
+
+假设我们有如下格式的日志文件，保存在/tmp/logs.txt文件中：
+
+```text
+2014-12-11 18:33:52	INFO	Java	some message
+2014-12-11 18:34:33	INFO	MySQL	some message
+2014-12-11 18:34:54	WARN	Java	some message
+2014-12-11 18:35:25	WARN	Nginx	some message
+2014-12-11 18:36:09	INFO	Java	some message
+```
+
+每条记录有四个字段，即时间、级别、应用、信息，使用制表符分隔。
+
+Spark提供了一个交互式的命令行工具，可以直接执行Spark查询：
+
+```
+$ spark-shell
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /___/ .__/\_,_/_/ /_/\_\   version 1.1.0
+      /_/
+Spark context available as sc.
+scala>
+```
+
+### 加载并预览数据
+
+```
+scala> val lines = sc.textFile("/tmp/logs.txt")
+lines: org.apache.spark.rdd.RDD[String] = /tmp/logs.txt MappedRDD[1] at textFile at <console>:12
+
+scala> lines.first()
+res0: String = 2014-12-11 18:33:52	INFO	Java	some message
+```
+
+* sc是一个SparkContext类型的变量，可以认为是Spark的入口，这个对象在spark-shell中已经自动创建了。
+* sc.textFile()用于生成一个RDD，并声明该RDD指向的是/tmp/logs.txt文件。RDD可以暂时认为是一个列表，列表中的元素是一行行日志（因此是String类型）。这里的路径也可以是HDFS上的文件，如hdfs://user/hadoop/logs.txt。
+* lines.first()表示调用RDD提供的一个方法：first()，返回第一行数据。
