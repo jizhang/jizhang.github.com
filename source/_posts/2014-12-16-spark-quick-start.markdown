@@ -77,5 +77,21 @@ res0: String = 2014-12-11 18:33:52	INFO	Java	some message
 ```
 
 * sc是一个SparkContext类型的变量，可以认为是Spark的入口，这个对象在spark-shell中已经自动创建了。
-* sc.textFile()用于生成一个RDD，并声明该RDD指向的是/tmp/logs.txt文件。RDD可以暂时认为是一个列表，列表中的元素是一行行日志（因此是String类型）。这里的路径也可以是HDFS上的文件，如hdfs://user/hadoop/logs.txt。
+* sc.textFile()用于生成一个RDD，并声明该RDD指向的是/tmp/logs.txt文件。RDD可以暂时认为是一个列表，列表中的元素是一行行日志（因此是String类型）。这里的路径也可以是HDFS上的文件，如hdfs://127.0.0.1:8020/user/hadoop/logs.txt。
 * lines.first()表示调用RDD提供的一个方法：first()，返回第一行数据。
+
+### 解析日志
+
+为了能对日志进行筛选，如只处理级别为ERROR的日志，我们需要将每行日志按制表符进行分割：
+
+```
+scala> val logs = lines.map(line => line.split(" "))
+logs: org.apache.spark.rdd.RDD[Array[String]] = MappedRDD[2] at map at <console>:14
+
+scala> logs.first()
+res1: Array[String] = Array(2014-12-11, 18:33:52	INFO	Java	some, message)
+```
+
+* lines.map(f)表示对RDD中的每一个元素使用f函数来处理，并返回一个新的RDD。
+* line => line.split(" ")是一个匿名函数，又称为Lambda表达式、闭包等。它的作用和普通的函数是一样的，如这个匿名函数的参数是line（String类型），返回值是Array数组类型，因为String.split()函数返回的是数组。
+* 同样使用first()方法来看这个RDD的首条记录，可以发现日志已经被拆分成四个元素了。
