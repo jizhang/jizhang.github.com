@@ -3,7 +3,7 @@ layout: post
 title: "Spark快速入门"
 date: 2014-12-16 15:59
 comments: true
-categories: [Tutorial]
+categories: [Tutorial, Big Data]
 published: false
 ---
 
@@ -85,13 +85,91 @@ res0: String = 2014-12-11 18:33:52	INFO	Java	some message
 为了能对日志进行筛选，如只处理级别为ERROR的日志，我们需要将每行日志按制表符进行分割：
 
 ```
-scala> val logs = lines.map(line => line.split(" "))
+scala> val logs = lines.map(line => line.split("\t"))
 logs: org.apache.spark.rdd.RDD[Array[String]] = MappedRDD[2] at map at <console>:14
 
 scala> logs.first()
-res1: Array[String] = Array(2014-12-11, 18:33:52	INFO	Java	some, message)
+res1: Array[String] = Array(2014-12-11 18:33:52, INFO, Java, some message)
 ```
 
 * lines.map(f)表示对RDD中的每一个元素使用f函数来处理，并返回一个新的RDD。
 * line => line.split(" ")是一个匿名函数，又称为Lambda表达式、闭包等。它的作用和普通的函数是一样的，如这个匿名函数的参数是line（String类型），返回值是Array数组类型，因为String.split()函数返回的是数组。
 * 同样使用first()方法来看这个RDD的首条记录，可以发现日志已经被拆分成四个元素了。
+
+### 过滤并计数
+
+我们想要统计错误日志的数量：
+
+```
+scala> val errors = logs.filter(log => log(1) == "ERROR")
+errors: org.apache.spark.rdd.RDD[Array[String]] = FilteredRDD[3] at filter at <console>:16
+
+scala> errors.first()
+res2: Array[String] = Array(2014-12-11 18:39:42, ERROR, Java, some message)
+
+scala> errors.count()
+res3: Long = 158
+```
+
+* logs.filter(f)表示筛选出满足函数f的记录，其中函数f需要返回一个布尔值。
+* log(1) == "ERROR"表示获取每行日志的第二个元素（即日志级别），并判断是否等于ERROR。
+* errors.count()用于返回该RDD中的记录。
+
+### 缓存
+
+由于我们还会对错误日志做一些处理，为了加快速度，可以将错误日志缓存到内存中，从而省去解析和过滤的过程：
+
+```
+scala> errors.cache()
+```
+
+errors.cache()函数会告知Spark计算完成后将结果保存在内存中。所以说Spark是否缓存结果是需要用户手动触发的。在实际应用中，我们需要迭代处理的往往只是一部分数据，因此很适合放到内存里。
+
+需要注意的是，cache函数并不会立刻执行缓存操作，事实上map、filter等函数都不会立刻执行，而是在用户执行了一些特定操作后才会触发，比如first、count、reduce等。这两类操作分别称为Transformations和Actions。
+
+### 显示前10条记录
+
+```
+scala> val firstTenErrors = errors.take(10)
+firstTenErrors: Array[Array[String]] = Array(Array(2014-12-11 18:39:42, ERROR, Java, some message), Array(2014-12-11 18:40:23, ERROR, Nginx, some message), ...)
+
+scala> firstTenErrors.map(log => log.mkString("\t")).foreach(line => println(line))
+2014-12-11 18:39:42	ERROR	Java	some message
+2014-12-11 18:40:23	ERROR	Nginx	some message
+...
+```
+
+errors.take(n)方法可用于返回RDD前N条记录，它的返回值是一个数组。之后对firstTenErrors的处理使用的是Scala集合类库中的方法，如map、foreach，和RDD提供的接口基本一致。所以说用Scala编写Spark程序是最自然的。
+
+### 按应用进行统计
+
+我们想要知道错误日志中有几条Java、几条Nginx，这和常见的Wordcount思路是一样的。
+
+```
+scala> val apps = errors.map(log => (log(2), 1))
+apps: org.apache.spark.rdd.RDD[(String, Int)] = MappedRDD[15] at map at <console>:18
+
+scala> apps.first()
+res20: (String, Int) = (Java,1)
+
+scala> val counts = apps.reduceByKey((a, b) => a + b)
+counts: org.apache.spark.rdd.RDD[(String, Int)] = ShuffledRDD[17] at reduceByKey at <console>:20
+
+scala> counts.foreach(t => println(t))
+(Java,58)
+(Nginx,53)
+(MySQL,47)
+```
+
+errors.map(log => (log(2), 1))用于将每条日志转换为键值对，键是应用（Java、Nginx等），值是1，如`("Java", 1)`，这种数据结构在Scala中称为元组（Tuple），这里它有两个元素，因此称为二元组。
+
+对于数据类型是二元组的RDD，Spark提供了额外的方法，reduceByKey(f)就是其中之一。它的作用是按键进行分组，然后对同一个键下的所有值使用f函数进行归约（reduce）。归约的过程是：使用列表中第一、第二个元素进行计算，然后用结果和第三元素进行计算，直至列表耗尽。如：
+
+```scala
+scala> Array(1, 2, 3, 4).reduce((a, b) => a + b)
+res23: Int = 10
+```
+
+上述代码的计算过程即`((1 + 2) + 3) + 4`。
+
+counts.foreach(f)表示遍历RDD中的每条记录，并应用f函数。这里的f函数是一条打印语句（println）。
