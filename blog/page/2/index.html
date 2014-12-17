@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="原文：http://www.programcreek.com/2013/09/java-reflection-tutorial/ 什么是反射？它有何用处？ 1. 什么是反射？ “反射（Reflection）能够让运行于JVM中的程序检测和修改运行时的行为。”这个概念常常会和内省（ &hellip;">
+  <meta name="description" content="Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。 小文件带来的问题 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +81,53 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/07/hive-small-files/">Hive小文件问题的处理</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-07T17:09:00+08:00" pubdate data-updated="true">Apr 7<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。</p>
+
+<h2>小文件带来的问题</h2>
+
+<p>关于这个问题的阐述可以读一读Cloudera的<a href="http://blog.cloudera.com/blog/2009/02/the-small-files-problem/">这篇文章</a>。简单来说，HDFS的文件元信息，包括位置、大小、分块信息等，都是保存在NameNode的内存中的。每个对象大约占用150个字节，因此一千万个文件及分块就会占用约3G的内存空间，一旦接近这个量级，NameNode的性能就会开始下降了。</p>
+
+<p>此外，HDFS读写小文件时也会更加耗时，因为每次都需要从NameNode获取元信息，并与对应的DataNode建立连接。对于MapReduce程序来说，小文件还会增加Mapper的个数，每个脚本只处理很少的数据，浪费了大量的调度时间。当然，这个问题可以通过使用CombinedInputFile和JVM重用来解决。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/04/07/hive-small-files/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -641,112 +688,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/">Perl入门实战：JVM监控脚本（下）</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-03-28T15:28:00+08:00" pubdate data-updated="true">Mar 28<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>套接字</h2>
-
-<p>使用套接字（Socket）进行网络通信的基本流程是：</p>
-
-<ul>
-<li>服务端：监听端口、等待连接、接收请求、发送应答；</li>
-<li>客户端：连接服务端、发送请求、接收应答。</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">use</span> <span class="nn">IO::Socket::</span><span class="n">INET</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">my</span> <span class="nv">$server</span> <span class="o">=</span> <span class="nn">IO::Socket::</span><span class="n">INET</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span>
-</span><span class='line'>    <span class="n">LocalPort</span> <span class="o">=&gt;</span> <span class="mi">10060</span><span class="p">,</span>
-</span><span class='line'>    <span class="n">Type</span> <span class="o">=&gt;</span> <span class="n">SOCK_STREAM</span><span class="p">,</span>
-</span><span class='line'>    <span class="n">Reuse</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span>
-</span><span class='line'>    <span class="n">Listen</span> <span class="o">=&gt;</span> <span class="n">SOMAXCONN</span>
-</span><span class='line'><span class="p">)</span> <span class="o">||</span> <span class="nb">die</span> <span class="s">&quot;服务创建失败\n&quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">while</span> <span class="p">(</span><span class="k">my</span> <span class="nv">$client</span> <span class="o">=</span> <span class="nv">$server</span><span class="o">-&gt;</span><span class="nb">accept</span><span class="p">())</span> <span class="p">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">my</span> <span class="nv">$line</span> <span class="o">=</span> <span class="sr">&lt;$client&gt;</span><span class="p">;</span>
-</span><span class='line'>    <span class="nb">chomp</span><span class="p">(</span><span class="nv">$line</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nv">$line</span> <span class="o">=~</span><span class="sr"> /^JVMPORT ([0-9]+)$/</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;RECV $1\n&quot;</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">print</span> <span class="nv">$client</span> <span class="s">&quot;OK\n&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;ERROR $line\n&quot;</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">print</span> <span class="nv">$client</span> <span class="s">&quot;ERROR\n&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nb">close</span><span class="p">(</span><span class="nv">$client</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">close</span><span class="p">(</span><span class="nv">$server</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -764,6 +705,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/27/guidetodatamining-5/">数据挖掘指南[5]进一步探索分类</a>
       </li>
     
@@ -777,10 +722,6 @@
     
       <li class="post">
         <a href="/blog/2014/10/14/mysql-incorrent-utf8-value/">MySQL异常UTF-8字符的处理</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/09/29/guidetodatamining-3/">数据挖掘指南[3]隐式评价和基于物品的过滤算法</a>
       </li>
     
   </ul>

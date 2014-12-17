@@ -9,7 +9,9 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="原文：http://guidetodatamining.com/chapter-5 效果评估算法和kNN 让我们回到上一章中运动项目的例子。 在那个例子中，我们编写了一个分类器程序，通过运动员的身高和体重来判断她参与的运动项目——体操、田径、篮球等。 上图中的Marissa Coleman， &hellip;">
+  <meta name="description" content="Apache Spark是新兴的一种快速通用的大规模数据处理引擎。它的优势有三个方面： 通用计算引擎 能够运行MapReduce、数据挖掘、图运算、流式计算、SQL等多种框架；
+基于内存 数据可缓存在内存中，特别适用于需要迭代多次运算的场景；
+与Hadoop集成 能够直接读写HDFS中的数据， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -87,6 +89,93 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-16T15:59:00+08:00" pubdate data-updated="true">Dec 16<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img src="http://spark.apache.org/images/spark-logo.png" alt="" /></p>
+
+<p><a href="http://spark.apache.org">Apache Spark</a>是新兴的一种快速通用的大规模数据处理引擎。它的优势有三个方面：</p>
+
+<ul>
+<li><strong>通用计算引擎</strong> 能够运行MapReduce、数据挖掘、图运算、流式计算、SQL等多种框架；</li>
+<li><strong>基于内存</strong> 数据可缓存在内存中，特别适用于需要迭代多次运算的场景；</li>
+<li><strong>与Hadoop集成</strong> 能够直接读写HDFS中的数据，并能运行在YARN之上。</li>
+</ul>
+
+
+<p>Spark是用<a href="http://www.scala-lang.org/">Scala语言</a>编写的，所提供的API也很好地利用了这门语言的特性。它也可以使用Java和Python编写应用。本文将用Scala进行讲解。</p>
+
+<h2>安装Spark和SBT</h2>
+
+<ul>
+<li>从<a href="http://spark.apache.org/downloads.html">官网</a>上下载编译好的压缩包，解压到一个文件夹中。下载时需注意对应的Hadoop版本，如要读写CDH4 HDFS中的数据，则应下载Pre-built for CDH4这个版本。</li>
+<li>为了方便起见，可以将spark/bin添加到$PATH环境变量中：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">SPARK_HOME</span><span class="o">=</span>/path/to/spark
+</span><span class='line'><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$SPARK_HOME</span>/bin
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>在练习例子时，我们还会用到<a href="http://www.scala-sbt.org/">SBT</a>这个工具，它是用来编译打包Scala项目的。Linux下的安装过程比较简单：
+
+<ul>
+<li>下载<a href="https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.7/sbt-launch.jar">sbt-launch.jar</a>到$HOME/bin目录；</li>
+<li>新建$HOME/bin/sbt文件，权限设置为755，内容如下：</li>
+</ul>
+</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">SBT_OPTS</span><span class="o">=</span><span class="s2">&quot;-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M&quot;</span>
+</span><span class='line'>java <span class="nv">$SBT_OPTS</span> -jar <span class="sb">`</span>dirname <span class="nv">$0</span><span class="sb">`</span>/sbt-launch.jar <span class="s2">&quot;$@&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/12/16/spark-quick-start/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2014/11/27/guidetodatamining-5/">数据挖掘指南[5]进一步探索分类</a></h1>
     
     
@@ -110,9 +199,7 @@
   </header>
 
 
-  <div class="entry-content"><p>原文：<a href="http://guidetodatamining.com/chapter-5">http://guidetodatamining.com/chapter-5</a></p>
-
-<h2>效果评估算法和kNN</h2>
+  <div class="entry-content"><h2>效果评估算法和kNN</h2>
 
 <p>让我们回到上一章中运动项目的例子。</p>
 
@@ -238,9 +325,7 @@
   </header>
 
 
-  <div class="entry-content"><p>原文：<a href="http://guidetodatamining.com/chapter-4">http://guidetodatamining.com/chapter-4</a></p>
-
-<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
+  <div class="entry-content"><p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
 
 <p>内容：</p>
 
@@ -718,53 +803,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/07/hive-small-files/">Hive小文件问题的处理</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-04-07T17:09:00+08:00" pubdate data-updated="true">Apr 7<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。</p>
-
-<h2>小文件带来的问题</h2>
-
-<p>关于这个问题的阐述可以读一读Cloudera的<a href="http://blog.cloudera.com/blog/2009/02/the-small-files-problem/">这篇文章</a>。简单来说，HDFS的文件元信息，包括位置、大小、分块信息等，都是保存在NameNode的内存中的。每个对象大约占用150个字节，因此一千万个文件及分块就会占用约3G的内存空间，一旦接近这个量级，NameNode的性能就会开始下降了。</p>
-
-<p>此外，HDFS读写小文件时也会更加耗时，因为每次都需要从NameNode获取元信息，并与对应的DataNode建立连接。对于MapReduce程序来说，小文件还会增加Mapper的个数，每个脚本只处理很少的数据，浪费了大量的调度时间。当然，这个问题可以通过使用CombinedInputFile和JVM重用来解决。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/04/07/hive-small-files/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -780,6 +818,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/27/guidetodatamining-5/">数据挖掘指南[5]进一步探索分类</a>
       </li>
     
@@ -793,10 +835,6 @@
     
       <li class="post">
         <a href="/blog/2014/10/14/mysql-incorrent-utf8-value/">MySQL异常UTF-8字符的处理</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/09/29/guidetodatamining-3/">数据挖掘指南[3]隐式评价和基于物品的过滤算法</a>
       </li>
     
   </ul>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tutorial | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/tutorial/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-12-16T20:57:58+08:00</updated>
+  <updated>2014-12-17T15:50:58+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -14,13 +14,290 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Spark快速入门]]></title>
+    <link href="http://shzhangji.com/blog/2014/12/16/spark-quick-start/"/>
+    <updated>2014-12-16T15:59:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/12/16/spark-quick-start</id>
+    <content type="html"><![CDATA[<p><img src="http://spark.apache.org/images/spark-logo.png" alt="" /></p>
+
+<p><a href="http://spark.apache.org">Apache Spark</a>是新兴的一种快速通用的大规模数据处理引擎。它的优势有三个方面：</p>
+
+<ul>
+<li><strong>通用计算引擎</strong> 能够运行MapReduce、数据挖掘、图运算、流式计算、SQL等多种框架；</li>
+<li><strong>基于内存</strong> 数据可缓存在内存中，特别适用于需要迭代多次运算的场景；</li>
+<li><strong>与Hadoop集成</strong> 能够直接读写HDFS中的数据，并能运行在YARN之上。</li>
+</ul>
+
+
+<p>Spark是用<a href="http://www.scala-lang.org/">Scala语言</a>编写的，所提供的API也很好地利用了这门语言的特性。它也可以使用Java和Python编写应用。本文将用Scala进行讲解。</p>
+
+<h2>安装Spark和SBT</h2>
+
+<ul>
+<li>从<a href="http://spark.apache.org/downloads.html">官网</a>上下载编译好的压缩包，解压到一个文件夹中。下载时需注意对应的Hadoop版本，如要读写CDH4 HDFS中的数据，则应下载Pre-built for CDH4这个版本。</li>
+<li>为了方便起见，可以将spark/bin添加到$PATH环境变量中：</li>
+</ul>
+
+
+<p><code>bash
+export SPARK_HOME=/path/to/spark
+export PATH=$PATH:$SPARK_HOME/bin
+</code></p>
+
+<ul>
+<li>在练习例子时，我们还会用到<a href="http://www.scala-sbt.org/">SBT</a>这个工具，它是用来编译打包Scala项目的。Linux下的安装过程比较简单：
+
+<ul>
+<li>下载<a href="https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.7/sbt-launch.jar">sbt-launch.jar</a>到$HOME/bin目录；</li>
+<li>新建$HOME/bin/sbt文件，权限设置为755，内容如下：</li>
+</ul>
+</li>
+</ul>
+
+
+<p><code>bash
+SBT_OPTS="-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M"
+java $SBT_OPTS -jar `dirname $0`/sbt-launch.jar "$@"
+</code></p>
+
+<!-- more -->
+
+
+<h2>日志分析示例</h2>
+
+<p>假设我们有如下格式的日志文件，保存在/tmp/logs.txt文件中：</p>
+
+<p><code>text
+2014-12-11 18:33:52 INFO    Java    some message
+2014-12-11 18:34:33 INFO    MySQL   some message
+2014-12-11 18:34:54 WARN    Java    some message
+2014-12-11 18:35:25 WARN    Nginx   some message
+2014-12-11 18:36:09 INFO    Java    some message
+</code></p>
+
+<p>每条记录有四个字段，即时间、级别、应用、信息，使用制表符分隔。</p>
+
+<p>Spark提供了一个交互式的命令行工具，可以直接执行Spark查询：</p>
+
+<p>```
+$ spark-shell
+Welcome to</p>
+
+<pre><code>  ____              __
+ / __/__  ___ _____/ /__
+_\ \/ _ \/ _ `/ __/  '_/
+</code></pre>
+
+<p>   /<em><strong>/ .</strong>/_,</em>/<em>/ /</em>/_\   version 1.1.0</p>
+
+<pre><code>  /_/
+</code></pre>
+
+<p>Spark context available as sc.
+scala>
+```</p>
+
+<h3>加载并预览数据</h3>
+
+<p>```scala
+scala> val lines = sc.textFile(&ldquo;/tmp/logs.txt&rdquo;)
+lines: org.apache.spark.rdd.RDD[String] = /tmp/logs.txt MappedRDD[1] at textFile at <console>:12</p>
+
+<p>scala> lines.first()
+res0: String = 2014-12-11 18:33:52  INFO    Java    some message
+```</p>
+
+<ul>
+<li>sc是一个SparkContext类型的变量，可以认为是Spark的入口，这个对象在spark-shell中已经自动创建了。</li>
+<li>sc.textFile()用于生成一个RDD，并声明该RDD指向的是/tmp/logs.txt文件。RDD可以暂时认为是一个列表，列表中的元素是一行行日志（因此是String类型）。这里的路径也可以是HDFS上的文件，如hdfs://127.0.0.1:8020/user/hadoop/logs.txt。</li>
+<li>lines.first()表示调用RDD提供的一个方法：first()，返回第一行数据。</li>
+</ul>
+
+
+<h3>解析日志</h3>
+
+<p>为了能对日志进行筛选，如只处理级别为ERROR的日志，我们需要将每行日志按制表符进行分割：</p>
+
+<p>```scala
+scala> val logs = lines.map(line => line.split(&ldquo;\t&rdquo;))
+logs: org.apache.spark.rdd.RDD[Array[String]] = MappedRDD[2] at map at <console>:14</p>
+
+<p>scala> logs.first()
+res1: Array[String] = Array(2014-12-11 18:33:52, INFO, Java, some message)
+```</p>
+
+<ul>
+<li>lines.map(f)表示对RDD中的每一个元素使用f函数来处理，并返回一个新的RDD。</li>
+<li>line => line.split(&ldquo; &rdquo;)是一个匿名函数，又称为Lambda表达式、闭包等。它的作用和普通的函数是一样的，如这个匿名函数的参数是line（String类型），返回值是Array数组类型，因为String.split()函数返回的是数组。</li>
+<li>同样使用first()方法来看这个RDD的首条记录，可以发现日志已经被拆分成四个元素了。</li>
+</ul>
+
+
+<h3>过滤并计数</h3>
+
+<p>我们想要统计错误日志的数量：</p>
+
+<p>```scala
+scala> val errors = logs.filter(log => log(1) == &ldquo;ERROR&rdquo;)
+errors: org.apache.spark.rdd.RDD[Array[String]] = FilteredRDD[3] at filter at <console>:16</p>
+
+<p>scala> errors.first()
+res2: Array[String] = Array(2014-12-11 18:39:42, ERROR, Java, some message)</p>
+
+<p>scala> errors.count()
+res3: Long = 158
+```</p>
+
+<ul>
+<li>logs.filter(f)表示筛选出满足函数f的记录，其中函数f需要返回一个布尔值。</li>
+<li>log(1) == &ldquo;ERROR"表示获取每行日志的第二个元素（即日志级别），并判断是否等于ERROR。</li>
+<li>errors.count()用于返回该RDD中的记录。</li>
+</ul>
+
+
+<h3>缓存</h3>
+
+<p>由于我们还会对错误日志做一些处理，为了加快速度，可以将错误日志缓存到内存中，从而省去解析和过滤的过程：</p>
+
+<p><code>scala
+scala&gt; errors.cache()
+</code></p>
+
+<p>errors.cache()函数会告知Spark计算完成后将结果保存在内存中。所以说Spark是否缓存结果是需要用户手动触发的。在实际应用中，我们需要迭代处理的往往只是一部分数据，因此很适合放到内存里。</p>
+
+<p>需要注意的是，cache函数并不会立刻执行缓存操作，事实上map、filter等函数都不会立刻执行，而是在用户执行了一些特定操作后才会触发，比如first、count、reduce等。这两类操作分别称为Transformations和Actions。</p>
+
+<h3>显示前10条记录</h3>
+
+<p>```scala
+scala> val firstTenErrors = errors.take(10)
+firstTenErrors: Array[Array[String]] = Array(Array(2014-12-11 18:39:42, ERROR, Java, some message), Array(2014-12-11 18:40:23, ERROR, Nginx, some message), &hellip;)</p>
+
+<p>scala> firstTenErrors.map(log => log.mkString(&ldquo;\t&rdquo;)).foreach(line => println(line))
+2014-12-11 18:39:42 ERROR   Java    some message
+2014-12-11 18:40:23 ERROR   Nginx   some message
+&hellip;
+```</p>
+
+<p>errors.take(n)方法可用于返回RDD前N条记录，它的返回值是一个数组。之后对firstTenErrors的处理使用的是Scala集合类库中的方法，如map、foreach，和RDD提供的接口基本一致。所以说用Scala编写Spark程序是最自然的。</p>
+
+<h3>按应用进行统计</h3>
+
+<p>我们想要知道错误日志中有几条Java、几条Nginx，这和常见的Wordcount思路是一样的。</p>
+
+<p>```scala
+scala> val apps = errors.map(log => (log(2), 1))
+apps: org.apache.spark.rdd.RDD[(String, Int)] = MappedRDD[15] at map at <console>:18</p>
+
+<p>scala> apps.first()
+res20: (String, Int) = (Java,1)</p>
+
+<p>scala> val counts = apps.reduceByKey((a, b) => a + b)
+counts: org.apache.spark.rdd.RDD[(String, Int)] = ShuffledRDD[17] at reduceByKey at <console>:20</p>
+
+<p>scala> counts.foreach(t => println(t))
+(Java,58)
+(Nginx,53)
+(MySQL,47)
+```</p>
+
+<p>errors.map(log => (log(2), 1))用于将每条日志转换为键值对，键是应用（Java、Nginx等），值是1，如<code>("Java", 1)</code>，这种数据结构在Scala中称为元组（Tuple），这里它有两个元素，因此称为二元组。</p>
+
+<p>对于数据类型是二元组的RDD，Spark提供了额外的方法，reduceByKey(f)就是其中之一。它的作用是按键进行分组，然后对同一个键下的所有值使用f函数进行归约（reduce）。归约的过程是：使用列表中第一、第二个元素进行计算，然后用结果和第三元素进行计算，直至列表耗尽。如：</p>
+
+<p><code>scala
+scala&gt; Array(1, 2, 3, 4).reduce((a, b) =&gt; a + b)
+res23: Int = 10
+</code></p>
+
+<p>上述代码的计算过程即<code>((1 + 2) + 3) + 4</code>。</p>
+
+<p>counts.foreach(f)表示遍历RDD中的每条记录，并应用f函数。这里的f函数是一条打印语句（println）。</p>
+
+<h2>打包应用程序</h2>
+
+<p>为了让我们的日志分析程序能够在集群上运行，我们需要创建一个Scala项目。项目的大致结构是：</p>
+
+<p>```
+spark-sandbox
+├── build.sbt
+├── project
+│   ├── build.properties
+│   └── plugins.sbt
+└── src</p>
+
+<pre><code>└── main
+    └── scala
+        └── LogMining.scala
+</code></pre>
+
+<p>```</p>
+
+<p>你可以直接使用<a href="https://github.com/jizhang/spark-sandbox">这个项目</a>作为模板。下面说明一些关键部分：</p>
+
+<h3>配置依赖</h3>
+
+<p><code>build.sbt</code></p>
+
+<p><code>scala
+libraryDependencies += "org.apache.spark" %% "spark-core" % "1.1.1"
+</code></p>
+
+<h3>程序内容</h3>
+
+<p><code>src/main/scala/LogMining.scala</code></p>
+
+<p>```scala
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkContext._
+import org.apache.spark.SparkConf</p>
+
+<p>object LogMining extends App {
+  val conf = new SparkConf().setAppName(&ldquo;LogMining&rdquo;)
+  val sc = new SparkContext(conf)
+  val inputFile = args(0)
+  val lines = sc.textFile(inputFile)
+  // 解析日志
+  val logs = lines.map(<em>.split(&ldquo;\t&rdquo;))
+  val errors = logs.filter(</em>(1) == &ldquo;ERROR&rdquo;)
+  // 缓存错误日志
+  errors.cache()
+  // 统计错误日志记录数
+  println(errors.count())
+  // 获取前10条MySQL的错误日志
+  val mysqlErrors = errors.filter(<em>(2) == &ldquo;MySQL&rdquo;)
+  mysqlErrors.take(10).map(</em> mkString &ldquo;\t&rdquo;).foreach(println)
+  // 统计每个应用的错误日志数
+  val errorApps = errors.map(_(2) &ndash;> 1)
+  errorApps.countByKey().foreach(println)
+}
+```</p>
+
+<h3>打包运行</h3>
+
+<p><code>bash
+$ cd spark-sandbox
+$ sbt package
+$ spark-submit --class LogMining --master local target/scala-2.10/spark-sandbox_2.10-0.1.0.jar data/logs.txt
+</code></p>
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="http://spark.apache.org/docs/latest/programming-guide.html">Spark Programming Guide</a></li>
+<li><a href="http://www.slideshare.net/cloudera/spark-devwebinarslides-final">Introduction to Spark Developer Training</a></li>
+<li><a href="http://www.slideshare.net/liancheng/dtcc-14-spark-runtime-internals">Spark Runtime Internals</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[数据挖掘指南[5]进一步探索分类]]></title>
     <link href="http://shzhangji.com/blog/2014/11/27/guidetodatamining-5/"/>
     <updated>2014-11-27T12:00:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/11/27/guidetodatamining-5</id>
-    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-5">http://guidetodatamining.com/chapter-5</a></p>
-
-<h2>效果评估算法和kNN</h2>
+    <content type="html"><![CDATA[<h2>效果评估算法和kNN</h2>
 
 <p>让我们回到上一章中运动项目的例子。</p>
 
@@ -65,9 +342,7 @@ cl.classify([73, 160])
     <link href="http://shzhangji.com/blog/2014/10/30/guidetodatamining-4/"/>
     <updated>2014-10-30T12:00:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/10/30/guidetodatamining-4</id>
-    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-4">http://guidetodatamining.com/chapter-4</a></p>
-
-<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
+    <content type="html"><![CDATA[<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
 
 <p>内容：</p>
 
@@ -217,45 +492,6 @@ cl.classify([73, 160])
 <p>现在我想为神秘的X先生推荐一本书，他给《雪崩》打了四星，《龙纹身的女孩》两星。第一个任务是找出哪个用户和他最为相似。我们用距离来表示。</p>
 
 <p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-2.md">前往GitHub阅读全文</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[数据挖掘指南[1]简介]]></title>
-    <link href="http://shzhangji.com/blog/2014/08/09/guidetodatamining-1/"/>
-    <updated>2014-08-09T12:00:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2014/08/09/guidetodatamining-1</id>
-    <content type="html"><![CDATA[<p>原文链接：<a href="http://guidetodatamining.com/chapter-1/">http://guidetodatamining.com/chapter-1/</a></p>
-
-<p>内容：</p>
-
-<ul>
-<li>寻找事物</li>
-<li>本书结构</li>
-<li>阅读完本书后你可以做些什么？</li>
-<li>为什么数据挖掘很重要？哪些内容可以为我所用？</li>
-<li>标题里的“Numerati的古老艺术”是什么意思？</li>
-</ul>
-
-
-<h2>序</h2>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-1/chapter-1-1.png" alt="Shoshin" /></p>
-
-<p>如果你每天都能重复做这些简单的事，你就会获得某种特别的力量。在你获得之前，这是特别的，但获得之后，就没什么大不了的了。</p>
-
-<p align="right">——鈴木 俊隆</p>
-
-
-<p>在阅读本书之前，你可能会认为像潘多拉、亚马逊那样的推荐系统、或是恐怖分子用的数据挖掘系统，一定会非常复杂，只有拥有博士学位的人才能够了解其中的算法。你也许会认为设计出这些系统的人都是研究火箭技术的。而我撰写本书的目的之一就是希望能够揭开这些系统的神秘面纱，展示它们所使用的基本原理。虽然的确会有像Google工程师或是在国家安全局工作的天才技术人员，数据挖掘却是建立在一些基本逻辑和方法之上的，非常易于理解。在阅读本书之前，你可能会认为数据挖掘是一种让人震惊的技术，但阅读之后你会发现，其实也没什么大不了的。</p>
-
-<p>上图中的日本文字“初心”，表示要始终保持一颗“初学者的心”，也就是一种开放的心态，接受各种可能性。下面这个故事你可能在哪儿听过（很有可能是来自李小龙的“龙争虎斗”）：一位教授想要寻求指引，于是来到一位智者面前，希望能得到点化。这个教授不停地说着自己毕生学到了什么，发表了多少论文等等。这时，智者问他：“喝茶吗？”然后开始向教授的杯子里倒茶，一直倒，最后溢到了桌子上、地上。“你在干什么？”教授大叫道。智者说：“我在倒茶。你的思想就像这个茶杯，已经倒满了茶，容不下任何其他东西。你必须先放空你的思想，我们才能继续往下说。”</p>
-
-<p>在我看来，优秀的程序员就像是空的茶杯，他不断地探索着新的技术（noSQL、node-js等等）。普通的程序员沉浸在那些固有的想法中：C++很棒，Java不好，PHP只能用来编写网页，MySQL是数据库的唯一选择。我希望你能够以开放的心态阅读本书，从而发现一些有价值的东西。正如铃木俊隆所说：</p>
-
-<p>在初学者眼中，世界充满了可能；专家眼中，世界大都已经既定。</p>
-
-<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-1.md">前往GitHub阅读全文</a></p>
 ]]></content>
   </entry>
   

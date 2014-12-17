@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-12-16T20:57:58+08:00</updated>
+  <updated>2014-12-17T15:50:58+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -14,13 +14,378 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Spark快速入门]]></title>
+    <link href="http://shzhangji.com/blog/2014/12/16/spark-quick-start/"/>
+    <updated>2014-12-16T15:59:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/12/16/spark-quick-start</id>
+    <content type="html"><![CDATA[<p><img src="http://spark.apache.org/images/spark-logo.png" alt="" /></p>
+
+<p><a href="http://spark.apache.org">Apache Spark</a>是新兴的一种快速通用的大规模数据处理引擎。它的优势有三个方面：</p>
+
+<ul>
+<li><strong>通用计算引擎</strong> 能够运行MapReduce、数据挖掘、图运算、流式计算、SQL等多种框架；</li>
+<li><strong>基于内存</strong> 数据可缓存在内存中，特别适用于需要迭代多次运算的场景；</li>
+<li><strong>与Hadoop集成</strong> 能够直接读写HDFS中的数据，并能运行在YARN之上。</li>
+</ul>
+
+
+<p>Spark是用<a href="http://www.scala-lang.org/">Scala语言</a>编写的，所提供的API也很好地利用了这门语言的特性。它也可以使用Java和Python编写应用。本文将用Scala进行讲解。</p>
+
+<h2>安装Spark和SBT</h2>
+
+<ul>
+<li>从<a href="http://spark.apache.org/downloads.html">官网</a>上下载编译好的压缩包，解压到一个文件夹中。下载时需注意对应的Hadoop版本，如要读写CDH4 HDFS中的数据，则应下载Pre-built for CDH4这个版本。</li>
+<li>为了方便起见，可以将spark/bin添加到$PATH环境变量中：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">SPARK_HOME</span><span class="o">=</span>/path/to/spark
+</span><span class='line'><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$SPARK_HOME</span>/bin
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>在练习例子时，我们还会用到<a href="http://www.scala-sbt.org/">SBT</a>这个工具，它是用来编译打包Scala项目的。Linux下的安装过程比较简单：
+
+<ul>
+<li>下载<a href="https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.7/sbt-launch.jar">sbt-launch.jar</a>到$HOME/bin目录；</li>
+<li>新建$HOME/bin/sbt文件，权限设置为755，内容如下：</li>
+</ul>
+</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">SBT_OPTS</span><span class="o">=</span><span class="s2">&quot;-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M&quot;</span>
+</span><span class='line'>java <span class="nv">$SBT_OPTS</span> -jar <span class="sb">`</span>dirname <span class="nv">$0</span><span class="sb">`</span>/sbt-launch.jar <span class="s2">&quot;$@&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!-- more -->
+
+
+<h2>日志分析示例</h2>
+
+<p>假设我们有如下格式的日志文件，保存在/tmp/logs.txt文件中：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>2014-12-11 18:33:52  INFO    Java    some message
+</span><span class='line'>2014-12-11 18:34:33   INFO    MySQL   some message
+</span><span class='line'>2014-12-11 18:34:54   WARN    Java    some message
+</span><span class='line'>2014-12-11 18:35:25   WARN    Nginx   some message
+</span><span class='line'>2014-12-11 18:36:09   INFO    Java    some message
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>每条记录有四个字段，即时间、级别、应用、信息，使用制表符分隔。</p>
+
+<p>Spark提供了一个交互式的命令行工具，可以直接执行Spark查询：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>$ spark-shell
+</span><span class='line'>Welcome to
+</span><span class='line'>      ____              __
+</span><span class='line'>     / __/__  ___ _____/ /__
+</span><span class='line'>    _\ \/ _ \/ _ `/ __/  &#39;_/
+</span><span class='line'>   /___/ .__/\_,_/_/ /_/\_\   version 1.1.0
+</span><span class='line'>      /_/
+</span><span class='line'>Spark context available as sc.
+</span><span class='line'>scala&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>加载并预览数据</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">lines</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;/tmp/logs.txt&quot;</span><span class="o">)</span>
+</span><span class='line'><span class="n">lines</span><span class="k">:</span> <span class="kt">org.apache.spark.rdd.RDD</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">logs</span><span class="o">.</span><span class="n">txt</span> <span class="nc">MappedRDD</span><span class="o">[</span><span class="err">1</span><span class="o">]</span> <span class="n">at</span> <span class="n">textFile</span> <span class="n">at</span> <span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">12</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">lines</span><span class="o">.</span><span class="n">first</span><span class="o">()</span>
+</span><span class='line'><span class="n">res0</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="mi">2014</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">11</span> <span class="mi">18</span><span class="k">:</span><span class="err">33</span><span class="kt">:</span><span class="err">52</span>    <span class="kt">INFO</span>    <span class="kt">Java</span>    <span class="kt">some</span> <span class="kt">message</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>sc是一个SparkContext类型的变量，可以认为是Spark的入口，这个对象在spark-shell中已经自动创建了。</li>
+<li>sc.textFile()用于生成一个RDD，并声明该RDD指向的是/tmp/logs.txt文件。RDD可以暂时认为是一个列表，列表中的元素是一行行日志（因此是String类型）。这里的路径也可以是HDFS上的文件，如hdfs://127.0.0.1:8020/user/hadoop/logs.txt。</li>
+<li>lines.first()表示调用RDD提供的一个方法：first()，返回第一行数据。</li>
+</ul>
+
+
+<h3>解析日志</h3>
+
+<p>为了能对日志进行筛选，如只处理级别为ERROR的日志，我们需要将每行日志按制表符进行分割：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">logs</span> <span class="k">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">line</span> <span class="k">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot;\t&quot;</span><span class="o">))</span>
+</span><span class='line'><span class="n">logs</span><span class="k">:</span> <span class="kt">org.apache.spark.rdd.RDD</span><span class="o">[</span><span class="kt">Array</span><span class="o">[</span><span class="kt">String</span><span class="o">]]</span> <span class="k">=</span> <span class="nc">MappedRDD</span><span class="o">[</span><span class="err">2</span><span class="o">]</span> <span class="n">at</span> <span class="n">map</span> <span class="n">at</span> <span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">14</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">logs</span><span class="o">.</span><span class="n">first</span><span class="o">()</span>
+</span><span class='line'><span class="n">res1</span><span class="k">:</span> <span class="kt">Array</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Array</span><span class="o">(</span><span class="mi">2014</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">11</span> <span class="mi">18</span><span class="k">:</span><span class="err">33</span><span class="kt">:</span><span class="err">52</span><span class="o">,</span> <span class="nc">INFO</span><span class="o">,</span> <span class="nc">Java</span><span class="o">,</span> <span class="n">some</span> <span class="n">message</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>lines.map(f)表示对RDD中的每一个元素使用f函数来处理，并返回一个新的RDD。</li>
+<li>line => line.split(&ldquo; &rdquo;)是一个匿名函数，又称为Lambda表达式、闭包等。它的作用和普通的函数是一样的，如这个匿名函数的参数是line（String类型），返回值是Array数组类型，因为String.split()函数返回的是数组。</li>
+<li>同样使用first()方法来看这个RDD的首条记录，可以发现日志已经被拆分成四个元素了。</li>
+</ul>
+
+
+<h3>过滤并计数</h3>
+
+<p>我们想要统计错误日志的数量：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">errors</span> <span class="k">=</span> <span class="n">logs</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="n">log</span> <span class="k">=&gt;</span> <span class="n">log</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">==</span> <span class="s">&quot;ERROR&quot;</span><span class="o">)</span>
+</span><span class='line'><span class="n">errors</span><span class="k">:</span> <span class="kt">org.apache.spark.rdd.RDD</span><span class="o">[</span><span class="kt">Array</span><span class="o">[</span><span class="kt">String</span><span class="o">]]</span> <span class="k">=</span> <span class="nc">FilteredRDD</span><span class="o">[</span><span class="err">3</span><span class="o">]</span> <span class="n">at</span> <span class="n">filter</span> <span class="n">at</span> <span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">16</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">errors</span><span class="o">.</span><span class="n">first</span><span class="o">()</span>
+</span><span class='line'><span class="n">res2</span><span class="k">:</span> <span class="kt">Array</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Array</span><span class="o">(</span><span class="mi">2014</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">11</span> <span class="mi">18</span><span class="k">:</span><span class="err">39</span><span class="kt">:</span><span class="err">42</span><span class="o">,</span> <span class="nc">ERROR</span><span class="o">,</span> <span class="nc">Java</span><span class="o">,</span> <span class="n">some</span> <span class="n">message</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">errors</span><span class="o">.</span><span class="n">count</span><span class="o">()</span>
+</span><span class='line'><span class="n">res3</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="mi">158</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>logs.filter(f)表示筛选出满足函数f的记录，其中函数f需要返回一个布尔值。</li>
+<li>log(1) == &ldquo;ERROR&#8221;表示获取每行日志的第二个元素（即日志级别），并判断是否等于ERROR。</li>
+<li>errors.count()用于返回该RDD中的记录。</li>
+</ul>
+
+
+<h3>缓存</h3>
+
+<p>由于我们还会对错误日志做一些处理，为了加快速度，可以将错误日志缓存到内存中，从而省去解析和过滤的过程：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">errors</span><span class="o">.</span><span class="n">cache</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>errors.cache()函数会告知Spark计算完成后将结果保存在内存中。所以说Spark是否缓存结果是需要用户手动触发的。在实际应用中，我们需要迭代处理的往往只是一部分数据，因此很适合放到内存里。</p>
+
+<p>需要注意的是，cache函数并不会立刻执行缓存操作，事实上map、filter等函数都不会立刻执行，而是在用户执行了一些特定操作后才会触发，比如first、count、reduce等。这两类操作分别称为Transformations和Actions。</p>
+
+<h3>显示前10条记录</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">firstTenErrors</span> <span class="k">=</span> <span class="n">errors</span><span class="o">.</span><span class="n">take</span><span class="o">(</span><span class="mi">10</span><span class="o">)</span>
+</span><span class='line'><span class="n">firstTenErrors</span><span class="k">:</span> <span class="kt">Array</span><span class="o">[</span><span class="kt">Array</span><span class="o">[</span><span class="kt">String</span><span class="o">]]</span> <span class="k">=</span> <span class="nc">Array</span><span class="o">(</span><span class="nc">Array</span><span class="o">(</span><span class="mi">2014</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">11</span> <span class="mi">18</span><span class="k">:</span><span class="err">39</span><span class="kt">:</span><span class="err">42</span><span class="o">,</span> <span class="nc">ERROR</span><span class="o">,</span> <span class="nc">Java</span><span class="o">,</span> <span class="n">some</span> <span class="n">message</span><span class="o">),</span> <span class="nc">Array</span><span class="o">(</span><span class="mi">2014</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">11</span> <span class="mi">18</span><span class="k">:</span><span class="err">40</span><span class="kt">:</span><span class="err">23</span><span class="o">,</span> <span class="nc">ERROR</span><span class="o">,</span> <span class="nc">Nginx</span><span class="o">,</span> <span class="n">some</span> <span class="n">message</span><span class="o">),</span> <span class="o">...)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">firstTenErrors</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">log</span> <span class="k">=&gt;</span> <span class="n">log</span><span class="o">.</span><span class="n">mkString</span><span class="o">(</span><span class="s">&quot;\t&quot;</span><span class="o">)).</span><span class="n">foreach</span><span class="o">(</span><span class="n">line</span> <span class="k">=&gt;</span> <span class="n">println</span><span class="o">(</span><span class="n">line</span><span class="o">))</span>
+</span><span class='line'><span class="mi">2014</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">11</span> <span class="mi">18</span><span class="k">:</span><span class="err">39</span><span class="kt">:</span><span class="err">42</span>    <span class="kt">ERROR</span>   <span class="kt">Java</span>    <span class="kt">some</span> <span class="kt">message</span>
+</span><span class='line'><span class="mi">2014</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">11</span> <span class="mi">18</span><span class="k">:</span><span class="err">40</span><span class="kt">:</span><span class="err">23</span>    <span class="kt">ERROR</span>   <span class="kt">Nginx</span>   <span class="kt">some</span> <span class="kt">message</span>
+</span><span class='line'><span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>errors.take(n)方法可用于返回RDD前N条记录，它的返回值是一个数组。之后对firstTenErrors的处理使用的是Scala集合类库中的方法，如map、foreach，和RDD提供的接口基本一致。所以说用Scala编写Spark程序是最自然的。</p>
+
+<h3>按应用进行统计</h3>
+
+<p>我们想要知道错误日志中有几条Java、几条Nginx，这和常见的Wordcount思路是一样的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">apps</span> <span class="k">=</span> <span class="n">errors</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">log</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">log</span><span class="o">(</span><span class="mi">2</span><span class="o">),</span> <span class="mi">1</span><span class="o">))</span>
+</span><span class='line'><span class="n">apps</span><span class="k">:</span> <span class="kt">org.apache.spark.rdd.RDD</span><span class="o">[(</span><span class="kt">String</span>, <span class="kt">Int</span><span class="o">)]</span> <span class="k">=</span> <span class="nc">MappedRDD</span><span class="o">[</span><span class="err">15</span><span class="o">]</span> <span class="n">at</span> <span class="n">map</span> <span class="n">at</span> <span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">18</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">apps</span><span class="o">.</span><span class="n">first</span><span class="o">()</span>
+</span><span class='line'><span class="n">res20</span><span class="k">:</span> <span class="o">(</span><span class="kt">String</span><span class="o">,</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=</span> <span class="o">(</span><span class="nc">Java</span><span class="o">,</span><span class="mi">1</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">counts</span> <span class="k">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">reduceByKey</span><span class="o">((</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">)</span>
+</span><span class='line'><span class="n">counts</span><span class="k">:</span> <span class="kt">org.apache.spark.rdd.RDD</span><span class="o">[(</span><span class="kt">String</span>, <span class="kt">Int</span><span class="o">)]</span> <span class="k">=</span> <span class="nc">ShuffledRDD</span><span class="o">[</span><span class="err">17</span><span class="o">]</span> <span class="n">at</span> <span class="n">reduceByKey</span> <span class="n">at</span> <span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">20</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">counts</span><span class="o">.</span><span class="n">foreach</span><span class="o">(</span><span class="n">t</span> <span class="k">=&gt;</span> <span class="n">println</span><span class="o">(</span><span class="n">t</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="nc">Java</span><span class="o">,</span><span class="mi">58</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="nc">Nginx</span><span class="o">,</span><span class="mi">53</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="nc">MySQL</span><span class="o">,</span><span class="mi">47</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>errors.map(log => (log(2), 1))用于将每条日志转换为键值对，键是应用（Java、Nginx等），值是1，如<code>("Java", 1)</code>，这种数据结构在Scala中称为元组（Tuple），这里它有两个元素，因此称为二元组。</p>
+
+<p>对于数据类型是二元组的RDD，Spark提供了额外的方法，reduceByKey(f)就是其中之一。它的作用是按键进行分组，然后对同一个键下的所有值使用f函数进行归约（reduce）。归约的过程是：使用列表中第一、第二个元素进行计算，然后用结果和第三元素进行计算，直至列表耗尽。如：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="nc">Array</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">).</span><span class="n">reduce</span><span class="o">((</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">)</span>
+</span><span class='line'><span class="n">res23</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">10</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>上述代码的计算过程即<code>((1 + 2) + 3) + 4</code>。</p>
+
+<p>counts.foreach(f)表示遍历RDD中的每条记录，并应用f函数。这里的f函数是一条打印语句（println）。</p>
+
+<h2>打包应用程序</h2>
+
+<p>为了让我们的日志分析程序能够在集群上运行，我们需要创建一个Scala项目。项目的大致结构是：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">spark</span><span class="o">-</span><span class="n">sandbox</span>
+</span><span class='line'><span class="o">├──</span> <span class="n">build</span><span class="o">.</span><span class="n">sbt</span>
+</span><span class='line'><span class="o">├──</span> <span class="n">project</span>
+</span><span class='line'><span class="o">│</span><span class="err">  </span> <span class="o">├──</span> <span class="n">build</span><span class="o">.</span><span class="n">properties</span>
+</span><span class='line'><span class="o">│</span><span class="err">  </span> <span class="o">└──</span> <span class="n">plugins</span><span class="o">.</span><span class="n">sbt</span>
+</span><span class='line'><span class="o">└──</span> <span class="n">src</span>
+</span><span class='line'>    <span class="o">└──</span> <span class="n">main</span>
+</span><span class='line'>        <span class="o">└──</span> <span class="n">scala</span>
+</span><span class='line'>            <span class="o">└──</span> <span class="nc">LogMining</span><span class="o">.</span><span class="n">scala</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>你可以直接使用<a href="https://github.com/jizhang/spark-sandbox">这个项目</a>作为模板。下面说明一些关键部分：</p>
+
+<h3>配置依赖</h3>
+
+<p><code>build.sbt</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">libraryDependencies</span> <span class="o">+=</span> <span class="s">&quot;org.apache.spark&quot;</span> <span class="o">%%</span> <span class="s">&quot;spark-core&quot;</span> <span class="o">%</span> <span class="s">&quot;1.1.1&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>程序内容</h3>
+
+<p><code>src/main/scala/LogMining.scala</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">import</span> <span class="nn">org.apache.spark.SparkContext</span>
+</span><span class='line'><span class="k">import</span> <span class="nn">org.apache.spark.SparkContext._</span>
+</span><span class='line'><span class="k">import</span> <span class="nn">org.apache.spark.SparkConf</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">object</span> <span class="nc">LogMining</span> <span class="k">extends</span> <span class="nc">App</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">conf</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkConf</span><span class="o">().</span><span class="n">setAppName</span><span class="o">(</span><span class="s">&quot;LogMining&quot;</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">sc</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkContext</span><span class="o">(</span><span class="n">conf</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">inputFile</span> <span class="k">=</span> <span class="n">args</span><span class="o">(</span><span class="mi">0</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">lines</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="n">inputFile</span><span class="o">)</span>
+</span><span class='line'>  <span class="c1">// 解析日志</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">logs</span> <span class="k">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot;\t&quot;</span><span class="o">))</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">errors</span> <span class="k">=</span> <span class="n">logs</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="k">_</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">==</span> <span class="s">&quot;ERROR&quot;</span><span class="o">)</span>
+</span><span class='line'>  <span class="c1">// 缓存错误日志</span>
+</span><span class='line'>  <span class="n">errors</span><span class="o">.</span><span class="n">cache</span><span class="o">()</span>
+</span><span class='line'>  <span class="c1">// 统计错误日志记录数</span>
+</span><span class='line'>  <span class="n">println</span><span class="o">(</span><span class="n">errors</span><span class="o">.</span><span class="n">count</span><span class="o">())</span>
+</span><span class='line'>  <span class="c1">// 获取前10条MySQL的错误日志</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">mysqlErrors</span> <span class="k">=</span> <span class="n">errors</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="k">_</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span> <span class="o">==</span> <span class="s">&quot;MySQL&quot;</span><span class="o">)</span>
+</span><span class='line'>  <span class="n">mysqlErrors</span><span class="o">.</span><span class="n">take</span><span class="o">(</span><span class="mi">10</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span> <span class="n">mkString</span> <span class="s">&quot;\t&quot;</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'>  <span class="c1">// 统计每个应用的错误日志数</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">errorApps</span> <span class="k">=</span> <span class="n">errors</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="mi">1</span><span class="o">)</span>
+</span><span class='line'>  <span class="n">errorApps</span><span class="o">.</span><span class="n">countByKey</span><span class="o">().</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>打包运行</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span><span class="nb">cd </span>spark-sandbox
+</span><span class='line'><span class="nv">$ </span>sbt package
+</span><span class='line'><span class="nv">$ </span>spark-submit --class LogMining --master <span class="nb">local </span>target/scala-2.10/spark-sandbox_2.10-0.1.0.jar data/logs.txt
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="http://spark.apache.org/docs/latest/programming-guide.html">Spark Programming Guide</a></li>
+<li><a href="http://www.slideshare.net/cloudera/spark-devwebinarslides-final">Introduction to Spark Developer Training</a></li>
+<li><a href="http://www.slideshare.net/liancheng/dtcc-14-spark-runtime-internals">Spark Runtime Internals</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[数据挖掘指南[5]进一步探索分类]]></title>
     <link href="http://shzhangji.com/blog/2014/11/27/guidetodatamining-5/"/>
     <updated>2014-11-27T12:00:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/11/27/guidetodatamining-5</id>
-    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-5">http://guidetodatamining.com/chapter-5</a></p>
-
-<h2>效果评估算法和kNN</h2>
+    <content type="html"><![CDATA[<h2>效果评估算法和kNN</h2>
 
 <p>让我们回到上一章中运动项目的例子。</p>
 
@@ -140,9 +505,7 @@
     <link href="http://shzhangji.com/blog/2014/10/30/guidetodatamining-4/"/>
     <updated>2014-10-30T12:00:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/10/30/guidetodatamining-4</id>
-    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-4">http://guidetodatamining.com/chapter-4</a></p>
-
-<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
+    <content type="html"><![CDATA[<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
 
 <p>内容：</p>
 
@@ -3215,370 +3578,6 @@
 <p>这一章我们简单介绍了Storm的设计初衷，它是如何通过分布式并行运算解决实时数据分析问题的。Storm目前已经十分稳定，且仍处于活跃的开发状态。它的一些高级特性如DRPC、Trident等，还请感兴趣的读者自行研究。</p>
 
 <p>本文使用的WordCount示例代码：<a href="https://github.com/jizhang/cia-storm">https://github.com/jizhang/cia-storm</a>。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Perl入门实战：JVM监控脚本（下）]]></title>
-    <link href="http://shzhangji.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/"/>
-    <updated>2013-03-28T15:28:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2</id>
-    <content type="html"><![CDATA[<h2>套接字</h2>
-
-<p>使用套接字（Socket）进行网络通信的基本流程是：</p>
-
-<ul>
-<li>服务端：监听端口、等待连接、接收请求、发送应答；</li>
-<li>客户端：连接服务端、发送请求、接收应答。</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">use</span> <span class="nn">IO::Socket::</span><span class="n">INET</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">my</span> <span class="nv">$server</span> <span class="o">=</span> <span class="nn">IO::Socket::</span><span class="n">INET</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span>
-</span><span class='line'>    <span class="n">LocalPort</span> <span class="o">=&gt;</span> <span class="mi">10060</span><span class="p">,</span>
-</span><span class='line'>    <span class="n">Type</span> <span class="o">=&gt;</span> <span class="n">SOCK_STREAM</span><span class="p">,</span>
-</span><span class='line'>    <span class="n">Reuse</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span>
-</span><span class='line'>    <span class="n">Listen</span> <span class="o">=&gt;</span> <span class="n">SOMAXCONN</span>
-</span><span class='line'><span class="p">)</span> <span class="o">||</span> <span class="nb">die</span> <span class="s">&quot;服务创建失败\n&quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">while</span> <span class="p">(</span><span class="k">my</span> <span class="nv">$client</span> <span class="o">=</span> <span class="nv">$server</span><span class="o">-&gt;</span><span class="nb">accept</span><span class="p">())</span> <span class="p">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">my</span> <span class="nv">$line</span> <span class="o">=</span> <span class="sr">&lt;$client&gt;</span><span class="p">;</span>
-</span><span class='line'>    <span class="nb">chomp</span><span class="p">(</span><span class="nv">$line</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nv">$line</span> <span class="o">=~</span><span class="sr"> /^JVMPORT ([0-9]+)$/</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;RECV $1\n&quot;</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">print</span> <span class="nv">$client</span> <span class="s">&quot;OK\n&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;ERROR $line\n&quot;</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">print</span> <span class="nv">$client</span> <span class="s">&quot;ERROR\n&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nb">close</span><span class="p">(</span><span class="nv">$client</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">close</span><span class="p">(</span><span class="nv">$server</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<!--more-->
-
-
-<ul>
-<li><code>IO::Socket::INET</code>是一个内置模块，<code>::</code>符号用来分隔命名空间。</li>
-<li><code>-&gt;new</code>运算符是用来创建一个类的实例的，这涉及到面向对象编程，我们暂且忽略。</li>
-<li><code>(key1 =&gt; value1, key2 =&gt; value2)</code>是用来定义一个哈希表的，也就是键值对。这里是将哈系表作为参数传递给了<code>new</code>函数。请看以下示例。对于哈系表的进一步操作，我们这里暂不详述。</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">sub </span><span class="nf">hello</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">my</span> <span class="nv">%params</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;Hello, $params{&#39;name&#39;}!\n&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">hello</span><span class="p">(</span><span class="s">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s">&#39;Jerry&#39;</span><span class="p">);</span> <span class="c1"># 输出 Hello, Jerry!</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li><code>while (...) {...}</code>是另一种循环结构，当圆括号的表达式为真就会执行大括号中的语句。</li>
-<li><code>$server-&gt;accept()</code>表示调用<code>$server</code>对象的<code>accept()</code>函数，用来接受一个连接。执行这个函数时进程会阻塞（进入睡眠），当有连接过来时才会唤醒，并将该连接赋值给<code>$client</code>变量。</li>
-<li><code>&lt;...&gt;</code>运算符表示从文件中读取一行，如：</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="nb">open</span> <span class="k">my</span> <span class="nv">$fd</span><span class="p">,</span> <span class="s">&#39;&lt;&#39;</span><span class="p">,</span> <span class="s">&#39;/proc/diskstats&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="k">while</span> <span class="p">(</span><span class="k">my</span> <span class="nv">$line</span> <span class="o">=</span> <span class="sr">&lt;$fd&gt;</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">print</span> <span class="nv">$line</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>由于套接字也可以作为文件来看待，所以就能使用<code>&lt;...&gt;</code>运算符。关于<code>open</code>函数和其他文件操作，读者可参考<a href="http://perl5maven.com/open-and-read-from-files">这篇文章</a>。</p>
-
-<ul>
-<li><code>chomp()</code>函数用来将字符串末尾的换行符去掉。它的用法也比较奇特，不是<code>$line = chomp($line)</code>，而是<code>chomp($line)</code>，这里<code>$line</code>是一次引用传递。</li>
-<li>细心的读者会发现，第二句<code>print</code>增加了<code>$client</code>，可以猜到它是用来指定<code>print</code>的输出目标。默认情况下是标准输出。</li>
-</ul>
-
-
-<p>我们打开两个终端，一个终端执行服务端，另一个终端直接用Bash去调用。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># 客户端</span>
-</span><span class='line'><span class="nv">$ </span><span class="nb">echo</span> <span class="s1">&#39;JVMPORT 2181&#39;</span> | nc 127.0.0.1 10060
-</span><span class='line'>OK
-</span><span class='line'><span class="nv">$ </span><span class="nb">echo</span> <span class="s1">&#39;hello&#39;</span> | nc 127.0.0.1 10060
-</span><span class='line'>ERROR
-</span><span class='line'>
-</span><span class='line'><span class="c"># 服务端</span>
-</span><span class='line'><span class="nv">$ </span>./socket-server.pl
-</span><span class='line'>RECV 2181
-</span><span class='line'>ERROR hello
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>至于客户端，还请读者自行完成，可参考<a href="http://perldoc.perl.org/IO/Socket/INET.html">相关文档</a>。</p>
-
-<h2>子进程</h2>
-
-<p>上述代码中有这样一个问题：当客户端建立了连接，但迟迟没有发送内容，那么服务端就会阻塞在<code>$line = &lt;$client&gt;</code>这条语句，无法接收其他请求。有三种解决方案：</p>
-
-<ol>
-<li>服务端读取信息时采用一定的超时机制，如果3秒内还不能读到完整的一行就断开连接。可惜Perl中并没有提供边界的方法来实现这一机制，需要自行使用<code>IO::Select</code>这样的模块来编写，比较麻烦。</li>
-<li>接受新的连接后打开一个子进程或线程来处理连接，这样就不会因为一个连接挂起而使整个服务不可用。</li>
-<li>使用非阻塞事件机制，当有读写操作时才会去处理。</li>
-</ol>
-
-
-<p>这里我们使用第二种方案，即打开子进程来处理请求。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">use</span> <span class="nn">IO::Socket::</span><span class="n">INET</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">sub </span><span class="nf">REAPER</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">my</span> <span class="nv">$pid</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">while</span> <span class="p">((</span><span class="nv">$pid</span> <span class="o">=</span> <span class="nb">waitpid</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;WNOHANG&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;SIGCHLD $pid\n&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">my</span> <span class="nv">$interrupted</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="k">sub </span><span class="nf">INTERRUPTER</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nv">$interrupted</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="nv">$SIG</span><span class="p">{</span><span class="n">CHLD</span><span class="p">}</span> <span class="o">=</span> <span class="o">\&amp;</span><span class="n">REAPER</span><span class="p">;</span>
-</span><span class='line'><span class="nv">$SIG</span><span class="p">{</span><span class="n">TERM</span><span class="p">}</span> <span class="o">=</span> <span class="o">\&amp;</span><span class="n">INTERRUPTER</span><span class="p">;</span>
-</span><span class='line'><span class="nv">$SIG</span><span class="p">{</span><span class="n">INT</span><span class="p">}</span> <span class="o">=</span> <span class="o">\&amp;</span><span class="n">INTERRUPTER</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">my</span> <span class="nv">$server</span> <span class="o">=</span> <span class="o">...</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="nv">$interrupted</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="k">my</span> <span class="nv">$client</span> <span class="o">=</span> <span class="nv">$server</span><span class="o">-&gt;</span><span class="nb">accept</span><span class="p">())</span> <span class="p">{</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">my</span> <span class="nv">$pid</span> <span class="o">=</span> <span class="nb">fork</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nv">$pid</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nb">close</span><span class="p">(</span><span class="nv">$client</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">print</span> <span class="s">&quot;PID $pid\n&quot;</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span> <span class="k">elsif</span> <span class="p">(</span><span class="nv">$pid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nb">close</span><span class="p">(</span><span class="nv">$server</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="k">my</span> <span class="nv">$line</span> <span class="o">=</span> <span class="sr">&lt;$client&gt;</span><span class="p">;</span>
-</span><span class='line'>            <span class="o">...</span>
-</span><span class='line'>            <span class="nb">close</span><span class="p">(</span><span class="nv">$client</span><span class="p">);</span>
-</span><span class='line'>            <span class="nb">exit</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">print</span> <span class="s">&quot;fork()调用失败\n&quot;</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">close</span><span class="p">(</span><span class="nv">$server</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>我们先看下半部分的代码。系统执行<code>fork()</code>函数后，会将当前进程的所有内容拷贝一份，以新的进程号来运行，即子进程。通过<code>fork()</code>的返回值可以知道当前进程是父进程还是子进程：大于0的是父进程；等于0的是子进程。子进程中的代码做了省略，执行完后直接<code>exit</code>。</p>
-
-<p>上半部分的信号处理是做什么用的呢？这就是在多进程模型中需要特别注意的问题：僵尸进程。具体可以参考<a href="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/">这篇文章</a>。</p>
-
-<p>而<code>$interrupted</code>变量则是用来控制程序是否继续执行的。当进程收到<code>SIGTERM</code>或<code>SIGINT</code>信号时，该变量就会置为真，使进程自然退出。</p>
-
-<p>为何不直接使用<code>while (my $client = $server-&gt;accept()) {...}</code>呢？因为子进程退出时会向父进程发送<code>SIGCHLD</code>信号，而<code>accept()</code>函数在接收到任何信号后都会中断并返回空，使得<code>while</code>语句退出。</p>
-
-<h2>命令行参数</h2>
-
-<p>这个服务脚本所监听的端口后是固写在脚本中的，如果想通过命令行指定呢？我们可以使用Perl的内置模块<code>Getopt::Long</code>。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">use</span> <span class="nn">Getopt::</span><span class="n">Long</span><span class="p">;</span>
-</span><span class='line'><span class="k">use</span> <span class="nn">Pod::</span><span class="n">Usage</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">my</span> <span class="nv">$help</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="k">my</span> <span class="nv">$port</span> <span class="o">=</span> <span class="mi">10060</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">GetOptions</span><span class="p">(</span>
-</span><span class='line'>    <span class="s">&#39;help|?&#39;</span> <span class="o">=&gt;</span> <span class="o">\</span><span class="nv">$help</span><span class="p">,</span>
-</span><span class='line'>    <span class="s">&#39;port=i&#39;</span> <span class="o">=&gt;</span> <span class="o">\</span><span class="nv">$port</span>
-</span><span class='line'><span class="p">)</span> <span class="o">||</span> <span class="n">pod2usage</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
-</span><span class='line'><span class="n">pod2usage</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="nv">$help</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">print</span> <span class="s">&quot;PORT $port\n&quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">__END__</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">=head1 NAME</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">getopt</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">=head1 SYNOPSIS</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">getopt.pl [options]</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp"> Options:</span>
-</span><span class='line'><span class="cp">   -help brief help message</span>
-</span><span class='line'><span class="cp">   -port bind to tcp port</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">=cut</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>使用方法是：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>./getopt.pl -h
-</span><span class='line'>Usage:
-</span><span class='line'>    getopt.pl <span class="o">[</span>options<span class="o">]</span>
-</span><span class='line'>    ...
-</span><span class='line'><span class="nv">$ </span>./getopt.pl
-</span><span class='line'>PORT 10060
-</span><span class='line'><span class="nv">$ </span>./getopt.pl -p 12345
-</span><span class='line'>PORT 12345
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>'port=i' =&gt; \$port</code>表示从命令行中接收名为<code>-port</code>的参数，并将接收到的值转换为整数（<code>i</code>指整数）。<code>\$</code>又是一种引用传递了，这里暂不详述。</p>
-
-<p>至于<code>||</code>运算符，之前在建立<code>$server</code>时也遇到过，它实际上是一种逻辑运算符，表示“或”的关系。这里的作用则是“如果GetOptions返回的值不为真，则程序退出”。</p>
-
-<p><code>pod2usage(1) if $help</code>表示如果<code>$help</code>为真则执行<code>pod2usage(1)</code>。你也可以写为<code>$help &amp;&amp; pod2usage(1)</code>。</p>
-
-<p>我们再来看看<code>__END__</code>之后的代码，它是一种Pod文档（Plain Old Documentation），可以是单独的文件，也可以像这样直接附加到Perl脚本末尾。具体格式可以参考<a href="http://perldoc.perl.org/perlpod.html">perlpod</a>。<code>pod2usage()</code>函数顾名思义是将附加的Pod文档转化成帮助信息显示在控制台上。</p>
-
-<h2>小结</h2>
-
-<p>完整的脚本可以见这个链接<a href="https://github.com/jizhang/zabbix-templates/blob/master/jvm/jvm-service.pl">jvm-service.pl</a>。调用该服务的脚本可以见<a href="https://github.com/jizhang/zabbix-templates/blob/master/jvm/jvm-check.pl">jvm-check.pl</a>。</p>
-
-<p>Perl语言历史悠久，语法丰富，还需多使用、多积累才行。</p>
 ]]></content>
   </entry>
   
