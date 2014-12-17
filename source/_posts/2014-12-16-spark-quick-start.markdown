@@ -4,7 +4,6 @@ title: "Spark快速入门"
 date: 2014-12-16 15:59
 comments: true
 categories: [Tutorial, Big Data]
-published: false
 ---
 
 ![](http://spark.apache.org/images/spark-logo.png)
@@ -68,7 +67,7 @@ scala>
 
 ### 加载并预览数据
 
-```
+```scala
 scala> val lines = sc.textFile("/tmp/logs.txt")
 lines: org.apache.spark.rdd.RDD[String] = /tmp/logs.txt MappedRDD[1] at textFile at <console>:12
 
@@ -84,7 +83,7 @@ res0: String = 2014-12-11 18:33:52	INFO	Java	some message
 
 为了能对日志进行筛选，如只处理级别为ERROR的日志，我们需要将每行日志按制表符进行分割：
 
-```
+```scala
 scala> val logs = lines.map(line => line.split("\t"))
 logs: org.apache.spark.rdd.RDD[Array[String]] = MappedRDD[2] at map at <console>:14
 
@@ -100,7 +99,7 @@ res1: Array[String] = Array(2014-12-11 18:33:52, INFO, Java, some message)
 
 我们想要统计错误日志的数量：
 
-```
+```scala
 scala> val errors = logs.filter(log => log(1) == "ERROR")
 errors: org.apache.spark.rdd.RDD[Array[String]] = FilteredRDD[3] at filter at <console>:16
 
@@ -119,7 +118,7 @@ res3: Long = 158
 
 由于我们还会对错误日志做一些处理，为了加快速度，可以将错误日志缓存到内存中，从而省去解析和过滤的过程：
 
-```
+```scala
 scala> errors.cache()
 ```
 
@@ -129,7 +128,7 @@ errors.cache()函数会告知Spark计算完成后将结果保存在内存中。�
 
 ### 显示前10条记录
 
-```
+```scala
 scala> val firstTenErrors = errors.take(10)
 firstTenErrors: Array[Array[String]] = Array(Array(2014-12-11 18:39:42, ERROR, Java, some message), Array(2014-12-11 18:40:23, ERROR, Nginx, some message), ...)
 
@@ -145,7 +144,7 @@ errors.take(n)方法可用于返回RDD前N条记录，它的返回值是一个�
 
 我们想要知道错误日志中有几条Java、几条Nginx，这和常见的Wordcount思路是一样的。
 
-```
+```scala
 scala> val apps = errors.map(log => (log(2), 1))
 apps: org.apache.spark.rdd.RDD[(String, Int)] = MappedRDD[15] at map at <console>:18
 
@@ -173,3 +172,73 @@ res23: Int = 10
 上述代码的计算过程即`((1 + 2) + 3) + 4`。
 
 counts.foreach(f)表示遍历RDD中的每条记录，并应用f函数。这里的f函数是一条打印语句（println）。
+
+## 打包应用程序
+
+为了让我们的日志分析程序能够在集群上运行，我们需要创建一个Scala项目。项目的大致结构是：
+
+```
+spark-sandbox
+├── build.sbt
+├── project
+│   ├── build.properties
+│   └── plugins.sbt
+└── src
+    └── main
+        └── scala
+            └── LogMining.scala
+```
+
+你可以直接使用[这个项目](https://github.com/jizhang/spark-sandbox)作为模板。下面说明一些关键部分：
+
+### 配置依赖
+
+`build.sbt`
+
+```scala
+libraryDependencies += "org.apache.spark" %% "spark-core" % "1.1.1"
+```
+
+### 程序内容
+
+`src/main/scala/LogMining.scala`
+
+```scala
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkContext._
+import org.apache.spark.SparkConf
+
+object LogMining extends App {
+  val conf = new SparkConf().setAppName("LogMining")
+  val sc = new SparkContext(conf)
+  val inputFile = args(0)
+  val lines = sc.textFile(inputFile)
+  // 解析日志
+  val logs = lines.map(_.split("\t"))
+  val errors = logs.filter(_(1) == "ERROR")
+  // 缓存错误日志
+  errors.cache()
+  // 统计错误日志记录数
+  println(errors.count())
+  // 获取前10条MySQL的错误日志
+  val mysqlErrors = errors.filter(_(2) == "MySQL")
+  mysqlErrors.take(10).map(_ mkString "\t").foreach(println)
+  // 统计每个应用的错误日志数
+  val errorApps = errors.map(_(2) -> 1)
+  errorApps.countByKey().foreach(println)
+}
+```
+
+### 打包运行
+
+```bash
+$ cd spark-sandbox
+$ sbt package
+$ spark-submit --class LogMining --master local target/scala-2.10/spark-sandbox_2.10-0.1.0.jar data/logs.txt
+```
+
+## 参考资料
+
+* [Spark Programming Guide](http://spark.apache.org/docs/latest/programming-guide.html)
+* [Introduction to Spark Developer Training](http://www.slideshare.net/cloudera/spark-devwebinarslides-final)
+* [Spark Runtime Internals](http://www.slideshare.net/liancheng/dtcc-14-spark-runtime-internals)
