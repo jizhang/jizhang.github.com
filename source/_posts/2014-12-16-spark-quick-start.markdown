@@ -92,7 +92,7 @@ res1: Array[String] = Array(2014-12-11 18:33:52, INFO, Java, some message)
 ```
 
 * lines.map(f)表示对RDD中的每一个元素使用f函数来处理，并返回一个新的RDD。
-* line => line.split(" ")是一个匿名函数，又称为Lambda表达式、闭包等。它的作用和普通的函数是一样的，如这个匿名函数的参数是line（String类型），返回值是Array数组类型，因为String.split()函数返回的是数组。
+* line => line.split("\t")是一个匿名函数，又称为Lambda表达式、闭包等。它的作用和普通的函数是一样的，如这个匿名函数的参数是line（String类型），返回值是Array数组类型，因为String.split()函数返回的是数组。
 * 同样使用first()方法来看这个RDD的首条记录，可以发现日志已经被拆分成四个元素了。
 
 ### 过滤并计数

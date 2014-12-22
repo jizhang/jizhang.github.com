@@ -7,6 +7,8 @@ categories: [Tutorial, Translation]
 published: true
 ---
 
+原文：http://guidetodatamining.com/chapter-5
+
 ## 效果评估算法和kNN
 
 让我们回到上一章中运动项目的例子。
