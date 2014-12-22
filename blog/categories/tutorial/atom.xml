@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tutorial | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/tutorial/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-12-17T15:50:58+08:00</updated>
+  <updated>2014-12-22T10:40:19+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,39 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[数据挖掘指南[6]概率和朴素贝叶斯]]></title>
+    <link href="http://shzhangji.com/blog/2014/12/22/guidetodatamining-6/"/>
+    <updated>2014-12-22T10:33:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/12/22/guidetodatamining-6</id>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-6">http://guidetodatamining.com/chapter-6</a></p>
+
+<h2>朴素贝叶斯</h2>
+
+<p>还是让我们回到运动员的例子。如果我问你Brittney Griner的运动项目是什么，她有6尺8寸高，207磅重，你会说“篮球”；我再问你对此分类的准确度有多少信心，你会回答“非常有信心”。</p>
+
+<p>我再问你Heather Zurich，6尺1寸高，重176磅，你可能就不能确定地说她是打篮球的了，至少不会像之前判定Brittney那样肯定。因为从Heather的身高体重来看她也有可能是跑马拉松的。</p>
+
+<p>最后，我再问你Yumiko Hara的运动项目，她5尺4寸高，95磅重，你也许会说她是跳体操的，但也不太敢肯定，因为有些马拉松运动员也是类似的身高体重。</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-6/chapter-6-1.png" alt="" /></p>
+
+<p>使用近邻算法时，我们很难对分类结果的置信度进行量化。但如果使用的是基于概率的分类算法——贝叶斯算法——那就可以给出分类结果的可能性了：这名运动员有80%的几率是篮球运动员；这位病人有40%的几率患有糖尿病；拉斯克鲁塞斯24小时内有雨的概率是10%。</p>
+
+<p>近邻算法又称为<strong>被动学习</strong>算法。这种算法只是将训练集的数据保存起来，在收到测试数据时才会进行计算。如果我们有10万首音乐，那每进行一次分类，都需要遍历这10万条记录才行。</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-6/chapter-6-2.png" alt="" /></p>
+
+<p>贝叶斯算法则是一种<strong>主动学习</strong>算法。它会根据训练集构建起一个模型，并用这个模型来对新的记录进行分类，因此速度会快很多。</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-6/chapter-6-3.png" alt="" /></p>
+
+<p>所以说，贝叶斯算法的两个优点即：能够给出分类结果的置信度；以及它是一种主动学习算法。</p>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-6.md">前往GitHub阅读全文</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Spark快速入门]]></title>
@@ -128,7 +161,7 @@ res1: Array[String] = Array(2014-12-11 18:33:52, INFO, Java, some message)
 
 <ul>
 <li>lines.map(f)表示对RDD中的每一个元素使用f函数来处理，并返回一个新的RDD。</li>
-<li>line => line.split(&ldquo; &rdquo;)是一个匿名函数，又称为Lambda表达式、闭包等。它的作用和普通的函数是一样的，如这个匿名函数的参数是line（String类型），返回值是Array数组类型，因为String.split()函数返回的是数组。</li>
+<li>line => line.split(&ldquo;\t&rdquo;)是一个匿名函数，又称为Lambda表达式、闭包等。它的作用和普通的函数是一样的，如这个匿名函数的参数是line（String类型），返回值是Array数组类型，因为String.split()函数返回的是数组。</li>
 <li>同样使用first()方法来看这个RDD的首条记录，可以发现日志已经被拆分成四个元素了。</li>
 </ul>
 
@@ -297,7 +330,9 @@ $ spark-submit --class LogMining --master local target/scala-2.10/spark-sandbox_
     <link href="http://shzhangji.com/blog/2014/11/27/guidetodatamining-5/"/>
     <updated>2014-11-27T12:00:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/11/27/guidetodatamining-5</id>
-    <content type="html"><![CDATA[<h2>效果评估算法和kNN</h2>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-5">http://guidetodatamining.com/chapter-5</a></p>
+
+<h2>效果评估算法和kNN</h2>
 
 <p>让我们回到上一章中运动项目的例子。</p>
 
@@ -342,7 +377,9 @@ cl.classify([73, 160])
     <link href="http://shzhangji.com/blog/2014/10/30/guidetodatamining-4/"/>
     <updated>2014-10-30T12:00:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/10/30/guidetodatamining-4</id>
-    <content type="html"><![CDATA[<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-4">http://guidetodatamining.com/chapter-4</a></p>
+
+<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
 
 <p>内容：</p>
 
@@ -439,59 +476,6 @@ cl.classify([73, 160])
 <p>在这个示例中，亚马逊记录了用户的点击操作，因此它会知道浏览了Jupter Travel这本书的用户还浏览了Long Way Round这部DVD，其详细记录了演员伊万环球骑行的旅程。因此，亚马逊就用这些信息来做出“看过还看过”的推荐。</p>
 
 <p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-3.md">前往GitHub阅读全文</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[数据挖掘指南[2]推荐系统入门]]></title>
-    <link href="http://shzhangji.com/blog/2014/08/29/guidetodatamining-2/"/>
-    <updated>2014-08-29T12:00:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2014/08/29/guidetodatamining-2</id>
-    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-2/">http://guidetodatamining.com/chapter-2/</a></p>
-
-<p>内容：</p>
-
-<ul>
-<li>推荐系统工作原理</li>
-<li>社会化协同过滤工作原理</li>
-<li>如何找到相似物品</li>
-<li>曼哈顿距离</li>
-<li>欧几里得距离</li>
-<li>闵可夫斯基距离</li>
-<li>皮尔逊相关系数</li>
-<li>余弦相似度</li>
-<li>使用Python实现K最邻近算法</li>
-<li>图书漂流站（BookCrossing）数据集</li>
-</ul>
-
-
-<h2>你喜欢的东西我也喜欢</h2>
-
-<p>我们将从推荐系统开始，开启数据挖掘之旅。推荐系统无处不在，如亚马逊网站的“看过这件商品的顾客还购买过”板块：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-1.png" alt="" /></p>
-
-<p>last.fm上对音乐和演唱会的推荐（相似歌手）：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-2.png" alt="" /></p>
-
-<p>在亚马逊的例子里，它用了两个元素来进行推荐：一是我浏览了里维斯翻译的《法华经》一书；二是其他浏览过该书的顾客还浏览过的译作。</p>
-
-<p>本章我们讲述的推荐方法称为协同过滤。顾名思义，这个方法是利用他人的喜好来进行推荐，也就是说，是大家一起产生的推荐。他的工作原理是这样的：如果要推荐一本书给你，我会在网站上查找一个和你类似的用户，然后将他喜欢的书籍推荐给你——比如巴奇加卢比的《发条女孩》。</p>
-
-<h3>如何找到相似的用户？</h3>
-
-<p>所以首先要做的工作是找到相似的用户。这里用最简单的二维模型来描述。假设用户会在网站用五颗星来评价一本书——没有星表示书写得很糟，五颗星表示很好。因为我们用的是二维模型，所以仅对两本书进行评价：史蒂芬森的《雪崩》（纵轴）和拉尔森的《龙纹身的女孩》（横轴）。</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-3.png" alt="" /></p>
-
-<p>首先，下表显示有三位用户对这两本书做了评价：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-4.png" alt="" /></p>
-
-<p>现在我想为神秘的X先生推荐一本书，他给《雪崩》打了四星，《龙纹身的女孩》两星。第一个任务是找出哪个用户和他最为相似。我们用距离来表示。</p>
-
-<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-2.md">前往GitHub阅读全文</a></p>
 ]]></content>
   </entry>
   

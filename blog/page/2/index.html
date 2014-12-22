@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。 小文件带来的问题 &hellip;">
+  <meta name="description" content="As I&rsquo;m working with my first Scalatra project, I automatically think of using WebJars to manage Javascript library dependencies, since it&rsquo &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +81,84 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Use WebJars in Scalatra Project</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-27T17:44:00+08:00" pubdate data-updated="true">May 27<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>As I&rsquo;m working with my first <a href="http://www.scalatra.org/">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/">WebJars</a> to manage Javascript library dependencies, since it&rsquo;s more convenient and seems like a good practice. Though there&rsquo;s no <a href="http://www.webjars.org/documentation">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn&rsquo;t mean I didn&rsquo;t spend much time on this. I&rsquo;m still a newbie to Scala, and there&rsquo;s only a few materials on this subject.</p>
+
+<h2>Add WebJars Dependency in SBT Build File</h2>
+
+<p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let&rsquo;s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/">Dojo</a> for example.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">object</span> <span class="nc">DwExplorerBuild</span> <span class="k">extends</span> <span class="nc">Build</span> <span class="o">{</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>  <span class="k">lazy</span> <span class="k">val</span> <span class="n">project</span> <span class="k">=</span> <span class="nc">Project</span> <span class="o">(</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'>    <span class="n">settings</span> <span class="k">=</span> <span class="nc">Defaults</span><span class="o">.</span><span class="n">defaultSettings</span> <span class="o">++</span> <span class="nc">ScalatraPlugin</span><span class="o">.</span><span class="n">scalatraWithJRebel</span> <span class="o">++</span> <span class="n">scalateSettings</span> <span class="o">++</span> <span class="nc">Seq</span><span class="o">(</span>
+</span><span class='line'>      <span class="o">...</span>
+</span><span class='line'>      <span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>        <span class="s">&quot;org.webjars&quot;</span> <span class="o">%</span> <span class="s">&quot;dojo&quot;</span> <span class="o">%</span> <span class="s">&quot;1.9.3&quot;</span>
+</span><span class='line'>      <span class="o">),</span>
+</span><span class='line'>      <span class="o">...</span>
+</span><span class='line'>    <span class="o">)</span>
+</span><span class='line'>  <span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To view this dependency in Eclipse, you need to run <code>sbt eclipse</code> again. In the <em>Referenced Libraries</em> section, you can see a <code>dojo-1.9.3.jar</code>, and the library lies in <code>META-INF/resources/webjars/</code>.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -635,59 +713,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/04/22/cia-storm/">Clojure实战(5)：Storm实时计算框架</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-04-22T12:11:00+08:00" pubdate data-updated="true">Apr 22<span>nd</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>Storm简介</h2>
-
-<p>上一章介绍的Hadoop工具能够对海量数据进行批量处理，采用分布式的并行计算架构，只需使用其提供的MapReduce API编写脚本即可。但随着人们对数据实时性的要求越来越高，如实时日志分析、实时推荐系统等，Hadoop就无能为力了。</p>
-
-<p>这时，Storm诞生了。它的设计初衷就是提供一套分布式的实时计算框架，实现低延迟、高并发的海量数据处理，被誉为“Realtime Hadoop”。它提供了简单易用的API接口用于编写实时处理脚本；能够和现有各类消息系统整合；提供了HA、容错、事务、RPC等高级特性。</p>
-
-<p>Storm的官网是：<a href="http://storm-project.net/">storm-project.net</a>，它的<a href="https://github.com/nathanmarz/storm/wiki">Wiki</a>上有非常详尽的说明文档。</p>
-
-<h3>Storm与Clojure</h3>
-
-<p>Storm的主要贡献者<a href="https://github.com/nathanmarz">Nathan Marz</a>和<a href="https://github.com/xumingming">徐明明</a>都是活跃的Clojure开发者，因此在Storm框架中也提供了原生的<a href="https://github.com/nathanmarz/storm/wiki/Clojure-DSL">Clojure DSL</a>。本文就将介绍如何使用这套DSL来编写Storm处理脚本。</p>
-
-<p>Storm集群的安装配置这里不会讲述，具体请参考<a href="https://github.com/nathanmarz/storm/wiki/Setting-up-a-Storm-cluster">这篇文档</a>。下文的脚本都运行在“本地模式”之下，因此即使不搭建集群也可以运行和调试。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/04/22/cia-storm/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -705,6 +730,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/12/22/guidetodatamining-6/">数据挖掘指南[6]概率和朴素贝叶斯</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a>
       </li>
     
@@ -718,10 +747,6 @@
     
       <li class="post">
         <a href="/blog/2014/10/30/guidetodatamining-4/">数据挖掘指南[4]分类</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/14/mysql-incorrent-utf8-value/">MySQL异常UTF-8字符的处理</a>
       </li>
     
   </ul>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Translation | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/translation/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-12-17T15:50:58+08:00</updated>
+  <updated>2014-12-22T10:40:19+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -14,11 +14,46 @@
 
   
   <entry>
+    <title type="html"><![CDATA[数据挖掘指南[6]概率和朴素贝叶斯]]></title>
+    <link href="http://shzhangji.com/blog/2014/12/22/guidetodatamining-6/"/>
+    <updated>2014-12-22T10:33:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/12/22/guidetodatamining-6</id>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-6">http://guidetodatamining.com/chapter-6</a></p>
+
+<h2>朴素贝叶斯</h2>
+
+<p>还是让我们回到运动员的例子。如果我问你Brittney Griner的运动项目是什么，她有6尺8寸高，207磅重，你会说“篮球”；我再问你对此分类的准确度有多少信心，你会回答“非常有信心”。</p>
+
+<p>我再问你Heather Zurich，6尺1寸高，重176磅，你可能就不能确定地说她是打篮球的了，至少不会像之前判定Brittney那样肯定。因为从Heather的身高体重来看她也有可能是跑马拉松的。</p>
+
+<p>最后，我再问你Yumiko Hara的运动项目，她5尺4寸高，95磅重，你也许会说她是跳体操的，但也不太敢肯定，因为有些马拉松运动员也是类似的身高体重。</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-6/chapter-6-1.png" alt="" /></p>
+
+<p>使用近邻算法时，我们很难对分类结果的置信度进行量化。但如果使用的是基于概率的分类算法——贝叶斯算法——那就可以给出分类结果的可能性了：这名运动员有80%的几率是篮球运动员；这位病人有40%的几率患有糖尿病；拉斯克鲁塞斯24小时内有雨的概率是10%。</p>
+
+<p>近邻算法又称为<strong>被动学习</strong>算法。这种算法只是将训练集的数据保存起来，在收到测试数据时才会进行计算。如果我们有10万首音乐，那每进行一次分类，都需要遍历这10万条记录才行。</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-6/chapter-6-2.png" alt="" /></p>
+
+<p>贝叶斯算法则是一种<strong>主动学习</strong>算法。它会根据训练集构建起一个模型，并用这个模型来对新的记录进行分类，因此速度会快很多。</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-6/chapter-6-3.png" alt="" /></p>
+
+<p>所以说，贝叶斯算法的两个优点即：能够给出分类结果的置信度；以及它是一种主动学习算法。</p>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-6.md">前往GitHub阅读全文</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[数据挖掘指南[5]进一步探索分类]]></title>
     <link href="http://shzhangji.com/blog/2014/11/27/guidetodatamining-5/"/>
     <updated>2014-11-27T12:00:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/11/27/guidetodatamining-5</id>
-    <content type="html"><![CDATA[<h2>效果评估算法和kNN</h2>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-5">http://guidetodatamining.com/chapter-5</a></p>
+
+<h2>效果评估算法和kNN</h2>
 
 <p>让我们回到上一章中运动项目的例子。</p>
 
@@ -63,7 +98,9 @@ cl.classify([73, 160])
     <link href="http://shzhangji.com/blog/2014/10/30/guidetodatamining-4/"/>
     <updated>2014-10-30T12:00:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/10/30/guidetodatamining-4</id>
-    <content type="html"><![CDATA[<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-4">http://guidetodatamining.com/chapter-4</a></p>
+
+<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
 
 <p>内容：</p>
 
@@ -213,45 +250,6 @@ cl.classify([73, 160])
 <p>现在我想为神秘的X先生推荐一本书，他给《雪崩》打了四星，《龙纹身的女孩》两星。第一个任务是找出哪个用户和他最为相似。我们用距离来表示。</p>
 
 <p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-2.md">前往GitHub阅读全文</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[数据挖掘指南[1]简介]]></title>
-    <link href="http://shzhangji.com/blog/2014/08/09/guidetodatamining-1/"/>
-    <updated>2014-08-09T12:00:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2014/08/09/guidetodatamining-1</id>
-    <content type="html"><![CDATA[<p>原文链接：<a href="http://guidetodatamining.com/chapter-1/">http://guidetodatamining.com/chapter-1/</a></p>
-
-<p>内容：</p>
-
-<ul>
-<li>寻找事物</li>
-<li>本书结构</li>
-<li>阅读完本书后你可以做些什么？</li>
-<li>为什么数据挖掘很重要？哪些内容可以为我所用？</li>
-<li>标题里的“Numerati的古老艺术”是什么意思？</li>
-</ul>
-
-
-<h2>序</h2>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-1/chapter-1-1.png" alt="Shoshin" /></p>
-
-<p>如果你每天都能重复做这些简单的事，你就会获得某种特别的力量。在你获得之前，这是特别的，但获得之后，就没什么大不了的了。</p>
-
-<p align="right">——鈴木 俊隆</p>
-
-
-<p>在阅读本书之前，你可能会认为像潘多拉、亚马逊那样的推荐系统、或是恐怖分子用的数据挖掘系统，一定会非常复杂，只有拥有博士学位的人才能够了解其中的算法。你也许会认为设计出这些系统的人都是研究火箭技术的。而我撰写本书的目的之一就是希望能够揭开这些系统的神秘面纱，展示它们所使用的基本原理。虽然的确会有像Google工程师或是在国家安全局工作的天才技术人员，数据挖掘却是建立在一些基本逻辑和方法之上的，非常易于理解。在阅读本书之前，你可能会认为数据挖掘是一种让人震惊的技术，但阅读之后你会发现，其实也没什么大不了的。</p>
-
-<p>上图中的日本文字“初心”，表示要始终保持一颗“初学者的心”，也就是一种开放的心态，接受各种可能性。下面这个故事你可能在哪儿听过（很有可能是来自李小龙的“龙争虎斗”）：一位教授想要寻求指引，于是来到一位智者面前，希望能得到点化。这个教授不停地说着自己毕生学到了什么，发表了多少论文等等。这时，智者问他：“喝茶吗？”然后开始向教授的杯子里倒茶，一直倒，最后溢到了桌子上、地上。“你在干什么？”教授大叫道。智者说：“我在倒茶。你的思想就像这个茶杯，已经倒满了茶，容不下任何其他东西。你必须先放空你的思想，我们才能继续往下说。”</p>
-
-<p>在我看来，优秀的程序员就像是空的茶杯，他不断地探索着新的技术（noSQL、node-js等等）。普通的程序员沉浸在那些固有的想法中：C++很棒，Java不好，PHP只能用来编写网页，MySQL是数据库的唯一选择。我希望你能够以开放的心态阅读本书，从而发现一些有价值的东西。正如铃木俊隆所说：</p>
-
-<p>在初学者眼中，世界充满了可能；专家眼中，世界大都已经既定。</p>
-
-<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-1.md">前往GitHub阅读全文</a></p>
 ]]></content>
   </entry>
   
