@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-12-23T17:01:53+08:00</updated>
+  <updated>2014-12-23T17:24:12+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -18,26 +18,24 @@
     <link href="http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/"/>
     <updated>2014-12-23T16:10:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history</id>
-    <content type="html"><![CDATA[<p>想不想让你的提交历史从左图变成右图？</p>
+    <content type="html"><![CDATA[<p>当多人协作开发一个分支时，历史记录通常如下方左图所示，比较凌乱。如果希望能像右图那样呈线性提交，就需要学习git rebase的用法。</p>
 
 <p><img src="http://shzhangji.com/images/git-rebase/rebase-result.png" alt="" /></p>
-
-<p>那就来了解一下git rebase吧！</p>
 
 <h2>“Merge branch”提交的产生</h2>
 
 <p>我们的工作流程是：修改代码→提交到本地仓库→拉取远程改动→推送。正是在git pull这一步产生的Merge branch提交。事实上，git pull等效于get fetch origin和get merge origin/master这两条命令，前者是拉取远程仓库到本地临时库，后者是将临时库中的改动合并到本地分支中。</p>
 
-<p>要避免Merge branch提交也有一个土法，就是先pull，再commit，最后push。不过万一commit和push之间远程又发生了改动，还需要再pull 一次，就又会产生Merge branch提交。</p>
+<p>要避免Merge branch提交也有一个“土法”：先pull、再commit、最后push。不过万一commit和push之间远程又发生了改动，还需要再pull一次，就又会产生Merge branch提交。</p>
 
 <h2>使用git pull &mdash;rebase</h2>
 
-<p>修改代码→commit→git pull &mdash;rebase→git push。也就是将get merge origin/master替换成了git rebase origin/master，它的过程是先将HEAD指向origin/master，然后逐一应用本地的修改，这样就不会产生Merge branch提提交了。具体过程见下文扩展阅读。</p>
+<p>修改代码→commit→git pull &mdash;rebase→git push。也就是将get merge origin/master替换成了git rebase origin/master，它的过程是先将HEAD指向origin/master，然后逐一应用本地的修改，这样就不会产生Merge branch提交了。具体过程见下文扩展阅读。</p>
 
 <!-- more -->
 
 
-<p>使用git rebase是有条件的，你的本地仓库要“足够干净”。最干净的是这种：</p>
+<p>使用git rebase是有条件的，你的本地仓库要“足够干净”。可以用git status命令查看当前改动：：</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -49,7 +47,7 @@
 </span><span class='line'>nothing to commit, working directory clean</span></code></pre></td></tr></table></div></figure>
 
 
-<p>即本地没有任何未提交的改动。次干净的是这种：</p>
+<p>本地没有任何未提交的改动，这是最“干净”的。稍差一些的是这样：</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -67,7 +65,7 @@
 </span><span class='line'>nothing added to commit but untracked files present (use "git add" to track)</span></code></pre></td></tr></table></div></figure>
 
 
-<p>即本地只有新增文件未提交，没有改动文件。目前看下来大家这点都不太符合，所以git rebase不一定用得起来。当然，我们也可以用git stash来解决这个问题，有兴趣可自行搜索。</p>
+<p>即本地只有新增文件未提交，没有改动文件。我们应该尽量保持本地仓库的“整洁”，这样才能顺利使用git rebase。特殊情况下也可以用git stash来解决问题，有兴趣的可自行搜索。</p>
 
 <h2>修改git pull的默认行为</h2>
 
@@ -83,7 +81,7 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>$ git config --global branch.autosetuprebase always</span></code></pre></td></tr></table></div></figure>
 
 
-<p>这样对于新建的分支都会设定上面的rebase=true了。老分支还得单独配。</p>
+<p>这样对于新建的分支都会设定上面的rebase=true了。已经创建好的分支还是需要手动配置的。</p>
 
 <h2>扩展阅读[1]：git rebase工作原理</h2>
 
@@ -91,9 +89,9 @@
 
 <p><img src="http://shzhangji.com/images/git-rebase/merge.png" alt="" /></p>
 
-<p>*图片来源：<a href="https://www.atlassian.com/ja/git/tutorial/git-branches*">https://www.atlassian.com/ja/git/tutorial/git-branches*</a></p>
+<p><a href="https://www.atlassian.com/ja/git/tutorial/git-branches">图片来源</a></p>
 
-<p>可以看到some feature分支的两个提交通过一个新的提交（蓝色）和master连接起来了。</p>
+<p>可以看到Some Feature分支的两个提交通过一个新的提交（蓝色）和master连接起来了。</p>
 
 <p>再来看git rebase的示意图：</p>
 
@@ -101,17 +99,23 @@
 
 <p><img src="http://shzhangji.com/images/git-rebase/rebase-2.png" alt="" /></p>
 
-<p>Feature分支中的两个提交被“嫁接”到了Master分支的头部，或者说Feature分支的“基”（base）变成了 Master，rebase也因此得名（它的中文叫法请自行YY）。</p>
+<p>Feature分支中的两个提交被“嫁接”到了Master分支的头部，或者说Feature分支的“基”（base）变成了 Master，rebase也因此得名。</p>
 
 <h2>扩展阅读[2]：git merge &mdash;no-ff</h2>
 
-<p>技术部在开发项目时都会用分支来做，合并时会执行：</p>
+<p>在做项目开发时会用到分支，合并时采用以下步骤：</p>
 
-<p>$ git checkout feature-branch
-$ git rebase master
-$ git checkout master
-$ git merge &mdash;no-ff feature-branch
-$ git push origin master</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git checkout feature-branch
+</span><span class='line'>$ git rebase master
+</span><span class='line'>$ git checkout master
+</span><span class='line'>$ git merge --no-ff feature-branch
+</span><span class='line'>$ git push origin master</span></code></pre></td></tr></table></div></figure>
+
 
 <p>历史就成了这样：</p>
 
