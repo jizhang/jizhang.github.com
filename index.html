@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="原文：http://guidetodatamining.com/chapter-6 朴素贝叶斯 还是让我们回到运动员的例子。如果我问你Brittney Griner的运动项目是什么，她有6尺8寸高，207磅重，你会说“篮球”；我再问你对此分类的准确度有多少信心，你会回答“非常有信心”。 &hellip;">
+  <meta name="description" content="想不想让你的提交历史从左图变成右图？ 那就来了解一下git rebase吧！ “Merge branch”提交的产生 我们的工作流程是：修改代码→提交到本地仓库→拉取远程改动→推送。正是在git pull这一步产生的Merge branch提交。事实上，git pull等效于get fetch &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +81,61 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">使用git Rebase让历史变得清晰</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-23T16:10:00+08:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>想不想让你的提交历史从左图变成右图？</p>
+
+<p><img src="/images/git-rebase/rebase-result.png" alt="" /></p>
+
+<p>那就来了解一下git rebase吧！</p>
+
+<h2>“Merge branch”提交的产生</h2>
+
+<p>我们的工作流程是：修改代码→提交到本地仓库→拉取远程改动→推送。正是在git pull这一步产生的Merge branch提交。事实上，git pull等效于get fetch origin和get merge origin/master这两条命令，前者是拉取远程仓库到本地临时库，后者是将临时库中的改动合并到本地分支中。</p>
+
+<p>要避免Merge branch提交也有一个土法，就是先pull，再commit，最后push。不过万一commit和push之间远程又发生了改动，还需要再pull 一次，就又会产生Merge branch提交。</p>
+
+<h2>使用git pull &mdash;rebase</h2>
+
+<p>修改代码→commit→git pull &mdash;rebase→git push。也就是将get merge origin/master替换成了git rebase origin/master，它的过程是先将HEAD指向origin/master，然后逐一应用本地的修改，这样就不会产生Merge branch提提交了。具体过程见下文扩展阅读。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -722,71 +777,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/">在CDH 4.5上安装Shark 0.9</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-05T17:16:00+08:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://spark.apache.org">Spark</a>是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的<a href="http://hadoop.apache.org">Hadoop</a>生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于<a href="http://hive.apache.org">Hive</a>，Spark也有相应的替代项目——<a href="http://shark.cs.berkeley.edu/">Shark</a>，能做到 <strong>drop-in replacement</strong> ，直接构建在现有集群之上。本文就将简要阐述如何在CDH4.5上搭建Shark0.9集群。</p>
-
-<h2>准备工作</h2>
-
-<ul>
-<li>安装方式：Spark使用CDH提供的Parcel，以Standalone模式启动</li>
-<li>软件版本
-
-<ul>
-<li>Cloudera Manager 4.8.2</li>
-<li>CDH 4.5</li>
-<li>Spark 0.9.0 Parcel</li>
-<li><a href="http://cloudera.rst.im/shark/">Shark 0.9.1 Binary</a></li>
-</ul>
-</li>
-<li>服务器基础配置
-
-<ul>
-<li>可用的软件源（如<a href="http://mirrors.ustc.edu.cn/">中科大的源</a>）</li>
-<li>配置主节点至子节点的root账户SSH无密码登录。</li>
-<li>在<code>/etc/hosts</code>中写死IP和主机名，或者DNS做好正反解析。</li>
-</ul>
-</li>
-</ul>
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -802,6 +792,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">使用git rebase让历史变得清晰</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/12/22/guidetodatamining-6/">数据挖掘指南[6]概率和朴素贝叶斯</a>
       </li>
     
@@ -815,10 +809,6 @@
     
       <li class="post">
         <a href="/blog/2014/11/07/sbt-offline/">离线环境下构建sbt项目</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/30/guidetodatamining-4/">数据挖掘指南[4]分类</a>
       </li>
     
   </ul>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Notes | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-12-22T10:40:19+08:00</updated>
+  <updated>2014-12-23T17:01:53+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,108 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[使用git rebase让历史变得清晰]]></title>
+    <link href="http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/"/>
+    <updated>2014-12-23T16:10:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history</id>
+    <content type="html"><![CDATA[<p>想不想让你的提交历史从左图变成右图？</p>
+
+<p><img src="/images/git-rebase/rebase-result.png" alt="" /></p>
+
+<p>那就来了解一下git rebase吧！</p>
+
+<h2>“Merge branch”提交的产生</h2>
+
+<p>我们的工作流程是：修改代码→提交到本地仓库→拉取远程改动→推送。正是在git pull这一步产生的Merge branch提交。事实上，git pull等效于get fetch origin和get merge origin/master这两条命令，前者是拉取远程仓库到本地临时库，后者是将临时库中的改动合并到本地分支中。</p>
+
+<p>要避免Merge branch提交也有一个土法，就是先pull，再commit，最后push。不过万一commit和push之间远程又发生了改动，还需要再pull 一次，就又会产生Merge branch提交。</p>
+
+<h2>使用git pull &mdash;rebase</h2>
+
+<p>修改代码→commit→git pull &mdash;rebase→git push。也就是将get merge origin/master替换成了git rebase origin/master，它的过程是先将HEAD指向origin/master，然后逐一应用本地的修改，这样就不会产生Merge branch提提交了。具体过程见下文扩展阅读。</p>
+
+<!-- more -->
+
+
+<p>使用git rebase是有条件的，你的本地仓库要“足够干净”。最干净的是这种：</p>
+
+<p><code>
+$ git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+nothing to commit, working directory clean
+</code></p>
+
+<p>即本地没有任何未提交的改动。次干净的是这种：</p>
+
+<p>```
+$ git status
+On branch master
+Your branch is up-to-date with &lsquo;origin/master&rsquo;.
+Untracked files:
+  (use &ldquo;git add <file>&hellip;&rdquo; to include in what will be committed)</p>
+
+<pre><code>test.txt
+</code></pre>
+
+<p>nothing added to commit but untracked files present (use &ldquo;git add&rdquo; to track)
+```</p>
+
+<p>即本地只有新增文件未提交，没有改动文件。目前看下来大家这点都不太符合，所以git rebase不一定用得起来。当然，我们也可以用git stash来解决这个问题，有兴趣可自行搜索。</p>
+
+<h2>修改git pull的默认行为</h2>
+
+<p>每次都加&mdash;rebase似乎有些麻烦，我们可以指定某个分支在执行git pull时默认采用rebase方式：</p>
+
+<p><code>
+$ git config branch.master.rebase true
+</code></p>
+
+<p>如果你觉得所有的分支都应该用rebase，那就设置：</p>
+
+<p><code>
+$ git config --global branch.autosetuprebase always
+</code></p>
+
+<p>这样对于新建的分支都会设定上面的rebase=true了。老分支还得单独配。</p>
+
+<h2>扩展阅读[1]：git rebase工作原理</h2>
+
+<p>先看看git merge的示意图：</p>
+
+<p><img src="/images/git-rebase/merge.png" alt="" /></p>
+
+<p>*图片来源：<a href="https://www.atlassian.com/ja/git/tutorial/git-branches*">https://www.atlassian.com/ja/git/tutorial/git-branches*</a></p>
+
+<p>可以看到some feature分支的两个提交通过一个新的提交（蓝色）和master连接起来了。</p>
+
+<p>再来看git rebase的示意图：</p>
+
+<p><img src="/images/git-rebase/rebase-1.png" alt="" /></p>
+
+<p><img src="/images/git-rebase/rebase-2.png" alt="" /></p>
+
+<p>Feature分支中的两个提交被“嫁接”到了Master分支的头部，或者说Feature分支的“基”（base）变成了 Master，rebase也因此得名（它的中文叫法请自行YY）。</p>
+
+<h2>扩展阅读[2]：git merge &mdash;no-ff</h2>
+
+<p>技术部在开发项目时都会用分支来做，合并时会执行：</p>
+
+<p>$ git checkout feature-branch
+$ git rebase master
+$ git checkout master
+$ git merge &mdash;no-ff feature-branch
+$ git push origin master</p>
+
+<p>历史就成了这样：</p>
+
+<p><img src="/images/git-rebase/no-ff.png" alt="" /></p>
+
+<p>可以看到，Merge branch &lsquo;feature-branch'那段可以很好的展现出这些提交是属于某一特性的。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[离线环境下构建sbt项目]]></title>
@@ -456,129 +558,6 @@ require([
 <p>At first I tried to figure out whether Scalatra provides a conveniet way to serve static files in classpath, I failed. So I decided to serve them by my own, and <a href="https://gist.github.com/laurilehmijoki/4483113">this gist</a> was very helpful.</p>
 
 <p>Anyway, I&rsquo;ve spent more than half a day to solve this problem, and it turned out to be a very challenging yet interesting way to learn a new language, new framework, and new tools. Keep moving!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Hive小文件问题的处理]]></title>
-    <link href="http://shzhangji.com/blog/2014/04/07/hive-small-files/"/>
-    <updated>2014-04-07T17:09:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2014/04/07/hive-small-files</id>
-    <content type="html"><![CDATA[<p>Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。</p>
-
-<h2>小文件带来的问题</h2>
-
-<p>关于这个问题的阐述可以读一读Cloudera的<a href="http://blog.cloudera.com/blog/2009/02/the-small-files-problem/">这篇文章</a>。简单来说，HDFS的文件元信息，包括位置、大小、分块信息等，都是保存在NameNode的内存中的。每个对象大约占用150个字节，因此一千万个文件及分块就会占用约3G的内存空间，一旦接近这个量级，NameNode的性能就会开始下降了。</p>
-
-<p>此外，HDFS读写小文件时也会更加耗时，因为每次都需要从NameNode获取元信息，并与对应的DataNode建立连接。对于MapReduce程序来说，小文件还会增加Mapper的个数，每个脚本只处理很少的数据，浪费了大量的调度时间。当然，这个问题可以通过使用CombinedInputFile和JVM重用来解决。</p>
-
-<!-- more -->
-
-
-<h2>Hive小文件产生的原因</h2>
-
-<p>前面已经提到，汇总后的数据量通常比源数据要少得多。而为了提升运算速度，我们会增加Reducer的数量，Hive本身也会做类似优化——Reducer数量等于源数据的量除以hive.exec.reducers.bytes.per.reducer所配置的量（默认1G）。Reducer数量的增加也即意味着结果文件的增加，从而产生小文件的问题。</p>
-
-<h2>配置Hive结果合并</h2>
-
-<p>我们可以通过一些配置项来使Hive在执行结束后对结果文件进行合并：</p>
-
-<ul>
-<li><code>hive.merge.mapfiles</code> 在map-only job后合并文件，默认<code>true</code></li>
-<li><code>hive.merge.mapredfiles</code> 在map-reduce job后合并文件，默认<code>false</code></li>
-<li><code>hive.merge.size.per.task</code> 合并后每个文件的大小，默认<code>256000000</code></li>
-<li><code>hive.merge.smallfiles.avgsize</code> 平均文件大小，是决定是否执行合并操作的阈值，默认<code>16000000</code></li>
-</ul>
-
-
-<p>Hive在对结果文件进行合并时会执行一个额外的map-only脚本，mapper的数量是文件总大小除以size.per.task参数所得的值，触发合并的条件是：</p>
-
-<ol>
-<li>根据查询类型不同，相应的mapfiles/mapredfiles参数需要打开；</li>
-<li>结果文件的平均大小需要大于avgsize参数的值。</li>
-</ol>
-
-
-<p>示例：</p>
-
-<p>```sql
-&mdash; map-red job，5个reducer，产生5个60K的文件。
-create table dw_stage.zj_small as
-select paid, count(*)
-from dw_db.dw_soj_imp_dtl
-where log_dt = &lsquo;2014-04-14&rsquo;
-group by paid;</p>
-
-<p>&mdash; 执行额外的map-only job，一个mapper，产生一个300K的文件。
-set hive.merge.mapredfiles=true;
-create table dw_stage.zj_small as
-select paid, count(*)
-from dw_db.dw_soj_imp_dtl
-where log_dt = &lsquo;2014-04-14&rsquo;
-group by paid;</p>
-
-<p>&mdash; map-only job，45个mapper，产生45个25M左右的文件。
-create table dw_stage.zj_small as
-select *
-from dw_db.dw_soj_imp_dtl
-where log_dt = &lsquo;2014-04-14&rsquo;
-and paid like &lsquo;%baidu%&rsquo;;</p>
-
-<p>&mdash; 执行额外的map-only job，4个mapper，产生4个250M左右的文件。
-set hive.merge.smallfiles.avgsize=100000000;
-create table dw_stage.zj_small as
-select *
-from dw_db.dw_soj_imp_dtl
-where log_dt = &lsquo;2014-04-14&rsquo;
-and paid like &lsquo;%baidu%&rsquo;;
-```</p>
-
-<h3>压缩文件的处理</h3>
-
-<p>如果结果表使用了压缩格式，则必须配合SequenceFile来存储，否则无法进行合并，以下是示例：</p>
-
-<p>```sql
-set mapred.output.compression.type=BLOCK;
-set hive.exec.compress.output=true;
-set mapred.output.compression.codec=org.apache.hadoop.io.compress.LzoCodec;
-set hive.merge.smallfiles.avgsize=100000000;</p>
-
-<p>drop table if exists dw_stage.zj_small;
-create table dw_stage.zj_small
-STORED AS SEQUENCEFILE
-as select *
-from dw_db.dw_soj_imp_dtl
-where log_dt = &lsquo;2014-04-14&rsquo;
-and paid like &lsquo;%baidu%&rsquo;;
-```</p>
-
-<h2>使用HAR归档文件</h2>
-
-<p>Hadoop的<a href="http://hadoop.apache.org/docs/stable1/hadoop_archives.html">归档文件</a>格式也是解决小文件问题的方式之一。而且Hive提供了<a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Archiving">原生支持</a>：</p>
-
-<p>```
-set hive.archive.enabled=true;
-set hive.archive.har.parentdir.settable=true;
-set har.partfile.size=1099511627776;</p>
-
-<p>ALTER TABLE srcpart ARCHIVE PARTITION(ds=&lsquo;2008-04-08&rsquo;, hr=&lsquo;12&rsquo;);</p>
-
-<p>ALTER TABLE srcpart UNARCHIVE PARTITION(ds=&lsquo;2008-04-08&rsquo;, hr=&lsquo;12&rsquo;);
-```</p>
-
-<p>如果使用的不是分区表，则可创建成外部表，并使用<code>har://</code>协议来指定路径。</p>
-
-<h2>HDFS Federation</h2>
-
-<p>Hadoop V2引入了HDFS Federation的概念：</p>
-
-<p><img src="http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/images/federation.gif" alt="" /></p>
-
-<p>实则是将NameNode做了拆分，从而增强了它的扩展性，小文件的问题也能够得到缓解。</p>
-
-<h2>其他工具</h2>
-
-<p>对于通常的应用，使用Hive结果合并就能达到很好的效果。如果不想因此增加运行时间，可以自行编写一些脚本，在系统空闲时对分区内的文件进行合并，也能达到目的。</p>
 ]]></content>
   </entry>
   

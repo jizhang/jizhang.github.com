@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-12-22T10:40:19+08:00</updated>
+  <updated>2014-12-23T17:01:53+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,114 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[使用git rebase让历史变得清晰]]></title>
+    <link href="http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/"/>
+    <updated>2014-12-23T16:10:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history</id>
+    <content type="html"><![CDATA[<p>想不想让你的提交历史从左图变成右图？</p>
+
+<p><img src="http://shzhangji.com/images/git-rebase/rebase-result.png" alt="" /></p>
+
+<p>那就来了解一下git rebase吧！</p>
+
+<h2>“Merge branch”提交的产生</h2>
+
+<p>我们的工作流程是：修改代码→提交到本地仓库→拉取远程改动→推送。正是在git pull这一步产生的Merge branch提交。事实上，git pull等效于get fetch origin和get merge origin/master这两条命令，前者是拉取远程仓库到本地临时库，后者是将临时库中的改动合并到本地分支中。</p>
+
+<p>要避免Merge branch提交也有一个土法，就是先pull，再commit，最后push。不过万一commit和push之间远程又发生了改动，还需要再pull 一次，就又会产生Merge branch提交。</p>
+
+<h2>使用git pull &mdash;rebase</h2>
+
+<p>修改代码→commit→git pull &mdash;rebase→git push。也就是将get merge origin/master替换成了git rebase origin/master，它的过程是先将HEAD指向origin/master，然后逐一应用本地的修改，这样就不会产生Merge branch提提交了。具体过程见下文扩展阅读。</p>
+
+<!-- more -->
+
+
+<p>使用git rebase是有条件的，你的本地仓库要“足够干净”。最干净的是这种：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git status
+</span><span class='line'>On branch master
+</span><span class='line'>Your branch is up-to-date with 'origin/master'.
+</span><span class='line'>nothing to commit, working directory clean</span></code></pre></td></tr></table></div></figure>
+
+
+<p>即本地没有任何未提交的改动。次干净的是这种：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git status
+</span><span class='line'>On branch master
+</span><span class='line'>Your branch is up-to-date with 'origin/master'.
+</span><span class='line'>Untracked files:
+</span><span class='line'>  (use "git add &lt;file&gt;..." to include in what will be committed)
+</span><span class='line'>    test.txt
+</span><span class='line'>nothing added to commit but untracked files present (use "git add" to track)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>即本地只有新增文件未提交，没有改动文件。目前看下来大家这点都不太符合，所以git rebase不一定用得起来。当然，我们也可以用git stash来解决这个问题，有兴趣可自行搜索。</p>
+
+<h2>修改git pull的默认行为</h2>
+
+<p>每次都加&mdash;rebase似乎有些麻烦，我们可以指定某个分支在执行git pull时默认采用rebase方式：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git config branch.master.rebase true</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果你觉得所有的分支都应该用rebase，那就设置：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git config --global branch.autosetuprebase always</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这样对于新建的分支都会设定上面的rebase=true了。老分支还得单独配。</p>
+
+<h2>扩展阅读[1]：git rebase工作原理</h2>
+
+<p>先看看git merge的示意图：</p>
+
+<p><img src="http://shzhangji.com/images/git-rebase/merge.png" alt="" /></p>
+
+<p>*图片来源：<a href="https://www.atlassian.com/ja/git/tutorial/git-branches*">https://www.atlassian.com/ja/git/tutorial/git-branches*</a></p>
+
+<p>可以看到some feature分支的两个提交通过一个新的提交（蓝色）和master连接起来了。</p>
+
+<p>再来看git rebase的示意图：</p>
+
+<p><img src="http://shzhangji.com/images/git-rebase/rebase-1.png" alt="" /></p>
+
+<p><img src="http://shzhangji.com/images/git-rebase/rebase-2.png" alt="" /></p>
+
+<p>Feature分支中的两个提交被“嫁接”到了Master分支的头部，或者说Feature分支的“基”（base）变成了 Master，rebase也因此得名（它的中文叫法请自行YY）。</p>
+
+<h2>扩展阅读[2]：git merge &mdash;no-ff</h2>
+
+<p>技术部在开发项目时都会用分支来做，合并时会执行：</p>
+
+<p>$ git checkout feature-branch
+$ git rebase master
+$ git checkout master
+$ git merge &mdash;no-ff feature-branch
+$ git push origin master</p>
+
+<p>历史就成了这样：</p>
+
+<p><img src="http://shzhangji.com/images/git-rebase/no-ff.png" alt="" /></p>
+
+<p>可以看到，Merge branch &lsquo;feature-branch&#8217;那段可以很好的展现出这些提交是属于某一特性的。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[数据挖掘指南[6]概率和朴素贝叶斯]]></title>
@@ -2978,203 +3086,6 @@
 <p>我非常希望能够得到你对Cascalog的反馈，如果你有任何评论、问题、或是顾虑，请留言，或者在<a href="http://twitter.com/nathanmarz">Twitter</a>上联系我，给我发送邮件<a href="nathan.marz@gmail.com">nathan.marz@gmail.com</a>，或是在freenode的#cascading频道和我聊天。</p>
 
 <p><a href="http://nathanmarz.com/blog/new-cascalog-features">下一篇博客</a>会介绍Cascalog的外联合、排序、组合等特性。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Manage Leiningen Project Configuration]]></title>
-    <link href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/"/>
-    <updated>2013-04-30T16:16:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration</id>
-    <content type="html"><![CDATA[<p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='text'><span class='line'># database.properties
-</span><span class='line'>mydb.jdbcUrl=${mydb.jdbcUrl}
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="c">&lt;!-- pom.xml --&gt;</span>
-</span><span class='line'><span class="nt">&lt;profiles&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;profile&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;id&gt;</span>development<span class="nt">&lt;/id&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;activation&gt;&lt;activeByDefault&gt;</span>true<span class="nt">&lt;/activeByDefault&gt;&lt;/activation&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;properties&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;mydb.jdbcUrl&gt;</span>jdbc:mysql://127.0.0.1:3306/mydb<span class="nt">&lt;/mydb.jdbcUrl&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/properties&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/profile&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;profile&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;id&gt;</span>production<span class="nt">&lt;/id&gt;</span>
-</span><span class='line'>        <span class="c">&lt;!-- This profile could be moved to ~/.m2/settings.xml to increase security. --&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;properties&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;mydb.jdbcUrl&gt;</span>jdbc:mysql://10.0.2.15:3306/mydb<span class="nt">&lt;/mydb.jdbcUrl&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/properties&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/profile&gt;</span>
-</span><span class='line'><span class="nt">&lt;/profiles&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>As for Leiningen projects, there&rsquo;s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
-
-<!-- more -->
-
-
-<h2>Read Configuration from <code>.clj</code> Files</h2>
-
-<p>Instead of using <code>.properties</code>, we&rsquo;ll use <code>.clj</code> files directly, since it&rsquo;s more expressive and Clojure makes it very easy to utilize them.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="kd">defn </span><span class="nv">read-config</span> <span class="p">[</span><span class="nv">section</span><span class="p">]</span>
-</span><span class='line'>  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nb">read </span><span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">res-path</span><span class="p">]</span>
-</span><span class='line'>               <span class="p">(</span><span class="nb">if-let </span><span class="p">[</span><span class="nv">res</span> <span class="p">(</span><span class="nf">clojure.java.io/resource</span> <span class="nv">res-path</span><span class="p">)]</span>
-</span><span class='line'>                 <span class="p">(</span><span class="nf">read-string</span> <span class="p">(</span><span class="nb">slurp </span><span class="nv">res</span><span class="p">))</span>
-</span><span class='line'>                 <span class="p">{}))</span>
-</span><span class='line'>        <span class="nv">default-name</span> <span class="p">(</span><span class="nb">str </span><span class="p">(</span><span class="nb">name </span><span class="nv">section</span><span class="p">)</span> <span class="s">&quot;.clj&quot;</span><span class="p">)</span>
-</span><span class='line'>        <span class="nv">default</span> <span class="p">(</span><span class="nb">read </span><span class="nv">default-name</span><span class="p">)</span>
-</span><span class='line'>        <span class="nv">override</span> <span class="p">(</span><span class="nb">read </span><span class="p">(</span><span class="nb">str </span><span class="s">&quot;override/&quot;</span> <span class="nv">default-name</span><span class="p">))]</span>
-</span><span class='line'>    <span class="p">(</span><span class="nb">merge </span><span class="nv">default</span> <span class="nv">override</span><span class="p">)))</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This function assumes the following directory layout:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='text'><span class='line'>test-project/
-</span><span class='line'>├── README.md
-</span><span class='line'>├── project.clj
-</span><span class='line'>├── resources
-</span><span class='line'>│   ├── database.clj
-</span><span class='line'>│   └── override
-</span><span class='line'>│       └── database.clj
-</span><span class='line'>└── src
-</span><span class='line'>    └── test_project
-</span><span class='line'>        └── core.clj
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And the <code>database.clj</code>s are like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="c1">; resources/database.clj</span>
-</span><span class='line'><span class="p">{</span><span class="ss">:charset</span> <span class="s">&quot;utf-8&quot;</span>
-</span><span class='line'> <span class="ss">:mydb</span> <span class="p">{</span><span class="ss">:host</span> <span class="s">&quot;127.0.0.1&quot;</span><span class="p">}}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">; resources/override/database.clj</span>
-</span><span class='line'><span class="p">{</span><span class="ss">:mydb</span> <span class="p">{</span><span class="ss">:host</span> <span class="s">&quot;10.0.2.15&quot;</span><span class="p">}}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <code>.clj</code> files simply contains a <code>map</code> object, and we use <code>read-string</code> facility to parse the map. Since the latter map is merged into the former one, we can include some default settings without worrying about whether they&rsquo;ll be available.</p>
-
-<h2>Places to Put &lsquo;Outter Configuration&rsquo;</h2>
-
-<p>Here I use the word &lsquo;outter&rsquo;, which means those configs are related to environments, and will override the default settings. In this section, I&rsquo;ll introduce some typical places to put these outter configs and how to use them.</p>
-
-<h3>A &lsquo;resources/override/&rsquo; Directory</h3>
-
-<p>First of all, this directory should be removed from version control, such as <code>.gitignore</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='text'><span class='line'>/.project
-</span><span class='line'>/.settings
-</span><span class='line'>
-</span><span class='line'>/resources/override
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And then, developers can put production or local configuration files in this directory.</p>
-
-<p>In production, there&rsquo;s typically a &lsquo;compiling server&rsquo;, which can be used to store production configs. After compiling, the Jar file will include the proper configs and are ready to be deployed.</p>
-
-<h3>A Dedicated Directory on Every Server</h3>
-
-<p>We could simply replace the <code>override</code> directory with an absolute path, such as <code>/home/www/config</code>. The pros are that we don&rsquo;t need to recompile the jar files when config changes, and some of the configs could be shared between different projects.</p>
-
-<p>But in such approach, you&rsquo;ll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it&rsquo;s probably not practical to have such a directory on every compute node.</p>
-
-<p>Another thing I want to mention in this approach is that, I suggest using an environment variable to indicate the path to config directory, not hard-coded in application. As a matter of fact, you could even place all configs into env vars, as suggested by <a href="http://www.12factor.net/config">12-factor apps</a>.</p>
-
-<h3>A Central Configuration Server</h3>
-
-<p>As for really big corporations, a central configuration server is necessary. One popular option is to use ZooKeeper. Or your companies have some service-discovery mechanism. These are really advanced topics, and I&rsquo;ll leave them to the readers.</p>
-
-<h2>Manage Configs in Application</h2>
-
-<p>Lastly, I&rsquo;ll share a snippet that&rsquo;ll manage the configs, it&rsquo;s actually quite easy:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="k">def </span><span class="o">^</span><span class="ss">:private</span> <span class="nv">config</span> <span class="p">(</span><span class="nf">atom</span> <span class="p">{}))</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">(</span><span class="kd">defn </span><span class="nv">get-config</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="p">([</span><span class="nv">section</span><span class="p">]</span>
-</span><span class='line'>    <span class="p">(</span><span class="nb">if-let </span><span class="p">[</span><span class="nv">config-section</span> <span class="p">(</span><span class="nb">get </span><span class="err">@</span><span class="nv">config</span> <span class="nv">section</span><span class="p">)]</span>
-</span><span class='line'>      <span class="nv">config-section</span>
-</span><span class='line'>      <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">config-section</span> <span class="p">(</span><span class="nf">read-config</span> <span class="nv">section</span><span class="p">)]</span>
-</span><span class='line'>        <span class="p">(</span><span class="nf">swap!</span> <span class="nv">config</span> <span class="nb">assoc </span><span class="nv">section</span> <span class="nv">config-section</span><span class="p">)</span>
-</span><span class='line'>        <span class="nv">config-section</span><span class="p">)))</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="p">([</span><span class="nv">section</span> <span class="nv">item</span><span class="p">]</span>
-</span><span class='line'>    <span class="p">(</span><span class="nb">get </span><span class="p">(</span><span class="nf">get-config</span> <span class="nv">section</span><span class="p">)</span> <span class="nv">item</span><span class="p">)))</span>
-</span></code></pre></td></tr></table></div></figure>
-
 ]]></content>
   </entry>
   
