@@ -31,10 +31,10 @@ published: true
 
 > 虽然需要花上一美元不到，而且还会增加20卡路里，但还是很值得的，毕竟我已经一下午没吃东西了！
 
-> *http://womandoesnotliveonbreadalone.blogspot.com/2009/03/sugar-free-yogurt-reviews.html*
+> 来源：http://womandoesnotliveonbreadalone.blogspot.com/2009/03/sugar-free-yogurt-reviews.html
 
 这是一篇正面评价吗？从第二句就可以看出，作者非常鼓励我去买。她还用了“够味”、“美味”等词汇，这些都是正面的评价。所以，让我先去吃会儿……
 
-![](img/chapter-7/chapter-7-3.png)
+![](https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-7/chapter-7-3.png)
 
 [前往GitHub阅读全文](https://github.com/jizhang/guidetodatamining/blob/master/chapter-7.md)
