@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "数据挖掘指南[6]朴素贝叶斯和文本数据"
+title: "数据挖掘指南[7]朴素贝叶斯和文本数据"
 date: 2014-12-30 11:40
 comments: true
 categories: [Tutorial, Translation]
