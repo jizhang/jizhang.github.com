@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tutorial | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/tutorial/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-12-23T17:24:12+08:00</updated>
+  <updated>2014-12-30T11:43:10+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,45 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[数据挖掘指南[6]朴素贝叶斯和文本数据]]></title>
+    <link href="http://shzhangji.com/blog/2014/12/30/guidetodatamining-7/"/>
+    <updated>2014-12-30T11:40:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2014/12/30/guidetodatamining-7</id>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-7/">http://guidetodatamining.com/chapter-7/</a></p>
+
+<h2>非结构化文本的分类算法</h2>
+
+<p>在前几个章节中，我们学习了如何使用人们对物品的评价（五星、顶和踩）来进行推荐；还使用了他们的隐式评价——买过什么，点击过什么；我们利用特征来进行分类，如身高、体重、对法案的投票等。这些数据有一个共性——能用表格来展现：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-7/chapter-7-1.png" alt="" /></p>
+
+<p>因此这类数据我们称为“结构化数据”——数据集中的每条数据（上表中的一行）由多个特征进行描述（上表中的列）。而非结构化的数据指的是诸如电子邮件文本、推特信息、博客、新闻等。这些数据至少第一眼看起来是无法用一张表格来展现的。</p>
+
+<p>举个例子，我们想从推特信息中获取用户对各种电影的评价：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-7/chapter-7-2.png" alt="" /></p>
+
+<p>可以看到，Andy Gavin喜欢看地心引力，因为他的消息中有“不寒而栗”、“演的太棒了”之类的文本。而Debra Murphy则不太喜欢这部电影，因为她说“还是省下看这部电影的钱吧”。如果有人说“我太想看这部电影了，都兴奋坏了！”，我们可以看出她是喜欢这部电影的，即使信息中有“坏”这个字。</p>
+
+<p>我在逛超市时看到一种叫Chobani的酸奶，名字挺有趣的，但真的好吃吗？于是我掏出iPhone，谷歌了一把，看到一篇名为“女人不能只吃面包”的博客：</p>
+
+<blockquote><p><strong>无糖酸奶品评</strong></p>
+
+<p>你喝过Chobani酸奶吗？如果没有，就赶紧拿起钥匙出门去买吧！虽然它是脱脂原味的，但喝起来和酸奶的口感很像，致使我每次喝都有负罪感，因为这分明就是在喝全脂酸奶啊！原味的感觉很酸很够味，你也可以尝试一下蜂蜜口味的。我承认，虽然我在减肥期间不该吃蜂蜜的，但如果我有一天心情很糟想吃甜食，我就会在原味酸奶里舀一勺蜂蜜，太值得了！至于那些水果味的，应该都有糖分在里面，但其实酸奶本身就已经很美味了，水果只是点缀。如果你家附近没有Chobani，也可以试试Fage，同样好吃。</p>
+
+<p>虽然需要花上一美元不到，而且还会增加20卡路里，但还是很值得的，毕竟我已经一下午没吃东西了！</p>
+
+<p>*<a href="http://womandoesnotliveonbreadalone.blogspot.com/2009/03/sugar-free-yogurt-reviews.html*">http://womandoesnotliveonbreadalone.blogspot.com/2009/03/sugar-free-yogurt-reviews.html*</a></p></blockquote>
+
+<p>这是一篇正面评价吗？从第二句就可以看出，作者非常鼓励我去买。她还用了“够味”、“美味”等词汇，这些都是正面的评价。所以，让我先去吃会儿……</p>
+
+<p><img src="img/chapter-7/chapter-7-3.png" alt="" /></p>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-7.md">前往GitHub阅读全文</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[数据挖掘指南[6]概率和朴素贝叶斯]]></title>
@@ -420,62 +459,6 @@ cl.classify([73, 160])
 <blockquote><p>注意：潘多拉的音乐基因项目是商业机密，我不曾了解它的任何信息。下文讲述的是如何构造一个类似的系统。</p></blockquote>
 
 <p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-4.md">前往GitHub阅读全文</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[数据挖掘指南[3]隐式评价和基于物品的过滤算法]]></title>
-    <link href="http://shzhangji.com/blog/2014/09/29/guidetodatamining-3/"/>
-    <updated>2014-09-29T12:00:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2014/09/29/guidetodatamining-3</id>
-    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-3/">http://guidetodatamining.com/chapter-3/</a></p>
-
-<p>本章会从用户的评价类型开始讨论，包括显式评价（赞一下、踩一脚、五星评价等等）和隐式评价（比如在亚马逊上购买了MP3，我们可以认为他喜欢这个产品）。</p>
-
-<p>内容：</p>
-
-<ul>
-<li>显式评价</li>
-<li>隐式评价</li>
-<li>哪种评价方式更准确？</li>
-<li>基于用户的协同过滤</li>
-<li>基于物品的协同过滤</li>
-<li>修正的余弦相似度</li>
-<li>Slope One算法</li>
-<li>Slope One的Python实现</li>
-<li>MovieLens数据</li>
-</ul>
-
-
-<p>第二章中我们学习了协同过滤和推荐系统的基本知识，其中讲述的算法是比较通用的，可以适用于多种数据集。用户使用5到10分的标尺来对不同的物品进行打分，通过计算得到相似的用户。但是，也有迹象表明用户通常不会有效地使用这种度量方式，而更倾向于给出极好或极差的评价，这种做法会使推荐结果变得不可用。这一章我们将继续探讨这个问题，尝试使用高效的方法给出更精确的推荐。</p>
-
-<h2>显式评价</h2>
-
-<p>用户的评价类型可以分为显式评价和隐式评价。显式评价指的是用户明确地给出对物品的评价，最常见的例子是Pandora和YouTube上的“喜欢”和“不喜欢”按钮：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-1.png" alt="" /></p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-2.png" alt="" /></p>
-
-<p>以及亚马逊的星级系统：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-3.png" alt="" /></p>
-
-<h2>隐式评价</h2>
-
-<p>所谓隐式评价，就是我们不让用户明确给出对物品的评价，而是通过观察他们的行为来获得偏好信息。示例之一是记录用户在纽约时报网上的点击记录。</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-4.png" alt="" /></p>
-
-<p>经过几周的观察之后，我们就可以为用户刻画出一个合理的模型了——她不喜欢体育新闻，但关注科技新闻；如果用户连续看了两篇文章：《快速减肥方法》和《不反弹的减肥方式》，那她很可能正在减肥；如果她点击了iPhone的广告，就表明她或许对这款产品感兴趣。</p>
-
-<p>试想一下，如果我们记录了用户在亚马逊上的操作记录，可以得出一些什么结论。你的首页上可能有这样的内容：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-3/chapter-3-5.png" alt="" /></p>
-
-<p>在这个示例中，亚马逊记录了用户的点击操作，因此它会知道浏览了Jupter Travel这本书的用户还浏览了Long Way Round这部DVD，其详细记录了演员伊万环球骑行的旅程。因此，亚马逊就用这些信息来做出“看过还看过”的推荐。</p>
-
-<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-3.md">前往GitHub阅读全文</a></p>
 ]]></content>
   </entry>
   

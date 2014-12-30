@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="当多人协作开发一个分支时，历史记录通常如下方左图所示，比较凌乱。如果希望能像右图那样呈线性提交，就需要学习git rebase的用法。 “Merge branch”提交的产生 我们的工作流程是：修改代码→提交到本地仓库→拉取远程改动→推送。正是在git pull这一步产生的Merge &hellip;">
+  <meta name="description" content="原文：http://guidetodatamining.com/chapter-7/ 非结构化文本的分类算法 在前几个章节中，我们学习了如何使用人们对物品的评价（五星、顶和踩）来进行推荐；还使用了他们的隐式评价——买过什么，点击过什么；我们利用特征来进行分类，如身高、体重、对法案的投票等。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +81,72 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/12/30/guidetodatamining-7/">数据挖掘指南[6]朴素贝叶斯和文本数据</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-30T11:40:00+08:00" pubdate data-updated="true">Dec 30<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>原文：<a href="http://guidetodatamining.com/chapter-7/">http://guidetodatamining.com/chapter-7/</a></p>
+
+<h2>非结构化文本的分类算法</h2>
+
+<p>在前几个章节中，我们学习了如何使用人们对物品的评价（五星、顶和踩）来进行推荐；还使用了他们的隐式评价——买过什么，点击过什么；我们利用特征来进行分类，如身高、体重、对法案的投票等。这些数据有一个共性——能用表格来展现：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-7/chapter-7-1.png" alt="" /></p>
+
+<p>因此这类数据我们称为“结构化数据”——数据集中的每条数据（上表中的一行）由多个特征进行描述（上表中的列）。而非结构化的数据指的是诸如电子邮件文本、推特信息、博客、新闻等。这些数据至少第一眼看起来是无法用一张表格来展现的。</p>
+
+<p>举个例子，我们想从推特信息中获取用户对各种电影的评价：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-7/chapter-7-2.png" alt="" /></p>
+
+<p>可以看到，Andy Gavin喜欢看地心引力，因为他的消息中有“不寒而栗”、“演的太棒了”之类的文本。而Debra Murphy则不太喜欢这部电影，因为她说“还是省下看这部电影的钱吧”。如果有人说“我太想看这部电影了，都兴奋坏了！”，我们可以看出她是喜欢这部电影的，即使信息中有“坏”这个字。</p>
+
+<p>我在逛超市时看到一种叫Chobani的酸奶，名字挺有趣的，但真的好吃吗？于是我掏出iPhone，谷歌了一把，看到一篇名为“女人不能只吃面包”的博客：</p>
+
+<blockquote><p><strong>无糖酸奶品评</strong></p>
+
+<p>你喝过Chobani酸奶吗？如果没有，就赶紧拿起钥匙出门去买吧！虽然它是脱脂原味的，但喝起来和酸奶的口感很像，致使我每次喝都有负罪感，因为这分明就是在喝全脂酸奶啊！原味的感觉很酸很够味，你也可以尝试一下蜂蜜口味的。我承认，虽然我在减肥期间不该吃蜂蜜的，但如果我有一天心情很糟想吃甜食，我就会在原味酸奶里舀一勺蜂蜜，太值得了！至于那些水果味的，应该都有糖分在里面，但其实酸奶本身就已经很美味了，水果只是点缀。如果你家附近没有Chobani，也可以试试Fage，同样好吃。</p>
+
+<p>虽然需要花上一美元不到，而且还会增加20卡路里，但还是很值得的，毕竟我已经一下午没吃东西了！</p>
+
+<p>*<a href="http://womandoesnotliveonbreadalone.blogspot.com/2009/03/sugar-free-yogurt-reviews.html*">http://womandoesnotliveonbreadalone.blogspot.com/2009/03/sugar-free-yogurt-reviews.html*</a></p></blockquote>
+
+<p>这是一篇正面评价吗？从第二句就可以看出，作者非常鼓励我去买。她还用了“够味”、“美味”等词汇，这些都是正面的评价。所以，让我先去吃会儿……</p>
+
+<p><img src="img/chapter-7/chapter-7-3.png" alt="" /></p>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-7.md">前往GitHub阅读全文</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -709,72 +775,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/08/09/guidetodatamining-1/">数据挖掘指南[1]简介</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-08-09T12:00:00+08:00" pubdate data-updated="true">Aug 9<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>原文链接：<a href="http://guidetodatamining.com/chapter-1/">http://guidetodatamining.com/chapter-1/</a></p>
-
-<p>内容：</p>
-
-<ul>
-<li>寻找事物</li>
-<li>本书结构</li>
-<li>阅读完本书后你可以做些什么？</li>
-<li>为什么数据挖掘很重要？哪些内容可以为我所用？</li>
-<li>标题里的“Numerati的古老艺术”是什么意思？</li>
-</ul>
-
-
-<h2>序</h2>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-1/chapter-1-1.png" alt="Shoshin" /></p>
-
-<p>如果你每天都能重复做这些简单的事，你就会获得某种特别的力量。在你获得之前，这是特别的，但获得之后，就没什么大不了的了。</p>
-
-<p align="right">——鈴木 俊隆</p>
-
-
-<p>在阅读本书之前，你可能会认为像潘多拉、亚马逊那样的推荐系统、或是恐怖分子用的数据挖掘系统，一定会非常复杂，只有拥有博士学位的人才能够了解其中的算法。你也许会认为设计出这些系统的人都是研究火箭技术的。而我撰写本书的目的之一就是希望能够揭开这些系统的神秘面纱，展示它们所使用的基本原理。虽然的确会有像Google工程师或是在国家安全局工作的天才技术人员，数据挖掘却是建立在一些基本逻辑和方法之上的，非常易于理解。在阅读本书之前，你可能会认为数据挖掘是一种让人震惊的技术，但阅读之后你会发现，其实也没什么大不了的。</p>
-
-<p>上图中的日本文字“初心”，表示要始终保持一颗“初学者的心”，也就是一种开放的心态，接受各种可能性。下面这个故事你可能在哪儿听过（很有可能是来自李小龙的“龙争虎斗”）：一位教授想要寻求指引，于是来到一位智者面前，希望能得到点化。这个教授不停地说着自己毕生学到了什么，发表了多少论文等等。这时，智者问他：“喝茶吗？”然后开始向教授的杯子里倒茶，一直倒，最后溢到了桌子上、地上。“你在干什么？”教授大叫道。智者说：“我在倒茶。你的思想就像这个茶杯，已经倒满了茶，容不下任何其他东西。你必须先放空你的思想，我们才能继续往下说。”</p>
-
-<p>在我看来，优秀的程序员就像是空的茶杯，他不断地探索着新的技术（noSQL、node-js等等）。普通的程序员沉浸在那些固有的想法中：C++很棒，Java不好，PHP只能用来编写网页，MySQL是数据库的唯一选择。我希望你能够以开放的心态阅读本书，从而发现一些有价值的东西。正如铃木俊隆所说：</p>
-
-<p>在初学者眼中，世界充满了可能；专家眼中，世界大都已经既定。</p>
-
-<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-1.md">前往GitHub阅读全文</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -790,6 +790,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/12/30/guidetodatamining-7/">数据挖掘指南[6]朴素贝叶斯和文本数据</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">使用git rebase让历史变得清晰</a>
       </li>
     
@@ -803,10 +807,6 @@
     
       <li class="post">
         <a href="/blog/2014/11/27/guidetodatamining-5/">数据挖掘指南[5]进一步探索分类</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/11/07/sbt-offline/">离线环境下构建sbt项目</a>
       </li>
     
   </ul>

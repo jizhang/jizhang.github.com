@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: Big Data - Ji ZHANG's Blog</title>
+  <title>数据挖掘指南[6]朴素贝叶斯和文本数据 - Ji ZHANG's Blog</title>
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="Category: Big Data">
+  <meta name="description" content="原文：http://guidetodatamining.com/chapter-7/ 非结构化文本的分类算法 在前几个章节中，我们学习了如何使用人们对物品的评价（五星、顶和踩）来进行推荐；还使用了他们的隐式评价——买过什么，点击过什么；我们利用特征来进行分类，如身高、体重、对法案的投票等。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://shzhangji.comblog/categories/big-data">
+  <link rel="canonical" href="http://shzhangji.com/blog/2014/12/30/guidetodatamining-7">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
@@ -80,137 +80,125 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: Big Data</h1>
+    
+      <h1 class="entry-title">数据挖掘指南[6]朴素贝叶斯和文本数据</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-30T11:40:00+08:00" pubdate data-updated="true">Dec 30<span>th</span>, 2014</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><p>原文：<a href="http://guidetodatamining.com/chapter-7/">http://guidetodatamining.com/chapter-7/</a></p>
 
-  
-  <h2>2014</h2>
+<h2>非结构化文本的分类算法</h2>
 
-<article>
-  
-<h1><a href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a></h1>
-<time datetime="2014-12-16T15:59:00+08:00" pubdate><span class='month'>Dec</span> <span class='day'>16</span> <span class='year'>2014</span></time>
+<p>在前几个章节中，我们学习了如何使用人们对物品的评价（五星、顶和踩）来进行推荐；还使用了他们的隐式评价——买过什么，点击过什么；我们利用特征来进行分类，如身高、体重、对法案的投票等。这些数据有一个共性——能用表格来展现：</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/tutorial/'>Tutorial</a></span>
-</footer>
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-7/chapter-7-1.png" alt="" /></p>
 
+<p>因此这类数据我们称为“结构化数据”——数据集中的每条数据（上表中的一行）由多个特征进行描述（上表中的列）。而非结构化的数据指的是诸如电子邮件文本、推特信息、博客、新闻等。这些数据至少第一眼看起来是无法用一张表格来展现的。</p>
 
-</article>
+<p>举个例子，我们想从推特信息中获取用户对各种电影的评价：</p>
 
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-7/chapter-7-2.png" alt="" /></p>
 
+<p>可以看到，Andy Gavin喜欢看地心引力，因为他的消息中有“不寒而栗”、“演的太棒了”之类的文本。而Debra Murphy则不太喜欢这部电影，因为她说“还是省下看这部电影的钱吧”。如果有人说“我太想看这部电影了，都兴奋坏了！”，我们可以看出她是喜欢这部电影的，即使信息中有“坏”这个字。</p>
 
-<article>
-  
-<h1><a href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/">在CDH 4.5上安装Shark 0.9</a></h1>
-<time datetime="2014-07-05T17:16:00+08:00" pubdate><span class='month'>Jul</span> <span class='day'>05</span> <span class='year'>2014</span></time>
+<p>我在逛超市时看到一种叫Chobani的酸奶，名字挺有趣的，但真的好吃吗？于是我掏出iPhone，谷歌了一把，看到一篇名为“女人不能只吃面包”的博客：</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
+<blockquote><p><strong>无糖酸奶品评</strong></p>
 
+<p>你喝过Chobani酸奶吗？如果没有，就赶紧拿起钥匙出门去买吧！虽然它是脱脂原味的，但喝起来和酸奶的口感很像，致使我每次喝都有负罪感，因为这分明就是在喝全脂酸奶啊！原味的感觉很酸很够味，你也可以尝试一下蜂蜜口味的。我承认，虽然我在减肥期间不该吃蜂蜜的，但如果我有一天心情很糟想吃甜食，我就会在原味酸奶里舀一勺蜂蜜，太值得了！至于那些水果味的，应该都有糖分在里面，但其实酸奶本身就已经很美味了，水果只是点缀。如果你家附近没有Chobani，也可以试试Fage，同样好吃。</p>
 
-</article>
+<p>虽然需要花上一美元不到，而且还会增加20卡路里，但还是很值得的，毕竟我已经一下午没吃东西了！</p>
 
+<p>*<a href="http://womandoesnotliveonbreadalone.blogspot.com/2009/03/sugar-free-yogurt-reviews.html*">http://womandoesnotliveonbreadalone.blogspot.com/2009/03/sugar-free-yogurt-reviews.html*</a></p></blockquote>
 
+<p>这是一篇正面评价吗？从第二句就可以看出，作者非常鼓励我去买。她还用了“够味”、“美味”等词汇，这些都是正面的评价。所以，让我先去吃会儿……</p>
 
-<article>
-  
-<h1><a href="/blog/2014/04/07/hive-small-files/">Hive小文件问题的处理</a></h1>
-<time datetime="2014-04-07T17:09:00+08:00" pubdate><span class='month'>Apr</span> <span class='day'>07</span> <span class='year'>2014</span></time>
+<p><img src="img/chapter-7/chapter-7-3.png" alt="" /></p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-  
-  <h2>2013</h2>
-
-<article>
-  
-<h1><a href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/">Generate Auto-increment Id in Map-reduce Job</a></h1>
-<time datetime="2013-10-31T09:35:00+08:00" pubdate><span class='month'>Oct</span> <span class='day'>31</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2013/09/06/hive-deleteme-error/">Hive并发情况下报DELETEME表不存在的异常</a></h1>
-<time datetime="2013-09-06T11:20:00+08:00" pubdate><span class='month'>Sep</span> <span class='day'>06</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/">Cascalog：基于Clojure的Hadoop查询语言</a></h1>
-<time datetime="2013-05-01T18:01:00+08:00" pubdate><span class='month'>May</span> <span class='day'>01</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/translation/'>Translation</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2013/04/22/cia-storm/">Clojure实战(5)：Storm实时计算框架</a></h1>
-<time datetime="2013-04-22T12:11:00+08:00" pubdate><span class='month'>Apr</span> <span class='day'>22</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/tutorial/'>Tutorial</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2013/02/09/cia-hadoop/">Clojure实战(4)：编写Hadoop MapReduce脚本</a></h1>
-<time datetime="2013-02-09T16:43:00+08:00" pubdate><span class='month'>Feb</span> <span class='day'>09</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/tutorial/'>Tutorial</a></span>
-</footer>
-
-
-</article>
-
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-7.md">前往GitHub阅读全文</a></p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Ji ZHANG</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-30T11:40:00+08:00" pubdate data-updated="true">Dec 30<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/translation/'>Translation</a>, <a class='category' href='/blog/categories/tutorial/'>Tutorial</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2014/12/30/guidetodatamining-7/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2014/12/30/guidetodatamining-7/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/12/23/use-git-rebase-to-clarify-history/" title="Previous Post: 使用git rebase让历史变得清晰">&laquo; 使用git rebase让历史变得清晰</a>
+      
+      
+    </p>
+  </footer>
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 
 </div>
@@ -316,7 +304,10 @@
       var disqus_shortname = 'jizhang';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://shzhangji.com/blog/2014/12/30/guidetodatamining-7/';
+        var disqus_url = 'http://shzhangji.com/blog/2014/12/30/guidetodatamining-7/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
