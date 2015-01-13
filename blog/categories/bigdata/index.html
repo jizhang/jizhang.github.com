@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>数据挖掘指南[6]概率和朴素贝叶斯 - Ji ZHANG's Blog</title>
+  <title>Category: BigData - Ji ZHANG's Blog</title>
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="原文：http://guidetodatamining.com/chapter-6 朴素贝叶斯 还是让我们回到运动员的例子。如果我问你Brittney Griner的运动项目是什么，她有6尺8寸高，207磅重，你会说“篮球”；我再问你对此分类的准确度有多少信心，你会回答“非常有信心”。 &hellip;">
+  <meta name="description" content="Category: BigData">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://shzhangji.com/blog/2014/12/22/guidetodatamining-6">
+  <link rel="canonical" href="http://shzhangji.comblog/categories/bigdata">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
@@ -80,121 +80,36 @@
   <div id="main">
     <div id="content">
       <div>
-<article class="hentry" role="article">
+<article role="article">
   
   <header>
-    
-      <h1 class="entry-title">数据挖掘指南[6]概率和朴素贝叶斯</h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-12-22T10:33:00+08:00" pubdate data-updated="true">Dec 22<span>nd</span>, 2014</time>
-        
-      </p>
+    <h1 class="entry-title">Category: BigData</h1>
     
   </header>
-
-
-<div class="entry-content"><p>原文：<a href="http://guidetodatamining.com/chapter-6">http://guidetodatamining.com/chapter-6</a></p>
-
-<h2>朴素贝叶斯</h2>
-
-<p>还是让我们回到运动员的例子。如果我问你Brittney Griner的运动项目是什么，她有6尺8寸高，207磅重，你会说“篮球”；我再问你对此分类的准确度有多少信心，你会回答“非常有信心”。</p>
-
-<p>我再问你Heather Zurich，6尺1寸高，重176磅，你可能就不能确定地说她是打篮球的了，至少不会像之前判定Brittney那样肯定。因为从Heather的身高体重来看她也有可能是跑马拉松的。</p>
-
-<p>最后，我再问你Yumiko Hara的运动项目，她5尺4寸高，95磅重，你也许会说她是跳体操的，但也不太敢肯定，因为有些马拉松运动员也是类似的身高体重。</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-6/chapter-6-1.png" alt="" /></p>
-
-<p>使用近邻算法时，我们很难对分类结果的置信度进行量化。但如果使用的是基于概率的分类算法——贝叶斯算法——那就可以给出分类结果的可能性了：这名运动员有80%的几率是篮球运动员；这位病人有40%的几率患有糖尿病；拉斯克鲁塞斯24小时内有雨的概率是10%。</p>
-
-<p>近邻算法又称为<strong>被动学习</strong>算法。这种算法只是将训练集的数据保存起来，在收到测试数据时才会进行计算。如果我们有10万首音乐，那每进行一次分类，都需要遍历这10万条记录才行。</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-6/chapter-6-2.png" alt="" /></p>
-
-<p>贝叶斯算法则是一种<strong>主动学习</strong>算法。它会根据训练集构建起一个模型，并用这个模型来对新的记录进行分类，因此速度会快很多。</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-6/chapter-6-3.png" alt="" /></p>
-
-<p>所以说，贝叶斯算法的两个优点即：能够给出分类结果的置信度；以及它是一种主动学习算法。</p>
-
-<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-6.md">前往GitHub阅读全文</a></p>
-</div>
-
-
-  <footer>
-    <p class="meta">
-      
   
-
-<span class="byline author vcard">Posted by <span class="fn">Ji ZHANG</span></span>
-
-      
-
-
-
-
-
+  <div id="blog-archives" class="category">
 
 
 
   
+  <h2>2015</h2>
+
+<article>
+  
+<h1><a href="/blog/2015/01/13/understand-reduce-side-join/">深入理解Reduce-side Join</a></h1>
+<time datetime="2015-01-13T14:20:00+08:00" pubdate><span class='month'>Jan</span> <span class='day'>13</span> <span class='year'>2015</span></time>
+
+<footer>
+  <span class="categories">posted in <a class='category' href='/blog/categories/bigdata/'>BigData</a></span>
+</footer>
 
 
-<time datetime="2014-12-22T10:33:00+08:00" pubdate data-updated="true">Dec 22<span>nd</span>, 2014</time>
-      
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/translation/'>Translation</a>, <a class='category' href='/blog/categories/tutorial/'>Tutorial</a>
-  
-</span>
-
-
-    </p>
-    
-      <div class="sharing">
-  
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2014/12/22/guidetodatamining-6/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2014/12/22/guidetodatamining-6/" >Tweet</a>
-  
-  
-  <div class="g-plusone" data-size="medium"></div>
-  
-  
-    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
-  
-</div>
-
-    
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2014/12/16/spark-quick-start/" title="Previous Post: Spark快速入门">&laquo; Spark快速入门</a>
-      
-      
-        <a class="basic-alignment right" href="/blog/2014/12/23/use-git-rebase-to-clarify-history/" title="Next Post: 使用git rebase让历史变得清晰">使用git rebase让历史变得清晰 &raquo;</a>
-      
-    </p>
-  </footer>
 </article>
 
-  <section>
-    <h1>Comments</h1>
-    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
-  </section>
+
+  
+</article>
 
 
 </div>
@@ -300,10 +215,7 @@
       var disqus_shortname = 'jizhang';
       
         
-        // var disqus_developer = 1;
-        var disqus_identifier = 'http://shzhangji.com/blog/2014/12/22/guidetodatamining-6/';
-        var disqus_url = 'http://shzhangji.com/blog/2014/12/22/guidetodatamining-6/';
-        var disqus_script = 'embed.js';
+        var disqus_script = 'count.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

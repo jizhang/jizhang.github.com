@@ -9,7 +9,8 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="原文：http://guidetodatamining.com/chapter-7/ 非结构化文本的分类算法 在前几个章节中，我们学习了如何使用人们对物品的评价（五星、顶和踩）来进行推荐；还使用了他们的隐式评价——买过什么，点击过什么；我们利用特征来进行分类，如身高、体重、对法案的投票等。 &hellip;">
+  <meta name="description" content="在《MapReduce Design Patterns》一书中，作者给出了Reduce-side Join的实现方法，大致步骤如下： 使用MultipleInputs指定不同的来源表和相应的Mapper类；
+Mapper输出的Key为Join的字段内容，Value为打了来源表标签的记录； &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +82,70 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/01/13/understand-reduce-side-join/">深入理解Reduce-side Join</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-13T14:20:00+08:00" pubdate data-updated="true">Jan 13<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>在<a href="http://www.amazon.com/MapReduce-Design-Patterns-Effective-Algorithms/dp/1449327176">《MapReduce Design Patterns》</a>一书中，作者给出了Reduce-side Join的实现方法，大致步骤如下：</p>
+
+<p><img src="/images/reduce-side-join/reduce-side-join.png" alt="" /></p>
+
+<ol>
+<li>使用<a href="https://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapred/lib/MultipleInputs.html">MultipleInputs</a>指定不同的来源表和相应的Mapper类；</li>
+<li>Mapper输出的Key为Join的字段内容，Value为打了来源表标签的记录；</li>
+<li>Reducer在接收到同一个Key的记录后，执行以下两步：
+
+<ol>
+<li>遍历Values，根据标签将来源表的记录分别放到两个List中；</li>
+<li>遍历两个List，输出Join结果。</li>
+</ol>
+</li>
+</ol>
+
+
+<p>具体实现可以参考<a href="https://github.com/jizhang/mapred-sandbox/blob/master/src/main/java/com/shzhangji/mapred_sandbox/join/InnerJoinJob.java">这段代码</a>。但是这种实现方法有一个问题：如果同一个Key的记录数过多，存放在List中就会占用很多内存，严重的会造成内存溢出（Out of Memory, OOM）。这种方法在一对一的情况下没有问题，而一对多、多对多的情况就会有隐患。那么，Hive在做Reduce-side Join时是如何避免OOM的呢？两个关键点：</p>
+
+<ol>
+<li>Reducer在遍历Values时，会将前面的表缓存在内存中，对于最后一张表则边扫描边输出；</li>
+<li>如果前面几张表内存中放不下，就写入磁盘。</li>
+</ol>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/01/13/understand-reduce-side-join/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -695,86 +760,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/08/29/guidetodatamining-2/">数据挖掘指南[2]推荐系统入门</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-08-29T12:00:00+08:00" pubdate data-updated="true">Aug 29<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://guidetodatamining.com/chapter-2/">http://guidetodatamining.com/chapter-2/</a></p>
-
-<p>内容：</p>
-
-<ul>
-<li>推荐系统工作原理</li>
-<li>社会化协同过滤工作原理</li>
-<li>如何找到相似物品</li>
-<li>曼哈顿距离</li>
-<li>欧几里得距离</li>
-<li>闵可夫斯基距离</li>
-<li>皮尔逊相关系数</li>
-<li>余弦相似度</li>
-<li>使用Python实现K最邻近算法</li>
-<li>图书漂流站（BookCrossing）数据集</li>
-</ul>
-
-
-<h2>你喜欢的东西我也喜欢</h2>
-
-<p>我们将从推荐系统开始，开启数据挖掘之旅。推荐系统无处不在，如亚马逊网站的“看过这件商品的顾客还购买过”板块：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-1.png" alt="" /></p>
-
-<p>last.fm上对音乐和演唱会的推荐（相似歌手）：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-2.png" alt="" /></p>
-
-<p>在亚马逊的例子里，它用了两个元素来进行推荐：一是我浏览了里维斯翻译的《法华经》一书；二是其他浏览过该书的顾客还浏览过的译作。</p>
-
-<p>本章我们讲述的推荐方法称为协同过滤。顾名思义，这个方法是利用他人的喜好来进行推荐，也就是说，是大家一起产生的推荐。他的工作原理是这样的：如果要推荐一本书给你，我会在网站上查找一个和你类似的用户，然后将他喜欢的书籍推荐给你——比如巴奇加卢比的《发条女孩》。</p>
-
-<h3>如何找到相似的用户？</h3>
-
-<p>所以首先要做的工作是找到相似的用户。这里用最简单的二维模型来描述。假设用户会在网站用五颗星来评价一本书——没有星表示书写得很糟，五颗星表示很好。因为我们用的是二维模型，所以仅对两本书进行评价：史蒂芬森的《雪崩》（纵轴）和拉尔森的《龙纹身的女孩》（横轴）。</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-3.png" alt="" /></p>
-
-<p>首先，下表显示有三位用户对这两本书做了评价：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-4.png" alt="" /></p>
-
-<p>现在我想为神秘的X先生推荐一本书，他给《雪崩》打了四星，《龙纹身的女孩》两星。第一个任务是找出哪个用户和他最为相似。我们用距离来表示。</p>
-
-<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-2.md">前往GitHub阅读全文</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -790,6 +775,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/01/13/understand-reduce-side-join/">深入理解Reduce-side Join</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/12/30/guidetodatamining-7/">数据挖掘指南[7]朴素贝叶斯和文本数据</a>
       </li>
     
@@ -803,10 +792,6 @@
     
       <li class="post">
         <a href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/11/27/guidetodatamining-5/">数据挖掘指南[5]进一步探索分类</a>
       </li>
     
   </ul>
@@ -872,7 +857,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Ji ZHANG -
+  Copyright &copy; 2015 - Ji ZHANG -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

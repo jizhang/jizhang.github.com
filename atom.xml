@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2014-12-30T11:52:15+08:00</updated>
+  <updated>2015-01-13T16:14:10+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,245 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[深入理解Reduce-side Join]]></title>
+    <link href="http://shzhangji.com/blog/2015/01/13/understand-reduce-side-join/"/>
+    <updated>2015-01-13T14:20:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2015/01/13/understand-reduce-side-join</id>
+    <content type="html"><![CDATA[<p>在<a href="http://www.amazon.com/MapReduce-Design-Patterns-Effective-Algorithms/dp/1449327176">《MapReduce Design Patterns》</a>一书中，作者给出了Reduce-side Join的实现方法，大致步骤如下：</p>
+
+<p><img src="http://shzhangji.com/images/reduce-side-join/reduce-side-join.png" alt="" /></p>
+
+<ol>
+<li>使用<a href="https://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapred/lib/MultipleInputs.html">MultipleInputs</a>指定不同的来源表和相应的Mapper类；</li>
+<li>Mapper输出的Key为Join的字段内容，Value为打了来源表标签的记录；</li>
+<li>Reducer在接收到同一个Key的记录后，执行以下两步：
+
+<ol>
+<li>遍历Values，根据标签将来源表的记录分别放到两个List中；</li>
+<li>遍历两个List，输出Join结果。</li>
+</ol>
+</li>
+</ol>
+
+
+<p>具体实现可以参考<a href="https://github.com/jizhang/mapred-sandbox/blob/master/src/main/java/com/shzhangji/mapred_sandbox/join/InnerJoinJob.java">这段代码</a>。但是这种实现方法有一个问题：如果同一个Key的记录数过多，存放在List中就会占用很多内存，严重的会造成内存溢出（Out of Memory, OOM）。这种方法在一对一的情况下没有问题，而一对多、多对多的情况就会有隐患。那么，Hive在做Reduce-side Join时是如何避免OOM的呢？两个关键点：</p>
+
+<ol>
+<li>Reducer在遍历Values时，会将前面的表缓存在内存中，对于最后一张表则边扫描边输出；</li>
+<li>如果前面几张表内存中放不下，就写入磁盘。</li>
+</ol>
+
+
+<!-- more -->
+
+
+<p>按照我们的实现，Mapper输出的Key是<code>product_id</code>，Values是打了标签的产品表（Product）和订单表（Order）的记录。从数据量来看，应该缓存产品表，扫描订单表。这就要求两表记录到达Reducer时是有序的，产品表在前，边扫描边放入内存；订单表在后，边扫描边结合产品表的记录进行输出。要让Hadoop在Shuffle&amp;Sort阶段先按<code>product_id</code>排序、再按表的标签排序，就需要用到二次排序。</p>
+
+<p>二次排序的概念很简单，将Mapper输出的Key由单一的<code>product_id</code>修改为city_id+tag的复合Key就可以了，但需通过以下几步实现：</p>
+
+<h3>自定义Key类型</h3>
+
+<p>原来<code>product_id</code>是Text类型，我们的复合Key则要包含<code>product_id</code>和<code>tag</code>两个数据，并实现<code>WritableComparable</code>接口：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TaggedKey</span> <span class="kd">implements</span> <span class="n">WritableComparable</span><span class="o">&lt;</span><span class="n">TaggedKey</span><span class="o">&gt;</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Text</span> <span class="n">joinKey</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="o">();</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">IntWritable</span> <span class="n">tag</span> <span class="o">=</span> <span class="k">new</span> <span class="n">IntWritable</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compareTo</span><span class="o">(</span><span class="n">TaggedKey</span> <span class="n">taggedKey</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">compareValue</span> <span class="o">=</span> <span class="n">joinKey</span><span class="o">.</span><span class="na">compareTo</span><span class="o">(</span><span class="n">taggedKey</span><span class="o">.</span><span class="na">getJoinKey</span><span class="o">());</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">compareValue</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">compareValue</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="na">compareTo</span><span class="o">(</span><span class="n">taggedKey</span><span class="o">.</span><span class="na">getTag</span><span class="o">());</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">compareValue</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// 此处省略部分代码</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以看到，在比较两个TaggedKey时，会先比较joinKey（即<code>product_id</code>），再比较<code>tag</code>。</p>
+
+<h3>自定义分区方法</h3>
+
+<p>默认情况下，Hadoop会对Key进行哈希，以保证相同的Key会分配到同一个Reducer中。由于我们改变了Key的结构，因此需要重新编 写分区函数：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TaggedJoiningPartitioner</span> <span class="kd">extends</span> <span class="n">Partitioner</span><span class="o">&lt;</span><span class="n">TaggedKey</span><span class="o">,</span> <span class="n">Text</span><span class="o">&gt;</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getPartition</span><span class="o">(</span><span class="n">TaggedKey</span> <span class="n">taggedKey</span><span class="o">,</span> <span class="n">Text</span> <span class="n">text</span><span class="o">,</span> <span class="kt">int</span> <span class="n">numPartitions</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">taggedKey</span><span class="o">.</span><span class="na">getJoinKey</span><span class="o">().</span><span class="na">hashCode</span><span class="o">()</span> <span class="o">%</span> <span class="n">numPartitions</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>自定义分组方法</h3>
+
+<p>同理，调用reduce函数需要传入同一个Key的所有记录，这就需要重新定义分组函数：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TaggedJoiningGroupingComparator</span> <span class="kd">extends</span> <span class="n">WritableComparator</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">TaggedJoiningGroupingComparator</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">(</span><span class="n">TaggedKey</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&quot;rawtypes&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compare</span><span class="o">(</span><span class="n">WritableComparable</span> <span class="n">a</span><span class="o">,</span> <span class="n">WritableComparable</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">TaggedKey</span> <span class="n">taggedKey1</span> <span class="o">=</span> <span class="o">(</span><span class="n">TaggedKey</span><span class="o">)</span> <span class="n">a</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">TaggedKey</span> <span class="n">taggedKey2</span> <span class="o">=</span> <span class="o">(</span><span class="n">TaggedKey</span><span class="o">)</span> <span class="n">b</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">taggedKey1</span><span class="o">.</span><span class="na">getJoinKey</span><span class="o">().</span><span class="na">compareTo</span><span class="o">(</span><span class="n">taggedKey2</span><span class="o">.</span><span class="na">getJoinKey</span><span class="o">());</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>配置Job</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">job</span><span class="o">.</span><span class="na">setMapOutputKeyClass</span><span class="o">(</span><span class="n">TaggedKey</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'><span class="n">job</span><span class="o">.</span><span class="na">setMapOutputValueClass</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">job</span><span class="o">.</span><span class="na">setPartitionerClass</span><span class="o">(</span><span class="n">TaggedJoiningPartitioner</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'><span class="n">job</span><span class="o">.</span><span class="na">setGroupingComparatorClass</span><span class="o">(</span><span class="n">TaggedJoiningGroupingComparator</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>MapReduce过程</h3>
+
+<p>最后，我们在Mapper阶段使用TaggedKey，在Reducer阶段按照tag进行不同的操作就可以了：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">reduce</span><span class="o">(</span><span class="n">TaggedKey</span> <span class="n">key</span><span class="o">,</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">Text</span><span class="o">&gt;</span> <span class="n">values</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span>
+</span><span class='line'>        <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">products</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">Text</span> <span class="n">value</span> <span class="o">:</span> <span class="n">values</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">switch</span> <span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">getTag</span><span class="o">().</span><span class="na">get</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">1</span><span class="o">:</span> <span class="c1">// Product</span>
+</span><span class='line'>            <span class="n">products</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">value</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">2</span><span class="o">:</span> <span class="c1">// Order</span>
+</span><span class='line'>            <span class="n">String</span><span class="o">[]</span> <span class="n">order</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="na">toString</span><span class="o">().</span><span class="na">split</span><span class="o">(</span><span class="s">&quot;,&quot;</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">productString</span> <span class="o">:</span> <span class="n">products</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">String</span><span class="o">[]</span> <span class="n">product</span> <span class="o">=</span> <span class="n">productString</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&quot;,&quot;</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">output</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;();</span>
+</span><span class='line'>                <span class="n">output</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">order</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+</span><span class='line'>                <span class="c1">// ...</span>
+</span><span class='line'>                <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">NullWritable</span><span class="o">.</span><span class="na">get</span><span class="o">(),</span> <span class="k">new</span> <span class="n">Text</span><span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">join</span><span class="o">(</span><span class="n">output</span><span class="o">,</span> <span class="s">&quot;,&quot;</span><span class="o">)));</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">assert</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>遍历values时，开始都是tag=1的记录，之后都是tag=2的记录。以上代码可以<a href="https://github.com/jizhang/mapred-sandbox/blob/master/src/main/java/com/shzhangji/mapred_sandbox/join/ReduceSideJoinJob.java">在这里</a>查看。</p>
+
+<p>对于第二个问题，超过缓存大小的记录（默认25000条）就会存入临时文件，由Hive的RowContainer类实现，具体可以看<a href="http://grepcode.com/file/repository.cloudera.com/content/repositories/releases/org.apache.hive/hive-exec/0.10.0-cdh4.5.0/org/apache/hadoop/hive/ql/exec/persistence/RowContainer.java#RowContainer.add%28java.util.List%29">这个链接</a>。</p>
+
+<p>需要注意的是，Hive默认是按SQL中表的书写顺序来决定排序的，因此应该将大表放在最后。如果要人工改变顺序，可以使用STREAMTABLE配置：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="cm">/*+ STREAMTABLE(a) */</span> <span class="n">a</span><span class="p">.</span><span class="n">val</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">val</span><span class="p">,</span> <span class="k">c</span><span class="p">.</span><span class="n">val</span> <span class="k">FROM</span> <span class="n">a</span> <span class="k">JOIN</span> <span class="n">b</span> <span class="k">ON</span> <span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="k">key</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">key1</span><span class="p">)</span> <span class="k">JOIN</span> <span class="k">c</span> <span class="k">ON</span> <span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="k">key</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">key1</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>但不要将这点和Map-side Join混淆，在配置了<code>hive.auto.convert.join=true</code>后，是不需要注意表的顺序的，Hive会自动将小表缓存在Mapper的内存中。</p>
+
+<h2>参考资料</h2>
+
+<ol>
+<li><a href="http://codingjunkie.net/mapreduce-reduce-joins/">http://codingjunkie.net/mapreduce-reduce-joins/</a></li>
+<li><a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Joins">https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Joins</a></li>
+</ol>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[数据挖掘指南[7]朴素贝叶斯和文本数据]]></title>
@@ -2717,105 +2956,6 @@
 <p>Ansible同样适用于执行临时性的任务，能够用于各类 Unix-like 系统，因为它使用的就是系统本身自带的工具，无需安装额外软件。</p>
 
 <p>你还可以用Ansible来编写各类脚本，用于收集信息、执行各种任务，对QA、运维等团队均适用。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Hadoop YARN - 项目背景与简介]]></title>
-    <link href="http://shzhangji.com/blog/2013/05/25/apache-hadoop-yarn-background-and-an-overview/"/>
-    <updated>2013-05-25T10:57:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/05/25/apache-hadoop-yarn-background-and-an-overview</id>
-    <content type="html"><![CDATA[<p>原文：<a href="http://hortonworks.com/blog/apache-hadoop-yarn-background-and-an-overview/">http://hortonworks.com/blog/apache-hadoop-yarn-background-and-an-overview/</a></p>
-
-<p>日前，Apache Hadoop YARN已被提升为Apache软件基金会的子项目，这是一个值得庆祝的里程碑。这里我们也第一时间为各位献上Apache Hadoop YARN项目的系列介绍文章。YARN是一个普适的、分布式的应用管理框架，运行于Hadoop集群之上，用以替代传统的Apache Hadoop MapReduce框架。</p>
-
-<h2>MapReduce 模式</h2>
-
-<p>本质上来说，MapReduce模型包含两个部分：一是Map过程，将数据拆分成若干份，分别处理，彼此之间没有依赖关系；二是Reduce过程，将中间结果汇总计算成最终结果。这是一种简单而又条件苛刻的模型，但也促使它成为高效和极易扩展的并行计算方式。</p>
-
-<p>Apache Hadoop MapReduce是当下最流行的开源MapReduce模型。</p>
-
-<p>特别地，当MapReduce配合分布式文件系统，类似Apache Hadoop HDFS，就能在大集群上提供高吞吐量的计算，这一经济效应是Hadoop得以流行的重要原因。</p>
-
-<p>这一模式成功的原因之一是，它使用的是“移动计算能力至数据节点”而非通过网络“移动数据至计算节点”的方式。具体来说，一个MapReduce任务会被调度到输入数据所在的HDFS节点执行，这会极大地减少I/O支出，因为大部分I/O会发生在本地磁盘或是同一机架中——这是核心优势。</p>
-
-<!-- more -->
-
-
-<h3>回顾2011年的Apache Hadoop MapReduce</h3>
-
-<p>Apache Hadoop MapReduce是<a href="http://www.apache.org/">Apache基金会</a>下的开源项目，实现了如上所述的MapReduce编程模式。作为一个在该项目中全职开发了六年的工作者，我通常会将它细分为以下几个部分：</p>
-
-<ul>
-<li>提供给最终用户使用的 <strong>MapReduce API</strong> ，用来编写MapReduce应用程序。</li>
-<li><strong>MapReduce框架</strong> ，用来实现运行时的各个阶段，即map、sort/shuffle/merge、reduce。</li>
-<li><strong>MapReduce系统</strong> ，一个完整的后端系统，用来运行用户的MapReduce应用程序，管理集群资源，调度上千个并发脚本。</li>
-</ul>
-
-
-<p>这样的划分可以带来非常明显的优势，即最终用户只需关心MapReduce API，而让框架和后端系统去处理资源管理、容错、调度等细节。</p>
-
-<p>目前，Apache Hadoop MapReduce系统由一个JobTracker和多个TaskTracker组成，也分别称他们为master和slave节点。</p>
-
-<p><img src="http://hortonworks.com/wp-content/uploads/2012/08/MRArch.png" alt="MRArch.png" /></p>
-
-<p>JobTracker负责的工作包括资源管理（即管理工作节点TaskTracker），跟踪资源消耗和可用情况，以及每个脚本的生命周期（脚本调度，进度跟踪，容错等）。</p>
-
-<p>TaskTracker的职责比较简单：根据JobTracker的指令来启动和关闭工作进程，并定时向JobTracker汇报处理进度。</p>
-
-<p>其实很早我们就意识到Hadoop的MapReduce框架需要被拆解和调整，特别是JobTracker，我们需要提升它的可扩展性，提高对集群的利用率，让用户能够方便地进行升级（即用户需要的敏捷性），并能支持MapReduce以外的脚本类型。</p>
-
-<p>长久以来，我们都在做修复和更新，如近期加入的JobTracker高可用和HDFS故障恢复（这两个特性都已包含在<a href="http://hortonworks.com/download/">Hortonworks Data Platform v1</a>中）。但我们渐渐发现，这些特性会增加维护成本，而且并不能解决一些核心问题，如支持非MapReduce脚本，以及敏捷性。</p>
-
-<h3>为什么要支持非MapReduce类型的脚本？</h3>
-
-<p>MapReduce对大部分应用程序来说已经足够，但仍有一些场景并不适用，如图形计算（<a href="http://googleresearch.blogspot.com/2009/06/large-scale-graph-computing-at-google.html">Google Pregel</a> / <a href="http://giraph.apache.org/">Apache Giraph</a>）、交互式建模（<a href="http://en.wikipedia.org/wiki/Message_Passing_Interface">MPI</a>）。当所有的企业数据都已存放在Hadoop HDFS中时，支持多种处理模型就变得额外重要。</p>
-
-<p>此外，MapReduce本质上是以批量处理为核心的，对于日益增长的实时和近实时处理的客户需求，如流式计算以及CEPFresil等，就无能为力了。</p>
-
-<p>如果Hadoop能够支持这一特性，企业会从对Hadoop的投资中得到更多回报，因为他们可以减少数据迁移所需要的管理和维护成本。</p>
-
-<h3>为何要提升可扩展性？</h3>
-
-<p>根据摩尔定律，同样的价格所能购买到的计算能力一直在大幅上升。让我们看看以下两组数字：</p>
-
-<ul>
-<li>2009年：8核CPU，16GB内存，4x1TB硬盘；</li>
-<li>2012年：16核以上的CPU，48至96GB内存，12x2TB或12x3TB的硬盘。</li>
-</ul>
-
-
-<p>同样价格的服务器，其各方面的计算能力要比两到三年以前提升了两倍。Hadoop的MapReduce在2009年便能支持约5000台节点，所以随着机器性能的提升，对其高可扩的要求也与日俱增。</p>
-
-<h3>集群资源利用率不高的典型症候是？</h3>
-
-<p>在现有的系统中，集群由节点组成，节点上有map槽位和reduce槽位，两者不能互相替代。这样一来，很有可能map槽位已经耗尽，而reduce还是空闲的，反之亦然。修复这一问题对于提升集群资源利用率来说是必不可少的。</p>
-
-<h3>敏捷性为何重要？</h3>
-
-<p>在现实应用中，Hadoop通常会部署在共享的、多租户的系统上。所以，对Hadoop进行升级时会影响很大一部分甚至是所有的应用。基于这一点，用户会对升级持保守态度，因为不想因此引发一系列的问题。所以，一个支持多版本Hadoop的架构就变得非常重要。</p>
-
-<h2>Apache Hadoop YARN 诞生</h2>
-
-<p>YARN的核心思想是将JobTracker的两个职能，即资源管理和脚本调度/监控，分解为两个独立的组件：全局ResourceManager以及按应用拆分的ApplicationMaster（AM）。</p>
-
-<p>主节点的ResourceManager以及其它节电的NodeManager（NM），形成了一个新的更为通用的分布式应用管理模式。</p>
-
-<p>ResourceManager负责应用程序的资源分配。ApplicationMaster会和ResourceManager进行协商，并与节点上的NodeManager协作，运行和监控每个工作进程。</p>
-
-<p>ResourceManager的调度器是可定制的，能够根据计算能力、队列大小进行资源调配。调度器不包含任何对工作进程的监控和跟踪，不会去重启失败的脚本。调度器会根据应用程序申请的资源进行分配，它是建立在一个资源容器抽象层（Resource Container）之上的，其中包括了内存、CPU、硬盘、网络等要素信息。</p>
-
-<p>NodeManager运行在每个节点之上，负责运行应用程序的工作进程，监控它们的资源占用情况，并向ResourceManager汇报。</p>
-
-<p>每个应用都会有一个专属的ApplicationMaster，它会负责和调度器协商资源分配，跟踪工作进程的状态和进度。ApplicationMaster本身也是以一个工作进程来运行的。</p>
-
-<p>以下是YARN的架构图：</p>
-
-<p><img src="http://hortonworks.com/wp-content/uploads/2012/08/YARNArch.png" alt="YARNArch.png" /></p>
-
-<p>值得一提的是，我们在为YARN开发MapReduce API时没有做任何较大的改动，所以现有的程序可以很方便地进行迁移。关于这点我们会在以后的文章中详述。</p>
-
-<p>下一节我们会深入了解YARN的架构，阐述它所带来的各种优点，如高可扩、支持多类型脚本（MapReduce、MPI等），以及它是如何提升集群资源利用率的。</p>
 ]]></content>
   </entry>
   

@@ -9,11 +9,16 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="原文链接：http://guidetodatamining.com/chapter-1/ 内容： 寻找事物
-本书结构
-阅读完本书后你可以做些什么？
-为什么数据挖掘很重要？哪些内容可以为我所用？
-标题里的“Numerati的古老艺术”是什么意思？ 序 如果你每天都能重复做这些简单的事， &hellip;">
+  <meta name="description" content="原文：http://guidetodatamining.com/chapter-2/ 内容： 推荐系统工作原理
+社会化协同过滤工作原理
+如何找到相似物品
+曼哈顿距离
+欧几里得距离
+闵可夫斯基距离
+皮尔逊相关系数
+余弦相似度
+使用Python实现K最邻近算法
+图书漂流站（BookCrossing） &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -85,6 +90,86 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/29/guidetodatamining-2/">数据挖掘指南[2]推荐系统入门</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-29T12:00:00+08:00" pubdate data-updated="true">Aug 29<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>原文：<a href="http://guidetodatamining.com/chapter-2/">http://guidetodatamining.com/chapter-2/</a></p>
+
+<p>内容：</p>
+
+<ul>
+<li>推荐系统工作原理</li>
+<li>社会化协同过滤工作原理</li>
+<li>如何找到相似物品</li>
+<li>曼哈顿距离</li>
+<li>欧几里得距离</li>
+<li>闵可夫斯基距离</li>
+<li>皮尔逊相关系数</li>
+<li>余弦相似度</li>
+<li>使用Python实现K最邻近算法</li>
+<li>图书漂流站（BookCrossing）数据集</li>
+</ul>
+
+
+<h2>你喜欢的东西我也喜欢</h2>
+
+<p>我们将从推荐系统开始，开启数据挖掘之旅。推荐系统无处不在，如亚马逊网站的“看过这件商品的顾客还购买过”板块：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-1.png" alt="" /></p>
+
+<p>last.fm上对音乐和演唱会的推荐（相似歌手）：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-2.png" alt="" /></p>
+
+<p>在亚马逊的例子里，它用了两个元素来进行推荐：一是我浏览了里维斯翻译的《法华经》一书；二是其他浏览过该书的顾客还浏览过的译作。</p>
+
+<p>本章我们讲述的推荐方法称为协同过滤。顾名思义，这个方法是利用他人的喜好来进行推荐，也就是说，是大家一起产生的推荐。他的工作原理是这样的：如果要推荐一本书给你，我会在网站上查找一个和你类似的用户，然后将他喜欢的书籍推荐给你——比如巴奇加卢比的《发条女孩》。</p>
+
+<h3>如何找到相似的用户？</h3>
+
+<p>所以首先要做的工作是找到相似的用户。这里用最简单的二维模型来描述。假设用户会在网站用五颗星来评价一本书——没有星表示书写得很糟，五颗星表示很好。因为我们用的是二维模型，所以仅对两本书进行评价：史蒂芬森的《雪崩》（纵轴）和拉尔森的《龙纹身的女孩》（横轴）。</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-3.png" alt="" /></p>
+
+<p>首先，下表显示有三位用户对这两本书做了评价：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-2/chapter-2-4.png" alt="" /></p>
+
+<p>现在我想为神秘的X先生推荐一本书，他给《雪崩》打了四星，《龙纹身的女孩》两星。第一个任务是找出哪个用户和他最为相似。我们用距离来表示。</p>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-2.md">前往GitHub阅读全文</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -649,59 +734,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/05/25/apache-hadoop-yarn-background-and-an-overview/">Apache Hadoop YARN - 项目背景与简介</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-05-25T10:57:00+08:00" pubdate data-updated="true">May 25<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://hortonworks.com/blog/apache-hadoop-yarn-background-and-an-overview/">http://hortonworks.com/blog/apache-hadoop-yarn-background-and-an-overview/</a></p>
-
-<p>日前，Apache Hadoop YARN已被提升为Apache软件基金会的子项目，这是一个值得庆祝的里程碑。这里我们也第一时间为各位献上Apache Hadoop YARN项目的系列介绍文章。YARN是一个普适的、分布式的应用管理框架，运行于Hadoop集群之上，用以替代传统的Apache Hadoop MapReduce框架。</p>
-
-<h2>MapReduce 模式</h2>
-
-<p>本质上来说，MapReduce模型包含两个部分：一是Map过程，将数据拆分成若干份，分别处理，彼此之间没有依赖关系；二是Reduce过程，将中间结果汇总计算成最终结果。这是一种简单而又条件苛刻的模型，但也促使它成为高效和极易扩展的并行计算方式。</p>
-
-<p>Apache Hadoop MapReduce是当下最流行的开源MapReduce模型。</p>
-
-<p>特别地，当MapReduce配合分布式文件系统，类似Apache Hadoop HDFS，就能在大集群上提供高吞吐量的计算，这一经济效应是Hadoop得以流行的重要原因。</p>
-
-<p>这一模式成功的原因之一是，它使用的是“移动计算能力至数据节点”而非通过网络“移动数据至计算节点”的方式。具体来说，一个MapReduce任务会被调度到输入数据所在的HDFS节点执行，这会极大地减少I/O支出，因为大部分I/O会发生在本地磁盘或是同一机架中——这是核心优势。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/05/25/apache-hadoop-yarn-background-and-an-overview/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -719,6 +751,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/01/13/understand-reduce-side-join/">深入理解Reduce-side Join</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/12/30/guidetodatamining-7/">数据挖掘指南[7]朴素贝叶斯和文本数据</a>
       </li>
     
@@ -732,10 +768,6 @@
     
       <li class="post">
         <a href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/11/27/guidetodatamining-5/">数据挖掘指南[5]进一步探索分类</a>
       </li>
     
   </ul>
@@ -801,7 +833,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Ji ZHANG -
+  Copyright &copy; 2015 - Ji ZHANG -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
