@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tutorial | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/tutorial/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-01-13T16:14:10+08:00</updated>
+  <updated>2015-01-15T12:30:37+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,43 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[数据挖掘指南[8]聚类]]></title>
+    <link href="http://shzhangji.com/blog/2015/01/15/guidetodatamining-8/"/>
+    <updated>2015-01-15T12:24:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2015/01/15/guidetodatamining-8</id>
+    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-8/">http://guidetodatamining.com/chapter-8/</a></p>
+
+<p>前几章我们学习了如何构建分类系统，使用的是已经标记好类别的数据集进行训练：</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-8/chapter-8-1.png" alt="" /></p>
+
+<p>训练完成后我们就可以用来预测了：这个人看起来像是篮球运动员，那个人可能是练体操的；这个人三年内不会患有糖尿病。</p>
+
+<p>可以看到，分类器在训练阶段就已经知道各个类别的名称了。那如果我们不知道呢？如何构建一个能够自动对数据进行分组的系统？比如有1000人，每人有20个特征，我想把这些人分为若干个组。</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-8/chapter-8-2.png" alt="" /></p>
+
+<p>这个过程叫做聚类：通过物品特征来计算距离，并自动分类到不同的群集或组中。有两种聚类算法比较常用：</p>
+
+<p><strong>k-means聚类算法</strong></p>
+
+<p>我们会事先告诉这个算法要将数据分成几个组，比如“请把这1000个人分成5个组”，“将这些网页分成15个组”。这种方法就叫k-means，我们会在后面的章节讨论。</p>
+
+<h2>层次聚类法</h2>
+
+<p>对于层次聚类法，我们不需要预先指定分类的数量，这个算方法会将每条数据都当作是一个分类，每次迭代的时候合并距离最近的两个分类，直到剩下一个分类为止。因此聚类的结果是：顶层有一个大分类，这个分类下有两个子分类，每个子分类下又有两个子分类，依此类推，层次聚类也因此得命。</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-8/chapter-8-3.png" alt="" /></p>
+
+<p>在合并的时候我们会计算两个分类之间的距离，可以采用不同的方法。如下图中的A、B、C三个分类，我们应该将哪两个分类合并起来呢？</p>
+
+<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-8/chapter-8-4.png" alt="" /></p>
+
+<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-8.md">前往GitHub阅读全文</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[数据挖掘指南[7]朴素贝叶斯和文本数据]]></title>
@@ -408,57 +445,6 @@ cl.classify([73, 160])
 <p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-5/chapter-5-2.png" alt="" /></p>
 
 <p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-5.md">前往GitHub阅读全文</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[数据挖掘指南[4]分类]]></title>
-    <link href="http://shzhangji.com/blog/2014/10/30/guidetodatamining-4/"/>
-    <updated>2014-10-30T12:00:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2014/10/30/guidetodatamining-4</id>
-    <content type="html"><![CDATA[<p>原文：<a href="http://guidetodatamining.com/chapter-4">http://guidetodatamining.com/chapter-4</a></p>
-
-<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
-
-<p>内容：</p>
-
-<ul>
-<li>潘多拉推荐系统简介</li>
-<li>特征值选择的重要性</li>
-<li>示例：音乐特征值和邻域算法</li>
-<li>数据标准化</li>
-<li>修正的标准分数</li>
-<li>Python代码：音乐，特征，以及简单的邻域算法实现</li>
-<li>一个和体育相关的示例</li>
-<li>特征值抽取方式一览</li>
-</ul>
-
-
-<h2>根据物品特征进行分类</h2>
-
-<p>前几章我们讨论了如何使用协同过滤来进行推荐，由于使用的是用户产生的各种数据，因此又称为社会化过滤算法。比如你购买了Phoenix专辑，我们网站上其他购买过这张专辑的用户还会去购买Vampire的专辑，因此会把它推荐给你；我在Netflix上观看了Doctor Who，网站会向我推荐Quantum Leap，用的是同样的原理。我们同时也讨论了协同过滤会遇到的种种问题，包括数据的稀疏性和算法的可扩展性。此外，协同过滤算法倾向于推荐那些已经很流行的物品。试想一个极端的例子：一个新乐队发布了专辑，这张专辑还没有被任何用户评价或购买过，那它将永远不会出现在推荐列表中。</p>
-
-<blockquote><p><strong>这类推荐系统会让流行的物品更为流行，冷门的物品更无人问津。</strong></p>
-
-<p>&mdash; Daniel Fleder &amp; Kartik Hosanagar 2009 《推荐系统对商品分类的影响》</p></blockquote>
-
-<p>这一章我们来看另一种推荐方法。以潘多拉音乐站举例，在这个站点上你可以设立各种音乐频道，只需为这个频道添加一个歌手，潘多拉就会播放和这个歌手风格相类似的歌曲。比如我添加了Phoenix乐队，潘多拉便会播放El Ten Eleven的歌曲。它并没有使用协同过滤，而是通过计算得到这两个歌手的音乐风格是相似的。其实在播放界面上可以看到推荐理由：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-4/chapter-4-1.png" alt="" /></p>
-
-<p>“根据你目前告知的信息，我们播放的这首歌曲有着相似的旋律，使用了声响和电音的组合，即兴的吉他伴奏。”在我的Hiromi音乐站上，潘多拉会播放E.S.T.的歌曲，因为“它有着古典爵士乐风，一段高水准的钢琴独奏，轻盈的打击乐，以及有趣的歌曲结构。”</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-4/chapter-4-2.png" alt="" /></p>
-
-<p>潘多拉网站的推荐系统是基于一个名为音乐基因的项目。他们雇佣了专业的音乐家对歌曲进行分类（提取它们的“基因”）。这些音乐家会接受超过150小时的训练，之后便可用20到30分钟的时间来分析一首歌曲。这些乐曲特征是很专业的：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-4/chapter-4-3.png" alt="" /></p>
-
-<p>这些专家要甄别400多种特征，平均每个月会有15000首新歌曲，因此这是一项非常消耗人力的工程。</p>
-
-<blockquote><p>注意：潘多拉的音乐基因项目是商业机密，我不曾了解它的任何信息。下文讲述的是如何构造一个类似的系统。</p></blockquote>
-
-<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-4.md">前往GitHub阅读全文</a></p>
 ]]></content>
   </entry>
   
