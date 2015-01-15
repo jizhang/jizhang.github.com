@@ -7,7 +7,7 @@ categories: [Big Data]
 published: true
 ---
 
-在[《MapReduce Design Patterns》][1]一书中，作者给出了Reduce-side Join的实现方法，大致步骤如下：
+在《[MapReduce Design Patterns][1]》一书中，作者给出了Reduce-side Join的实现方法，大致步骤如下：
 
 ![](/images/reduce-side-join/reduce-side-join.png)
 
@@ -26,7 +26,7 @@ published: true
 
 按照我们的实现，Mapper输出的Key是`product_id`，Values是打了标签的产品表（Product）和订单表（Order）的记录。从数据量来看，应该缓存产品表，扫描订单表。这就要求两表记录到达Reducer时是有序的，产品表在前，边扫描边放入内存；订单表在后，边扫描边结合产品表的记录进行输出。要让Hadoop在Shuffle&Sort阶段先按`product_id`排序、再按表的标签排序，就需要用到二次排序。
 
-二次排序的概念很简单，将Mapper输出的Key由单一的`product_id`修改为city_id\+tag的复合Key就可以了，但需通过以下几步实现：
+二次排序的概念很简单，将Mapper输出的Key由单一的`product_id`修改为`city_id+tag`的复合Key就可以了，但需通过以下几步实现：
 
 ### 自定义Key类型
 
