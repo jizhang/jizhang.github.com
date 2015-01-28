@@ -9,7 +9,8 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="原文：http://guidetodatamining.com/chapter-8/ 前几章我们学习了如何构建分类系统，使用的是已经标记好类别的数据集进行训练： 训练完成后我们就可以用来预测了：这个人看起来像是篮球运动员，那个人可能是练体操的；这个人三年内不会患有糖尿病。 可以看到， &hellip;">
+  <meta name="description" content="在《MapReduce Design Patterns》一书中，作者给出了Reduce-side Join的实现方法，大致步骤如下： 使用MultipleInputs指定不同的来源表和相应的Mapper类；
+Mapper输出的Key为Join的字段内容，Value为打了来源表标签的记录； &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -87,70 +88,6 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2015/01/15/guidetodatamining-8/">数据挖掘指南[8]聚类</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2015-01-15T12:24:00+08:00" pubdate data-updated="true">Jan 15<span>th</span>, 2015</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://guidetodatamining.com/chapter-8/">http://guidetodatamining.com/chapter-8/</a></p>
-
-<p>前几章我们学习了如何构建分类系统，使用的是已经标记好类别的数据集进行训练：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-8/chapter-8-1.png" alt="" /></p>
-
-<p>训练完成后我们就可以用来预测了：这个人看起来像是篮球运动员，那个人可能是练体操的；这个人三年内不会患有糖尿病。</p>
-
-<p>可以看到，分类器在训练阶段就已经知道各个类别的名称了。那如果我们不知道呢？如何构建一个能够自动对数据进行分组的系统？比如有1000人，每人有20个特征，我想把这些人分为若干个组。</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-8/chapter-8-2.png" alt="" /></p>
-
-<p>这个过程叫做聚类：通过物品特征来计算距离，并自动分类到不同的群集或组中。有两种聚类算法比较常用：</p>
-
-<p><strong>k-means聚类算法</strong></p>
-
-<p>我们会事先告诉这个算法要将数据分成几个组，比如“请把这1000个人分成5个组”，“将这些网页分成15个组”。这种方法就叫k-means，我们会在后面的章节讨论。</p>
-
-<h2>层次聚类法</h2>
-
-<p>对于层次聚类法，我们不需要预先指定分类的数量，这个算方法会将每条数据都当作是一个分类，每次迭代的时候合并距离最近的两个分类，直到剩下一个分类为止。因此聚类的结果是：顶层有一个大分类，这个分类下有两个子分类，每个子分类下又有两个子分类，依此类推，层次聚类也因此得命。</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-8/chapter-8-3.png" alt="" /></p>
-
-<p>在合并的时候我们会计算两个分类之间的距离，可以采用不同的方法。如下图中的A、B、C三个分类，我们应该将哪两个分类合并起来呢？</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-8/chapter-8-4.png" alt="" /></p>
-
-<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-8.md">前往GitHub阅读全文</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
       <h1 class="entry-title"><a href="/blog/2015/01/13/understand-reduce-side-join/">深入理解Reduce-side Join</a></h1>
     
     
@@ -215,72 +152,6 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/12/30/guidetodatamining-7/">数据挖掘指南[7]朴素贝叶斯和文本数据</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-12-30T11:40:00+08:00" pubdate data-updated="true">Dec 30<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://guidetodatamining.com/chapter-7/">http://guidetodatamining.com/chapter-7/</a></p>
-
-<h2>非结构化文本的分类算法</h2>
-
-<p>在前几个章节中，我们学习了如何使用人们对物品的评价（五星、顶和踩）来进行推荐；还使用了他们的隐式评价——买过什么，点击过什么；我们利用特征来进行分类，如身高、体重、对法案的投票等。这些数据有一个共性——能用表格来展现：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-7/chapter-7-1.png" alt="" /></p>
-
-<p>因此这类数据我们称为“结构化数据”——数据集中的每条数据（上表中的一行）由多个特征进行描述（上表中的列）。而非结构化的数据指的是诸如电子邮件文本、推特信息、博客、新闻等。这些数据至少第一眼看起来是无法用一张表格来展现的。</p>
-
-<p>举个例子，我们想从推特信息中获取用户对各种电影的评价：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-7/chapter-7-2.png" alt="" /></p>
-
-<p>可以看到，Andy Gavin喜欢看地心引力，因为他的消息中有“不寒而栗”、“演的太棒了”之类的文本。而Debra Murphy则不太喜欢这部电影，因为她说“还是省下看这部电影的钱吧”。如果有人说“我太想看这部电影了，都兴奋坏了！”，我们可以看出她是喜欢这部电影的，即使信息中有“坏”这个字。</p>
-
-<p>我在逛超市时看到一种叫Chobani的酸奶，名字挺有趣的，但真的好吃吗？于是我掏出iPhone，谷歌了一把，看到一篇名为“女人不能只吃面包”的博客：</p>
-
-<blockquote><p><strong>无糖酸奶品评</strong></p>
-
-<p>你喝过Chobani酸奶吗？如果没有，就赶紧拿起钥匙出门去买吧！虽然它是脱脂原味的，但喝起来和酸奶的口感很像，致使我每次喝都有负罪感，因为这分明就是在喝全脂酸奶啊！原味的感觉很酸很够味，你也可以尝试一下蜂蜜口味的。我承认，虽然我在减肥期间不该吃蜂蜜的，但如果我有一天心情很糟想吃甜食，我就会在原味酸奶里舀一勺蜂蜜，太值得了！至于那些水果味的，应该都有糖分在里面，但其实酸奶本身就已经很美味了，水果只是点缀。如果你家附近没有Chobani，也可以试试Fage，同样好吃。</p>
-
-<p>虽然需要花上一美元不到，而且还会增加20卡路里，但还是很值得的，毕竟我已经一下午没吃东西了！</p>
-
-<p>来源：<a href="http://womandoesnotliveonbreadalone.blogspot.com/2009/03/sugar-free-yogurt-reviews.html">http://womandoesnotliveonbreadalone.blogspot.com/2009/03/sugar-free-yogurt-reviews.html</a></p></blockquote>
-
-<p>这是一篇正面评价吗？从第二句就可以看出，作者非常鼓励我去买。她还用了“够味”、“美味”等词汇，这些都是正面的评价。所以，让我先去吃会儿……</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-7/chapter-7-3.png" alt="" /></p>
-
-<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-7.md">前往GitHub阅读全文</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
       <h1 class="entry-title"><a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">使用git Rebase让历史变得清晰</a></h1>
     
     
@@ -324,66 +195,6 @@
     <footer>
       <a rel="full-article" href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">Read on &rarr;</a>
     </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/12/22/guidetodatamining-6/">数据挖掘指南[6]概率和朴素贝叶斯</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-12-22T10:33:00+08:00" pubdate data-updated="true">Dec 22<span>nd</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://guidetodatamining.com/chapter-6">http://guidetodatamining.com/chapter-6</a></p>
-
-<h2>朴素贝叶斯</h2>
-
-<p>还是让我们回到运动员的例子。如果我问你Brittney Griner的运动项目是什么，她有6尺8寸高，207磅重，你会说“篮球”；我再问你对此分类的准确度有多少信心，你会回答“非常有信心”。</p>
-
-<p>我再问你Heather Zurich，6尺1寸高，重176磅，你可能就不能确定地说她是打篮球的了，至少不会像之前判定Brittney那样肯定。因为从Heather的身高体重来看她也有可能是跑马拉松的。</p>
-
-<p>最后，我再问你Yumiko Hara的运动项目，她5尺4寸高，95磅重，你也许会说她是跳体操的，但也不太敢肯定，因为有些马拉松运动员也是类似的身高体重。</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-6/chapter-6-1.png" alt="" /></p>
-
-<p>使用近邻算法时，我们很难对分类结果的置信度进行量化。但如果使用的是基于概率的分类算法——贝叶斯算法——那就可以给出分类结果的可能性了：这名运动员有80%的几率是篮球运动员；这位病人有40%的几率患有糖尿病；拉斯克鲁塞斯24小时内有雨的概率是10%。</p>
-
-<p>近邻算法又称为<strong>被动学习</strong>算法。这种算法只是将训练集的数据保存起来，在收到测试数据时才会进行计算。如果我们有10万首音乐，那每进行一次分类，都需要遍历这10万条记录才行。</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-6/chapter-6-2.png" alt="" /></p>
-
-<p>贝叶斯算法则是一种<strong>主动学习</strong>算法。它会根据训练集构建起一个模型，并用这个模型来对新的记录进行分类，因此速度会快很多。</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-6/chapter-6-3.png" alt="" /></p>
-
-<p>所以说，贝叶斯算法的两个优点即：能够给出分类结果的置信度；以及它是一种主动学习算法。</p>
-
-<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-6.md">前往GitHub阅读全文</a></p>
-</div>
-  
   
 
 
@@ -481,83 +292,6 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/11/27/guidetodatamining-5/">数据挖掘指南[5]进一步探索分类</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-11-27T12:00:00+08:00" pubdate data-updated="true">Nov 27<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://guidetodatamining.com/chapter-5">http://guidetodatamining.com/chapter-5</a></p>
-
-<h2>效果评估算法和kNN</h2>
-
-<p>让我们回到上一章中运动项目的例子。</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-5/chapter-5-1.png" alt="" /></p>
-
-<p>在那个例子中，我们编写了一个分类器程序，通过运动员的身高和体重来判断她参与的运动项目——体操、田径、篮球等。</p>
-
-<p>上图中的Marissa Coleman，身高6尺1寸，重160磅，我们的分类器可以正确的进行预测：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">cl</span> <span class="o">=</span> <span class="n">Classifier</span><span class="p">(</span><span class="s">&#39;athletesTrainingSet.txt&#39;</span><span class="p">)</span>
-</span><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">cl</span><span class="o">.</span><span class="n">classify</span><span class="p">([</span><span class="mi">73</span><span class="p">,</span> <span class="mi">160</span><span class="p">])</span>
-</span><span class='line'><span class="s">&#39;Basketball&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>对于身高4尺9寸，90磅重的人：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="n">cl</span><span class="o">.</span><span class="n">classify</span><span class="p">([</span><span class="mi">59</span><span class="p">,</span> <span class="mi">90</span><span class="p">])</span>
-</span><span class='line'><span class="s">&#39;Gymnastics&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>当我们构建完一个分类器后，应该问以下问题：</p>
-
-<ul>
-<li>分类器的准确度如何？</li>
-<li>结果理想吗？</li>
-<li>如何与其它分类器做比较？</li>
-</ul>
-
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-5/chapter-5-2.png" alt="" /></p>
-
-<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-5.md">前往GitHub阅读全文</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
       <h1 class="entry-title"><a href="/blog/2014/11/07/sbt-offline/">离线环境下构建sbt项目</a></h1>
     
     
@@ -599,84 +333,6 @@
     <footer>
       <a rel="full-article" href="/blog/2014/11/07/sbt-offline/">Read on &rarr;</a>
     </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/30/guidetodatamining-4/">数据挖掘指南[4]分类</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-30T12:00:00+08:00" pubdate data-updated="true">Oct 30<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://guidetodatamining.com/chapter-4">http://guidetodatamining.com/chapter-4</a></p>
-
-<p>在上几章中我们使用用户对物品的评价来进行推荐，这一章我们将使用物品本身的特征来进行推荐。这也是潘多拉音乐站所使用的方法。</p>
-
-<p>内容：</p>
-
-<ul>
-<li>潘多拉推荐系统简介</li>
-<li>特征值选择的重要性</li>
-<li>示例：音乐特征值和邻域算法</li>
-<li>数据标准化</li>
-<li>修正的标准分数</li>
-<li>Python代码：音乐，特征，以及简单的邻域算法实现</li>
-<li>一个和体育相关的示例</li>
-<li>特征值抽取方式一览</li>
-</ul>
-
-
-<h2>根据物品特征进行分类</h2>
-
-<p>前几章我们讨论了如何使用协同过滤来进行推荐，由于使用的是用户产生的各种数据，因此又称为社会化过滤算法。比如你购买了Phoenix专辑，我们网站上其他购买过这张专辑的用户还会去购买Vampire的专辑，因此会把它推荐给你；我在Netflix上观看了Doctor Who，网站会向我推荐Quantum Leap，用的是同样的原理。我们同时也讨论了协同过滤会遇到的种种问题，包括数据的稀疏性和算法的可扩展性。此外，协同过滤算法倾向于推荐那些已经很流行的物品。试想一个极端的例子：一个新乐队发布了专辑，这张专辑还没有被任何用户评价或购买过，那它将永远不会出现在推荐列表中。</p>
-
-<blockquote><p><strong>这类推荐系统会让流行的物品更为流行，冷门的物品更无人问津。</strong></p>
-
-<p>&mdash; Daniel Fleder &amp; Kartik Hosanagar 2009 《推荐系统对商品分类的影响》</p></blockquote>
-
-<p>这一章我们来看另一种推荐方法。以潘多拉音乐站举例，在这个站点上你可以设立各种音乐频道，只需为这个频道添加一个歌手，潘多拉就会播放和这个歌手风格相类似的歌曲。比如我添加了Phoenix乐队，潘多拉便会播放El Ten Eleven的歌曲。它并没有使用协同过滤，而是通过计算得到这两个歌手的音乐风格是相似的。其实在播放界面上可以看到推荐理由：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-4/chapter-4-1.png" alt="" /></p>
-
-<p>“根据你目前告知的信息，我们播放的这首歌曲有着相似的旋律，使用了声响和电音的组合，即兴的吉他伴奏。”在我的Hiromi音乐站上，潘多拉会播放E.S.T.的歌曲，因为“它有着古典爵士乐风，一段高水准的钢琴独奏，轻盈的打击乐，以及有趣的歌曲结构。”</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-4/chapter-4-2.png" alt="" /></p>
-
-<p>潘多拉网站的推荐系统是基于一个名为音乐基因的项目。他们雇佣了专业的音乐家对歌曲进行分类（提取它们的“基因”）。这些音乐家会接受超过150小时的训练，之后便可用20到30分钟的时间来分析一首歌曲。这些乐曲特征是很专业的：</p>
-
-<p><img src="https://github.com/jizhang/guidetodatamining/raw/master/img/chapter-4/chapter-4-3.png" alt="" /></p>
-
-<p>这些专家要甄别400多种特征，平均每个月会有15000首新歌曲，因此这是一项非常消耗人力的工程。</p>
-
-<blockquote><p>注意：潘多拉的音乐基因项目是商业机密，我不曾了解它的任何信息。下文讲述的是如何构造一个类似的系统。</p></blockquote>
-
-<p><a href="https://github.com/jizhang/guidetodatamining/blob/master/chapter-4.md">前往GitHub阅读全文</a></p>
-</div>
-  
   
 
 
@@ -740,6 +396,304 @@
 
     </article>
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/">在CDH 4.5上安装Shark 0.9</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-05T17:16:00+08:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://spark.apache.org">Spark</a>是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的<a href="http://hadoop.apache.org">Hadoop</a>生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于<a href="http://hive.apache.org">Hive</a>，Spark也有相应的替代项目——<a href="http://shark.cs.berkeley.edu/">Shark</a>，能做到 <strong>drop-in replacement</strong> ，直接构建在现有集群之上。本文就将简要阐述如何在CDH4.5上搭建Shark0.9集群。</p>
+
+<h2>准备工作</h2>
+
+<ul>
+<li>安装方式：Spark使用CDH提供的Parcel，以Standalone模式启动</li>
+<li>软件版本
+
+<ul>
+<li>Cloudera Manager 4.8.2</li>
+<li>CDH 4.5</li>
+<li>Spark 0.9.0 Parcel</li>
+<li><a href="http://cloudera.rst.im/shark/">Shark 0.9.1 Binary</a></li>
+</ul>
+</li>
+<li>服务器基础配置
+
+<ul>
+<li>可用的软件源（如<a href="http://mirrors.ustc.edu.cn/">中科大的源</a>）</li>
+<li>配置主节点至子节点的root账户SSH无密码登录。</li>
+<li>在<code>/etc/hosts</code>中写死IP和主机名，或者DNS做好正反解析。</li>
+</ul>
+</li>
+</ul>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Use WebJars in Scalatra Project</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-27T17:44:00+08:00" pubdate data-updated="true">May 27<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>As I&rsquo;m working with my first <a href="http://www.scalatra.org/">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/">WebJars</a> to manage Javascript library dependencies, since it&rsquo;s more convenient and seems like a good practice. Though there&rsquo;s no <a href="http://www.webjars.org/documentation">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn&rsquo;t mean I didn&rsquo;t spend much time on this. I&rsquo;m still a newbie to Scala, and there&rsquo;s only a few materials on this subject.</p>
+
+<h2>Add WebJars Dependency in SBT Build File</h2>
+
+<p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let&rsquo;s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/">Dojo</a> for example.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">object</span> <span class="nc">DwExplorerBuild</span> <span class="k">extends</span> <span class="nc">Build</span> <span class="o">{</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'>  <span class="k">lazy</span> <span class="k">val</span> <span class="n">project</span> <span class="k">=</span> <span class="nc">Project</span> <span class="o">(</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'>    <span class="n">settings</span> <span class="k">=</span> <span class="nc">Defaults</span><span class="o">.</span><span class="n">defaultSettings</span> <span class="o">++</span> <span class="nc">ScalatraPlugin</span><span class="o">.</span><span class="n">scalatraWithJRebel</span> <span class="o">++</span> <span class="n">scalateSettings</span> <span class="o">++</span> <span class="nc">Seq</span><span class="o">(</span>
+</span><span class='line'>      <span class="o">...</span>
+</span><span class='line'>      <span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>        <span class="s">&quot;org.webjars&quot;</span> <span class="o">%</span> <span class="s">&quot;dojo&quot;</span> <span class="o">%</span> <span class="s">&quot;1.9.3&quot;</span>
+</span><span class='line'>      <span class="o">),</span>
+</span><span class='line'>      <span class="o">...</span>
+</span><span class='line'>    <span class="o">)</span>
+</span><span class='line'>  <span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To view this dependency in Eclipse, you need to run <code>sbt eclipse</code> again. In the <em>Referenced Libraries</em> section, you can see a <code>dojo-1.9.3.jar</code>, and the library lies in <code>META-INF/resources/webjars/</code>.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/07/hive-small-files/">Hive小文件问题的处理</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-07T17:09:00+08:00" pubdate data-updated="true">Apr 7<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。</p>
+
+<h2>小文件带来的问题</h2>
+
+<p>关于这个问题的阐述可以读一读Cloudera的<a href="http://blog.cloudera.com/blog/2009/02/the-small-files-problem/">这篇文章</a>。简单来说，HDFS的文件元信息，包括位置、大小、分块信息等，都是保存在NameNode的内存中的。每个对象大约占用150个字节，因此一千万个文件及分块就会占用约3G的内存空间，一旦接近这个量级，NameNode的性能就会开始下降了。</p>
+
+<p>此外，HDFS读写小文件时也会更加耗时，因为每次都需要从NameNode获取元信息，并与对应的DataNode建立连接。对于MapReduce程序来说，小文件还会增加Mapper的个数，每个脚本只处理很少的数据，浪费了大量的调度时间。当然，这个问题可以通过使用CombinedInputFile和JVM重用来解决。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/04/07/hive-small-files/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/25/java-reflection-tutorial/">Java反射机制</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-25T09:42:00+08:00" pubdate data-updated="true">Jan 25<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>原文：<a href="http://www.programcreek.com/2013/09/java-reflection-tutorial/">http://www.programcreek.com/2013/09/java-reflection-tutorial/</a></p>
+
+<p>什么是反射？它有何用处？</p>
+
+<h2>1. 什么是反射？</h2>
+
+<p>“反射（Reflection）能够让运行于JVM中的程序检测和修改运行时的行为。”这个概念常常会和内省（Introspection）混淆，以下是这两个术语在Wikipedia中的解释：</p>
+
+<ol>
+<li>内省用于在运行时检测某个对象的类型和其包含的属性；</li>
+<li>反射用于在运行时检测和修改某个对象的结构及其行为。</li>
+</ol>
+
+
+<p>从他们的定义可以看出，内省是反射的一个子集。有些语言支持内省，但并不支持反射，如C++。</p>
+
+<p><img src="http://www.programcreek.com/wp-content/uploads/2013/09/reflection-introspection-650x222.png" alt="反射和内省" /></p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/01/25/java-reflection-tutorial/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/17/the-law-of-leaky-abstractions/">抽象泄漏定律</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-17T13:05:00+08:00" pubdate data-updated="true">Dec 17<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>原文：<a href="http://www.joelonsoftware.com/articles/LeakyAbstractions.html">http://www.joelonsoftware.com/articles/LeakyAbstractions.html</a></p>
+
+<p>TCP协议是互联网的基石，我们每天都需要依靠它来构建各类互联网应用。也正是在这一协议中，时刻发生着一件近乎神奇的事情。</p>
+
+<p>TCP是一种 <em>可靠的</em> 数据传输协议，也就是说，当你通过TCP协议在网络上传输一条消息时，它一定会到达目的地，而且不会失真或毁坏。</p>
+
+<p>我们可以使用TCP来做很多事情，从浏览网页信息到收发邮件。TCP的可靠性使得东非贪污受贿的新闻能够一字一句地传递到世界各地。真是太棒了！</p>
+
+<p>和TCP协议相比，IP协议也是一种传输协议，但它是 <em>不可靠的</em> 。没有人可以保证你的数据一定会到达目的地，或者在它到达前就已经被破坏了。如果你发送了一组消息，不要惊讶为何只有一半的消息到达，有些消息的顺序会不正确，甚至消息的内容被替换成了黑猩猩宝宝的图片，或是一堆无法阅读的垃圾数据，像极了台湾人的邮件标题。</p>
+
+<p>这就是TCP协议神奇的地方：它是构建在IP协议之上的。换句话说，TCP协议能够 <em>使用一个不可靠的工具来可靠地传输数据</em> 。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/12/17/the-law-of-leaky-abstractions/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -755,15 +709,7 @@
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2015/01/15/guidetodatamining-8/">数据挖掘指南[8]聚类</a>
-      </li>
-    
-      <li class="post">
         <a href="/blog/2015/01/13/understand-reduce-side-join/">深入理解Reduce-side Join</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/12/30/guidetodatamining-7/">数据挖掘指南[7]朴素贝叶斯和文本数据</a>
       </li>
     
       <li class="post">
@@ -771,7 +717,15 @@
       </li>
     
       <li class="post">
-        <a href="/blog/2014/12/22/guidetodatamining-6/">数据挖掘指南[6]概率和朴素贝叶斯</a>
+        <a href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/07/sbt-offline/">离线环境下构建sbt项目</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/14/mysql-incorrent-utf8-value/">MySQL异常UTF-8字符的处理</a>
       </li>
     
   </ul>
