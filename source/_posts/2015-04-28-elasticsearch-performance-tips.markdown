@@ -84,6 +84,7 @@ The `discovery.zen.minimum_master_nodes` setting is a way to prevent split-brain
 * https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html
 * http://cpratt.co/how-many-shards-should-elasticsearch-indexes-have/
 * https://www.elastic.co/blog/performance-considerations-elasticsearch-indexing
+* https://www.loggly.com/blog/nine-tips-configuring-elasticsearch-for-high-performance/
 
 [1]: https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard
 [2]: https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing
