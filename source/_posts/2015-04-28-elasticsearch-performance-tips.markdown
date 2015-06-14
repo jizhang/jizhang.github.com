@@ -12,7 +12,7 @@ Recently we're using ElasticSearch as a data backend of our recommendation API, 
 
 [Shard][1] is the foundation of ElasticSearch's distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by [routing][2]), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there're too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it'll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.
 
-Shards have two roles, primary shard and replica shard. Replica shard serves as a backup to the primary shard. When primary goes down, the replica takes its role. It also helps improving the search and get performance, for these requests can be executed on either primary or replica shard.
+Shards have two roles, primary shard and replica shard. Replica shard serves as a backup to the primary shard. When primary goes down, the replica takes its job. It also helps improving the search and get performance, for these requests can be executed on either primary or replica shard.
 
 Shards can be visualized by [elasticsearch-head][1] plugin:
 
@@ -30,18 +30,42 @@ Since `number_of_shards` of an index cannot be changed after creation (while `nu
 
 ## Tip 2 Tuning Memory Usage
 
+ElasticSearch and its backend [Lucene](http://lucene.apache.org/) are both Java application. There're various memory tuning settings related to heap and native memory.
+
+### Set Max Heap Size to Half of Total Memory
+
+Generally speaking, more heap memory leads to better performance. But in ElasticSearch's case, Lucene also requires a lot of native memory (or off-heap memory), to store index segments and provide fast search performance. But it does not load the files by itself. Instead, it relies on the operating system to cache the segement files in memory.
+
+Say we have 16G memory and set -Xmx to 8G, it doesn't mean the remaining 8G is wasted. Except for the memory OS preserves for itself, it will cache the frequently accessed disk files in memory automatically, which results in a huge performance gain.
+
+Do not set heap size over 32G though, even you have more than 64G memory. The reason is described in [this link][4].
+
+Also, you should probably set -Xms to 8G as well, to avoid overhead of heap memory growth.
+
+### Disable Swapping
+
+### Increase `mmap` Counts
+
 ## Tip 3 Setup a Cluster with Unicast
 
 ## Tip 4 Disable Unnecessary Features
 
 ## Tip 5 Use Bulk Operations
 
+## Miscellaneous
+
+1. nofile
+2. processors
+
 ## References
 
 * https://www.elastic.co/guide/en/elasticsearch/guide/current/replica-shards.html
 * http://cpratt.co/how-many-shards-should-elasticsearch-indexes-have/
+* https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration.html
+* https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html
 * https://www.elastic.co/blog/performance-considerations-elasticsearch-indexing
 
 [1]: https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard
 [2]: https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing
 [3]: http://mobz.github.io/elasticsearch-head/
+[4]: https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html#compressed_oops
