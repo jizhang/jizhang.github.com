@@ -56,6 +56,19 @@ ElasticSearch uses memory mapped files, and the default `mmap` counts is low. Ad
 
 ## Tip 3 Setup a Cluster with Unicast
 
+ElasticSearch has two options to form a cluster, multicast and unicast. The former is suitable when you have a large group of servers and a well configured network. But we found unicast more concise and less error-prone.
+
+Here's an example of using unicast:
+
+```
+node.name: "NODE-1"
+discovery.zen.ping.multicast.enabled: false
+discovery.zen.ping.unicast.hosts: ["node-1.example.com", "node-2.example.com", "node-3.example.com"]
+discovery.zen.minimum_master_nodes: 2
+```
+
+The `discovery.zen.minimum_master_nodes` setting is a way to prevent split-brain symptom, i.e. more than one node thinks itself the master of the cluster. And for this setting to work, you should have an odd number of nodes, and set this config to ceil(`num_of_nodes` / 2). In the above cluster, you can lose at most one node. It's much like a quorum in [Zookeeper](http://zookeeper.apache.org).
+
 ## Tip 4 Disable Unnecessary Features
 
 ## Tip 5 Use Bulk Operations
@@ -67,10 +80,9 @@ ElasticSearch uses memory mapped files, and the default `mmap` counts is low. Ad
 
 ## References
 
-* https://www.elastic.co/guide/en/elasticsearch/guide/current/replica-shards.html
+* https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html
+* https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html
 * http://cpratt.co/how-many-shards-should-elasticsearch-indexes-have/
-* https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration.html
-* https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html
 * https://www.elastic.co/blog/performance-considerations-elasticsearch-indexing
 
 [1]: https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard
