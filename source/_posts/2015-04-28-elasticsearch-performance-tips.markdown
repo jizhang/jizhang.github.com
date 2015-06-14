@@ -40,11 +40,19 @@ Say we have 16G memory and set -Xmx to 8G, it doesn't mean the remaining 8G is w
 
 Do not set heap size over 32G though, even you have more than 64G memory. The reason is described in [this link][4].
 
-Also, you should probably set -Xms to 8G as well, to avoid overhead of heap memory growth.
+Also, you should probably set -Xms to 8G as well, to avoid the overhead of heap memory growth.
 
 ### Disable Swapping
 
+Swapping is a way to move unused program code and data to disk so as to provide more space for running applications and file caching. It also provides a buffer for the system to recover from memory exhaustion. But for critical application like ElasticSearch, being swapped is definitely a performance killer.
+
+There're several ways to disable swapping, and our choice is setting `bootstrap.mlockall` to true. This tells ElasticSearch to lock its memory space in RAM so that OS will not swap it out. One can confirm this setting via `http://localhost:9200/_nodes/process?pretty`.
+
+If ElasticSearch is not started as root (and it probably shouldn't), this setting may not take effect. For Ubuntu server, one needs to add `<username> hard memlock unlimited` to `/etc/security/limits.conf`, and run `ulimit -l unlimited` before starting ElasticSearch process.
+
 ### Increase `mmap` Counts
+
+ElasticSearch uses memory mapped files, and the default `mmap` counts is low. Add `vm.max_map_count=262144` to `/etc/sysctl.conf`, run `sysctl -p /etc/sysctl.conf` as root, and then restart ElasticSearch.
 
 ## Tip 3 Setup a Cluster with Unicast
 
