@@ -3,7 +3,7 @@ layout: post
 title: "ElasticSearch Performance Tips"
 date: 2015-04-28 23:08
 categories: [Notes]
-published: false
+published: true
 ---
 
 Recently we're using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch's rich and out-of-the-box functionality, it doesn't take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here's a list of ElasticSearch performance tips that we learned from practice.
@@ -48,7 +48,7 @@ Swapping is a way to move unused program code and data to disk so as to provide 
 
 There're several ways to disable swapping, and our choice is setting `bootstrap.mlockall` to true. This tells ElasticSearch to lock its memory space in RAM so that OS will not swap it out. One can confirm this setting via `http://localhost:9200/_nodes/process?pretty`.
 
-If ElasticSearch is not started as root (and it probably shouldn't), this setting may not take effect. For Ubuntu server, one needs to add `<username> hard memlock unlimited` to `/etc/security/limits.conf`, and run `ulimit -l unlimited` before starting ElasticSearch process.
+If ElasticSearch is not started as root (and it probably shouldn't), this setting may not take effect. For Ubuntu server, one needs to add `<user> hard memlock unlimited` to `/etc/security/limits.conf`, and run `ulimit -l unlimited` before starting ElasticSearch process.
 
 ### Increase `mmap` Counts
 
@@ -67,7 +67,7 @@ discovery.zen.ping.unicast.hosts: ["node-1.example.com", "node-2.example.com", "
 discovery.zen.minimum_master_nodes: 2
 ```
 
-The `discovery.zen.minimum_master_nodes` setting is a way to prevent split-brain symptom, i.e. more than one node thinks itself the master of the cluster. And for this setting to work, you should have an odd number of nodes, and set this config to ceil(`num_of_nodes` / 2). In the above cluster, you can lose at most one node. It's much like a quorum in [Zookeeper](http://zookeeper.apache.org).
+The `discovery.zen.minimum_master_nodes` setting is a way to prevent split-brain symptom, i.e. more than one node thinks itself the master of the cluster. And for this setting to work, you should have an odd number of nodes, and set this config to `ceil(num_of_nodes / 2)`. In the above cluster, you can lose at most one node. It's much like a quorum in [Zookeeper](http://zookeeper.apache.org).
 
 ## Tip 4 Disable Unnecessary Features
 
@@ -89,19 +89,28 @@ ElasticSearch is a full-featured search engine, but you should always tailor it 
     * Use [Scroll][7] to search a large number of documents.
     * Use [MultiSearch api][8] to run search requests in parallel. 
 * Bulk Write
-    * Use [Bulk API][9] to index, update, delete multiple documents
+    * Use [Bulk API][9] to index, update, delete multiple documents.
     * Alter [index aliases][10] simultaneously.
-* Bulk Load: when initially building a large index, do the following:
-    * Set `number_of_relicas` to 0;
-    * Set `index.refresh_interval` to -1;
+* Bulk Load: when initially building a large index, do the following,
+    * Set `number_of_relicas` to 0, so no relicas will be created;
+    * Set `index.refresh_interval` to -1, disabling nrt search;
     * Bulk build the documents;
-    * Call `optimize` on the index;
-    * Add replicas.
+    * Call `optimize` on the index, so all files are merged into one Lucene segment;
+    * Reset replicas and refresh interval, let ES cluster recover to green.
 
 ## Miscellaneous
 
-1. nofile
-2. processors
+* File descriptors: system default is too small for ES, set it to 64K will be OK. If `ulimit -n 64000` does not work, you need to add `<user> hard nofile 64000` to `/etc/security/limits.conf`, just like the `memlock` setting mentioned above.
+* When using ES client library, it will create a lot of worker threads according to the number of processors. Sometimes it's not necessary. This behaviour can be changed by setting `processors` to a lower value like 2:
+
+```scala
+val settings = ImmutableSettings.settingsBuilder()
+    .put("cluster.name", "elasticsearch")
+    .put("processors", 2)
+    .build()
+val uri = ElasticsearchClientUri("elasticsearch://127.0.0.1:9300")
+ElasticClient.remote(settings, uri)
+```
 
 ## References
 
