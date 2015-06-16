@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Notes | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-01-28T08:42:53+08:00</updated>
+  <updated>2015-06-16T14:55:28+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,158 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[ElasticSearch Performance Tips]]></title>
+    <link href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/"/>
+    <updated>2015-04-28T23:08:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips</id>
+    <content type="html"><![CDATA[<p>Recently we&rsquo;re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch&rsquo;s rich and out-of-the-box functionality, it doesn&rsquo;t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here&rsquo;s a list of ElasticSearch performance tips that we learned from practice.</p>
+
+<h2>Tip 1 Set Num-of-shards to Num-of-nodes</h2>
+
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">Shard</a> is the foundation of ElasticSearch&rsquo;s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there&rsquo;re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it&rsquo;ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
+
+<p>Shards have two roles, primary shard and replica shard. Replica shard serves as a backup to the primary shard. When primary goes down, the replica takes its job. It also helps improving the search and get performance, for these requests can be executed on either primary or replica shard.</p>
+
+<p>Shards can be visualized by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">elasticsearch-head</a> plugin:</p>
+
+<p><img src="/images/elasticsearch/shards-head.png" alt="" /></p>
+
+<p>The <code>cu_docs</code> index has two shards <code>0</code> and <code>1</code>, with <code>number_of_replicas</code> set to 1. Primary shard <code>0</code> (bold bordered) resides in server <code>Leon</code>, and its replica in <code>Pris</code>. They are green becuase all primary shards have enough repicas sitting in different servers, so the cluster is healthy.</p>
+
+<p>Since <code>number_of_shards</code> of an index cannot be changed after creation (while <code>number_of_replicas</code> can), one should choose this config wisely. Here are some suggestions:</p>
+
+<ol>
+<li>How many nodes do you have, now and future? If you&rsquo;re sure you&rsquo;ll only have 3 nodes, set number of shards to 2 and replicas to 1, so there&rsquo;ll be 4 shards across 3 nodes. If you&rsquo;ll add some servers in the future, you can set number of shards to 3, so when the cluster grows to 5 nodes, there&rsquo;ll be 6 distributed shards.</li>
+<li>How big is your index? If it&rsquo;s small, one shard with one replica will due.</li>
+<li>How is the read and write frequency, respectively? If it&rsquo;s search heavy, setup more relicas.</li>
+</ol>
+
+
+<!-- more -->
+
+
+<h2>Tip 2 Tuning Memory Usage</h2>
+
+<p>ElasticSearch and its backend <a href="http://lucene.apache.org/">Lucene</a> are both Java application. There&rsquo;re various memory tuning settings related to heap and native memory.</p>
+
+<h3>Set Max Heap Size to Half of Total Memory</h3>
+
+<p>Generally speaking, more heap memory leads to better performance. But in ElasticSearch&rsquo;s case, Lucene also requires a lot of native memory (or off-heap memory), to store index segments and provide fast search performance. But it does not load the files by itself. Instead, it relies on the operating system to cache the segement files in memory.</p>
+
+<p>Say we have 16G memory and set -Xmx to 8G, it doesn&rsquo;t mean the remaining 8G is wasted. Except for the memory OS preserves for itself, it will cache the frequently accessed disk files in memory automatically, which results in a huge performance gain.</p>
+
+<p>Do not set heap size over 32G though, even you have more than 64G memory. The reason is described in <a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html#compressed_oops">this link</a>.</p>
+
+<p>Also, you should probably set -Xms to 8G as well, to avoid the overhead of heap memory growth.</p>
+
+<h3>Disable Swapping</h3>
+
+<p>Swapping is a way to move unused program code and data to disk so as to provide more space for running applications and file caching. It also provides a buffer for the system to recover from memory exhaustion. But for critical application like ElasticSearch, being swapped is definitely a performance killer.</p>
+
+<p>There&rsquo;re several ways to disable swapping, and our choice is setting <code>bootstrap.mlockall</code> to true. This tells ElasticSearch to lock its memory space in RAM so that OS will not swap it out. One can confirm this setting via <code>http://localhost:9200/_nodes/process?pretty</code>.</p>
+
+<p>If ElasticSearch is not started as root (and it probably shouldn&rsquo;t), this setting may not take effect. For Ubuntu server, one needs to add <code>&lt;user&gt; hard memlock unlimited</code> to <code>/etc/security/limits.conf</code>, and run <code>ulimit -l unlimited</code> before starting ElasticSearch process.</p>
+
+<h3>Increase <code>mmap</code> Counts</h3>
+
+<p>ElasticSearch uses memory mapped files, and the default <code>mmap</code> counts is low. Add <code>vm.max_map_count=262144</code> to <code>/etc/sysctl.conf</code>, run <code>sysctl -p /etc/sysctl.conf</code> as root, and then restart ElasticSearch.</p>
+
+<h2>Tip 3 Setup a Cluster with Unicast</h2>
+
+<p>ElasticSearch has two options to form a cluster, multicast and unicast. The former is suitable when you have a large group of servers and a well configured network. But we found unicast more concise and less error-prone.</p>
+
+<p>Here&rsquo;s an example of using unicast:</p>
+
+<p><code>
+node.name: "NODE-1"
+discovery.zen.ping.multicast.enabled: false
+discovery.zen.ping.unicast.hosts: ["node-1.example.com", "node-2.example.com", "node-3.example.com"]
+discovery.zen.minimum_master_nodes: 2
+</code></p>
+
+<p>The <code>discovery.zen.minimum_master_nodes</code> setting is a way to prevent split-brain symptom, i.e. more than one node thinks itself the master of the cluster. And for this setting to work, you should have an odd number of nodes, and set this config to <code>ceil(num_of_nodes / 2)</code>. In the above cluster, you can lose at most one node. It&rsquo;s much like a quorum in <a href="http://zookeeper.apache.org">Zookeeper</a>.</p>
+
+<h2>Tip 4 Disable Unnecessary Features</h2>
+
+<p>ElasticSearch is a full-featured search engine, but you should always tailor it to your own needs. Here&rsquo;s a brief list:</p>
+
+<ul>
+<li>Use corrent index type. There&rsquo;re <code>index</code>, <code>not_analyzed</code>, and <code>no</code>. If you don&rsquo;t need to search the field, set it to <code>no</code>; if you only search for full match, use <code>not_analyzed</code>.</li>
+<li>For search-only fields, set <code>store</code> to false.</li>
+<li>Disable <code>_all</code> field, if you always know which field to search.</li>
+<li>Disable <code>_source</code> fields, if documents are big and you don&rsquo;t need the update capability.</li>
+<li>If you have a document key, set this field in <code>_id</code> &ndash; <code>path</code>, instead of index the field twice.</li>
+<li>Set <code>index.refresh_interval</code> to a larger number (default 1s), if you don&rsquo;t need near-realtime search. It&rsquo;s also an important option in bulk-load operation described below.</li>
+</ul>
+
+
+<h2>Tip 5 Use Bulk Operations</h2>
+
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/bulk.html">Bulk is cheaper</a></p>
+
+<ul>
+<li>Bulk Read
+
+<ul>
+<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html">Multi Get</a> to retrieve multiple documents by a list of ids.</li>
+<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html">Scroll</a> to search a large number of documents.</li>
+<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/search.html#msearch">MultiSearch api</a> to run search requests in parallel.</li>
+</ul>
+</li>
+<li>Bulk Write
+
+<ul>
+<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/bulk.html">Bulk API</a> to index, update, delete multiple documents.</li>
+<li>Alter <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html">index aliases</a> simultaneously.</li>
+</ul>
+</li>
+<li>Bulk Load: when initially building a large index, do the following,
+
+<ul>
+<li>Set <code>number_of_relicas</code> to 0, so no relicas will be created;</li>
+<li>Set <code>index.refresh_interval</code> to -1, disabling nrt search;</li>
+<li>Bulk build the documents;</li>
+<li>Call <code>optimize</code> on the index, so all files are merged into one Lucene segment;</li>
+<li>Reset replicas and refresh interval, let ES cluster recover to green.</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>Miscellaneous</h2>
+
+<ul>
+<li>File descriptors: system default is too small for ES, set it to 64K will be OK. If <code>ulimit -n 64000</code> does not work, you need to add <code>&lt;user&gt; hard nofile 64000</code> to <code>/etc/security/limits.conf</code>, just like the <code>memlock</code> setting mentioned above.</li>
+<li>When using ES client library, it will create a lot of worker threads according to the number of processors. Sometimes it&rsquo;s not necessary. This behaviour can be changed by setting <code>processors</code> to a lower value like 2:</li>
+</ul>
+
+
+<p>```scala
+val settings = ImmutableSettings.settingsBuilder()</p>
+
+<pre><code>.put("cluster.name", "elasticsearch")
+.put("processors", 2)
+.build()
+</code></pre>
+
+<p>val uri = ElasticsearchClientUri(&ldquo;elasticsearch://127.0.0.1:9300&rdquo;)
+ElasticClient.remote(settings, uri)
+```</p>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html">https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html">https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html</a></li>
+<li><a href="http://cpratt.co/how-many-shards-should-elasticsearch-indexes-have/">http://cpratt.co/how-many-shards-should-elasticsearch-indexes-have/</a></li>
+<li><a href="https://www.elastic.co/blog/performance-considerations-elasticsearch-indexing">https://www.elastic.co/blog/performance-considerations-elasticsearch-indexing</a></li>
+<li><a href="https://www.loggly.com/blog/nine-tips-configuring-elasticsearch-for-high-performance/">https://www.loggly.com/blog/nine-tips-configuring-elasticsearch-for-high-performance/</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[使用git rebase让历史变得清晰]]></title>
@@ -452,112 +604,6 @@ Failed with exception org.apache.thrift.TApplicationException: Invalid method na
 <p>对于这个问题，我只在<a href="https://groups.google.com/forum/#!starred/shark-users/x_Dh5-3isIc">Google Groups</a>上看到一篇相关的帖子，不过并没有给出解决方案。</p>
 
 <p>目前我们实施的是 <strong>第一种方案</strong>，即在客户端和Shark之间添加一层，不支持的SQL语句直接降级用Hive执行，效果不错。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Use WebJars in Scalatra Project]]></title>
-    <link href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/"/>
-    <updated>2014-05-27T17:44:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project</id>
-    <content type="html"><![CDATA[<p>As I&rsquo;m working with my first <a href="http://www.scalatra.org/">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/">WebJars</a> to manage Javascript library dependencies, since it&rsquo;s more convenient and seems like a good practice. Though there&rsquo;s no <a href="http://www.webjars.org/documentation">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn&rsquo;t mean I didn&rsquo;t spend much time on this. I&rsquo;m still a newbie to Scala, and there&rsquo;s only a few materials on this subject.</p>
-
-<h2>Add WebJars Dependency in SBT Build File</h2>
-
-<p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let&rsquo;s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/">Dojo</a> for example.</p>
-
-<p>```scala
-object DwExplorerBuild extends Build {
-  &hellip;
-  lazy val project = Project (</p>
-
-<pre><code>...
-settings = Defaults.defaultSettings ++ ScalatraPlugin.scalatraWithJRebel ++ scalateSettings ++ Seq(
-  ...
-  libraryDependencies ++= Seq(
-    ...
-    "org.webjars" % "dojo" % "1.9.3"
-  ),
-  ...
-)
-</code></pre>
-
-<p>  )
-}
-```</p>
-
-<p>To view this dependency in Eclipse, you need to run <code>sbt eclipse</code> again. In the <em>Referenced Libraries</em> section, you can see a <code>dojo-1.9.3.jar</code>, and the library lies in <code>META-INF/resources/webjars/</code>.</p>
-
-<!-- more -->
-
-
-<h2>Add a Route for WebJars Resources</h2>
-
-<p>Find the <code>ProjectNameStack.scala</code> file and add the following lines at the bottom of the trait:</p>
-
-<p>```scala
-trait ProjectNameStack extends ScalatraServlet with ScalateSupport {
-  &hellip;
-  get(&ldquo;/webjars/*&rdquo;) {</p>
-
-<pre><code>val resourcePath = "/META-INF/resources/webjars/" + params("splat")
-Option(getClass.getResourceAsStream(resourcePath)) match {
-  case Some(inputStream) =&gt; {
-    contentType = servletContext.getMimeType(resourcePath)
-    IOUtil.loadBytes(inputStream)
-  }
-  case None =&gt; resourceNotFound()
-}
-</code></pre>
-
-<p>  }
-}
-```</p>
-
-<p><strong>That&rsquo;s it!</strong> Now you can refer to the WebJars resources in views, like this:</p>
-
-<p>```ssp</p>
-
-<h1>set (title)</h1>
-
-<p>Hello, Dojo!</p>
-
-<h1>end</h1>
-
-<div id="greeting"></div>
-
-
-
-
-<script type="text/javascript" src="${uri("/webjars/dojo/1.9.3/dojo/dojo.js")}" data-dojo-config="async: true"></script>
-
-
-<script type="text/javascript">
-require([
-    'dojo/dom',
-    'dojo/dom-construct'
-], function (dom, domConstruct) {
-    var greetingNode = dom.byId('greeting');
-    domConstruct.place('<i>Dojo!</i>', greetingNode);
-});
-</script>
-
-
-<p>```</p>
-
-<h3>Some Explanations on This Route</h3>
-
-<ul>
-<li><code>/webjars/*</code> is a <a href="http://www.scalatra.org/2.2/guides/http/routes.html#toc_233">Wildcards</a> and <code>params("splat")</code> is to extract the asterisk part.</li>
-<li><code>resourcePath</code> points to the WebJars resources in the jar file, as we saw in Eclipse. It is then fetched as an <code>InputStream</code> with <code>getResourceAsStream()</code>.</li>
-<li><code>servletContext.getMimeType()</code> is a handy method to determine the content type of the requested resource, instead of parsing it by ourselves. I find this in SpringMVC&rsquo;s <a href="http://grepcode.com/file/repo1.maven.org/maven2/org.springframework/spring-webmvc/3.2.7.RELEASE/org/springframework/web/servlet/resource/ResourceHttpRequestHandler.java#ResourceHttpRequestHandler.handleRequest%28javax.servlet.http.HttpServletRequest%2Cjavax.servlet.http.HttpServletResponse%29">ResourceHttpRequestHandler</a>.</li>
-<li><code>IOUtil</code> is a utiliy class that comes with <a href="http://scalate.fusesource.org/">Scalate</a>, so don&rsquo;t forget to import it first.</li>
-</ul>
-
-
-<p>At first I tried to figure out whether Scalatra provides a conveniet way to serve static files in classpath, I failed. So I decided to serve them by my own, and <a href="https://gist.github.com/laurilehmijoki/4483113">this gist</a> was very helpful.</p>
-
-<p>Anyway, I&rsquo;ve spent more than half a day to solve this problem, and it turned out to be a very challenging yet interesting way to learn a new language, new framework, and new tools. Keep moving!</p>
 ]]></content>
   </entry>
   

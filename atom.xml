@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-01-28T08:42:53+08:00</updated>
+  <updated>2015-06-16T14:55:28+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,164 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[ElasticSearch Performance Tips]]></title>
+    <link href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/"/>
+    <updated>2015-04-28T23:08:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips</id>
+    <content type="html"><![CDATA[<p>Recently we&rsquo;re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch&rsquo;s rich and out-of-the-box functionality, it doesn&rsquo;t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here&rsquo;s a list of ElasticSearch performance tips that we learned from practice.</p>
+
+<h2>Tip 1 Set Num-of-shards to Num-of-nodes</h2>
+
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">Shard</a> is the foundation of ElasticSearch&rsquo;s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there&rsquo;re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it&rsquo;ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
+
+<p>Shards have two roles, primary shard and replica shard. Replica shard serves as a backup to the primary shard. When primary goes down, the replica takes its job. It also helps improving the search and get performance, for these requests can be executed on either primary or replica shard.</p>
+
+<p>Shards can be visualized by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">elasticsearch-head</a> plugin:</p>
+
+<p><img src="http://shzhangji.com/images/elasticsearch/shards-head.png" alt="" /></p>
+
+<p>The <code>cu_docs</code> index has two shards <code>0</code> and <code>1</code>, with <code>number_of_replicas</code> set to 1. Primary shard <code>0</code> (bold bordered) resides in server <code>Leon</code>, and its replica in <code>Pris</code>. They are green becuase all primary shards have enough repicas sitting in different servers, so the cluster is healthy.</p>
+
+<p>Since <code>number_of_shards</code> of an index cannot be changed after creation (while <code>number_of_replicas</code> can), one should choose this config wisely. Here are some suggestions:</p>
+
+<ol>
+<li>How many nodes do you have, now and future? If you&rsquo;re sure you&rsquo;ll only have 3 nodes, set number of shards to 2 and replicas to 1, so there&rsquo;ll be 4 shards across 3 nodes. If you&rsquo;ll add some servers in the future, you can set number of shards to 3, so when the cluster grows to 5 nodes, there&rsquo;ll be 6 distributed shards.</li>
+<li>How big is your index? If it&rsquo;s small, one shard with one replica will due.</li>
+<li>How is the read and write frequency, respectively? If it&rsquo;s search heavy, setup more relicas.</li>
+</ol>
+
+
+<!-- more -->
+
+
+<h2>Tip 2 Tuning Memory Usage</h2>
+
+<p>ElasticSearch and its backend <a href="http://lucene.apache.org/">Lucene</a> are both Java application. There&rsquo;re various memory tuning settings related to heap and native memory.</p>
+
+<h3>Set Max Heap Size to Half of Total Memory</h3>
+
+<p>Generally speaking, more heap memory leads to better performance. But in ElasticSearch&rsquo;s case, Lucene also requires a lot of native memory (or off-heap memory), to store index segments and provide fast search performance. But it does not load the files by itself. Instead, it relies on the operating system to cache the segement files in memory.</p>
+
+<p>Say we have 16G memory and set -Xmx to 8G, it doesn&rsquo;t mean the remaining 8G is wasted. Except for the memory OS preserves for itself, it will cache the frequently accessed disk files in memory automatically, which results in a huge performance gain.</p>
+
+<p>Do not set heap size over 32G though, even you have more than 64G memory. The reason is described in <a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html#compressed_oops">this link</a>.</p>
+
+<p>Also, you should probably set -Xms to 8G as well, to avoid the overhead of heap memory growth.</p>
+
+<h3>Disable Swapping</h3>
+
+<p>Swapping is a way to move unused program code and data to disk so as to provide more space for running applications and file caching. It also provides a buffer for the system to recover from memory exhaustion. But for critical application like ElasticSearch, being swapped is definitely a performance killer.</p>
+
+<p>There&rsquo;re several ways to disable swapping, and our choice is setting <code>bootstrap.mlockall</code> to true. This tells ElasticSearch to lock its memory space in RAM so that OS will not swap it out. One can confirm this setting via <code>http://localhost:9200/_nodes/process?pretty</code>.</p>
+
+<p>If ElasticSearch is not started as root (and it probably shouldn&rsquo;t), this setting may not take effect. For Ubuntu server, one needs to add <code>&lt;user&gt; hard memlock unlimited</code> to <code>/etc/security/limits.conf</code>, and run <code>ulimit -l unlimited</code> before starting ElasticSearch process.</p>
+
+<h3>Increase <code>mmap</code> Counts</h3>
+
+<p>ElasticSearch uses memory mapped files, and the default <code>mmap</code> counts is low. Add <code>vm.max_map_count=262144</code> to <code>/etc/sysctl.conf</code>, run <code>sysctl -p /etc/sysctl.conf</code> as root, and then restart ElasticSearch.</p>
+
+<h2>Tip 3 Setup a Cluster with Unicast</h2>
+
+<p>ElasticSearch has two options to form a cluster, multicast and unicast. The former is suitable when you have a large group of servers and a well configured network. But we found unicast more concise and less error-prone.</p>
+
+<p>Here&rsquo;s an example of using unicast:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>node.name: "NODE-1"
+</span><span class='line'>discovery.zen.ping.multicast.enabled: false
+</span><span class='line'>discovery.zen.ping.unicast.hosts: ["node-1.example.com", "node-2.example.com", "node-3.example.com"]
+</span><span class='line'>discovery.zen.minimum_master_nodes: 2</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>discovery.zen.minimum_master_nodes</code> setting is a way to prevent split-brain symptom, i.e. more than one node thinks itself the master of the cluster. And for this setting to work, you should have an odd number of nodes, and set this config to <code>ceil(num_of_nodes / 2)</code>. In the above cluster, you can lose at most one node. It&rsquo;s much like a quorum in <a href="http://zookeeper.apache.org">Zookeeper</a>.</p>
+
+<h2>Tip 4 Disable Unnecessary Features</h2>
+
+<p>ElasticSearch is a full-featured search engine, but you should always tailor it to your own needs. Here&rsquo;s a brief list:</p>
+
+<ul>
+<li>Use corrent index type. There&rsquo;re <code>index</code>, <code>not_analyzed</code>, and <code>no</code>. If you don&rsquo;t need to search the field, set it to <code>no</code>; if you only search for full match, use <code>not_analyzed</code>.</li>
+<li>For search-only fields, set <code>store</code> to false.</li>
+<li>Disable <code>_all</code> field, if you always know which field to search.</li>
+<li>Disable <code>_source</code> fields, if documents are big and you don&rsquo;t need the update capability.</li>
+<li>If you have a document key, set this field in <code>_id</code> &ndash; <code>path</code>, instead of index the field twice.</li>
+<li>Set <code>index.refresh_interval</code> to a larger number (default 1s), if you don&rsquo;t need near-realtime search. It&rsquo;s also an important option in bulk-load operation described below.</li>
+</ul>
+
+
+<h2>Tip 5 Use Bulk Operations</h2>
+
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/bulk.html">Bulk is cheaper</a></p>
+
+<ul>
+<li>Bulk Read
+
+<ul>
+<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html">Multi Get</a> to retrieve multiple documents by a list of ids.</li>
+<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html">Scroll</a> to search a large number of documents.</li>
+<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/search.html#msearch">MultiSearch api</a> to run search requests in parallel.</li>
+</ul>
+</li>
+<li>Bulk Write
+
+<ul>
+<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/bulk.html">Bulk API</a> to index, update, delete multiple documents.</li>
+<li>Alter <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html">index aliases</a> simultaneously.</li>
+</ul>
+</li>
+<li>Bulk Load: when initially building a large index, do the following,
+
+<ul>
+<li>Set <code>number_of_relicas</code> to 0, so no relicas will be created;</li>
+<li>Set <code>index.refresh_interval</code> to -1, disabling nrt search;</li>
+<li>Bulk build the documents;</li>
+<li>Call <code>optimize</code> on the index, so all files are merged into one Lucene segment;</li>
+<li>Reset replicas and refresh interval, let ES cluster recover to green.</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>Miscellaneous</h2>
+
+<ul>
+<li>File descriptors: system default is too small for ES, set it to 64K will be OK. If <code>ulimit -n 64000</code> does not work, you need to add <code>&lt;user&gt; hard nofile 64000</code> to <code>/etc/security/limits.conf</code>, just like the <code>memlock</code> setting mentioned above.</li>
+<li>When using ES client library, it will create a lot of worker threads according to the number of processors. Sometimes it&rsquo;s not necessary. This behaviour can be changed by setting <code>processors</code> to a lower value like 2:</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">settings</span> <span class="k">=</span> <span class="nc">ImmutableSettings</span><span class="o">.</span><span class="n">settingsBuilder</span><span class="o">()</span>
+</span><span class='line'>    <span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="s">&quot;cluster.name&quot;</span><span class="o">,</span> <span class="s">&quot;elasticsearch&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="s">&quot;processors&quot;</span><span class="o">,</span> <span class="mi">2</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">.</span><span class="n">build</span><span class="o">()</span>
+</span><span class='line'><span class="k">val</span> <span class="n">uri</span> <span class="k">=</span> <span class="nc">ElasticsearchClientUri</span><span class="o">(</span><span class="s">&quot;elasticsearch://127.0.0.1:9300&quot;</span><span class="o">)</span>
+</span><span class='line'><span class="nc">ElasticClient</span><span class="o">.</span><span class="n">remote</span><span class="o">(</span><span class="n">settings</span><span class="o">,</span> <span class="n">uri</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html">https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html">https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html</a></li>
+<li><a href="http://cpratt.co/how-many-shards-should-elasticsearch-indexes-have/">http://cpratt.co/how-many-shards-should-elasticsearch-indexes-have/</a></li>
+<li><a href="https://www.elastic.co/blog/performance-considerations-elasticsearch-indexing">https://www.elastic.co/blog/performance-considerations-elasticsearch-indexing</a></li>
+<li><a href="https://www.loggly.com/blog/nine-tips-configuring-elasticsearch-for-high-performance/">https://www.loggly.com/blog/nine-tips-configuring-elasticsearch-for-high-performance/</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[深入理解Reduce-side Join]]></title>
@@ -4354,386 +4512,6 @@
 <li><a href="http://tech.idv2.com/2006/10/14/linux-multiprocess-info/">Linux多进程相关内容</a></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Perl入门实战：JVM监控脚本（上）]]></title>
-    <link href="http://shzhangji.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1/"/>
-    <updated>2013-03-26T23:00:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/03/26/perl-prime-in-action-jvm-monitoring-1</id>
-    <content type="html"><![CDATA[<p>由于最近在搭建Zabbix监控服务，需要制作各类监控的模板，如iostat、Nginx、MySQL等，因此会写一些脚本来完成数据采集的工作。又因为近期对Perl语言比较感兴趣，因此决定花些时间学一学，写一个脚本来练练手，于是就有了这样一份笔记。</p>
-
-<h2>需求描述</h2>
-
-<p>我们将编写一个获取JVM虚拟机状态信息的脚本：</p>
-
-<ol>
-<li>启动一个服务进程，通过套接字接收形如“JVMPORT 2181”的请求；</li>
-<li>执行<code>netstat</code>命令，根据端口获取进程号；</li>
-<li>执行<code>jstat</code>命令获取JVM的GC信息；<code>jstack</code>获取线程信息；<code>ps -o pcpu,rss</code>获取CPU和内存使用情况；</li>
-<li>将以上信息返回给客户端；</li>
-</ol>
-
-
-<p>之所以需要这样一个服务是因为Zabbix Agent会运行在zabbix用户下，无法获取运行在其他用户下的JVM信息。</p>
-
-<p>此外，Zabbix Agent也需要编写一个脚本来调用上述服务，这个在文章末尾会给出范例代码。</p>
-
-<!-- more -->
-
-
-<h2>Hello, world!</h2>
-
-<p>还是要不免俗套地来一个helloworld，不过我们的版本会稍稍丰富些：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="c1">#!/usr/bin/perl</span>
-</span><span class='line'><span class="k">use</span> <span class="n">strict</span><span class="p">;</span>
-</span><span class='line'><span class="k">my</span> <span class="nv">$name</span> <span class="o">=</span> <span class="s">&#39;Jerry&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="k">print</span> <span class="s">&quot;Hello, $name!\n&quot;</span><span class="p">;</span> <span class="c1"># 输出 Hello, Jerry!</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>将该文件保存为<code>hello.pl</code>，可以用两种方式执行：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>perl hello.pl
-</span><span class='line'>Hello, Jerry!
-</span><span class='line'><span class="nv">$ </span>chmod 755 hello.pl
-</span><span class='line'><span class="nv">$ </span>./hello.pl
-</span><span class='line'>Hello, Jerry!
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>所有的语句都以分号结尾，因此一行中可以有多条语句，但并不提倡这样做。</li>
-<li><code>use</code>表示加载某个模块，加载<a href="http://search.cpan.org/~rjbs/perl-5.16.3/lib/strict.pm"><code>strict</code>模块</a>表示会对当前文件的语法做出一些规范和约束。比如将<code>my $name ...</code>前的<code>my</code>去掉，执行后Perl解释器会报错。建议坚持使用该模块。</li>
-<li><code>$name</code>，一个Perl变量。<code>$</code>表示该变量是一个标量，可以存放数值、字符串等基本类型。其它符号有<code>@</code>和<code>%</code>，分别对应数组和哈希表。</li>
-<li><code>my</code>表示声明一个变量，类似的有<code>our</code>、<code>local</code>等，将来接触到变量作用域时会了解。</li>
-<li>字符串可以用单引号或双引号括起来，区别是双引号中的变量会被替换成实际值以及进行转移，单引号则不会。如<code>'Hello, $name!\n'</code>中的<code>$name</code>和<code>\n</code>会按原样输出，而不是替换为“Jerry”和换行符。</li>
-<li><code>print</code>语句用于将字符串输出到标准输出上。</li>
-<li><code>#</code>表示注释。</li>
-</ul>
-
-
-<h2>正则表达式</h2>
-
-<p>我们第一个任务是从“JVMPORT 2181”这样的字符串中提取“2181”这个端口号。解决方案当然是使用正则，而且Perl的强项之一正是文本处理：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">my</span> <span class="nv">$line</span> <span class="o">=</span> <span class="s">&#39;JVMPORT 2181&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$line</span> <span class="o">=~</span><span class="sr"> /^JVMPORT ([0-9]+)$/</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">print</span> <span class="nv">$1</span><span class="p">,</span> <span class="s">&quot;\n&quot;</span><span class="p">;</span> <span class="c1"># 输出 2181</span>
-</span><span class='line'><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&#39;匹配失败&#39;</span><span class="p">,</span> <span class="s">&quot;\n&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这里假设你知道如何使用正则表达式。</p>
-
-<ul>
-<li><code>=~</code>运算符表示将变量和正则表达式进行匹配，如果匹配成功则返回真，失败则返回假。</li>
-<li>匹配成功后，Perl会对全局魔术变量——<code>$0</code>至<code>$9</code>进行赋值，分别表示正则表达式完全匹配到的字符串、第一个子模式匹配到的字符串、第二个子模式，依此类推。</li>
-<li><code>if...else...</code>是条件控制语句，其中<code>...} else if (...</code>可以简写为<code>...} elsif (...</code>。</li>
-</ul>
-
-
-<h2>调用命令行</h2>
-
-<p>使用反引号（即大键盘数字1左边的按键）：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">my</span> <span class="nv">$uname</span> <span class="o">=</span> <span class="sb">`uname`</span><span class="p">;</span>
-</span><span class='line'><span class="k">print</span> <span class="nv">$uname</span><span class="p">;</span> <span class="c1"># 输出 Linux</span>
-</span><span class='line'><span class="k">my</span> <span class="nv">$pid</span> <span class="o">=</span> <span class="s">&#39;1234&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="nv">$line</span> <span class="o">=</span> <span class="sb">`ps -ef | grep $pid`</span><span class="p">;</span> <span class="c1"># 支持管道符和变量替换</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>对于返回多行结果的命令，我们需要对每一行的内容进行遍历，因此会使用数组和<code>foreach</code>语句：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">my</span> <span class="nv">$pid</span><span class="p">;</span>
-</span><span class='line'><span class="k">my</span> <span class="nv">$jvmport</span> <span class="o">=</span> <span class="s">&#39;2181&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="k">my</span> <span class="nv">@netstat</span> <span class="o">=</span> <span class="sb">`netstat -lntp 2&gt;/dev/null`</span><span class="p">;</span>
-</span><span class='line'><span class="k">foreach</span> <span class="k">my</span> <span class="nv">$line</span> <span class="p">(</span><span class="nv">@netstat</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nv">$line</span> <span class="o">=~</span><span class="sr"> /.*?:$jvmport\s.*?([0-9]+)\/java\s*$/</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$pid</span> <span class="o">=</span> <span class="nv">$1</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">last</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nv">$pid</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">print</span> <span class="nv">$pid</span><span class="p">,</span> <span class="s">&quot;\n&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&#39;端口不存在&#39;</span><span class="p">,</span> <span class="s">&quot;\n&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li><code>$pid</code>变量的结果是2181端口对应的进程号。</li>
-<li>这个正则可能稍难理解，但对照<code>netstat</code>的输出结果来看就可以了。</li>
-<li><code>foreach</code>是循环语句的一种，用来遍历一个数组的元素，这里则是遍历<code>netstat</code>命令每一行的内容。注意，<code>foreach</code>可以直接用<code>for</code>代替，即<code>for my $line (@netstat) { ... }</code>。</li>
-<li><code>last</code>表示退出循环。如果要进入下一次循环，可使用<code>next</code>语句。</li>
-</ul>
-
-
-<h2>数组</h2>
-
-<p>下面我们要根据进程号来获取JVM的GC信息：（“2017”为上文获取到的进程号）</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>jstat -gc 2017
-</span><span class='line'> S0C    S1C    S0U    S1U      EC       EU        OC         OU       PC     PU    YGC     YGCT    FGC    FGCT     GCT
-</span><span class='line'>192.0  192.0   0.0    50.1   1792.0   682.8     4480.0     556.3    21248.0 9483.2      3    0.008   0      0.000    0.008
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>如何将以上输出结果转换为以下形式？</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>s0c 192.0
-</span><span class='line'>s1c 192.0
-</span><span class='line'>...
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这时我们就需要更多地使用数组这一数据结构：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">my</span> <span class="nv">$pid</span> <span class="o">=</span> <span class="mi">2017</span><span class="p">;</span>
-</span><span class='line'><span class="k">my</span> <span class="nv">@jstat</span> <span class="o">=</span> <span class="sb">`jstat -gc $pid`</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nv">$jstat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=~</span> <span class="sr">s/^\s+|\s+$//</span><span class="p">;</span>
-</span><span class='line'><span class="nv">$jstat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=~</span> <span class="sr">s/^\s+|\s+$//</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">my</span> <span class="nv">@kv_keys</span> <span class="o">=</span> <span class="nb">split</span><span class="p">(</span><span class="sr">/\s+/</span><span class="p">,</span> <span class="nv">$jstat</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-</span><span class='line'><span class="k">my</span> <span class="nv">@kv_vals</span> <span class="o">=</span> <span class="nb">split</span><span class="p">(</span><span class="sr">/\s+/</span><span class="p">,</span> <span class="nv">$jstat</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">my</span> <span class="nv">$result</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="k">for</span> <span class="k">my</span> <span class="nv">$i</span> <span class="p">(</span><span class="mi">0</span> <span class="o">..</span> <span class="nv">$#kv_keys</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nv">$result</span> <span class="o">.=</span> <span class="s">&quot;$kv_keys[$i] $kv_vals[$i]\n&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">print</span> <span class="nv">$result</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>使用<code>$jstat[0]</code>获取数组的第一个元素，数组的下标从0开始，注意这里的<code>$</code>符号，而非<code>@</code>。</li>
-<li><code>$#kv_keys</code>返回的是数组最大的下标，而非数组的长度。</li>
-<li><code>for my $i (0 .. 10) {}</code>则是另一种循环结构，<code>$i</code>的值从0到10（含0和10）。</li>
-</ul>
-
-
-<p>对于正则表达式，这里也出现了两个新的用法：</p>
-
-<ul>
-<li><code>s/A/B/</code>表示将A的值替换为B，上述代码中是将首尾的空格去除；</li>
-<li><code>split(A, B)</code>函数表示将字符串B按照正则A进行分割，并返回一个数组。</li>
-</ul>
-
-
-<p>另外在学习过程中还发现了这样一种写法：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">my</span> <span class="nv">@jstat</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nv">$jstat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=~</span> <span class="sr">s/^\s+|\s+$//</span><span class="p">;</span>
-</span><span class='line'><span class="nv">$jstat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=~</span> <span class="sr">s/^\s+|\s+$//</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">map</span> <span class="p">{</span> <span class="sr">s/^\s+|\s+$//</span> <span class="p">}</span> <span class="nv">@jstat</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>map</code>函数会对数组中的每个元素应用第一个参数指向的函数（这里是一个匿名函数），当需要处理的数组元素很多时，这种是首选做法。具体内容读者可以自己去了解。</p>
-
-<h2>函数</h2>
-
-<p>我们可以用以下命令来获取指定进程的CPU和内存使用率：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>ps -o pcpu,rss -p 2017
-</span><span class='line'>%CPU   RSS
-</span><span class='line'> 0.1 21632
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>格式和<code>jstat</code>是一样的，为了不再写一遍上文中的代码，我们可以将其封装为函数。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">sub </span><span class="nf">kv_parse</span> <span class="p">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">my</span> <span class="nv">@kv_data</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nb">map</span> <span class="p">{</span> <span class="sr">s/^\s+|\s+$//</span> <span class="p">}</span> <span class="nv">@kv_data</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">my</span> <span class="nv">@kv_keys</span> <span class="o">=</span> <span class="nb">split</span><span class="p">(</span><span class="sr">/\s+/</span><span class="p">,</span> <span class="nv">$kv_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-</span><span class='line'>    <span class="k">my</span> <span class="nv">@kv_vals</span> <span class="o">=</span> <span class="nb">split</span><span class="p">(</span><span class="sr">/\s+/</span><span class="p">,</span> <span class="nv">$kv_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">my</span> <span class="nv">$result</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">for</span> <span class="k">my</span> <span class="nv">$i</span> <span class="p">(</span><span class="mi">0</span> <span class="o">..</span> <span class="nv">$#kv_keys</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nv">$result</span> <span class="o">.=</span> <span class="s">&quot;$kv_keys[$i] $kv_vals[$i]\n&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="nv">$result</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">my</span> <span class="nv">$pid</span> <span class="o">=</span> <span class="mi">2017</span><span class="p">;</span>
-</span><span class='line'><span class="k">my</span> <span class="nv">@jstat</span> <span class="o">=</span> <span class="sb">`jstat -gc $pid`</span><span class="p">;</span>
-</span><span class='line'><span class="k">my</span> <span class="nv">@ps</span> <span class="o">=</span> <span class="sb">`ps -o pcpu,rss -p $pid`</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">print</span> <span class="n">kv_parse</span><span class="p">(</span><span class="nv">@jstat</span><span class="p">);</span>
-</span><span class='line'><span class="k">print</span> <span class="n">kv_parse</span><span class="p">(</span><span class="nv">@ps</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>sub</code>表示定义一个函数（subroutine），和其他语言不同的是，它没有参数列表，获取参数使用的是魔术变量<code>@_</code>：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">sub </span><span class="nf">hello</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">my</span> <span class="nv">$name1</span> <span class="o">=</span> <span class="nv">$_</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
-</span><span class='line'>    <span class="nv">$name1</span> <span class="o">=</span> <span class="nb">shift</span> <span class="nv">@_</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">my</span> <span class="nv">$name2</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">(</span><span class="nv">@_</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">my</span> <span class="nv">$name3</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">hello</span><span class="p">(</span><span class="s">&#39;111&#39;</span><span class="p">,</span> <span class="s">&#39;222&#39;</span><span class="p">,</span> <span class="s">&#39;333&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="n">hello</span> <span class="s">&#39;111&#39;</span><span class="p">,</span> <span class="s">&#39;222&#39;</span><span class="p">,</span> <span class="s">&#39;333&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="o">&amp;</span><span class="n">hello</span><span class="p">(</span><span class="s">&#39;111&#39;</span><span class="p">,</span> <span class="s">&#39;222&#39;</span><span class="p">,</span> <span class="s">&#39;333&#39;</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li><code>$_[0]</code>和<code>shift @_</code>返回的都是第一参数。不同的是，<code>shift</code>函数会将这个参数从<code>@_</code>数组中移除；</li>
-<li><code>shift @_</code>和<code>shift(@_)</code>是等价的，因为调用函数时参数列表可以不加括号；</li>
-<li><code>shift @_</code>和只写<code>shift</code>也是等价的，该函数若不指定参数，则默认使用<code>@_</code>数组。</li>
-<li><code>&amp;</code>符号也是比较特别的，主要作用有两个：一是告诉Perl解释器<code>hello</code>将是一个用户定义的函数，这样就不会和Perl原生关键字冲突；二是忽略函数原型（prototype）。具体可以参考这篇文章：<a href="https://www.socialtext.net/perl5/subroutines_called_with_the_ampersand">Subroutines Called With The Ampersand</a>。</li>
-</ul>
-
-
-<p>当传递一个数组给函数时，该数组不会被作为<code>@_</code>的第一个元素，而是作为<code>@_</code>本身。这也是很特别的地方。当传递多个数组，Perl会将这些数组进行拼接：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">sub </span><span class="nf">hello</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">for</span> <span class="k">my</span> <span class="nv">$i</span> <span class="p">(</span><span class="nv">@_</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">print</span> <span class="nv">$i</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">my</span> <span class="nv">@arr1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span> <span class="c1"># 使用圆括号定义一个数组，元素以逗号分隔。</span>
-</span><span class='line'><span class="k">my</span> <span class="nv">@arr2</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">hello</span> <span class="nv">@arr1</span><span class="p">,</span> <span class="nv">@arr2</span><span class="p">;</span> <span class="c1"># 输出 1234</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>小结</h2>
-
-<p>对于初学者来讲，本文的信息量可能有些大了。但如果你已经有一定的编程经验（包括Bash），应该可以理解这些内容。</p>
-
-<p>Perl文化的特色是“不只一种做法来完成一件事情”，所以我们可以看到很多不同的写法。但也有一些是大家普遍接受的写法，所以也算是一种规范吧。</p>
-
-<p>下一章我们会继续完成这个监控脚本。</p>
-
-<p>PS：本文的示例代码可以从<a href="https://github.com/jizhang/perl-jvm-monitoring-example">Github</a>中下载。</p>
 ]]></content>
   </entry>
   

@@ -9,8 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="在《MapReduce Design Patterns》一书中，作者给出了Reduce-side Join的实现方法，大致步骤如下： 使用MultipleInputs指定不同的来源表和相应的Mapper类；
-Mapper输出的Key为Join的字段内容，Value为打了来源表标签的记录； &hellip;">
+  <meta name="description" content="Recently we&rsquo;re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -82,6 +81,68 @@ Mapper输出的Key为Join的字段内容，Value为打了来源表标签的记�
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-04-28T23:08:00+08:00" pubdate data-updated="true">Apr 28<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Recently we&rsquo;re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch&rsquo;s rich and out-of-the-box functionality, it doesn&rsquo;t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here&rsquo;s a list of ElasticSearch performance tips that we learned from practice.</p>
+
+<h2>Tip 1 Set Num-of-shards to Num-of-nodes</h2>
+
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">Shard</a> is the foundation of ElasticSearch&rsquo;s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there&rsquo;re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it&rsquo;ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
+
+<p>Shards have two roles, primary shard and replica shard. Replica shard serves as a backup to the primary shard. When primary goes down, the replica takes its job. It also helps improving the search and get performance, for these requests can be executed on either primary or replica shard.</p>
+
+<p>Shards can be visualized by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">elasticsearch-head</a> plugin:</p>
+
+<p><img src="/images/elasticsearch/shards-head.png" alt="" /></p>
+
+<p>The <code>cu_docs</code> index has two shards <code>0</code> and <code>1</code>, with <code>number_of_replicas</code> set to 1. Primary shard <code>0</code> (bold bordered) resides in server <code>Leon</code>, and its replica in <code>Pris</code>. They are green becuase all primary shards have enough repicas sitting in different servers, so the cluster is healthy.</p>
+
+<p>Since <code>number_of_shards</code> of an index cannot be changed after creation (while <code>number_of_replicas</code> can), one should choose this config wisely. Here are some suggestions:</p>
+
+<ol>
+<li>How many nodes do you have, now and future? If you&rsquo;re sure you&rsquo;ll only have 3 nodes, set number of shards to 2 and replicas to 1, so there&rsquo;ll be 4 shards across 3 nodes. If you&rsquo;ll add some servers in the future, you can set number of shards to 3, so when the cluster grows to 5 nodes, there&rsquo;ll be 6 distributed shards.</li>
+<li>How big is your index? If it&rsquo;s small, one shard with one replica will due.</li>
+<li>How is the read and write frequency, respectively? If it&rsquo;s search heavy, setup more relicas.</li>
+</ol>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/04/28/elasticsearch-performance-tips/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -643,57 +704,6 @@ Mapper输出的Key为Join的字段内容，Value为打了来源表标签的记�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/12/17/the-law-of-leaky-abstractions/">抽象泄漏定律</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-17T13:05:00+08:00" pubdate data-updated="true">Dec 17<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://www.joelonsoftware.com/articles/LeakyAbstractions.html">http://www.joelonsoftware.com/articles/LeakyAbstractions.html</a></p>
-
-<p>TCP协议是互联网的基石，我们每天都需要依靠它来构建各类互联网应用。也正是在这一协议中，时刻发生着一件近乎神奇的事情。</p>
-
-<p>TCP是一种 <em>可靠的</em> 数据传输协议，也就是说，当你通过TCP协议在网络上传输一条消息时，它一定会到达目的地，而且不会失真或毁坏。</p>
-
-<p>我们可以使用TCP来做很多事情，从浏览网页信息到收发邮件。TCP的可靠性使得东非贪污受贿的新闻能够一字一句地传递到世界各地。真是太棒了！</p>
-
-<p>和TCP协议相比，IP协议也是一种传输协议，但它是 <em>不可靠的</em> 。没有人可以保证你的数据一定会到达目的地，或者在它到达前就已经被破坏了。如果你发送了一组消息，不要惊讶为何只有一半的消息到达，有些消息的顺序会不正确，甚至消息的内容被替换成了黑猩猩宝宝的图片，或是一堆无法阅读的垃圾数据，像极了台湾人的邮件标题。</p>
-
-<p>这就是TCP协议神奇的地方：它是构建在IP协议之上的。换句话说，TCP协议能够 <em>使用一个不可靠的工具来可靠地传输数据</em> 。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/12/17/the-law-of-leaky-abstractions/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -709,6 +719,10 @@ Mapper输出的Key为Join的字段内容，Value为打了来源表标签的记�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/01/13/understand-reduce-side-join/">深入理解Reduce-side Join</a>
       </li>
     
@@ -722,10 +736,6 @@ Mapper输出的Key为Join的字段内容，Value为打了来源表标签的记�
     
       <li class="post">
         <a href="/blog/2014/11/07/sbt-offline/">离线环境下构建sbt项目</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/14/mysql-incorrent-utf8-value/">MySQL异常UTF-8字符的处理</a>
       </li>
     
   </ul>
