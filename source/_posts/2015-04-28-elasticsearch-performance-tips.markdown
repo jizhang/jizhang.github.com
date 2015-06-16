@@ -82,15 +82,21 @@ ElasticSearch is a full-featured search engine, but you should always tailor it 
 
 ## Tip 5 Use Bulk Operations
 
-Bulk is cheap, so use it whenever is possible.
+[Bulk is cheaper][5]
 
-### Bulk Read
-
-### Bulk Write
-
-### Bulk Load
-
-
+* Bulk Read
+    * Use [Multi Get][6] to retrieve multiple documents by a list of ids. 
+    * Use [Scroll][7] to search a large number of documents.
+    * Use [MultiSearch api][8] to run search requests in parallel. 
+* Bulk Write
+    * Use [Bulk API][9] to index, update, delete multiple documents
+    * Alter [index aliases][10] simultaneously.
+* Bulk Load: when initially building a large index, do the following:
+    * Set `number_of_relicas` to 0;
+    * Set `index.refresh_interval` to -1;
+    * Bulk build the documents;
+    * Call `optimize` on the index;
+    * Add replicas.
 
 ## Miscellaneous
 
@@ -109,3 +115,9 @@ Bulk is cheap, so use it whenever is possible.
 [2]: https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing
 [3]: http://mobz.github.io/elasticsearch-head/
 [4]: https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html#compressed_oops
+[5]: https://www.elastic.co/guide/en/elasticsearch/guide/current/bulk.html
+[6]: https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html
+[7]: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
+[8]: https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/search.html#msearch
+[9]: https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/bulk.html
+[10]:https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html
