@@ -71,7 +71,26 @@ The `discovery.zen.minimum_master_nodes` setting is a way to prevent split-brain
 
 ## Tip 4 Disable Unnecessary Features
 
+ElasticSearch is a full-featured search engine, but you should always tailor it to your own needs. Here's a brief list:
+
+* Use corrent index type. There're `index`, `not_analyzed`, and `no`. If you don't need to search the field, set it to `no`; if you only search for full match, use `not_analyzed`.
+* For search-only fields, set `store` to false.
+* Disable `_all` field, if you always know which field to search.
+* Disable `_source` fields, if documents are big and you don't need the update capability.
+* If you have a document key, set this field in `_id` - `path`, instead of index the field twice.
+* Set `index.refresh_interval` to a larger number (default 1s), if you don't need near-realtime search. It's also an important option in bulk-load operation described below.
+
 ## Tip 5 Use Bulk Operations
+
+Bulk is cheap, so use it whenever is possible.
+
+### Bulk Read
+
+### Bulk Write
+
+### Bulk Load
+
+
 
 ## Miscellaneous
 
