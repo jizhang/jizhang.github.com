@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Big Data | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/big-data/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-06-16T14:55:28+08:00</updated>
+  <updated>2015-06-17T14:24:27+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -48,7 +48,7 @@
 
 <p>按照我们的实现，Mapper输出的Key是<code>product_id</code>，Values是打了标签的产品表（Product）和订单表（Order）的记录。从数据量来看，应该缓存产品表，扫描订单表。这就要求两表记录到达Reducer时是有序的，产品表在前，边扫描边放入内存；订单表在后，边扫描边结合产品表的记录进行输出。要让Hadoop在Shuffle&amp;Sort阶段先按<code>product_id</code>排序、再按表的标签排序，就需要用到二次排序。</p>
 
-<p>二次排序的概念很简单，将Mapper输出的Key由单一的<code>product_id</code>修改为<code>city_id+tag</code>的复合Key就可以了，但需通过以下几步实现：</p>
+<p>二次排序的概念很简单，将Mapper输出的Key由单一的<code>product_id</code>修改为<code>product_id+tag</code>的复合Key就可以了，但需通过以下几步实现：</p>
 
 <h3>自定义Key类型</h3>
 
