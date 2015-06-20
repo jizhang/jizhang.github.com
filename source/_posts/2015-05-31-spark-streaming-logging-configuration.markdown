@@ -45,7 +45,7 @@ For executor, there're two approaches. One is using `spark.executor.logs.rolling
 The other approach is to setup log4j manually, when you're using a legacy version, or want to gain more control on the logging process. Here are the steps:
 
 1. Make sure the logging directory exists on all worker nodes. You can use some provisioning tools like [ansbile](https://github.com/ansible/ansible) to create them.
-2. Create driver's and executors' log4j configuration files, and distribute the executor's to all worker nodes.
+2. Create driver's and executor's log4j configuration files, and distribute the executor's to all worker nodes.
 3. Use the above two files in `spark-submit` command:
 
 ```
@@ -58,7 +58,7 @@ spark-submit
 
 ## Spark on YARN
 
-[YARN](http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/index.html) is a **resource manager** introduced by Hadoop2. Now we can run differenct computational frameworks on the same cluster, like MapReduce, Spark, Storm, etc. The basic unit of YARN is called container, which represents a certain amount of resource (currently memory and virtual CPU cores). Every container has its working directory, and all related files such as appliction command (jars) and log files are stored in this directory.
+[YARN](http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/index.html) is a **resource manager** introduced by Hadoop2. Now we can run differenct computational frameworks on the same cluster, like MapReduce, Spark, Storm, etc. The basic unit of YARN is called container, which represents a certain amount of resource (currently memory and virtual CPU cores). Every container has its working directory, and all related files such as application command (jars) and log files are stored in this directory.
 
 When running Spark on YARN, there is a system property `spark.yarn.app.container.log.dir` indicating the container's log directory. We only need to replace one line of the above log4j config:
 
