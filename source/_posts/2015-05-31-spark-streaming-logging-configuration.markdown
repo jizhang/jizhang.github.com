@@ -4,7 +4,7 @@ title: "Spark Streaming Logging Configuration"
 date: 2015-05-31 18:18
 comments: true
 categories: [Notes, Big Data]
-published: false
+published: true
 ---
 
 Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.
