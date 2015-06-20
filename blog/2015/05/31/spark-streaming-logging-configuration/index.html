@@ -1,0 +1,436 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Spark Streaming Logging Configuration - Ji ZHANG's Blog</title>
+  <meta name="author" content="Ji ZHANG">
+
+  
+  <meta name="description" content="Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/libs/jquery.min.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>-->
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-37223379-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ji ZHANG's Blog</a></h1>
+  
+    <h2>If I rest, I rust.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:shzhangji.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/categories/tutorial">Tutorial</a></li>
+  <li><a href="/blog/categories/translation">Translation</a></li>
+  <li><a href="/blog/categories/notes">Notes</a></li>
+  <li><a href="/blog/categories/big-data">Big Data</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Spark Streaming Logging Configuration</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-31T18:18:00+08:00" pubdate data-updated="true">May 31<span>st</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
+
+<h2>Log4j&rsquo;s RollingFileAppender</h2>
+
+<p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we&rsquo;d better use rolling-file appender, to cut log files by size and keep only several recent files. Here&rsquo;s an example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='properties'><span class='line'><span class="na">log4j.rootLogger</span><span class="o">=</span><span class="s">INFO, rolling</span>
+</span><span class='line'>
+</span><span class='line'><span class="na">log4j.appender.rolling</span><span class="o">=</span><span class="s">org.apache.log4j.RollingFileAppender</span>
+</span><span class='line'><span class="na">log4j.appender.rolling.layout</span><span class="o">=</span><span class="s">org.apache.log4j.PatternLayout</span>
+</span><span class='line'><span class="na">log4j.appender.rolling.layout.conversionPattern</span><span class="o">=</span><span class="s">[%d] %p %m (%c)%n</span>
+</span><span class='line'><span class="na">log4j.appender.rolling.maxFileSize</span><span class="o">=</span><span class="s">50MB</span>
+</span><span class='line'><span class="na">log4j.appender.rolling.maxBackupIndex</span><span class="o">=</span><span class="s">5</span>
+</span><span class='line'><span class="na">log4j.appender.rolling.file</span><span class="o">=</span><span class="s">/var/log/spark/${dm.logging.name}.log</span>
+</span><span class='line'><span class="na">log4j.appender.rolling.encoding</span><span class="o">=</span><span class="s">UTF-8</span>
+</span><span class='line'>
+</span><span class='line'><span class="na">log4j.logger.org.apache.spark</span><span class="o">=</span><span class="s">WARN</span>
+</span><span class='line'><span class="na">log4j.logger.org.eclipse.jetty</span><span class="o">=</span><span class="s">WARN</span>
+</span><span class='line'>
+</span><span class='line'><span class="na">log4j.logger.com.anjuke.dm</span><span class="o">=</span><span class="s">${dm.logging.level}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This means log4j will roll the log file by 50MB and keep only 5 recent files. These files are saved in <code>/var/log/spark</code> directory, with filename picked from system property <code>dm.logging.name</code>. We also set the logging level of our package <code>com.anjuke.dm</code> according to <code>dm.logging.level</code> property. Another thing to mention is that we set <code>org.apache.spark</code> to level <code>WARN</code>, so as to ignore verbose logs from spark.</p>
+
+<!-- more -->
+
+
+<h2>Standalone Mode</h2>
+
+<p>In standalone mode, Spark Streaming driver is running on the machine where you submit the job, and each Spark worker node will run an executor for this job. So you need to setup log4j for both driver and executor.</p>
+
+<p>For driver, since it&rsquo;s a long-running application, we tend to use some process management tools like <a href="http://supervisord.org/">supervisor</a> to monitor it. And supervisor itself provides the facility of rolling log files, so we can safely write all logs into standard output when setting up driver&rsquo;s log4j.</p>
+
+<p>For executor, there&rsquo;re two approaches. One is using <code>spark.executor.logs.rolling.strategy</code> provided by Spark 1.1 and above. It has both time-based and size-based rolling methods. These log files are stored in Spark&rsquo;s work directory. You can find more details in the <a href="https://spark.apache.org/docs/1.1.0/configuration.html">documentation</a>.</p>
+
+<p>The other approach is to setup log4j manually, when you&rsquo;re using a legacy version, or want to gain more control on the logging process. Here are the steps:</p>
+
+<ol>
+<li>Make sure the logging directory exists on all worker nodes. You can use some provisioning tools like <a href="https://github.com/ansible/ansible">ansbile</a> to create them.</li>
+<li>Create driver&rsquo;s and executor&rsquo;s log4j configuration files, and distribute the executor&rsquo;s to all worker nodes.</li>
+<li>Use the above two files in <code>spark-submit</code> command:</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='properties'><span class='line'><span class="err">spark-submit</span>
+</span><span class='line'>  <span class="na">--master spark</span><span class="o">:</span><span class="s">//127.0.0.1:7077</span>
+</span><span class='line'>  <span class="na">--driver-java-options &quot;-Dlog4j.configuration</span><span class="o">=</span><span class="s">file:/path/to/log4j-driver.properties -Ddm.logging.level=DEBUG&quot;</span>
+</span><span class='line'>  <span class="na">--conf &quot;spark.executor.extraJavaOptions</span><span class="o">=</span><span class="s">-Dlog4j.configuration=file:/path/to/log4j-executor.properties -Ddm.logging.name=myapp -Ddm.logging.level=DEBUG&quot;</span>
+</span><span class='line'>  <span class="err">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Spark on YARN</h2>
+
+<p><a href="http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/index.html">YARN</a> is a <strong>resource manager</strong> introduced by Hadoop2. Now we can run differenct computational frameworks on the same cluster, like MapReduce, Spark, Storm, etc. The basic unit of YARN is called container, which represents a certain amount of resource (currently memory and virtual CPU cores). Every container has its working directory, and all related files such as application command (jars) and log files are stored in this directory.</p>
+
+<p>When running Spark on YARN, there is a system property <code>spark.yarn.app.container.log.dir</code> indicating the container&rsquo;s log directory. We only need to replace one line of the above log4j config:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='properties'><span class='line'><span class="na">log4j.appender.rolling.file</span><span class="o">=</span><span class="s">${spark.yarn.app.container.log.dir}/spark.log</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And these log files can be viewed on YARN&rsquo;s web UI:</p>
+
+<p><img src="/images/spark/yarn-logs.png" alt="" /></p>
+
+<p>The <code>spark-submit</code> command is as following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='properties'><span class='line'><span class="err">spark-submit</span>
+</span><span class='line'>  <span class="err">--master</span> <span class="err">yarn-cluster</span>
+</span><span class='line'>  <span class="err">--files</span> <span class="err">/path/to/log4j-spark.properties</span>
+</span><span class='line'>  <span class="na">--conf &quot;spark.driver.extraJavaOptions</span><span class="o">=</span><span class="s">-Dlog4j.configuration=log4j-spark.properties&quot;</span>
+</span><span class='line'>  <span class="na">--conf &quot;spark.executor.extraJavaOptions</span><span class="o">=</span><span class="s">-Dlog4j.configuration=log4j-spark.properties&quot;</span>
+</span><span class='line'>  <span class="err">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, both driver and executor use the same configuration file. That is because in <code>yarn-cluster</code> mode, driver is also run as a container in YARN. In fact, the <code>spark-submit</code> command will just quit after job submission.</p>
+
+<p>If YARN&rsquo;s <a href="http://zh.hortonworks.com/blog/simplifying-user-logs-management-and-access-in-yarn/">log aggregation</a> is enabled, application logs will be saved in HDFS after the job is done. One can use <code>yarn logs</code> command to view the files or browse directly into HDFS directory indicated by <code>yarn.nodemanager.log-dirs</code>.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ji ZHANG</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-31T18:18:00+08:00" pubdate data-updated="true">May 31<span>st</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/04/28/elasticsearch-performance-tips/" title="Previous Post: ElasticSearch Performance Tips">&laquo; ElasticSearch Performance Tips</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/01/13/understand-reduce-side-join/">深入理解Reduce-side Join</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">使用git rebase让历史变得清晰</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jizhang">@jizhang</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jizhang',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+<a href="http://stackoverflow.com/users/1030720/jerry">
+<img src="http://stackoverflow.com/users/flair/1030720.png?theme=clean" width="208" height="58" alt="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers" title="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers">
+</a>
+</section>
+
+<section>
+  <h1>On Delicious</h1>
+  <div id="delicious"></div>
+  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/zjerryj?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
+  <p><a href="http://delicious.com/zjerryj">My Delicious Bookmarks &raquo;</a></p>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/zhangji87@gmail.com?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Ji ZHANG -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jizhang';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/';
+        var disqus_url = 'http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

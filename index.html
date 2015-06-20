@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="Recently we&rsquo;re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks &hellip;">
+  <meta name="description" content="Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +81,84 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-31T18:18:00+08:00" pubdate data-updated="true">May 31<span>st</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
+
+<h2>Log4j&rsquo;s RollingFileAppender</h2>
+
+<p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we&rsquo;d better use rolling-file appender, to cut log files by size and keep only several recent files. Here&rsquo;s an example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='properties'><span class='line'><span class="na">log4j.rootLogger</span><span class="o">=</span><span class="s">INFO, rolling</span>
+</span><span class='line'>
+</span><span class='line'><span class="na">log4j.appender.rolling</span><span class="o">=</span><span class="s">org.apache.log4j.RollingFileAppender</span>
+</span><span class='line'><span class="na">log4j.appender.rolling.layout</span><span class="o">=</span><span class="s">org.apache.log4j.PatternLayout</span>
+</span><span class='line'><span class="na">log4j.appender.rolling.layout.conversionPattern</span><span class="o">=</span><span class="s">[%d] %p %m (%c)%n</span>
+</span><span class='line'><span class="na">log4j.appender.rolling.maxFileSize</span><span class="o">=</span><span class="s">50MB</span>
+</span><span class='line'><span class="na">log4j.appender.rolling.maxBackupIndex</span><span class="o">=</span><span class="s">5</span>
+</span><span class='line'><span class="na">log4j.appender.rolling.file</span><span class="o">=</span><span class="s">/var/log/spark/${dm.logging.name}.log</span>
+</span><span class='line'><span class="na">log4j.appender.rolling.encoding</span><span class="o">=</span><span class="s">UTF-8</span>
+</span><span class='line'>
+</span><span class='line'><span class="na">log4j.logger.org.apache.spark</span><span class="o">=</span><span class="s">WARN</span>
+</span><span class='line'><span class="na">log4j.logger.org.eclipse.jetty</span><span class="o">=</span><span class="s">WARN</span>
+</span><span class='line'>
+</span><span class='line'><span class="na">log4j.logger.com.anjuke.dm</span><span class="o">=</span><span class="s">${dm.logging.level}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This means log4j will roll the log file by 50MB and keep only 5 recent files. These files are saved in <code>/var/log/spark</code> directory, with filename picked from system property <code>dm.logging.name</code>. We also set the logging level of our package <code>com.anjuke.dm</code> according to <code>dm.logging.level</code> property. Another thing to mention is that we set <code>org.apache.spark</code> to level <code>WARN</code>, so as to ignore verbose logs from spark.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/05/31/spark-streaming-logging-configuration/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -647,63 +725,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/01/25/java-reflection-tutorial/">Java反射机制</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-25T09:42:00+08:00" pubdate data-updated="true">Jan 25<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://www.programcreek.com/2013/09/java-reflection-tutorial/">http://www.programcreek.com/2013/09/java-reflection-tutorial/</a></p>
-
-<p>什么是反射？它有何用处？</p>
-
-<h2>1. 什么是反射？</h2>
-
-<p>“反射（Reflection）能够让运行于JVM中的程序检测和修改运行时的行为。”这个概念常常会和内省（Introspection）混淆，以下是这两个术语在Wikipedia中的解释：</p>
-
-<ol>
-<li>内省用于在运行时检测某个对象的类型和其包含的属性；</li>
-<li>反射用于在运行时检测和修改某个对象的结构及其行为。</li>
-</ol>
-
-
-<p>从他们的定义可以看出，内省是反射的一个子集。有些语言支持内省，但并不支持反射，如C++。</p>
-
-<p><img src="http://www.programcreek.com/wp-content/uploads/2013/09/reflection-introspection-650x222.png" alt="反射和内省" /></p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/01/25/java-reflection-tutorial/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -719,6 +740,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a>
       </li>
     
@@ -732,10 +757,6 @@
     
       <li class="post">
         <a href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/11/07/sbt-offline/">离线环境下构建sbt项目</a>
       </li>
     
   </ul>

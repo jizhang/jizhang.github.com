@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: Notes - Ji ZHANG's Blog</title>
+  <title>Ji ZHANG's Blog</title>
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="Category: Notes">
+  <meta name="description" content="作者：Susan Potter，翻译：张吉 原文：http://www.aosabook.org/en/git.html 6.1 Git概述 Git能够让不同的协作者通过一个点对点的仓库网络对数据内容（通常是代码，当然不仅限于代码）进行维护。它支持分布式的工作流程，能够让数据内容临时分离， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://shzhangji.comblog/categories/notes">
+  <link rel="canonical" href="http://shzhangji.com/blog/page/4">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
@@ -79,218 +79,74 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div>
-<article role="article">
+      <div class="blog-index">
   
+  
+  
+    <article>
+      
   <header>
-    <h1 class="entry-title">Category: Notes</h1>
+    
+      <h1 class="entry-title"><a href="/blog/2012/11/16/aosa-git/">开源软件架构 - 卷2：第6章 Git</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-11-16T23:54:00+08:00" pubdate data-updated="true">Nov 16<span>th</span>, 2012</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+  <div class="entry-content"><p>作者：<a href="http://www.aosabook.org/en/intro2.html#potter-susan">Susan Potter</a>，翻译：<a href="mailto:zhangji87@gmail.com">张吉</a></p>
 
-  
-  <h2>2015</h2>
+<p>原文：<a href="http://www.aosabook.org/en/git.html">http://www.aosabook.org/en/git.html</a></p>
 
-<article>
-  
-<h1><a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a></h1>
-<time datetime="2015-05-31T18:18:00+08:00" pubdate><span class='month'>May</span> <span class='day'>31</span> <span class='year'>2015</span></time>
+<h2>6.1 Git概述</h2>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
+<p>Git能够让不同的协作者通过一个点对点的仓库网络对数据内容（通常是代码，当然不仅限于代码）进行维护。它支持分布式的工作流程，能够让数据内容临时分离，并最终合并到一起。</p>
 
+<p>本章将阐述Git的内部实现是如何提供以上功能的，以及它和其他版本控制系统（VCS）的区别。</p>
 
-</article>
+<h2>6.2 Git起源</h2>
 
+<p>为了更好地理解Git的设计思想，我们有必要先了解一下Git项目的发源地——Linux内核开发社区——所面临的问题。</p>
 
+<p>Linux内核开发与其他商业软件项目有很大不同，因为它的开发者众多，且每个开发者的参与程度和对Linux内核代码的理解有很大差异。多年以来，内核代码一直都是以Tar压缩文件以及补丁的形式维护的，而当时的核心开发团队一直在寻找一个能够满足他们各方面需求的版本控制系统。</p>
 
-<article>
-  
-<h1><a href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a></h1>
-<time datetime="2015-04-28T23:08:00+08:00" pubdate><span class='month'>Apr</span> <span class='day'>28</span> <span class='year'>2015</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-  
-  <h2>2014</h2>
-
-<article>
-  
-<h1><a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">使用git rebase让历史变得清晰</a></h1>
-<time datetime="2014-12-23T16:10:00+08:00" pubdate><span class='month'>Dec</span> <span class='day'>23</span> <span class='year'>2014</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2014/11/07/sbt-offline/">离线环境下构建sbt项目</a></h1>
-<time datetime="2014-11-07T15:02:00+08:00" pubdate><span class='month'>Nov</span> <span class='day'>07</span> <span class='year'>2014</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2014/10/14/mysql-incorrent-utf8-value/">MySQL异常UTF-8字符的处理</a></h1>
-<time datetime="2014-10-14T13:16:00+08:00" pubdate><span class='month'>Oct</span> <span class='day'>14</span> <span class='year'>2014</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/">在CDH 4.5上安装Shark 0.9</a></h1>
-<time datetime="2014-07-05T17:16:00+08:00" pubdate><span class='month'>Jul</span> <span class='day'>05</span> <span class='year'>2014</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Use WebJars in Scalatra Project</a></h1>
-<time datetime="2014-05-27T17:44:00+08:00" pubdate><span class='month'>May</span> <span class='day'>27</span> <span class='year'>2014</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2014/04/07/hive-small-files/">Hive小文件问题的处理</a></h1>
-<time datetime="2014-04-07T17:09:00+08:00" pubdate><span class='month'>Apr</span> <span class='day'>07</span> <span class='year'>2014</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-  
-  <h2>2013</h2>
-
-<article>
-  
-<h1><a href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/">Generate Auto-increment Id in Map-reduce Job</a></h1>
-<time datetime="2013-10-31T09:35:00+08:00" pubdate><span class='month'>Oct</span> <span class='day'>31</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2013/09/06/hive-deleteme-error/">Hive并发情况下报DELETEME表不存在的异常</a></h1>
-<time datetime="2013-09-06T11:20:00+08:00" pubdate><span class='month'>Sep</span> <span class='day'>06</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2013/04/30/manage-leiningen-project-configuration/">Manage Leiningen Project Configuration</a></h1>
-<time datetime="2013-04-30T16:16:00+08:00" pubdate><span class='month'>Apr</span> <span class='day'>30</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2013/03/27/fork-and-zombie-process/">fork()与僵尸进程</a></h1>
-<time datetime="2013-03-27T20:18:00+08:00" pubdate><span class='month'>Mar</span> <span class='day'>27</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
-
-
-
-  
-  <h2>2012</h2>
-
-<article>
-  
-<h1><a href="/blog/2012/12/23/nginx-live-upgrade/">Nginx热升级</a></h1>
-<time datetime="2012-12-23T22:11:00+08:00" pubdate><span class='month'>Dec</span> <span class='day'>23</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/notes/'>Notes</a></span>
-</footer>
-
-
-</article>
+<p>Git就是在这样的背景下于2005年作为一款开源软件诞生的。当时，Linux内核代码通过两种版本控制系统进行维护，BitKeeper和CVS，分别由两组核心开发团队使用。BitKeeper相较于当时颇为流行的CVS，提供了一种不同的历史展示方式。</p>
 
 </div>
-
   
-</article>
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/11/16/aosa-git/">Read on &rarr;</a>
+    </footer>
+  
 
 
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/3/">Newer &rarr;</a>
+    
+  </div>
 </div>
-
 <aside class="sidebar">
   
     <section>
@@ -323,7 +179,7 @@
 <section>
   <h1>GitHub Repos</h1>
   <ul id="gh_repos">
-    <li class="loading">Status updating...</li>
+    <li class="loading">Status updating&#8230;</li>
   </ul>
   
   <a href="https://github.com/jizhang">@jizhang</a> on GitHub
@@ -376,7 +232,6 @@
 
   
 </aside>
-
 
     </div>
   </div>
