@@ -50,7 +50,37 @@ The other approach is to setup log4j manually, when you're using a legacy versio
 
 ```
 spark-submit
+  --master spark://127.0.0.1:7077
   --driver-java-options "-Dlog4j.configuration=file:/path/to/log4j-driver.properties -Ddm.logging.level=DEBUG"
   --conf "spark.executor.extraJavaOptions=-Dlog4j.configuration=file:/path/to/log4j-executor.properties -Ddm.logging.name=myapp -Ddm.logging.level=DEBUG"
   ...
 ```
+
+## Spark on YARN
+
+[YARN](http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/index.html) is a **resource manager** introduced by Hadoop2. Now we can run differenct computational frameworks on the same cluster, like MapReduce, Spark, Storm, etc. The basic unit of YARN is called container, which represents a certain amount of resource (currently memory and virtual CPU cores). Every container has its working directory, and all related files such as appliction command (jars) and log files are stored in this directory.
+
+When running Spark on YARN, there is a system property `spark.yarn.app.container.log.dir` indicating the container's log directory. We only need to replace one line of the above log4j config:
+
+```properties
+log4j.appender.rolling.file=${spark.yarn.app.container.log.dir}/spark.log
+```
+
+And these log files can be viewed on YARN's web UI:
+
+![](/images/spark/yarn-logs.png)
+
+The `spark-submit` command is as following:
+
+```
+spark-submit
+  --master yarn-cluster
+  --files /path/to/log4j-spark.properties
+  --conf "spark.driver.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties"
+  --conf "spark.executor.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties"
+  ...
+```
+
+As you can see, both driver and executor use the same configuration file. That is because in `yarn-cluster` mode, driver is also run as a container in YARN. In fact, the `spark-submit` command will just quit after job submission.
+
+If YARN's [log aggregation](http://zh.hortonworks.com/blog/simplifying-user-logs-management-and-access-in-yarn/) is enabled, application logs will be saved in HDFS after the job is done. One can use `yarn logs` command to view the files or browse directly into HDFS directory indicated by `yarn.nodemanager.log-dirs`.
