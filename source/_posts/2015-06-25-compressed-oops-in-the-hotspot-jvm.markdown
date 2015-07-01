@@ -34,9 +34,47 @@ published: false
 
 <!-- more -->
 
+## 什么情况下会进行压缩？
+
+运行在ILP32模式下的Java虚拟机，或在运行时将`UseCompressedOops`标志位关闭，则所有的对象指针都不会被压缩。
+
+如果`UseCompressedOops`是打开的，则以下对象的指针会被压缩：
+
+* 所有对象的[klass][6]属性；
+* 所有[对象指针实例][7]的属性；
+* 所有对象指针数组的元素（objArray）。
+
+Hotspot VM中，用于表示Java类的数据结构是不会压缩的，这部分数据都存放在永久代（PermGen）中。
+
+在解释器中，一般对象指针也是不压缩的，包括JVM本地变量和栈内元素、调用参数、返回值等。解释器会在读取堆内对象时解码对象指针，并在存入时进行编码。
+
+同样，方法调用序列（method calling sequence），无论是解释执行还是编译执行，都不会使用对象指针压缩。
+
+在编译后的代码中，对象指针是否压缩取决于不同的优化结果。优化后的代码可能会将压缩后的对象指针直接从一处搬往另一处，而不进行解码编码操作。如果芯片（如x86）支持解码，那在使用对象指针时就不需要自行解码了。
+
+所以，以下数据结构在编译后的代码中既可以是压缩后的对象指针，也可能是本地地址：
+
+* 寄存器或溢出槽（spill slot）中的数据
+* 对象指针映射表（GC映射表）
+* 调试信息
+* 嵌套在机器码中的对象指针（在非RISC芯片中支持，如x86）
+* [nmethod][8]常量区（包括那些影响到机器码的重定位操作）
+
+在HotSpot JVM的C++代码部分，对象指针压缩与否反映在C++的静态类型系统中。通常情况下，对象指针是不压缩的。具体来说，C++的成员函数在操作本地代码传递过来的指针时（如*this*），其执行过程不会有什么不同。JVM中的部分方法则提供了重载，能够处理压缩和不压缩的对象指针。
+
+重要的C++数据不会被压缩：
+
+* C++对象指针（*this*）
+* 受托管指针的句柄（Handle类型等）
+* JNI句柄（jobject类型）
+
+C++在使用对象指针压缩时（加载和存储等），会以`narrowOop`作为标记。
 
 [1]: https://github.com/russellallen/self/blob/master/vm/src/any/objects/oop.hh
 [2]: http://code.google.com/p/strongtalk/wiki/VMTypesForSmalltalkObjects
 [3]: http://hg.openjdk.java.net/hsx/hotspot-main/hotspot/file/0/src/share/vm/oops/oop.hpp
 [4]: http://code.google.com/p/v8/source/browse/trunk/src/objects.h
 [5]: http://docs.oracle.com/cd/E19620-01/805-3024/lp64-1/index.html
+[6]: http://stackoverflow.com/questions/16721021/what-is-klass-klassklass
+[7]: http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/7-b147/sun/jvm/hotspot/oops/Oop.java#Oop
+[8]: http://openjdk.java.net/groups/hotspot/docs/HotSpotGlossary.html#nmethod
