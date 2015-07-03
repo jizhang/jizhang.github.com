@@ -1,0 +1,515 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>HotSpot JVM中的对象指针压缩 - Ji ZHANG's Blog</title>
+  <meta name="author" content="Ji ZHANG">
+
+  
+  <meta name="description" content="原文：https://wiki.openjdk.java.net/display/HotSpot/CompressedOops 什么是一般对象指针？ 一般对象指针（oop, ordinary object pointer）是HotSpot虚拟机的一个术语，表示受托管的对象指针。 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/libs/jquery.min.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!--<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>-->
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-37223379-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ji ZHANG's Blog</a></h1>
+  
+    <h2>If I rest, I rust.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:shzhangji.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/categories/tutorial">Tutorial</a></li>
+  <li><a href="/blog/categories/translation">Translation</a></li>
+  <li><a href="/blog/categories/notes">Notes</a></li>
+  <li><a href="/blog/categories/big-data">Big Data</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">HotSpot JVM中的对象指针压缩</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-06-25T17:41:00+08:00" pubdate data-updated="true">Jun 25<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>原文：<a href="https://wiki.openjdk.java.net/display/HotSpot/CompressedOops">https://wiki.openjdk.java.net/display/HotSpot/CompressedOops</a></p>
+
+<h2>什么是一般对象指针？</h2>
+
+<p>一般对象指针（oop, ordinary object pointer）是HotSpot虚拟机的一个术语，表示受托管的对象指针。它的大小通常和本地指针是一样的。Java应用程序和GC子系统会非常小心地跟踪这些受托管的指针，以便在销毁对象时回收内存空间，或是在对空间进行整理时移动（复制）对象。</p>
+
+<p>在一些从Smalltalk和Self演变而来的虚拟机实现中都有一般对象指针这个术语，包括：</p>
+
+<ul>
+<li><a href="https://github.com/russellallen/self/blob/master/vm/src/any/objects/oop.hh">Self</a>：一门基于原型的语言，是Smalltalk的近亲</li>
+<li><a href="http://code.google.com/p/strongtalk/wiki/VMTypesForSmalltalkObjects">Strongtalk</a>：Smalltalk的一种实现</li>
+<li><a href="http://hg.openjdk.java.net/hsx/hotspot-main/hotspot/file/0/src/share/vm/oops/oop.hpp">Hotspot</a></li>
+<li><a href="http://code.google.com/p/v8/source/browse/trunk/src/objects.h">V8</a></li>
+</ul>
+
+
+<p>部分系统中会使用小整型（smi, small integers）这个名称，表示一个指向30位整型的虚拟指针。这个术语在Smalltalk的V8实现中也可以看到。</p>
+
+<h2>为什么需要压缩？</h2>
+
+<p>在<a href="http://docs.oracle.com/cd/E19620-01/805-3024/lp64-1/index.html">LP64</a>系统中，指针需要使用64位来表示；<a href="http://docs.oracle.com/cd/E19620-01/805-3024/lp64-1/index.html">ILP32</a>系统中则只需要32位。在ILP32系统中，堆内存的大小只能支持到4Gb，这对很多应用程序来说是不够的。在LP64系统中，所有应用程序运行时占用的空间都会比ILP32大1.5倍左右，这是因为指针占用的空间增加了。虽然内存是比较廉价的，但网络带宽和缓存容量是紧张的。所以，为了解决4Gb的限制而增加堆内存的占用空间，就有些得不偿失了。</p>
+
+<p>在x86芯片中，ILP32模式可用的寄存器数量是LP64模式的一半。SPARC没有此限制；RISC芯片本来就提供了很多寄存器，LP64模式下会提供更多。</p>
+
+<p>压缩后的一般对象指针在使用时需要将32位整型按因数8进行扩展，并加到一个64位的基础地址上，从而找到所指向的对象。这种方法可以表示四十亿个对象，相当于32Gb的堆内存。同时，使用此法压缩数据结构也能达到和ILP32系统相近的效果。</p>
+
+<p>我们使用<em>解码</em>来表示从32位对象指针转换成64位地址的过程，其反过程则称为<em>编码</em>。</p>
+
+<!-- more -->
+
+
+<h2>什么情况下会进行压缩？</h2>
+
+<p>运行在ILP32模式下的Java虚拟机，或在运行时将<code>UseCompressedOops</code>标志位关闭，则所有的对象指针都不会被压缩。</p>
+
+<p>如果<code>UseCompressedOops</code>是打开的，则以下对象的指针会被压缩：</p>
+
+<ul>
+<li>所有对象的<a href="http://stackoverflow.com/questions/16721021/what-is-klass-klassklass">klass</a>属性</li>
+<li>所有<a href="http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/7-b147/sun/jvm/hotspot/oops/Oop.java#Oop">对象指针实例</a>的属性</li>
+<li>所有对象指针数组的元素（objArray）</li>
+</ul>
+
+
+<p>HotSpot VM中，用于表示Java类的数据结构是不会压缩的，这部分数据都存放在永久代（PermGen）中。</p>
+
+<p>在解释器中，一般对象指针也是不压缩的，包括JVM本地变量和栈内元素、调用参数、返回值等。解释器会在读取堆内对象时解码对象指针，并在存入时进行编码。</p>
+
+<p>同样，方法调用序列（method calling sequence），无论是解释执行还是编译执行，都不会使用对象指针压缩。</p>
+
+<p>在编译后的代码中，对象指针是否压缩取决于不同的优化结果。优化后的代码可能会将压缩后的对象指针直接从一处搬往另一处，而不进行编解码操作。如果芯片（如x86）支持解码，那在使用对象指针时就不需要自行解码了。</p>
+
+<p>所以，以下数据结构在编译后的代码中既可以是压缩后的对象指针，也可能是本地地址：</p>
+
+<ul>
+<li>寄存器或溢出槽（spill slot）中的数据</li>
+<li>对象指针映射表（GC映射表）</li>
+<li>调试信息</li>
+<li>嵌套在机器码中的对象指针（在非RISC芯片中支持，如x86）</li>
+<li><a href="http://openjdk.java.net/groups/hotspot/docs/HotSpotGlossary.html#nmethod">nmethod</a>常量区（包括那些影响到机器码的重定位操作）</li>
+</ul>
+
+
+<p>在HotSpot JVM的C++代码部分，对象指针压缩与否反映在C++的静态类型系统中。通常情况下，对象指针是不压缩的。具体来说，C++的成员函数在操作本地代码传递过来的指针时（如<em>this</em>），其执行过程不会有什么不同。JVM中的部分方法则提供了重载，能够处理压缩和不压缩的对象指针。</p>
+
+<p>重要的C++数据不会被压缩：</p>
+
+<ul>
+<li>C++对象指针（<em>this</em>）</li>
+<li>受托管指针的句柄（Handle类型等）</li>
+<li>JNI句柄（jobject类型）</li>
+</ul>
+
+
+<p>C++在使用对象指针压缩时（加载和存储等），会以<code>narrowOop</code>作为标记。</p>
+
+<h2>使用压缩寻址</h2>
+
+<p>以下是使用对象指针压缩的x86指令示例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>! int R8; oop[] R9;  // R9是64位
+</span><span class='line'>! oop R10 = R9[R8];  // R10是32位
+</span><span class='line'>! 从原始基址指针加载压缩对象指针：
+</span><span class='line'>movl R10, [R9 + R8&lt;&lt;3 + 16]
+</span><span class='line'>! klassOop R11 = R10._klass;  // R11是32位
+</span><span class='line'>! void* const R12 = GetHeapBase();
+</span><span class='line'>! 从压缩基址指针加载klass指针：
+</span><span class='line'>movl R11, [R12 + R10&lt;&lt;3 + 8]
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>以下sparc指令用于解压对象指针（可为空）：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>! java.lang.Thread::getThreadGroup@1 (line 1072)
+</span><span class='line'>! L1 = L7.group
+</span><span class='line'>ld  [ %l7 + 0x44 ], %l1
+</span><span class='line'>! L3 = decode(L1)
+</span><span class='line'>cmp  %l1, 0
+</span><span class='line'>sllx  %l1, 3, %l3
+</span><span class='line'>brnz,a   %l3, .+8
+</span><span class='line'>add  %l3, %g6, %l3  ! %g6是常量堆基址
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>输出中的注解来自<a href="https://wiki.openjdk.java.net/display/HotSpot/PrintAssembly">PrintAssembly插件</a>。</em></p>
+
+<h2>空值处理</h2>
+
+<p>32位零值会被解压为64位空值，这就需要在解码逻辑中加入一段特殊的逻辑。或者说可以默认某些压缩对象指针肯定不会空（如klass的属性），这样就能使用简单一些的编解码逻辑了。</p>
+
+<p>隐式空值检测对JVM的性能至关重要，包括解释执行和编译执行的字节码。对于一个偏移量较小的对象指针，如果基址指针为空，那很有可能造成系统崩溃，因为虚拟地址空间的前几页通常是没有映射的。</p>
+
+<p>对于压缩对象指针，我们可以用一种类似的技巧来欺骗它：将堆内存前几页的映射去除，如果解压出的指针为空（相对于基址指针），仍可以用它来做加载和存储的操作，隐式空值检测也能照常运行。</p>
+
+<h2>对象头信息</h2>
+
+<p>对象头信息通常包含几个部分：固定长度的标志位；klass信息；如果对象是数组，则包含一个32位的信息，并可能追加一个32位的空隙进行对齐；零个或多个实例属性，数组元素，元信息等。（有趣的是，Klass的对象头信息包含了一个C++的<a href="https://en.wikipedia.org/wiki/Virtual_method_table">虚拟方法表</a>）</p>
+
+<p>上述追加的32位空隙通常也可用于存储属性信息。</p>
+
+<p>如果<code>UseCompressedOops</code>关闭，标志位和klass都是正常长度。对于数组，32位空隙在LP64系统中总是存在；而ILP32系统中，只有当数组元素是64位数据时才存在这个空隙。</p>
+
+<p>如果<code>UseCompressedOops</code>打开，则klass是32位的。非数组对象在klass后会追加一个空隙，而数组对象则直接开始存储元素信息。</p>
+
+<h2>零基压缩技术</h2>
+
+<p>压缩对象指针（narrow-oop）是基于某个地址的偏移量，这个基础地址（narrow-oop-base）是由Java堆内存基址减去一个内存页的大小得来的，从而支持隐式空值检测。所以一个属性字段的地址可以这样得到：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>&lt;narrow-oop-base&gt; + (&lt;narrow-oop&gt; &lt;&lt; 3) + &lt;field-offset&gt;.
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果基础地址可以是0（Java堆内存不一定要从0偏移量开始），那么公式就可以简化为：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>(&lt;narrow-oop &lt;&lt; 3) + &lt;field-offset&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>理论上说，这一步可以省去一次寄存器上的加和操作。而且使用零基压缩技术后，空值检测也就不需要了。</p>
+
+<p>之前的解压代码是：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>if (&lt;narrow-oop&gt; == NULL)
+</span><span class='line'>    &lt;wide_oop&gt; = NULL
+</span><span class='line'>else
+</span><span class='line'>    &lt;wide_oop&gt; = &lt;narrow-oop-base&gt; + (&lt;narrow-oop&gt; &lt;&lt; 3)
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>使用零基压缩后，只需使用移位操作：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>&lt;wide_oop&gt; = &lt;narrow-oop&gt; &lt;&lt; 3
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>零基压缩技术会根据堆内存的大小以及平台特性来选择不同的策略：</p>
+
+<ol>
+<li>堆内存小于4Gb，直接使用压缩对象指针进行寻址，无需压缩和解压；</li>
+<li>堆内存大于4Gb，则尝试分配小于32Gb的堆内存，并使用零基压缩技术；</li>
+<li>如果仍然失败，则使用普通的对象指针压缩技术，即<code>narrow-oop-base</code>。</li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ji ZHANG</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-06-25T17:41:00+08:00" pubdate data-updated="true">Jun 25<span>th</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/translation/'>Translation</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/05/31/spark-streaming-logging-configuration/" title="Previous Post: Spark Streaming Logging Configuration">&laquo; Spark Streaming Logging Configuration</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">HotSpot JVM中的对象指针压缩</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/01/13/understand-reduce-side-join/">深入理解Reduce-side Join</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">使用git rebase让历史变得清晰</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jizhang">@jizhang</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jizhang',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+<a href="http://stackoverflow.com/users/1030720/jerry">
+<img src="http://stackoverflow.com/users/flair/1030720.png?theme=clean" width="208" height="58" alt="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers" title="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers">
+</a>
+</section>
+
+<section>
+  <h1>On Delicious</h1>
+  <div id="delicious"></div>
+  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/zjerryj?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
+  <p><a href="http://delicious.com/zjerryj">My Delicious Bookmarks &raquo;</a></p>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/zhangji87@gmail.com?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Ji ZHANG -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jizhang';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/';
+        var disqus_url = 'http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

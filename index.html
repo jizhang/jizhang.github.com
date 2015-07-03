@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article &hellip;">
+  <meta name="description" content="原文：https://wiki.openjdk.java.net/display/HotSpot/CompressedOops 什么是一般对象指针？ 一般对象指针（oop, ordinary object pointer）是HotSpot虚拟机的一个术语，表示受托管的对象指针。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +81,73 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">HotSpot JVM中的对象指针压缩</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-06-25T17:41:00+08:00" pubdate data-updated="true">Jun 25<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>原文：<a href="https://wiki.openjdk.java.net/display/HotSpot/CompressedOops">https://wiki.openjdk.java.net/display/HotSpot/CompressedOops</a></p>
+
+<h2>什么是一般对象指针？</h2>
+
+<p>一般对象指针（oop, ordinary object pointer）是HotSpot虚拟机的一个术语，表示受托管的对象指针。它的大小通常和本地指针是一样的。Java应用程序和GC子系统会非常小心地跟踪这些受托管的指针，以便在销毁对象时回收内存空间，或是在对空间进行整理时移动（复制）对象。</p>
+
+<p>在一些从Smalltalk和Self演变而来的虚拟机实现中都有一般对象指针这个术语，包括：</p>
+
+<ul>
+<li><a href="https://github.com/russellallen/self/blob/master/vm/src/any/objects/oop.hh">Self</a>：一门基于原型的语言，是Smalltalk的近亲</li>
+<li><a href="http://code.google.com/p/strongtalk/wiki/VMTypesForSmalltalkObjects">Strongtalk</a>：Smalltalk的一种实现</li>
+<li><a href="http://hg.openjdk.java.net/hsx/hotspot-main/hotspot/file/0/src/share/vm/oops/oop.hpp">Hotspot</a></li>
+<li><a href="http://code.google.com/p/v8/source/browse/trunk/src/objects.h">V8</a></li>
+</ul>
+
+
+<p>部分系统中会使用小整型（smi, small integers）这个名称，表示一个指向30位整型的虚拟指针。这个术语在Smalltalk的V8实现中也可以看到。</p>
+
+<h2>为什么需要压缩？</h2>
+
+<p>在<a href="http://docs.oracle.com/cd/E19620-01/805-3024/lp64-1/index.html">LP64</a>系统中，指针需要使用64位来表示；<a href="http://docs.oracle.com/cd/E19620-01/805-3024/lp64-1/index.html">ILP32</a>系统中则只需要32位。在ILP32系统中，堆内存的大小只能支持到4Gb，这对很多应用程序来说是不够的。在LP64系统中，所有应用程序运行时占用的空间都会比ILP32大1.5倍左右，这是因为指针占用的空间增加了。虽然内存是比较廉价的，但网络带宽和缓存容量是紧张的。所以，为了解决4Gb的限制而增加堆内存的占用空间，就有些得不偿失了。</p>
+
+<p>在x86芯片中，ILP32模式可用的寄存器数量是LP64模式的一半。SPARC没有此限制；RISC芯片本来就提供了很多寄存器，LP64模式下会提供更多。</p>
+
+<p>压缩后的一般对象指针在使用时需要将32位整型按因数8进行扩展，并加到一个64位的基础地址上，从而找到所指向的对象。这种方法可以表示四十亿个对象，相当于32Gb的堆内存。同时，使用此法压缩数据结构也能达到和ILP32系统相近的效果。</p>
+
+<p>我们使用<em>解码</em>来表示从32位对象指针转换成64位地址的过程，其反过程则称为<em>编码</em>。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -678,53 +745,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/07/hive-small-files/">Hive小文件问题的处理</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-04-07T17:09:00+08:00" pubdate data-updated="true">Apr 7<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。</p>
-
-<h2>小文件带来的问题</h2>
-
-<p>关于这个问题的阐述可以读一读Cloudera的<a href="http://blog.cloudera.com/blog/2009/02/the-small-files-problem/">这篇文章</a>。简单来说，HDFS的文件元信息，包括位置、大小、分块信息等，都是保存在NameNode的内存中的。每个对象大约占用150个字节，因此一千万个文件及分块就会占用约3G的内存空间，一旦接近这个量级，NameNode的性能就会开始下降了。</p>
-
-<p>此外，HDFS读写小文件时也会更加耗时，因为每次都需要从NameNode获取元信息，并与对应的DataNode建立连接。对于MapReduce程序来说，小文件还会增加Mapper的个数，每个脚本只处理很少的数据，浪费了大量的调度时间。当然，这个问题可以通过使用CombinedInputFile和JVM重用来解决。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/04/07/hive-small-files/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -740,6 +760,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">HotSpot JVM中的对象指针压缩</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
       </li>
     
@@ -753,10 +777,6 @@
     
       <li class="post">
         <a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">使用git rebase让历史变得清晰</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a>
       </li>
     
   </ul>

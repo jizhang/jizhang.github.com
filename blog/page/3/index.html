@@ -9,7 +9,34 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="使用fork()函数派生出多个子进程来并行执行程序的不同代码块，是一种常用的编程泛型。特别是在网络编程中，父进程初始化后派生出指定数量的子进程，共同监听网络端口并处理请求，从而达到扩容的目的。 但是，在使用fork()函数时若处理不当，很容易产生僵尸进程。根据UNIX系统的定义， &hellip;">
+  <meta name="description" content="套接字 使用套接字（Socket）进行网络通信的基本流程是： 服务端：监听端口、等待连接、接收请求、发送应答；
+客户端：连接服务端、发送请求、接收应答。 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+use &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +108,112 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/">Perl入门实战：JVM监控脚本（下）</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-28T15:28:00+08:00" pubdate data-updated="true">Mar 28<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>套接字</h2>
+
+<p>使用套接字（Socket）进行网络通信的基本流程是：</p>
+
+<ul>
+<li>服务端：监听端口、等待连接、接收请求、发送应答；</li>
+<li>客户端：连接服务端、发送请求、接收应答。</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='perl'><span class='line'><span class="k">use</span> <span class="nn">IO::Socket::</span><span class="n">INET</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">my</span> <span class="nv">$server</span> <span class="o">=</span> <span class="nn">IO::Socket::</span><span class="n">INET</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span>
+</span><span class='line'>    <span class="n">LocalPort</span> <span class="o">=&gt;</span> <span class="mi">10060</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">Type</span> <span class="o">=&gt;</span> <span class="n">SOCK_STREAM</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">Reuse</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">Listen</span> <span class="o">=&gt;</span> <span class="n">SOMAXCONN</span>
+</span><span class='line'><span class="p">)</span> <span class="o">||</span> <span class="nb">die</span> <span class="s">&quot;服务创建失败\n&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">while</span> <span class="p">(</span><span class="k">my</span> <span class="nv">$client</span> <span class="o">=</span> <span class="nv">$server</span><span class="o">-&gt;</span><span class="nb">accept</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">my</span> <span class="nv">$line</span> <span class="o">=</span> <span class="sr">&lt;$client&gt;</span><span class="p">;</span>
+</span><span class='line'>    <span class="nb">chomp</span><span class="p">(</span><span class="nv">$line</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nv">$line</span> <span class="o">=~</span><span class="sr"> /^JVMPORT ([0-9]+)$/</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;RECV $1\n&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">print</span> <span class="nv">$client</span> <span class="s">&quot;OK\n&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;ERROR $line\n&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">print</span> <span class="nv">$client</span> <span class="s">&quot;ERROR\n&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">close</span><span class="p">(</span><span class="nv">$client</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">close</span><span class="p">(</span><span class="nv">$server</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -671,59 +804,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/11/18/aosa-python-packaging/">开源软件架构 - 卷1：第14章 Python打包工具</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-11-18T19:20:00+08:00" pubdate data-updated="true">Nov 18<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>作者：<a href="http://www.aosabook.org/en/intro1.html#ziade-tarek">Tarek Ziadé</a>，翻译：<a href="mailto:zhangji87@gmail.com">张吉</a></p>
-
-<p>原文：<a href="http://www.aosabook.org/en/packaging.html">http://www.aosabook.org/en/packaging.html</a></p>
-
-<h2>14.1 简介</h2>
-
-<p>对于如何安装软件，目前有两种思想流派。第一种是说软件应该自给自足，不依赖于其它任何部件，这点在Windows和Mac OS X系统中很流行。这种方式简化了软件的管理：每个软件都有自己独立的“领域”，安装和卸载它们不会对操作系统产生影响。如果软件依赖一项不常见的类库，那么这个类库一定是包含在软件安装包之中的。</p>
-
-<p>第二种流派，主要在类Linux的操作系统中盛行，即软件应该是由一个个独立的、小型的软件包组成的。类库被包含在软件包中，包与包之间可以有依赖关系。安装软件时需要查找和安装它所依赖的其他特定版本的软件包。这些依赖包通常是从一个包含所有软件包的中央仓库中获取的。这种理念也催生了Linux发行版中那些复杂的依赖管理工具，如<code>dpkg</code>和<code>RPM</code>。它们会跟踪软件包的依赖关系，并防止两个软件使用了版本相冲突的第三方包。</p>
-
-<p>以上两种流派各有优劣。高度模块化的系统可以使得更新和替换某个软件包变的非常方便，因为每个类库都只有一份，所有依赖于它的应用程序都能因此受益。比如，修复某个类库的安全漏洞可以立刻应用到所有程序中，而如果应用程序使用了自带的类库，那安全更新就很难应用进去了，特别是在类库版本不一致的情况下更难处理。</p>
-
-<p>不过这种“模块化”也被一些开发者视为缺点，因为他们无法控制应用程序的依赖关系。他们希望提供一个独立和稳定的软件运行环境，这样就不会在系统升级后遭遇各种依赖方面的问题。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2012/11/18/aosa-python-packaging/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/4/">&larr; Older</a>
@@ -741,6 +821,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">HotSpot JVM中的对象指针压缩</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
       </li>
     
@@ -754,10 +838,6 @@
     
       <li class="post">
         <a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">使用git rebase让历史变得清晰</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a>
       </li>
     
   </ul>
