@@ -70,6 +70,36 @@ Hotspot VM中，用于表示Java类的数据结构是不会压缩的，这部分
 
 C++在使用对象指针压缩时（加载和存储等），会以`narrowOop`作为标记。
 
+## 使用压缩寻址
+
+以下是使用对象指针压缩的x86指令示例：
+
+```text
+! int R8; oop[] R9;  // R9是64位
+! oop R10 = R9[R8];  // R10是32位
+! 从原始基址指针加载压缩对象指针：
+movl R10, [R9 + R8<<3 + 16]
+! klassOop R11 = R10._klass;  // R11是32位
+! void* const R12 = GetHeapBase();
+! 从压缩基址指针加载klass指针：
+movl R11, [R12 + R10<<3 + 8]
+```
+
+以下sparc指令用于解压对象指针（可为空）：
+
+```text
+! java.lang.Thread::getThreadGroup@1 (line 1072)
+! L1 = L7.group
+ld  [ %l7 + 0x44 ], %l1
+! L3 = decode(L1)
+cmp  %l1, 0
+sllx  %l1, 3, %l3
+brnz,a   %l3, .+8
+add  %l3, %g6, %l3  ! %g6是常量堆基址
+```
+
+*输出中的注解来自[PrintAssembly插件][9]。*
+
 [1]: https://github.com/russellallen/self/blob/master/vm/src/any/objects/oop.hh
 [2]: http://code.google.com/p/strongtalk/wiki/VMTypesForSmalltalkObjects
 [3]: http://hg.openjdk.java.net/hsx/hotspot-main/hotspot/file/0/src/share/vm/oops/oop.hpp
@@ -78,3 +108,4 @@ C++在使用对象指针压缩时（加载和存储等），会以`narrowOop`作
 [6]: http://stackoverflow.com/questions/16721021/what-is-klass-klassklass
 [7]: http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/7-b147/sun/jvm/hotspot/oops/Oop.java#Oop
 [8]: http://openjdk.java.net/groups/hotspot/docs/HotSpotGlossary.html#nmethod
+[9]: https://wiki.openjdk.java.net/display/HotSpot/PrintAssembly
