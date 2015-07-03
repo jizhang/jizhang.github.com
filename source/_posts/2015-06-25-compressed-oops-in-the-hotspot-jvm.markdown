@@ -100,6 +100,28 @@ add  %l3, %g6, %l3  ! %g6是常量堆基址
 
 *输出中的注解来自[PrintAssembly插件][9]。*
 
+## 空值处理
+
+32位零值会被解压为64位空值，这就需要在解码逻辑中加入一段特殊的逻辑说。或者说可以标记某些压缩对象指针肯定不会空（如klass的属性），这样就能使用简单一些的编解码逻辑了。
+
+隐式空值检测对JVM的性能至关重要，包括解释执行和编译执行的字节码。对于一个偏移量较小的对象指针，如果基址指针为空，那很有可能造成系统崩溃，因为虚拟地址空间的前几页通常是没有映射的。
+
+对于压缩对象指针，我们可以用一种类似的技巧来欺骗它：将堆内存的前几页的映射去除，如果解压出的推向指针为空（相对于基址指针），仍可以用它来做加载和存储的操作，隐式空值检测也能照常运行。
+
+## 对象头信息
+
+对象头信息通常包含几个部分：固定长度的标志位；klass信息；如果对象是数组，则包含一个32位的信息，并可能追加一个32位空隙进行对齐；零个或多个示例属性，数组元素，元信息等。（有趣的是，Klass的对象头信息包含了一个C++的[虚拟方法表][10]）
+
+上述追加的32位空隙通常也可用于存储属性信息。
+
+如果`UseCompressedOops`关闭，标志位和klass都是正常长度。对于数组，32位空隙在LP64系统中总是存在；而ILP32系统中，只有当数组元素是64位数据时才存在这个空隙。
+
+如果`UseCompressedOops`打开，则klass是32位的。非数组对象在klass后会追加一个空隙，而数组对象则直接开始存储元素信息。
+
+## 零基压缩技术
+
+
+
 [1]: https://github.com/russellallen/self/blob/master/vm/src/any/objects/oop.hh
 [2]: http://code.google.com/p/strongtalk/wiki/VMTypesForSmalltalkObjects
 [3]: http://hg.openjdk.java.net/hsx/hotspot-main/hotspot/file/0/src/share/vm/oops/oop.hpp
@@ -109,3 +131,4 @@ add  %l3, %g6, %l3  ! %g6是常量堆基址
 [7]: http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/7-b147/sun/jvm/hotspot/oops/Oop.java#Oop
 [8]: http://openjdk.java.net/groups/hotspot/docs/HotSpotGlossary.html#nmethod
 [9]: https://wiki.openjdk.java.net/display/HotSpot/PrintAssembly
+[10]: https://en.wikipedia.org/wiki/Virtual_method_table
