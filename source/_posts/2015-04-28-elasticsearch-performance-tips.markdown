@@ -96,7 +96,7 @@ ElasticSearch is a full-featured search engine, but you should always tailor it 
     * Set `number_of_relicas` to 0, so no relicas will be created;
     * Set `index.refresh_interval` to -1, disabling nrt search;
     * Bulk build the documents;
-    * Call `optimize` on the index, so all files are merged into one Lucene segment;
+    * Call `optimize` on the index, so newly built docs are available for search;
     * Reset replicas and refresh interval, let ES cluster recover to green.
 
 ## Miscellaneous
@@ -128,6 +128,6 @@ ElasticClient.remote(settings, uri)
 [5]: https://www.elastic.co/guide/en/elasticsearch/guide/current/bulk.html
 [6]: https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html
 [7]: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
-[8]: https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/search.html#msearch
+[8]: https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/msearch.html
 [9]: https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/bulk.html
 [10]:https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html
