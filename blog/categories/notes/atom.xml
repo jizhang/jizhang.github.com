@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Notes | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-07-03T12:59:02+08:00</updated>
+  <updated>2015-08-18T10:29:52+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -198,7 +198,7 @@ discovery.zen.minimum_master_nodes: 2
 <ul>
 <li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html">Multi Get</a> to retrieve multiple documents by a list of ids.</li>
 <li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html">Scroll</a> to search a large number of documents.</li>
-<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/search.html#msearch">MultiSearch api</a> to run search requests in parallel.</li>
+<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/msearch.html">MultiSearch api</a> to run search requests in parallel.</li>
 </ul>
 </li>
 <li>Bulk Write
@@ -214,7 +214,7 @@ discovery.zen.minimum_master_nodes: 2
 <li>Set <code>number_of_relicas</code> to 0, so no relicas will be created;</li>
 <li>Set <code>index.refresh_interval</code> to -1, disabling nrt search;</li>
 <li>Bulk build the documents;</li>
-<li>Call <code>optimize</code> on the index, so all files are merged into one Lucene segment;</li>
+<li>Call <code>optimize</code> on the index, so newly built docs are available for search;</li>
 <li>Reset replicas and refresh interval, let ES cluster recover to green.</li>
 </ul>
 </li>
