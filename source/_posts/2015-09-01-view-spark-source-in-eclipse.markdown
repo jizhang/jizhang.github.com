@@ -48,7 +48,37 @@ This command does a bunch of things. First, it indicates what modules should be 
 $ MAVEN_OPTS=-Xmx1G mvn ...
 ```
 
-`eclipse:eclipse` will generate the `.project` and `.classpath` files for Eclipse. But the result is not perfect, 
+`eclipse:eclipse` will generate the `.project` and `.classpath` files for Eclipse. But the result is not perfect, both files need some fixes.
+
+Edit `core/.classpath`, change the following two lines:
+
+```xml
+<classpathentry kind="src" path="src/main/scala" including="**/*.java"/>
+<classpathentry kind="src" path="src/test/scala" output="target/scala-2.10/test-classes" including="**/*.java"/>
+```
+
+to
+
+```xml
+<classpathentry kind="src" path="src/main/scala" including="**/*.java|**/*.scala"/>
+<classpathentry kind="src" path="src/test/scala" output="target/scala-2.10/test-classes" including="**/*.java|**/*.scala"/>
+```
+
+Edit `core/.project`, make it looks like this:
+
+```xml
+<buildSpec>
+  <buildCommand>
+    <name>org.scala-ide.sdt.core.scalabuilder</name>
+  </buildCommand>
+</buildSpec>
+<natures>
+  <nature>org.scala-ide.sdt.core.scalanature</nature>
+  <nature>org.eclipse.jdt.core.javanature</nature>
+</natures>
+```
+
+Now you can import "Existing Projects into Workspace", including `core`, `launcher`, `network`, and `unsafe`.
 
 ## References
 
