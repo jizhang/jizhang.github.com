@@ -3,7 +3,7 @@ layout: post
 title: "View Spark Source in Eclipse"
 date: 2015-09-01 18:38
 comments: true
-categories: [Notes, BigData]
+categories: [Notes, Big Data]
 published: true
 ---
 
