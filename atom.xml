@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-09-03T20:27:13+08:00</updated>
+  <updated>2015-09-06T10:29:07+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,44 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[贫血领域模型]]></title>
+    <link href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/"/>
+    <updated>2015-09-05T19:02:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2015/09/05/anemic-domain-model</id>
+    <content type="html"><![CDATA[<p>原文：<a href="http://www.martinfowler.com/bliki/AnemicDomainModel.html">http://www.martinfowler.com/bliki/AnemicDomainModel.html</a></p>
+
+<p>贫血领域模型是一个存在已久的反模式，目前仍有许多拥趸者。一次我和Eric Evans聊天谈到它时，都觉得这个模型似乎越来越流行了。作为<a href="http://martinfowler.com/eaaCatalog/domainModel.html">领域模型</a>的推广者，我们觉得这不是一件好事。</p>
+
+<p>贫血领域模型的最初症状是：它第一眼看起来还真像这么回事儿。项目中有许多对象，它们的命名都是根据领域来的。对象之间有着丰富的连接方式，和真正的领域模型非常相似。但当你检视这些对象的行为时，会发现它们基本上没有任何行为，仅仅是一堆getter和setter的集合。其实这些对象在设计之初就被定义为只能包含数据，不能加入领域逻辑。这些逻辑要全部写入一组叫Service的对象中。这些Service构建在领域模型之上，使用这些模型来传递数据。</p>
+
+<p>这种反模式的恐怖之处在于，它完全是和面向对象设计背道而驰。面向对象设计主张将数据和行为绑定在一起，而贫血领域模型则更像是一种面向过程设计，我和Eric在Smalltalk时就极力反对这种做法。更糟糕的时，很多人认为这些贫血领域对象是真正的对象，从而彻底误解了面向对象设计的涵义。</p>
+
+<!-- more -->
+
+
+<p>如今，面向对象的概念已经传播得很广泛了，而要反对这种贫血领域模型的做法，我还需要更多论据。贫血领域模型的根本问题在于，它引入了领域模型设计的所有成本，却没有带来任何好处。最主要的成本是将对象映射到数据库中，从而产生了一个对象关系映射层。只有当你充分使用了面向对象设计来组织复杂的业务逻辑时，这一成本才能够被抵消。如果将所有行为都写入到Service对象，那最终你会得到一组<a href="http://martinfowler.com/eaaCatalog/transactionScript.html">事务处理脚本</a>，从而错过了领域模型带来了好处。正如我在<a href="http://martinfowler.com/books/eaa.html">企业应用架构模式</a>一书中说到的，领域模型并不一定是最好的工具。</p>
+
+<p>还需要强调的是，将行为放入领域模型，这点和分层设计（领域层、持久化层、展现层等）并不冲突。因为领域模型中放入的是和领域相关的逻辑——验证、计算、商业规则等。如果你要讨论能否将数据访问和展现逻辑放入到领域模型中，这就不在本文论述范围之内了。</p>
+
+<p>一些面向对象专家的观点有时会让人产生疑惑，他们认为的确应该有一个面向过程的<a href="http://martinfowler.com/eaaCatalog/serviceLayer.html">服务层</a>。但是，这并不意味着领域模型就不应该包含行为。事实上，服务层需要和一组富含行为的领域模型结合起来使用。</p>
+
+<p>Eric Evans的<a href="http://domaindrivendesign.org/books/">领域驱动设计</a>一书中有关于分层的论述：</p>
+
+<blockquote><p>应用层（也就是上文中的服务层）：用来描述应用程序所要做的工作，并调度丰富的领域模型来完成它。这个层次的任务是描述业务逻辑，或和其它项目的应用层做交互。这个层次很薄，它不包含任何业务规则或知识，仅用于调度和派发任务给下一层的领域模型。这个层次没有业务状态，但可以为用户或程序提供任务状态。</p>
+
+<p>领域层（或者叫模型层）：用于表示业务逻辑、业务场景和规则。这个层次会控制和使用业务状态，即使这些状态最终会交由持久化层来存储。总之，这个层次是软件的核心。</p></blockquote>
+
+<p>关键点在于服务层是很薄的——所有重要的业务逻辑都写在领域层。它在服务模式中复述了这一观点：</p>
+
+<blockquote><p>如今人们常犯的错误是不愿花时间将业务逻辑放置到合适的领域模型中，从而逐渐形成面向过程的程序设计。</p></blockquote>
+
+<p>我不清楚为什么这种反模式会那么常见。我怀疑是因为大多数人并没有使用过一个设计良好的领域模型，特别是那些以数据为中心的开发人员。此外，有些技术也会推动这种反模式，比如J2EE的Entity Bean，这会让我更倾向于使用<a href="http://www.martinfowler.com/bliki/POJO.html">POJO</a>领域模型。</p>
+
+<p>总之，如果你将大部分行为都放置在服务层，那么你就会失去领域模型带来的好处。如果你将所有行为都放在服务层，那就无可救药了。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[View Spark Source in Eclipse]]></title>
@@ -3662,203 +3700,6 @@
 <p>我非常希望能够得到你对Cascalog的反馈，如果你有任何评论、问题、或是顾虑，请留言，或者在<a href="http://twitter.com/nathanmarz">Twitter</a>上联系我，给我发送邮件<a href="nathan.marz@gmail.com">nathan.marz@gmail.com</a>，或是在freenode的#cascading频道和我聊天。</p>
 
 <p><a href="http://nathanmarz.com/blog/new-cascalog-features">下一篇博客</a>会介绍Cascalog的外联合、排序、组合等特性。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Manage Leiningen Project Configuration]]></title>
-    <link href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/"/>
-    <updated>2013-04-30T16:16:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration</id>
-    <content type="html"><![CDATA[<p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='text'><span class='line'># database.properties
-</span><span class='line'>mydb.jdbcUrl=${mydb.jdbcUrl}
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="c">&lt;!-- pom.xml --&gt;</span>
-</span><span class='line'><span class="nt">&lt;profiles&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;profile&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;id&gt;</span>development<span class="nt">&lt;/id&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;activation&gt;&lt;activeByDefault&gt;</span>true<span class="nt">&lt;/activeByDefault&gt;&lt;/activation&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;properties&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;mydb.jdbcUrl&gt;</span>jdbc:mysql://127.0.0.1:3306/mydb<span class="nt">&lt;/mydb.jdbcUrl&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/properties&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/profile&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;profile&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;id&gt;</span>production<span class="nt">&lt;/id&gt;</span>
-</span><span class='line'>        <span class="c">&lt;!-- This profile could be moved to ~/.m2/settings.xml to increase security. --&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;properties&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;mydb.jdbcUrl&gt;</span>jdbc:mysql://10.0.2.15:3306/mydb<span class="nt">&lt;/mydb.jdbcUrl&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/properties&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/profile&gt;</span>
-</span><span class='line'><span class="nt">&lt;/profiles&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>As for Leiningen projects, there&rsquo;s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
-
-<!-- more -->
-
-
-<h2>Read Configuration from <code>.clj</code> Files</h2>
-
-<p>Instead of using <code>.properties</code>, we&rsquo;ll use <code>.clj</code> files directly, since it&rsquo;s more expressive and Clojure makes it very easy to utilize them.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="kd">defn </span><span class="nv">read-config</span> <span class="p">[</span><span class="nv">section</span><span class="p">]</span>
-</span><span class='line'>  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nb">read </span><span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">res-path</span><span class="p">]</span>
-</span><span class='line'>               <span class="p">(</span><span class="nb">if-let </span><span class="p">[</span><span class="nv">res</span> <span class="p">(</span><span class="nf">clojure.java.io/resource</span> <span class="nv">res-path</span><span class="p">)]</span>
-</span><span class='line'>                 <span class="p">(</span><span class="nf">read-string</span> <span class="p">(</span><span class="nb">slurp </span><span class="nv">res</span><span class="p">))</span>
-</span><span class='line'>                 <span class="p">{}))</span>
-</span><span class='line'>        <span class="nv">default-name</span> <span class="p">(</span><span class="nb">str </span><span class="p">(</span><span class="nb">name </span><span class="nv">section</span><span class="p">)</span> <span class="s">&quot;.clj&quot;</span><span class="p">)</span>
-</span><span class='line'>        <span class="nv">default</span> <span class="p">(</span><span class="nb">read </span><span class="nv">default-name</span><span class="p">)</span>
-</span><span class='line'>        <span class="nv">override</span> <span class="p">(</span><span class="nb">read </span><span class="p">(</span><span class="nb">str </span><span class="s">&quot;override/&quot;</span> <span class="nv">default-name</span><span class="p">))]</span>
-</span><span class='line'>    <span class="p">(</span><span class="nb">merge </span><span class="nv">default</span> <span class="nv">override</span><span class="p">)))</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This function assumes the following directory layout:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='text'><span class='line'>test-project/
-</span><span class='line'>├── README.md
-</span><span class='line'>├── project.clj
-</span><span class='line'>├── resources
-</span><span class='line'>│   ├── database.clj
-</span><span class='line'>│   └── override
-</span><span class='line'>│       └── database.clj
-</span><span class='line'>└── src
-</span><span class='line'>    └── test_project
-</span><span class='line'>        └── core.clj
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And the <code>database.clj</code>s are like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="c1">; resources/database.clj</span>
-</span><span class='line'><span class="p">{</span><span class="ss">:charset</span> <span class="s">&quot;utf-8&quot;</span>
-</span><span class='line'> <span class="ss">:mydb</span> <span class="p">{</span><span class="ss">:host</span> <span class="s">&quot;127.0.0.1&quot;</span><span class="p">}}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">; resources/override/database.clj</span>
-</span><span class='line'><span class="p">{</span><span class="ss">:mydb</span> <span class="p">{</span><span class="ss">:host</span> <span class="s">&quot;10.0.2.15&quot;</span><span class="p">}}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <code>.clj</code> files simply contains a <code>map</code> object, and we use <code>read-string</code> facility to parse the map. Since the latter map is merged into the former one, we can include some default settings without worrying about whether they&rsquo;ll be available.</p>
-
-<h2>Places to Put &lsquo;Outter Configuration&rsquo;</h2>
-
-<p>Here I use the word &lsquo;outter&rsquo;, which means those configs are related to environments, and will override the default settings. In this section, I&rsquo;ll introduce some typical places to put these outter configs and how to use them.</p>
-
-<h3>A &lsquo;resources/override/&rsquo; Directory</h3>
-
-<p>First of all, this directory should be removed from version control, such as <code>.gitignore</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='text'><span class='line'>/.project
-</span><span class='line'>/.settings
-</span><span class='line'>
-</span><span class='line'>/resources/override
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And then, developers can put production or local configuration files in this directory.</p>
-
-<p>In production, there&rsquo;s typically a &lsquo;compiling server&rsquo;, which can be used to store production configs. After compiling, the Jar file will include the proper configs and are ready to be deployed.</p>
-
-<h3>A Dedicated Directory on Every Server</h3>
-
-<p>We could simply replace the <code>override</code> directory with an absolute path, such as <code>/home/www/config</code>. The pros are that we don&rsquo;t need to recompile the jar files when config changes, and some of the configs could be shared between different projects.</p>
-
-<p>But in such approach, you&rsquo;ll need a provisioning tool like Puppet to manage those configs and notify the applications to restart. For something like Hadoop MapReduce job, it&rsquo;s probably not practical to have such a directory on every compute node.</p>
-
-<p>Another thing I want to mention in this approach is that, I suggest using an environment variable to indicate the path to config directory, not hard-coded in application. As a matter of fact, you could even place all configs into env vars, as suggested by <a href="http://www.12factor.net/config">12-factor apps</a>.</p>
-
-<h3>A Central Configuration Server</h3>
-
-<p>As for really big corporations, a central configuration server is necessary. One popular option is to use ZooKeeper. Or your companies have some service-discovery mechanism. These are really advanced topics, and I&rsquo;ll leave them to the readers.</p>
-
-<h2>Manage Configs in Application</h2>
-
-<p>Lastly, I&rsquo;ll share a snippet that&rsquo;ll manage the configs, it&rsquo;s actually quite easy:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="k">def </span><span class="o">^</span><span class="ss">:private</span> <span class="nv">config</span> <span class="p">(</span><span class="nf">atom</span> <span class="p">{}))</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">(</span><span class="kd">defn </span><span class="nv">get-config</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="p">([</span><span class="nv">section</span><span class="p">]</span>
-</span><span class='line'>    <span class="p">(</span><span class="nb">if-let </span><span class="p">[</span><span class="nv">config-section</span> <span class="p">(</span><span class="nb">get </span><span class="err">@</span><span class="nv">config</span> <span class="nv">section</span><span class="p">)]</span>
-</span><span class='line'>      <span class="nv">config-section</span>
-</span><span class='line'>      <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">config-section</span> <span class="p">(</span><span class="nf">read-config</span> <span class="nv">section</span><span class="p">)]</span>
-</span><span class='line'>        <span class="p">(</span><span class="nf">swap!</span> <span class="nv">config</span> <span class="nb">assoc </span><span class="nv">section</span> <span class="nv">config-section</span><span class="p">)</span>
-</span><span class='line'>        <span class="nv">config-section</span><span class="p">)))</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="p">([</span><span class="nv">section</span> <span class="nv">item</span><span class="p">]</span>
-</span><span class='line'>    <span class="p">(</span><span class="nb">get </span><span class="p">(</span><span class="nf">get-config</span> <span class="nv">section</span><span class="p">)</span> <span class="nv">item</span><span class="p">)))</span>
-</span></code></pre></td></tr></table></div></figure>
-
 ]]></content>
   </entry>
   

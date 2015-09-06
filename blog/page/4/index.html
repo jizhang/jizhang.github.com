@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="前言 为什么要学习一门新的语言？我的想法很简单，平时OO、PO代码写多了，却从未接触过函数式编程，不免有些遗憾。考察下来，Clojure可以用来尝尝鲜，所以就决定学一学。为了给自己的学习留下些记录，就有了这样一份教程。 Clojure已经有一些不错的教程，如Mark &hellip;">
+  <meta name="description" content="在Eclipse中编写Clojure代码 从这章起我们就要开始真正的编码了。Vim可能是很多程序员的选择，但如果你像我一样更喜欢GUI界面，那就来看看如何在Eclipse中编写Clojure代码吧。 安装Eclipse插件 Eclipse提供了一个Clojure插件： &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +81,109 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/08/cia-noir-2/">Clojure实战(2)：使用Noir框架开发博客(中)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-08T12:09:00+08:00" pubdate data-updated="true">Dec 8<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>在Eclipse中编写Clojure代码</h2>
+
+<p>从这章起我们就要开始真正的编码了。Vim可能是很多程序员的选择，但如果你像我一样更喜欢GUI界面，那就来看看如何在Eclipse中编写Clojure代码吧。</p>
+
+<h3>安装Eclipse插件</h3>
+
+<p>Eclipse提供了一个Clojure插件：CounterClockwise，可以用来编写Clojure代码，进行语法高亮、调试等操作。打开Eclipse的Market Place，搜索counterclockwise关键字，点击Install即可。</p>
+
+<h3>将Leiningen项目导入Eclipse</h3>
+
+<p>由于CounterClockwise插件并没有默认使用Leiningen来管理项目，因此需要做一些额外的工作。</p>
+
+<p>在使用<code>lein new</code>命令创建项目后，在project.clj文件中增加如下一行：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="kd">defproject </span><span class="nv">...</span>
+</span><span class='line'>            <span class="ss">:dev-dependencies</span> <span class="p">[[</span><span class="nv">lein-eclipse</span> <span class="s">&quot;1.0.0&quot;</span><span class="p">]]</span>
+</span><span class='line'>            <span class="nv">...</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后依次执行<code>lein deps</code>和<code>lein eclipse</code>，会看到项目根目录下生成了.project和.classpath文件。然后就可以进入Eclipse导入这个项目了。如果使用Git进行版本控制，<code>lein</code>已经为你生成好了.gitignore文件。执行了<code>git init</code>后，就能在Eclilpse中选择Share Project菜单项，进行可视化的版本控制。</p>
+
+<h2>使用表单</h2>
+
+<p>我们现在需要编写一个新建文章的功能，它是一个简单的页面，页面上有“标题”和“内容”两个文本框，并有一个“提交”按钮。</p>
+
+<p>在src/blog/views目录下新建一个文件article.clj，输入以下内容：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='clojure'><span class='line'><span class="p">(</span><span class="kd">ns </span><span class="nv">blog.views.article</span>
+</span><span class='line'>  <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">blog.views.common</span> <span class="ss">:as</span> <span class="nv">common</span><span class="p">])</span>
+</span><span class='line'>  <span class="p">(</span><span class="ss">:use</span> <span class="p">[</span><span class="nv">noir.core</span><span class="p">]</span>
+</span><span class='line'>        <span class="p">[</span><span class="nv">hiccup.form-helpers</span><span class="p">]))</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">(</span><span class="nf">defpage</span> <span class="s">&quot;/blog/add&quot;</span> <span class="p">[]</span>
+</span><span class='line'>  <span class="p">(</span><span class="nf">common/layout</span>
+</span><span class='line'>    <span class="p">[</span><span class="ss">:h1</span> <span class="s">&quot;新建文章&quot;</span><span class="p">]</span>
+</span><span class='line'>    <span class="p">(</span><span class="nf">form-to</span> <span class="p">[</span><span class="ss">:post</span> <span class="s">&quot;/blog/add&quot;</span><span class="p">]</span>
+</span><span class='line'>             <span class="p">(</span><span class="nf">label</span> <span class="s">&quot;title&quot;</span> <span class="s">&quot;标题：&quot;</span><span class="p">)</span>
+</span><span class='line'>             <span class="p">(</span><span class="nf">text-field</span> <span class="p">{</span><span class="ss">:size</span> <span class="mi">50</span><span class="p">}</span> <span class="s">&quot;title&quot;</span><span class="p">)</span> <span class="p">[</span><span class="ss">:br</span><span class="p">]</span>
+</span><span class='line'>             <span class="p">(</span><span class="nf">label</span> <span class="s">&quot;content&quot;</span> <span class="s">&quot;内容：&quot;</span><span class="p">)</span>
+</span><span class='line'>             <span class="p">(</span><span class="nf">text-area</span> <span class="p">{</span><span class="ss">:rows</span> <span class="mi">20</span> <span class="ss">:cols</span> <span class="mi">50</span><span class="p">}</span> <span class="s">&quot;content&quot;</span><span class="p">)</span> <span class="p">[</span><span class="ss">:br</span><span class="p">]</span>
+</span><span class='line'>             <span class="p">(</span><span class="nf">submit-button</span> <span class="s">&quot;提交&quot;</span><span class="p">))))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>defpage</code>和<code>common/layout</code>我们之前已经见到过，前者定义了URL<code>/blog/add</code>指向的页面，后者则是套用了一个模板。<code>[:h1 ...]</code>和<code>[:br]</code>也应该熟悉，它们是Hiccup的语法，分别生成<code>&lt;h1&gt;...&lt;/h1&gt;</code>和<code>&lt;br&gt;</code>标签。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/08/cia-noir-2/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -256,6 +359,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
       </li>
     
@@ -269,10 +376,6 @@
     
       <li class="post">
         <a href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/01/13/understand-reduce-side-join/">深入理解Reduce-side Join</a>
       </li>
     
   </ul>

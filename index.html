@@ -9,7 +9,7 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="Reading source code is a great way to learn opensource projects. I used to read Java projects&#8217; source code on GrepCode for it is online and has &hellip;">
+  <meta name="description" content="原文：http://www.martinfowler.com/bliki/AnemicDomainModel.html 贫血领域模型是一个存在已久的反模式，目前仍有许多拥趸者。一次我和Eric Evans聊天谈到它时，都觉得这个模型似乎越来越流行了。作为领域模型的推广者，我们觉得这不是一件好事。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +81,53 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-05T19:02:00+08:00" pubdate data-updated="true">Sep 5<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>原文：<a href="http://www.martinfowler.com/bliki/AnemicDomainModel.html">http://www.martinfowler.com/bliki/AnemicDomainModel.html</a></p>
+
+<p>贫血领域模型是一个存在已久的反模式，目前仍有许多拥趸者。一次我和Eric Evans聊天谈到它时，都觉得这个模型似乎越来越流行了。作为<a href="http://martinfowler.com/eaaCatalog/domainModel.html">领域模型</a>的推广者，我们觉得这不是一件好事。</p>
+
+<p>贫血领域模型的最初症状是：它第一眼看起来还真像这么回事儿。项目中有许多对象，它们的命名都是根据领域来的。对象之间有着丰富的连接方式，和真正的领域模型非常相似。但当你检视这些对象的行为时，会发现它们基本上没有任何行为，仅仅是一堆getter和setter的集合。其实这些对象在设计之初就被定义为只能包含数据，不能加入领域逻辑。这些逻辑要全部写入一组叫Service的对象中。这些Service构建在领域模型之上，使用这些模型来传递数据。</p>
+
+<p>这种反模式的恐怖之处在于，它完全是和面向对象设计背道而驰。面向对象设计主张将数据和行为绑定在一起，而贫血领域模型则更像是一种面向过程设计，我和Eric在Smalltalk时就极力反对这种做法。更糟糕的时，很多人认为这些贫血领域对象是真正的对象，从而彻底误解了面向对象设计的涵义。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/09/05/anemic-domain-model/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -662,71 +709,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/">在CDH 4.5上安装Shark 0.9</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-05T17:16:00+08:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://spark.apache.org">Spark</a>是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的<a href="http://hadoop.apache.org">Hadoop</a>生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于<a href="http://hive.apache.org">Hive</a>，Spark也有相应的替代项目——<a href="http://shark.cs.berkeley.edu/">Shark</a>，能做到 <strong>drop-in replacement</strong> ，直接构建在现有集群之上。本文就将简要阐述如何在CDH4.5上搭建Shark0.9集群。</p>
-
-<h2>准备工作</h2>
-
-<ul>
-<li>安装方式：Spark使用CDH提供的Parcel，以Standalone模式启动</li>
-<li>软件版本
-
-<ul>
-<li>Cloudera Manager 4.8.2</li>
-<li>CDH 4.5</li>
-<li>Spark 0.9.0 Parcel</li>
-<li><a href="http://cloudera.rst.im/shark/">Shark 0.9.1 Binary</a></li>
-</ul>
-</li>
-<li>服务器基础配置
-
-<ul>
-<li>可用的软件源（如<a href="http://mirrors.ustc.edu.cn/">中科大的源</a>）</li>
-<li>配置主节点至子节点的root账户SSH无密码登录。</li>
-<li>在<code>/etc/hosts</code>中写死IP和主机名，或者DNS做好正反解析。</li>
-</ul>
-</li>
-</ul>
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -742,6 +724,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
       </li>
     
@@ -755,10 +741,6 @@
     
       <li class="post">
         <a href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/01/13/understand-reduce-side-join/">深入理解Reduce-side Join</a>
       </li>
     
   </ul>

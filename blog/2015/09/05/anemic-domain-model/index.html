@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: Translation - Ji ZHANG's Blog</title>
+  <title>贫血领域模型 - Ji ZHANG's Blog</title>
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="Category: Translation">
+  <meta name="description" content="原文：http://www.martinfowler.com/bliki/AnemicDomainModel.html 贫血领域模型是一个存在已久的反模式，目前仍有许多拥趸者。一次我和Eric Evans聊天谈到它时，都觉得这个模型似乎越来越流行了。作为领域模型的推广者，我们觉得这不是一件好事。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://shzhangji.comblog/categories/translation">
+  <link rel="canonical" href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
@@ -80,185 +80,124 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: Translation</h1>
+    
+      <h1 class="entry-title">贫血领域模型</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-05T19:02:00+08:00" pubdate data-updated="true">Sep 5<span>th</span>, 2015</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><p>原文：<a href="http://www.martinfowler.com/bliki/AnemicDomainModel.html">http://www.martinfowler.com/bliki/AnemicDomainModel.html</a></p>
 
-  
-  <h2>2015</h2>
+<p>贫血领域模型是一个存在已久的反模式，目前仍有许多拥趸者。一次我和Eric Evans聊天谈到它时，都觉得这个模型似乎越来越流行了。作为<a href="http://martinfowler.com/eaaCatalog/domainModel.html">领域模型</a>的推广者，我们觉得这不是一件好事。</p>
 
-<article>
-  
-<h1><a href="/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a></h1>
-<time datetime="2015-09-05T19:02:00+08:00" pubdate><span class='month'>Sep</span> <span class='day'>05</span> <span class='year'>2015</span></time>
+<p>贫血领域模型的最初症状是：它第一眼看起来还真像这么回事儿。项目中有许多对象，它们的命名都是根据领域来的。对象之间有着丰富的连接方式，和真正的领域模型非常相似。但当你检视这些对象的行为时，会发现它们基本上没有任何行为，仅仅是一堆getter和setter的集合。其实这些对象在设计之初就被定义为只能包含数据，不能加入领域逻辑。这些逻辑要全部写入一组叫Service的对象中。这些Service构建在领域模型之上，使用这些模型来传递数据。</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/translation/'>Translation</a></span>
-</footer>
+<p>这种反模式的恐怖之处在于，它完全是和面向对象设计背道而驰。面向对象设计主张将数据和行为绑定在一起，而贫血领域模型则更像是一种面向过程设计，我和Eric在Smalltalk时就极力反对这种做法。更糟糕的时，很多人认为这些贫血领域对象是真正的对象，从而彻底误解了面向对象设计的涵义。</p>
 
+<!-- more -->
 
-</article>
 
+<p>如今，面向对象的概念已经传播得很广泛了，而要反对这种贫血领域模型的做法，我还需要更多论据。贫血领域模型的根本问题在于，它引入了领域模型设计的所有成本，却没有带来任何好处。最主要的成本是将对象映射到数据库中，从而产生了一个对象关系映射层。只有当你充分使用了面向对象设计来组织复杂的业务逻辑时，这一成本才能够被抵消。如果将所有行为都写入到Service对象，那最终你会得到一组<a href="http://martinfowler.com/eaaCatalog/transactionScript.html">事务处理脚本</a>，从而错过了领域模型带来了好处。正如我在<a href="http://martinfowler.com/books/eaa.html">企业应用架构模式</a>一书中说到的，领域模型并不一定是最好的工具。</p>
 
+<p>还需要强调的是，将行为放入领域模型，这点和分层设计（领域层、持久化层、展现层等）并不冲突。因为领域模型中放入的是和领域相关的逻辑——验证、计算、商业规则等。如果你要讨论能否将数据访问和展现逻辑放入到领域模型中，这就不在本文论述范围之内了。</p>
 
-<article>
-  
-<h1><a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">HotSpot JVM中的对象指针压缩</a></h1>
-<time datetime="2015-06-25T17:41:00+08:00" pubdate><span class='month'>Jun</span> <span class='day'>25</span> <span class='year'>2015</span></time>
+<p>一些面向对象专家的观点有时会让人产生疑惑，他们认为的确应该有一个面向过程的<a href="http://martinfowler.com/eaaCatalog/serviceLayer.html">服务层</a>。但是，这并不意味着领域模型就不应该包含行为。事实上，服务层需要和一组富含行为的领域模型结合起来使用。</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/translation/'>Translation</a></span>
-</footer>
+<p>Eric Evans的<a href="http://domaindrivendesign.org/books/">领域驱动设计</a>一书中有关于分层的论述：</p>
 
+<blockquote><p>应用层（也就是上文中的服务层）：用来描述应用程序所要做的工作，并调度丰富的领域模型来完成它。这个层次的任务是描述业务逻辑，或和其它项目的应用层做交互。这个层次很薄，它不包含任何业务规则或知识，仅用于调度和派发任务给下一层的领域模型。这个层次没有业务状态，但可以为用户或程序提供任务状态。</p>
 
-</article>
+<p>领域层（或者叫模型层）：用于表示业务逻辑、业务场景和规则。这个层次会控制和使用业务状态，即使这些状态最终会交由持久化层来存储。总之，这个层次是软件的核心。</p></blockquote>
 
+<p>关键点在于服务层是很薄的——所有重要的业务逻辑都写在领域层。它在服务模式中复述了这一观点：</p>
 
+<blockquote><p>如今人们常犯的错误是不愿花时间将业务逻辑放置到合适的领域模型中，从而逐渐形成面向过程的程序设计。</p></blockquote>
 
-  
-  <h2>2014</h2>
+<p>我不清楚为什么这种反模式会那么常见。我怀疑是因为大多数人并没有使用过一个设计良好的领域模型，特别是那些以数据为中心的开发人员。此外，有些技术也会推动这种反模式，比如J2EE的Entity Bean，这会让我更倾向于使用<a href="http://www.martinfowler.com/bliki/POJO.html">POJO</a>领域模型。</p>
 
-<article>
-  
-<h1><a href="/blog/2014/01/25/java-reflection-tutorial/">Java反射机制</a></h1>
-<time datetime="2014-01-25T09:42:00+08:00" pubdate><span class='month'>Jan</span> <span class='day'>25</span> <span class='year'>2014</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/translation/'>Translation</a>, <a class='category' href='/blog/categories/tutorial/'>Tutorial</a></span>
-</footer>
-
-
-</article>
-
-
-
-  
-  <h2>2013</h2>
-
-<article>
-  
-<h1><a href="/blog/2013/12/17/the-law-of-leaky-abstractions/">抽象泄漏定律</a></h1>
-<time datetime="2013-12-17T13:05:00+08:00" pubdate><span class='month'>Dec</span> <span class='day'>17</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/translation/'>Translation</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2013/06/11/ansible-faq/">Ansible FAQ</a></h1>
-<time datetime="2013-06-11T21:18:00+08:00" pubdate><span class='month'>Jun</span> <span class='day'>11</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/translation/'>Translation</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2013/05/25/apache-hadoop-yarn-background-and-an-overview/">Apache Hadoop YARN - 项目背景与简介</a></h1>
-<time datetime="2013-05-25T10:57:00+08:00" pubdate><span class='month'>May</span> <span class='day'>25</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/translation/'>Translation</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/">Cascalog：基于Clojure的Hadoop查询语言</a></h1>
-<time datetime="2013-05-01T18:01:00+08:00" pubdate><span class='month'>May</span> <span class='day'>01</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/translation/'>Translation</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2013/03/07/currying-and-partial-application/">柯里化与偏应用（JavaScript描述）</a></h1>
-<time datetime="2013-03-07T20:59:00+08:00" pubdate><span class='month'>Mar</span> <span class='day'>07</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/translation/'>Translation</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2013/01/04/clojure-style-guide/">Clojure 代码规范</a></h1>
-<time datetime="2013-01-04T20:49:00+08:00" pubdate><span class='month'>Jan</span> <span class='day'>04</span> <span class='year'>2013</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/translation/'>Translation</a></span>
-</footer>
-
-
-</article>
-
-
-
-  
-  <h2>2012</h2>
-
-<article>
-  
-<h1><a href="/blog/2012/11/18/aosa-python-packaging/">开源软件架构 - 卷1：第14章 Python打包工具</a></h1>
-<time datetime="2012-11-18T19:20:00+08:00" pubdate><span class='month'>Nov</span> <span class='day'>18</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/translation/'>Translation</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2012/11/16/aosa-git/">开源软件架构 - 卷2：第6章 Git</a></h1>
-<time datetime="2012-11-16T23:54:00+08:00" pubdate><span class='month'>Nov</span> <span class='day'>16</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/translation/'>Translation</a></span>
-</footer>
-
-
-</article>
-
+<p>总之，如果你将大部分行为都放置在服务层，那么你就会失去领域模型带来的好处。如果你将所有行为都放在服务层，那就无可救药了。</p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Ji ZHANG</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-05T19:02:00+08:00" pubdate data-updated="true">Sep 5<span>th</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/translation/'>Translation</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/09/01/view-spark-source-in-eclipse/" title="Previous Post: View Spark Source in Eclipse">&laquo; View Spark Source in Eclipse</a>
+      
+      
+    </p>
+  </footer>
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 
 </div>
@@ -364,7 +303,10 @@
       var disqus_shortname = 'jizhang';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://shzhangji.com/blog/2015/09/05/anemic-domain-model/';
+        var disqus_url = 'http://shzhangji.com/blog/2015/09/05/anemic-domain-model/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

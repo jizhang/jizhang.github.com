@@ -136,15 +136,19 @@
     </url>
     <url>
         <loc>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</loc>
-        <lastmod>2015-09-03T20:26:18+08:00</lastmod>
+        <lastmod>2015-09-03T23:03:30+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://shzhangji.com/blog/2015/09/05/anemic-domain-model/</loc>
+        <lastmod>2015-09-06T10:28:45+08:00</lastmod>
     </url>
     <url>
         <loc>http://shzhangji.com/blog/archives/</loc>
-        <lastmod>2015-09-03T20:26:18+08:00</lastmod>
+        <lastmod>2015-09-06T10:28:45+08:00</lastmod>
     </url>
     <url>
         <loc>http://shzhangji.com/</loc>
-        <lastmod>2015-09-03T20:26:18+08:00</lastmod>
+        <lastmod>2015-09-06T10:28:45+08:00</lastmod>
     </url>
     <url>
         <loc>http://shzhangji.com/robots.txt</loc>

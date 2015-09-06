@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Big Data | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/big-data/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-09-03T20:27:13+08:00</updated>
+  <updated>2015-09-06T10:29:07+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,126 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[View Spark Source in Eclipse]]></title>
+    <link href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/"/>
+    <updated>2015-09-01T18:38:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse</id>
+    <content type="html"><![CDATA[<p>Reading source code is a great way to learn opensource projects. I used to read Java projects' source code on <a href="http://grepcode.com/">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/">GitHub</a>, it&rsquo;s quite necessary to setup an IDE to view the code more efficiently. Here&rsquo;s a howto of viewing Spark source code in Eclipse.</p>
+
+<h2>Install Eclipse and Scala IDE Plugin</h2>
+
+<p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/">here</a>. I recommend the &ldquo;Eclipse IDE for Java EE Developers&rdquo;, which contains a lot of daily-used features.</p>
+
+<p><img src="/images/scala-ide.png" alt="" /></p>
+
+<p>Then go to Scala IDE&rsquo;s <a href="http://scala-ide.org/download/current.html">official site</a> and install the plugin through update site or zip archive.</p>
+
+<h2>Generate Project File with Maven</h2>
+
+<p>Spark is mainly built with Maven, so make sure you have Maven installed on your box, and download the latest Spark source code from <a href="http://spark.apache.org/downloads.html">here</a>, unarchive it, and execute the following command:</p>
+
+<p><code>bash
+$ mvn -am -pl core -DskipTests package eclipse:eclipse
+</code></p>
+
+<!-- more -->
+
+
+<p>This command does a bunch of things. First, it indicates what modules should be built. Spark is a large project with multiple modules. Currently we&rsquo;re only interested in its core module, so <code>-pl</code> or <code>--projects</code> is used. <code>-am</code> or <code>--also-make</code> tells Maven to build core module&rsquo;s dependencies as well. We can see the module list in output:</p>
+
+<p><code>text
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO]
+[INFO] Spark Project Parent POM
+[INFO] Spark Launcher Project
+[INFO] Spark Project Networking
+[INFO] Spark Project Shuffle Streaming Service
+[INFO] Spark Project Unsafe
+[INFO] Spark Project Core
+</code></p>
+
+<p><code>package</code> tells Maven to download all dependencies and compile the source code. If you encounter some <code>OutOfMemoryException</code>, try enlarging the heap size by setting <code>MAVEN_OPTS</code>:</p>
+
+<p><code>bash
+$ MAVEN_OPTS=-Xmx1G mvn ...
+</code></p>
+
+<p><code>eclipse:eclipse</code> will generate the <code>.project</code> and <code>.classpath</code> files for Eclipse. But the result is not perfect, both files need some fixes.</p>
+
+<p>Edit <code>core/.classpath</code>, change the following two lines:</p>
+
+<p><code>xml
+&lt;classpathentry kind="src" path="src/main/scala" including="**/*.java"/&gt;
+&lt;classpathentry kind="src" path="src/test/scala" output="target/scala-2.10/test-classes" including="**/*.java"/&gt;
+</code></p>
+
+<p>to</p>
+
+<p><code>xml
+&lt;classpathentry kind="src" path="src/main/scala" including="**/*.java|**/*.scala"/&gt;
+&lt;classpathentry kind="src" path="src/test/scala" output="target/scala-2.10/test-classes" including="**/*.java|**/*.scala"/&gt;
+</code></p>
+
+<p>Edit <code>core/.project</code>, make it looks like this:</p>
+
+<p>```xml
+<buildSpec>
+  <buildCommand></p>
+
+<pre><code>&lt;name&gt;org.scala-ide.sdt.core.scalabuilder&lt;/name&gt;
+</code></pre>
+
+<p>  </buildCommand>
+</buildSpec>
+<natures>
+  <nature>org.scala-ide.sdt.core.scalanature</nature>
+  <nature>org.eclipse.jdt.core.javanature</nature>
+</natures>
+```</p>
+
+<p>Now you can import &ldquo;Existing Projects into Workspace&rdquo;, including <code>core</code>, <code>launcher</code>, <code>network</code>, and <code>unsafe</code>.</p>
+
+<h2>Miscellaneous</h2>
+
+<h3>Access restriction: The type &lsquo;Unsafe&rsquo; is not API</h3>
+
+<p>For module <code>spark-unsafe</code>, Eclipse will report an error &ldquo;Access restriction: The type &lsquo;Unsafe&rsquo; is not API (restriction on required library /path/to/jre/lib/rt.jar&rdquo;. To fix this, right click the &ldquo;JRE System Library&rdquo; entry in Package Explorer, change it to &ldquo;Workspace default JRE&rdquo;.</p>
+
+<h3>Download Sources and Javadocs</h3>
+
+<p>Add the following entry into pom&rsquo;s project / build / plugins:</p>
+
+<p>```xml
+<plugin></p>
+
+<pre><code>&lt;artifactId&gt;maven-eclipse-plugin&lt;/artifactId&gt;
+&lt;configuration&gt;
+    &lt;downloadSources&gt;true&lt;/downloadSources&gt;
+    &lt;downloadJavadocs&gt;true&lt;/downloadJavadocs&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<p></plugin>
+```</p>
+
+<h3>build-helper-maven-plugin</h3>
+
+<p>Since Spark is a mixture of Java and Scala code, and the maven-eclipse-plugin only knows about Java source files, so we need to use build-helper-maven-plugin to include the Scala sources, as is described <a href="http://docs.scala-lang.org/tutorials/scala-with-maven.html#integration-with-eclipse-scala-ide24">here</a>. Fortunately, Spark&rsquo;s pom.xml has already included this setting.</p>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="http://docs.scala-lang.org/tutorials/scala-with-maven.html">http://docs.scala-lang.org/tutorials/scala-with-maven.html</a></li>
+<li><a href="https://wiki.scala-lang.org/display/SIW/ScalaEclipseMaven">https://wiki.scala-lang.org/display/SIW/ScalaEclipseMaven</a></li>
+<li><a href="https://cwiki.apache.org/confluence/display/SPARK/Useful+Developer+Tools">https://cwiki.apache.org/confluence/display/SPARK/Useful+Developer+Tools</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Spark Streaming Logging Configuration]]></title>
@@ -752,129 +872,6 @@ Failed with exception org.apache.thrift.TApplicationException: Invalid method na
 <p>对于这个问题，我只在<a href="https://groups.google.com/forum/#!starred/shark-users/x_Dh5-3isIc">Google Groups</a>上看到一篇相关的帖子，不过并没有给出解决方案。</p>
 
 <p>目前我们实施的是 <strong>第一种方案</strong>，即在客户端和Shark之间添加一层，不支持的SQL语句直接降级用Hive执行，效果不错。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Hive小文件问题的处理]]></title>
-    <link href="http://shzhangji.com/blog/2014/04/07/hive-small-files/"/>
-    <updated>2014-04-07T17:09:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2014/04/07/hive-small-files</id>
-    <content type="html"><![CDATA[<p>Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。</p>
-
-<h2>小文件带来的问题</h2>
-
-<p>关于这个问题的阐述可以读一读Cloudera的<a href="http://blog.cloudera.com/blog/2009/02/the-small-files-problem/">这篇文章</a>。简单来说，HDFS的文件元信息，包括位置、大小、分块信息等，都是保存在NameNode的内存中的。每个对象大约占用150个字节，因此一千万个文件及分块就会占用约3G的内存空间，一旦接近这个量级，NameNode的性能就会开始下降了。</p>
-
-<p>此外，HDFS读写小文件时也会更加耗时，因为每次都需要从NameNode获取元信息，并与对应的DataNode建立连接。对于MapReduce程序来说，小文件还会增加Mapper的个数，每个脚本只处理很少的数据，浪费了大量的调度时间。当然，这个问题可以通过使用CombinedInputFile和JVM重用来解决。</p>
-
-<!-- more -->
-
-
-<h2>Hive小文件产生的原因</h2>
-
-<p>前面已经提到，汇总后的数据量通常比源数据要少得多。而为了提升运算速度，我们会增加Reducer的数量，Hive本身也会做类似优化——Reducer数量等于源数据的量除以hive.exec.reducers.bytes.per.reducer所配置的量（默认1G）。Reducer数量的增加也即意味着结果文件的增加，从而产生小文件的问题。</p>
-
-<h2>配置Hive结果合并</h2>
-
-<p>我们可以通过一些配置项来使Hive在执行结束后对结果文件进行合并：</p>
-
-<ul>
-<li><code>hive.merge.mapfiles</code> 在map-only job后合并文件，默认<code>true</code></li>
-<li><code>hive.merge.mapredfiles</code> 在map-reduce job后合并文件，默认<code>false</code></li>
-<li><code>hive.merge.size.per.task</code> 合并后每个文件的大小，默认<code>256000000</code></li>
-<li><code>hive.merge.smallfiles.avgsize</code> 平均文件大小，是决定是否执行合并操作的阈值，默认<code>16000000</code></li>
-</ul>
-
-
-<p>Hive在对结果文件进行合并时会执行一个额外的map-only脚本，mapper的数量是文件总大小除以size.per.task参数所得的值，触发合并的条件是：</p>
-
-<ol>
-<li>根据查询类型不同，相应的mapfiles/mapredfiles参数需要打开；</li>
-<li>结果文件的平均大小需要大于avgsize参数的值。</li>
-</ol>
-
-
-<p>示例：</p>
-
-<p>```sql
-&mdash; map-red job，5个reducer，产生5个60K的文件。
-create table dw_stage.zj_small as
-select paid, count(*)
-from dw_db.dw_soj_imp_dtl
-where log_dt = &lsquo;2014-04-14&rsquo;
-group by paid;</p>
-
-<p>&mdash; 执行额外的map-only job，一个mapper，产生一个300K的文件。
-set hive.merge.mapredfiles=true;
-create table dw_stage.zj_small as
-select paid, count(*)
-from dw_db.dw_soj_imp_dtl
-where log_dt = &lsquo;2014-04-14&rsquo;
-group by paid;</p>
-
-<p>&mdash; map-only job，45个mapper，产生45个25M左右的文件。
-create table dw_stage.zj_small as
-select *
-from dw_db.dw_soj_imp_dtl
-where log_dt = &lsquo;2014-04-14&rsquo;
-and paid like &lsquo;%baidu%&rsquo;;</p>
-
-<p>&mdash; 执行额外的map-only job，4个mapper，产生4个250M左右的文件。
-set hive.merge.smallfiles.avgsize=100000000;
-create table dw_stage.zj_small as
-select *
-from dw_db.dw_soj_imp_dtl
-where log_dt = &lsquo;2014-04-14&rsquo;
-and paid like &lsquo;%baidu%&rsquo;;
-```</p>
-
-<h3>压缩文件的处理</h3>
-
-<p>如果结果表使用了压缩格式，则必须配合SequenceFile来存储，否则无法进行合并，以下是示例：</p>
-
-<p>```sql
-set mapred.output.compression.type=BLOCK;
-set hive.exec.compress.output=true;
-set mapred.output.compression.codec=org.apache.hadoop.io.compress.LzoCodec;
-set hive.merge.smallfiles.avgsize=100000000;</p>
-
-<p>drop table if exists dw_stage.zj_small;
-create table dw_stage.zj_small
-STORED AS SEQUENCEFILE
-as select *
-from dw_db.dw_soj_imp_dtl
-where log_dt = &lsquo;2014-04-14&rsquo;
-and paid like &lsquo;%baidu%&rsquo;;
-```</p>
-
-<h2>使用HAR归档文件</h2>
-
-<p>Hadoop的<a href="http://hadoop.apache.org/docs/stable1/hadoop_archives.html">归档文件</a>格式也是解决小文件问题的方式之一。而且Hive提供了<a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Archiving">原生支持</a>：</p>
-
-<p>```
-set hive.archive.enabled=true;
-set hive.archive.har.parentdir.settable=true;
-set har.partfile.size=1099511627776;</p>
-
-<p>ALTER TABLE srcpart ARCHIVE PARTITION(ds=&lsquo;2008-04-08&rsquo;, hr=&lsquo;12&rsquo;);</p>
-
-<p>ALTER TABLE srcpart UNARCHIVE PARTITION(ds=&lsquo;2008-04-08&rsquo;, hr=&lsquo;12&rsquo;);
-```</p>
-
-<p>如果使用的不是分区表，则可创建成外部表，并使用<code>har://</code>协议来指定路径。</p>
-
-<h2>HDFS Federation</h2>
-
-<p>Hadoop V2引入了HDFS Federation的概念：</p>
-
-<p><img src="http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/images/federation.gif" alt="" /></p>
-
-<p>实则是将NameNode做了拆分，从而增强了它的扩展性，小文件的问题也能够得到缓解。</p>
-
-<h2>其他工具</h2>
-
-<p>对于通常的应用，使用Hive结果合并就能达到很好的效果。如果不想因此增加运行时间，可以自行编写一些脚本，在系统空闲时对分区内的文件进行合并，也能达到目的。</p>
 ]]></content>
   </entry>
   
