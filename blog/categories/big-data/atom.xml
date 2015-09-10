@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Big Data | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/big-data/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-09-06T10:29:07+08:00</updated>
+  <updated>2015-09-10T13:41:39+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -219,6 +219,69 @@ spark-submit
 <p>As you can see, both driver and executor use the same configuration file. That is because in <code>yarn-cluster</code> mode, driver is also run as a container in YARN. In fact, the <code>spark-submit</code> command will just quit after job submission.</p>
 
 <p>If YARN&rsquo;s <a href="http://zh.hortonworks.com/blog/simplifying-user-logs-management-and-access-in-yarn/">log aggregation</a> is enabled, application logs will be saved in HDFS after the job is done. One can use <code>yarn logs</code> command to view the files or browse directly into HDFS directory indicated by <code>yarn.nodemanager.log-dirs</code>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache HBase的适用场景]]></title>
+    <link href="http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts/"/>
+    <updated>2015-03-08T08:03:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts</id>
+    <content type="html"><![CDATA[<p>原文：<a href="http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/">http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/</a></p>
+
+<p>最近我在<a href="http://www.meetup.com/LA-HUG/">洛杉矶Hadoop用户组</a>做了一次关于<a href="http://www.meetup.com/LA-HUG/pages/Video_from_April_13th_HBASE_DO%27S_and_DON%27TS/">HBase适用场景</a>的分享。在场的听众水平都很高，给到了我很多值得深思的反馈。主办方是来自Shopzilla的Jody，我非常感谢他能给我一个在60多位Hadoop使用者面前演讲的机会。可能一些朋友没有机会来洛杉矶参加这次会议，我将分享中的主要内容做了一个整理。如果你没有时间阅读全文，以下是一些摘要：</p>
+
+<ul>
+<li>HBase很棒，但不是关系型数据库或HDFS的替代者；</li>
+<li>配置得当才能运行良好；</li>
+<li>监控，监控，监控，重要的事情要说三遍。</li>
+</ul>
+
+
+<p>Cloudera是HBase的铁杆粉丝。我们热爱这项技术，热爱这个社区，发现它能适用于非常多的应用场景。HBase如今已经有很多<a href="#use-cases">成功案例</a>，所以很多公司也在考虑如何将其应用到自己的架构中。我做这次分享以及写这篇文章的动因就是希望能列举出HBase的适用场景，并提醒各位哪些场景是不适用的，以及如何做好HBase的部署。</p>
+
+<!-- more -->
+
+
+<h2>何时使用HBase</h2>
+
+<p>虽然HBase是一种绝佳的工具，但我们一定要记住，它并非银弹。HBase并不擅长传统的事务处理程序或关联分析，它也不能完全替代MapReduce过程中使用到的HDFS。从文末的<a href="#use-cases">成功案例</a>中你可以大致了解HBase适用于怎样的应用场景。如果你还有疑问，可以到<a href="http://www.cloudera.com/community/">社区</a>中提问，我说过这是一个非常棒的社区。</p>
+
+<p>除去上述限制之外，你为何要选择HBase呢？如果你的应用程序中，数据表每一行的结构是有差别的，那就可以考虑使用HBase，比如在标准化建模的过程中使用它；如果你需要经常追加字段，且大部分字段是NULL值的，那可以考虑HBase；如果你的数据（包括元数据、消息、二进制数据等）都有着同一个主键，那就可以使用HBase；如果你需要通过键来访问和修改数据，使用HBase吧。</p>
+
+<h2>后台服务</h2>
+
+<p>如果你已决定尝试一下HBase，那以下是一些部署过程中的提示。HBase会用到一些后台服务，这些服务非常关键。如果你之前没有了解过ZooKeeper，那现在是个好时候。HBase使用ZooKeeper作为它的分布式协调服务，用于选举Master等。随着HBase的发展，ZooKeeper发挥的作用越来越重要。另外，你需要搭建合适的网络基础设施，如NTP和DNS。HBase要求集群内的所有服务器时间一致，并且能正确地访问其它服务器。正确配置NTP和DNS可以杜绝一些奇怪的问题，如服务器A认为当前是明天，B认为当前是昨天；再如Master要求服务器C开启新的Region，而C不知道自己的机器名，从而无法响应。NTP和DNS服务器可以让你减少很多麻烦。</p>
+
+<p>我前面提到过，在考虑是否使用HBase时，需要针对你自己的应用场景来进行判别。而在真正使用HBase时，监控则成了第一要务。和大多数分布式服务一样，HBase服务器宕机会有多米诺骨牌效应。如果一台服务器因内存不足开始swap数据，它会失去和Master的联系，这时Master会命令其他服务器接过这部分请求，可能会导致第二台服务器也发生宕机。所以，你需要密切监控服务器的CPU、I/O以及网络延迟，确保每台HBase服务器都在良好地工作。监控对于维护HBase集群的健康至关重要。</p>
+
+<h2>HBase架构最佳实践</h2>
+
+<p>当你找到了适用场景，并搭建起一个健康的HBase集群后，我们来看一些使用过程中的最佳实践。键的前缀要有良好的分布性。如果你使用时间戳或其他类似的递增量作为前缀，那就会让单个Region承载所有请求，而不是分布到各个Region上。此外，你需要根据Memstore和内存的大小来控制Region的数量。RegionServer的JVM堆内存应该控制在12G以内，从而避免过长的GC停顿。举个例子，在一台内存为36G的服务器上部署RegionServer，同时还运行着DataNode，那大约可以提供100个48M大小的Region。这样的配置对HDFS、HBase、以及Linux本身的文件缓存都是有利的。</p>
+
+<p>其他一些设置包括禁用自动合并机制（默认的合并操作会在HBase启动后每隔24小时进行），改为手动的方式在低峰期间执行。你还应该配置数据文件压缩（如LZO），并将正确的配置文件加入HBase的CLASSPATH中。</p>
+
+<h2>非适用场景</h2>
+
+<p>上文讲述了HBase的适用场景和最佳实践，以下则是一些需要规避的问题。比如，不要期许HBase可以完全替代关系型数据库——虽然它在许多方面都表现优秀。它不支持SQL，也没有优化器，更不能支持跨越多条记录的事务或关联查询。如果你用不到这些特性，那HBase将是你的不二选择。</p>
+
+<p>在复用HBase的服务器时有一些注意事项。如果你需要保证HBase的服务器质量，同时又想在HBase上运行批处理脚本（如使用Pig从HBase中获取数据进行处理），建议还是另搭一套集群。HBase在处理大量顺序I/O操作时（如MapReduce），其CPU和内存资源将会十分紧张。将这两类应用放置在同一集群上会造成不可预估的服务延迟。此外，共享集群时还需要调低任务槽（task slot）的数量，至少要留一半的CPU核数给HBase。密切关注内存，因为一旦发生swap，HBase很可能会停止心跳，从而被集群判为无效，最终产生一系列宕机。</p>
+
+<h2>总结</h2>
+
+<p>最后要提的一点是，在加载数据到HBase时，应该使用MapReduce+HFileOutputFormat来实现。如果仅使用客户端API，不仅速度慢，也没有充分利用HBase的分布式特性。</p>
+
+<p>用一句话概述，HBase可以让你用键来存储和搜索数据，且无需定义表结构。</p>
+
+<h2><a id="use-cases"></a>使用案例</h2>
+
+<ul>
+<li>Apache HBase: <a href="http://wiki.apache.org/hadoop/Hbase/PoweredBy">Powered By HBase Wiki</a></li>
+<li>Mozilla: <a href="http://blog.mozilla.com/webdev/2010/07/26/moving-socorro-to-hbase/">Moving Socorro to HBase</a></li>
+<li>Facebook: <a href="http://highscalability.com/blog/2010/11/16/facebooks-new-real-time-messaging-system-hbase-to-store-135.html">Facebook’s New Real-Time Messaging System: HBase</a></li>
+<li>StumbleUpon: <a href="http://www.stumbleupon.com/devblog/hbase_at_stumbleupon/">HBase at StumbleUpon</a></li>
+</ul>
+
 ]]></content>
   </entry>
   
@@ -671,207 +734,6 @@ $ spark-submit --class LogMining --master local target/scala-2.10/spark-sandbox_
 <li><a href="http://www.slideshare.net/liancheng/dtcc-14-spark-runtime-internals">Spark Runtime Internals</a></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[在CDH 4.5上安装Shark 0.9]]></title>
-    <link href="http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/"/>
-    <updated>2014-07-05T17:16:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5</id>
-    <content type="html"><![CDATA[<p><a href="http://spark.apache.org">Spark</a>是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的<a href="http://hadoop.apache.org">Hadoop</a>生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于<a href="http://hive.apache.org">Hive</a>，Spark也有相应的替代项目——<a href="http://shark.cs.berkeley.edu/">Shark</a>，能做到 <strong>drop-in replacement</strong> ，直接构建在现有集群之上。本文就将简要阐述如何在CDH4.5上搭建Shark0.9集群。</p>
-
-<h2>准备工作</h2>
-
-<ul>
-<li>安装方式：Spark使用CDH提供的Parcel，以Standalone模式启动</li>
-<li>软件版本
-
-<ul>
-<li>Cloudera Manager 4.8.2</li>
-<li>CDH 4.5</li>
-<li>Spark 0.9.0 Parcel</li>
-<li><a href="http://cloudera.rst.im/shark/">Shark 0.9.1 Binary</a></li>
-</ul>
-</li>
-<li>服务器基础配置
-
-<ul>
-<li>可用的软件源（如<a href="http://mirrors.ustc.edu.cn/">中科大的源</a>）</li>
-<li>配置主节点至子节点的root账户SSH无密码登录。</li>
-<li>在<code>/etc/hosts</code>中写死IP和主机名，或者DNS做好正反解析。</li>
-</ul>
-</li>
-</ul>
-
-
-<!-- more -->
-
-
-<h2>安装Spark</h2>
-
-<ul>
-<li>使用CM安装Parcel，不需要重启服务。</li>
-<li>修改<code>/etc/spark/conf/spark-env.sh</code>：（其中one-843是主节点的域名）</li>
-</ul>
-
-
-<p><code>bash
-STANDALONE_SPARK_MASTER_HOST=one-843
-DEFAULT_HADOOP_HOME=/opt/cloudera/parcels/CDH/lib/hadoop
-export SPARK_CLASSPATH=$SPARK_CLASSPATH:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/*
-export SPARK_LIBRARY_PATH=$SPARK_LIBRARY_PATH:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/native
-</code></p>
-
-<ul>
-<li>修改<code>/etc/spark/conf/slaves</code>，添加各节点主机名。</li>
-<li>将<code>/etc/spark/conf</code>目录同步至所有节点。</li>
-<li>启动Spark服务（即Standalone模式）：</li>
-</ul>
-
-
-<p><code>bash
-$ /opt/cloudera/parcels/SPARK/lib/spark/sbin/start-master.sh
-$ /opt/cloudera/parcels/SPARK/lib/spark/sbin/start-slaves.sh
-</code></p>
-
-<ul>
-<li>测试<code>spark-shell</code>是否可用：</li>
-</ul>
-
-
-<p><code>scala
-sc.textFile("hdfs://one-843:8020/user/jizhang/zj_people.txt.lzo").count
-</code></p>
-
-<h2>安装Shark</h2>
-
-<ul>
-<li>安装Oracle JDK 1.7 Update 45至<code>/usr/lib/jvm/jdk1.7.0_45</code>。</li>
-<li>下载别人编译好的二进制包：<a href="http://cloudera.rst.im/shark/shark-0.9.1-bin-2.0.0-mr1-cdh-4.6.0.tar.gz">shark-0.9.1-bin-2.0.0-mr1-cdh-4.6.0.tar.gz</a></li>
-<li>解压至<code>/opt</code>目录，修改<code>conf/shark-env.sh</code>：</li>
-</ul>
-
-
-<p>```bash
-export JAVA_HOME=/usr/lib/jvm/jdk1.7.0_45
-export SCALA_HOME=/opt/cloudera/parcels/SPARK/lib/spark
-export SHARK_HOME=/root/shark-0.9.1-bin-2.0.0-mr1-cdh-4.6.0</p>
-
-<p>export HIVE_CONF_DIR=/etc/hive/conf</p>
-
-<p>export HADOOP_HOME=/opt/cloudera/parcels/CDH/lib/hadoop
-export SPARK_HOME=/opt/cloudera/parcels/SPARK/lib/spark
-export MASTER=spark://one-843:7077</p>
-
-<p>export SPARK_CLASSPATH=$SPARK_CLASSPATH:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/*
-export SPARK_LIBRARY_PATH=$SPARK_LIBRARY_PATH:/opt/cloudera/parcels/HADOOP_LZO/lib/hadoop/lib/native
-```</p>
-
-<ul>
-<li>开启SharkServer2，使用Supervisord管理：</li>
-</ul>
-
-
-<p><code>
-[program:sharkserver2]
-command = /opt/shark/bin/shark --service sharkserver2
-autostart = true
-autorestart = true
-stdout_logfile = /var/log/sharkserver2.log
-redirect_stderr = true
-</code></p>
-
-<p><code>bash
-$ supervisorctl start sharkserver2
-</code></p>
-
-<ul>
-<li>测试</li>
-</ul>
-
-
-<p><code>bash
-$ /opt/shark/bin/beeline -u jdbc:hive2://one-843:10000 -n root
-</code></p>
-
-<h2>版本问题</h2>
-
-<h3>背景</h3>
-
-<h4>CDH</h4>
-
-<p>CDH是对Hadoop生态链各组件的打包，每个CDH版本都会对应一组Hadoop组件的版本，如<a href="http://www.cloudera.com/content/cloudera-content/cloudera-docs/CDH4/4.5.0/CDH-Version-and-Packaging-Information/cdhvd_topic_3.html">CDH4.5</a>的部分对应关系如下：</p>
-
-<ul>
-<li>Apache Hadoop: hadoop-2.0.0+1518</li>
-<li>Apache Hive: hive-0.10.0+214</li>
-<li>Hue: hue-2.5.0+182</li>
-</ul>
-
-
-<p>可以看到，CDH4.5对应的Hive版本是0.10.0，因此它的<a href="http://www.cloudera.com/content/cloudera-content/cloudera-docs/CDH4/4.5.0/CDH4-Installation-Guide/cdh4ig_hive_metastore_configure.html">Metastore Server</a>使用的也是0.10.0版本的API。</p>
-
-<h4>Spark</h4>
-
-<p>Spark目前最高版本是0.9.1，CDH前不久推出了0.9.0的Parcel，使得安装过程变的简单得多。CDH5中对Spark做了深度集成，即可以用CM来直接控制Spark的服务，且支持Spark on YARN架构。</p>
-
-<h4>Shark</h4>
-
-<p>Shark是基于Spark的一款应用，可以简单地认为是将Hive的MapReduce引擎替换为了Spark。</p>
-
-<p>Shark的一个特点的是需要使用特定的Hive版本——<a href="https://github.com/amplab/hive">AMPLab patched Hive</a>：</p>
-
-<ul>
-<li>Shark 0.8.x: AMPLab Hive 0.9.0</li>
-<li>Shark 0.9.x: AMPLab Hive 0.11.0</li>
-</ul>
-
-
-<p>在0.9.0以前，我们需要手动下载AMPLab Hive的二进制包，并在Shark的环境变量中设置$HIVE_HOME。在0.9.1以后，AMPLab将该版本的Hive包上传至了Maven，可以直接打进Shark的二进制包中。但是，这个Jar是用JDK7编译的，因此运行Shark需要使用Oracle JDK7。CDH建议使用Update 45这个小版本。</p>
-
-<h4>Shark与Hive的并存</h4>
-
-<p>Shark的一个卖点是和Hive的<a href="5">高度兼容</a>，也就是说它可以直接操作Hive的metastore db，或是和metastore server通信。当然，前提是两者的Hive版本需要一致，这也是目前遇到的最大问题。</p>
-
-<h3>目前发现的不兼容SQL</h3>
-
-<ul>
-<li>DROP TABLE &hellip;</li>
-</ul>
-
-
-<p><code>
-FAILED: Error in metadata: org.apache.thrift.TApplicationException: Invalid method name: 'drop_table_with_environment_context'
-</code></p>
-
-<ul>
-<li>INSERT OVERWRITE TABLE &hellip; PARTITION (&hellip;) SELECT &hellip;</li>
-<li>LOAD DATA INPATH &lsquo;&hellip;&rsquo; OVERWRITE INTO TABLE &hellip; PARTITION (&hellip;)</li>
-</ul>
-
-
-<p><code>
-Failed with exception org.apache.thrift.TApplicationException: Invalid method name: 'partition_name_has_valid_characters'
-</code></p>
-
-<p>也就是说上述两个方法名是0.11.0接口中定义的，在0.10.0的定义中并不存在，所以出现上述问题。</p>
-
-<h3>解决方案</h3>
-
-<h4>对存在问题的SQL使用Hive命令去调</h4>
-
-<p>因为Shark初期是想给分析师使用的，他们对分区表并不是很在意，而DROP TABLE可以在客户端做判断，转而使用Hive来执行。</p>
-
-<p>这个方案的优点是可以在现有集群上立刻用起来，但缺点是需要做一些额外的开发，而且API不一致的问题可能还会有其他坑在里面。</p>
-
-<h4>升级到CDH5</h4>
-
-<p>CDH5中Hive的版本是0.12.0，所以不排除同样存在API不兼容的问题。不过网上也有人尝试跳过AMPLab Hive，让Shark直接调用CDH中的Hive，其可行性还需要我们自己测试。</p>
-
-<p>对于这个问题，我只在<a href="https://groups.google.com/forum/#!starred/shark-users/x_Dh5-3isIc">Google Groups</a>上看到一篇相关的帖子，不过并没有给出解决方案。</p>
-
-<p>目前我们实施的是 <strong>第一种方案</strong>，即在客户端和Shark之间添加一层，不支持的SQL语句直接降级用Hive执行，效果不错。</p>
 ]]></content>
   </entry>
   

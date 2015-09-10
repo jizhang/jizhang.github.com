@@ -9,7 +9,8 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="Spark是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的Hadoop生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于Hive，Spark也有相应的替代项目——Shark，能做到 drop-in &hellip;">
+  <meta name="description" content="ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误： 1
+Incorrect string value: '\xF0\x9D\x8C\x86' for &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +82,64 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/14/mysql-incorrent-utf8-value/">MySQL异常UTF-8字符的处理</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-14T13:16:00+08:00" pubdate data-updated="true">Oct 14<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Incorrect string value: '\xF0\x9D\x8C\x86' for column ...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>经查，这个字段中保存的是用户聊天记录，因此会有一些表情符号。这些符号在UTF-8编码下需要使用4个字节来记录，而MySQL中的utf8编码只支持3个字节，因此无法导入。</p>
+
+<p>根据UTF-8的编码规范，3个字节支持的Unicode字符范围是U+0000–U+FFFF，因此可以在Hive中对数据做一下清洗：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">REGEXP_REPLACE</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;[^\\u0000-\\uFFFF]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">FROM</span> <span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这样就能排除那些需要使用3个以上字节来记录的字符了，从而成功导入MySQL。</p>
+
+<p>以下是一些详细说明和参考资料。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/10/14/mysql-incorrent-utf8-value/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -626,63 +685,6 @@
   
     <footer>
       <a rel="full-article" href="/blog/2013/05/25/apache-hadoop-yarn-background-and-an-overview/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/">Cascalog：基于Clojure的Hadoop查询语言</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-05-01T18:01:00+08:00" pubdate data-updated="true">May 1<span>st</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html">http://nathanmarz.com/blog/introducing-cascalog-a-clojure-based-query-language-for-hado.html</a></p>
-
-<p>我非常兴奋地告诉大家，<a href="http://github.com/nathanmarz/cascalog">Cascalog</a>开源了！Cascalog受<a href="http://en.wikipedia.org/wiki/Datalog">Datalog</a>启发，是一种基于Clojure、运行于Hadoop平台上的查询语言。</p>
-
-<h2>特点</h2>
-
-<ul>
-<li><strong>简单</strong> &ndash; 使用相同的语法编写函数、过滤规则、聚合运算；数据联合（join）变得简单而自然。</li>
-<li><strong>表达能力强</strong> &ndash; 强大的逻辑组合条件，你可以在查询语句中任意编写Clojure函数。</li>
-<li><strong>交互性</strong> &ndash; 可以在Clojure REPL中执行查询语句。</li>
-<li><strong>可扩展</strong> &ndash; Cascalog的查询语句是一组MapReduce脚本。</li>
-<li><strong>任意数据源</strong> &ndash; HDFS、数据库、本地数据、以及任何能够使用Cascading的<code>Tap</code>读取的数据。</li>
-<li><strong>正确处理空值</strong> &ndash; 空值往往让事情变得棘手。Cascalog提供了内置的“非空变量”来自动过滤空值。</li>
-<li><strong>与Cascading结合</strong> &ndash; 使用Cascalog定义的流程可以在Cascading中直接使用，反之亦然。</li>
-<li><strong>与Clojure结合</strong> &ndash; 能够使用普通的Clojure函数来编写操作流程、过滤规则，又因为Cascalog是一种Clojure DSL，因此也能在其他Clojure代码中使用。</li>
-</ul>
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/05/01/introducing-cascalog-a-clojure-based-query-language-for-hado/">Read on &rarr;</a>
     </footer>
   
 

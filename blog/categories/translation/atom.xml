@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Translation | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/translation/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-09-06T10:29:07+08:00</updated>
+  <updated>2015-09-10T13:41:39+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -29,7 +29,7 @@
 <!-- more -->
 
 
-<p>如今，面向对象的概念已经传播得很广泛了，而要反对这种贫血领域模型的做法，我还需要更多论据。贫血领域模型的根本问题在于，它引入了领域模型设计的所有成本，却没有带来任何好处。最主要的成本是将对象映射到数据库中，从而产生了一个对象关系映射层。只有当你充分使用了面向对象设计来组织复杂的业务逻辑时，这一成本才能够被抵消。如果将所有行为都写入到Service对象，那最终你会得到一组<a href="http://martinfowler.com/eaaCatalog/transactionScript.html">事务处理脚本</a>，从而错过了领域模型带来了好处。正如我在<a href="http://martinfowler.com/books/eaa.html">企业应用架构模式</a>一书中说到的，领域模型并不一定是最好的工具。</p>
+<p>如今，面向对象的概念已经传播得很广泛了，而要反对这种贫血领域模型的做法，我还需要更多论据。贫血领域模型的根本问题在于，它引入了领域模型设计的所有成本，却没有带来任何好处。最主要的成本是将对象映射到数据库中，从而产生了一个对象关系映射层。只有当你充分使用了面向对象设计来组织复杂的业务逻辑后，这一成本才能够被抵消。如果将所有行为都写入到Service对象，那最终你会得到一组<a href="http://martinfowler.com/eaaCatalog/transactionScript.html">事务处理脚本</a>，从而错过了领域模型带来的好处。正如我在<a href="http://martinfowler.com/books/eaa.html">企业应用架构模式</a>一书中说到的，领域模型并不一定是最好的工具。</p>
 
 <p>还需要强调的是，将行为放入领域模型，这点和分层设计（领域层、持久化层、展现层等）并不冲突。因为领域模型中放入的是和领域相关的逻辑——验证、计算、商业规则等。如果你要讨论能否将数据访问和展现逻辑放入到领域模型中，这就不在本文论述范围之内了。</p>
 
@@ -41,7 +41,7 @@
 
 <p>领域层（或者叫模型层）：用于表示业务逻辑、业务场景和规则。这个层次会控制和使用业务状态，即使这些状态最终会交由持久化层来存储。总之，这个层次是软件的核心。</p></blockquote>
 
-<p>关键点在于服务层是很薄的——所有重要的业务逻辑都写在领域层。它在服务模式中复述了这一观点：</p>
+<p>关键点在于服务层是很薄的——所有重要的业务逻辑都写在领域层。他在服务模式中复述了这一观点：</p>
 
 <blockquote><p>如今人们常犯的错误是不愿花时间将业务逻辑放置到合适的领域模型中，从而逐渐形成面向过程的程序设计。</p></blockquote>
 
@@ -224,6 +224,69 @@ if (&lt;narrow-oop> == NULL)</p>
 <li>堆内存大于4Gb，则尝试分配小于32Gb的堆内存，并使用零基压缩技术；</li>
 <li>如果仍然失败，则使用普通的对象指针压缩技术，即<code>narrow-oop-base</code>。</li>
 </ol>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache HBase的适用场景]]></title>
+    <link href="http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts/"/>
+    <updated>2015-03-08T08:03:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts</id>
+    <content type="html"><![CDATA[<p>原文：<a href="http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/">http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/</a></p>
+
+<p>最近我在<a href="http://www.meetup.com/LA-HUG/">洛杉矶Hadoop用户组</a>做了一次关于<a href="http://www.meetup.com/LA-HUG/pages/Video_from_April_13th_HBASE_DO%27S_and_DON%27TS/">HBase适用场景</a>的分享。在场的听众水平都很高，给到了我很多值得深思的反馈。主办方是来自Shopzilla的Jody，我非常感谢他能给我一个在60多位Hadoop使用者面前演讲的机会。可能一些朋友没有机会来洛杉矶参加这次会议，我将分享中的主要内容做了一个整理。如果你没有时间阅读全文，以下是一些摘要：</p>
+
+<ul>
+<li>HBase很棒，但不是关系型数据库或HDFS的替代者；</li>
+<li>配置得当才能运行良好；</li>
+<li>监控，监控，监控，重要的事情要说三遍。</li>
+</ul>
+
+
+<p>Cloudera是HBase的铁杆粉丝。我们热爱这项技术，热爱这个社区，发现它能适用于非常多的应用场景。HBase如今已经有很多<a href="#use-cases">成功案例</a>，所以很多公司也在考虑如何将其应用到自己的架构中。我做这次分享以及写这篇文章的动因就是希望能列举出HBase的适用场景，并提醒各位哪些场景是不适用的，以及如何做好HBase的部署。</p>
+
+<!-- more -->
+
+
+<h2>何时使用HBase</h2>
+
+<p>虽然HBase是一种绝佳的工具，但我们一定要记住，它并非银弹。HBase并不擅长传统的事务处理程序或关联分析，它也不能完全替代MapReduce过程中使用到的HDFS。从文末的<a href="#use-cases">成功案例</a>中你可以大致了解HBase适用于怎样的应用场景。如果你还有疑问，可以到<a href="http://www.cloudera.com/community/">社区</a>中提问，我说过这是一个非常棒的社区。</p>
+
+<p>除去上述限制之外，你为何要选择HBase呢？如果你的应用程序中，数据表每一行的结构是有差别的，那就可以考虑使用HBase，比如在标准化建模的过程中使用它；如果你需要经常追加字段，且大部分字段是NULL值的，那可以考虑HBase；如果你的数据（包括元数据、消息、二进制数据等）都有着同一个主键，那就可以使用HBase；如果你需要通过键来访问和修改数据，使用HBase吧。</p>
+
+<h2>后台服务</h2>
+
+<p>如果你已决定尝试一下HBase，那以下是一些部署过程中的提示。HBase会用到一些后台服务，这些服务非常关键。如果你之前没有了解过ZooKeeper，那现在是个好时候。HBase使用ZooKeeper作为它的分布式协调服务，用于选举Master等。随着HBase的发展，ZooKeeper发挥的作用越来越重要。另外，你需要搭建合适的网络基础设施，如NTP和DNS。HBase要求集群内的所有服务器时间一致，并且能正确地访问其它服务器。正确配置NTP和DNS可以杜绝一些奇怪的问题，如服务器A认为当前是明天，B认为当前是昨天；再如Master要求服务器C开启新的Region，而C不知道自己的机器名，从而无法响应。NTP和DNS服务器可以让你减少很多麻烦。</p>
+
+<p>我前面提到过，在考虑是否使用HBase时，需要针对你自己的应用场景来进行判别。而在真正使用HBase时，监控则成了第一要务。和大多数分布式服务一样，HBase服务器宕机会有多米诺骨牌效应。如果一台服务器因内存不足开始swap数据，它会失去和Master的联系，这时Master会命令其他服务器接过这部分请求，可能会导致第二台服务器也发生宕机。所以，你需要密切监控服务器的CPU、I/O以及网络延迟，确保每台HBase服务器都在良好地工作。监控对于维护HBase集群的健康至关重要。</p>
+
+<h2>HBase架构最佳实践</h2>
+
+<p>当你找到了适用场景，并搭建起一个健康的HBase集群后，我们来看一些使用过程中的最佳实践。键的前缀要有良好的分布性。如果你使用时间戳或其他类似的递增量作为前缀，那就会让单个Region承载所有请求，而不是分布到各个Region上。此外，你需要根据Memstore和内存的大小来控制Region的数量。RegionServer的JVM堆内存应该控制在12G以内，从而避免过长的GC停顿。举个例子，在一台内存为36G的服务器上部署RegionServer，同时还运行着DataNode，那大约可以提供100个48M大小的Region。这样的配置对HDFS、HBase、以及Linux本身的文件缓存都是有利的。</p>
+
+<p>其他一些设置包括禁用自动合并机制（默认的合并操作会在HBase启动后每隔24小时进行），改为手动的方式在低峰期间执行。你还应该配置数据文件压缩（如LZO），并将正确的配置文件加入HBase的CLASSPATH中。</p>
+
+<h2>非适用场景</h2>
+
+<p>上文讲述了HBase的适用场景和最佳实践，以下则是一些需要规避的问题。比如，不要期许HBase可以完全替代关系型数据库——虽然它在许多方面都表现优秀。它不支持SQL，也没有优化器，更不能支持跨越多条记录的事务或关联查询。如果你用不到这些特性，那HBase将是你的不二选择。</p>
+
+<p>在复用HBase的服务器时有一些注意事项。如果你需要保证HBase的服务器质量，同时又想在HBase上运行批处理脚本（如使用Pig从HBase中获取数据进行处理），建议还是另搭一套集群。HBase在处理大量顺序I/O操作时（如MapReduce），其CPU和内存资源将会十分紧张。将这两类应用放置在同一集群上会造成不可预估的服务延迟。此外，共享集群时还需要调低任务槽（task slot）的数量，至少要留一半的CPU核数给HBase。密切关注内存，因为一旦发生swap，HBase很可能会停止心跳，从而被集群判为无效，最终产生一系列宕机。</p>
+
+<h2>总结</h2>
+
+<p>最后要提的一点是，在加载数据到HBase时，应该使用MapReduce+HFileOutputFormat来实现。如果仅使用客户端API，不仅速度慢，也没有充分利用HBase的分布式特性。</p>
+
+<p>用一句话概述，HBase可以让你用键来存储和搜索数据，且无需定义表结构。</p>
+
+<h2><a id="use-cases"></a>使用案例</h2>
+
+<ul>
+<li>Apache HBase: <a href="http://wiki.apache.org/hadoop/Hbase/PoweredBy">Powered By HBase Wiki</a></li>
+<li>Mozilla: <a href="http://blog.mozilla.com/webdev/2010/07/26/moving-socorro-to-hbase/">Moving Socorro to HBase</a></li>
+<li>Facebook: <a href="http://highscalability.com/blog/2010/11/16/facebooks-new-real-time-messaging-system-hbase-to-store-135.html">Facebook’s New Real-Time Messaging System: HBase</a></li>
+<li>StumbleUpon: <a href="http://www.stumbleupon.com/devblog/hbase_at_stumbleupon/">HBase at StumbleUpon</a></li>
+</ul>
 
 ]]></content>
   </entry>
@@ -630,146 +693,6 @@ a b c d e null null null null null
 <p>十年前，我们会想象未来能够出现各种新式的编程范型，简化我们的工作。的确，这些年我们创造的各类抽象使得开发复杂的大型软件变得比十五年前要简单得多，就像GUI和网络编程。现代的面向对象编程语言让我们的工作变得高效快速。但突然有一天，这种抽象泄漏出一个问题，解决它需要耗费两星期。如果你需要招录一个VB程序员，那不是一个好主意，因为当他碰到VB语言泄漏的问题时，他会变得寸步难行。</p>
 
 <p>抽象泄漏定律正在阻碍我们前进。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Ansible FAQ]]></title>
-    <link href="http://shzhangji.com/blog/2013/06/11/ansible-faq/"/>
-    <updated>2013-06-11T21:18:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2013/06/11/ansible-faq</id>
-    <content type="html"><![CDATA[<p>本文是从原Ansible官网的FAQ页面翻译而来，网站改版后该页面已无法访问，但可以从<a href="https://github.com/ansible/ansible.github.com/blob/4a2bf7f60a020f0d0a7b042056fc3dd8716588f2/faq.html">Github历史提交</a>中获得。翻译这篇原始FAQ文档是因为它陈述了Ansible这款工具诞生的原因，设计思路和特性，以及与Puppet、Fabric等同类软件的比较，可以让我们对Ansible有一个整体的了解，所以值得使用者一读。</p>
-
-<h2>目录</h2>
-
-<ul>
-<li>为什么命名为“Ansible”？</li>
-<li>Ansible受到了谁的启发？</li>
-<li>与同类软件比较
-
-<ul>
-<li>Func？</li>
-<li>Puppet？</li>
-<li>Chef？</li>
-<li>Capistrano/Fabric？</li>
-</ul>
-</li>
-<li>其它问题
-
-<ul>
-<li>Ansible的安全性如何？</li>
-<li>Ansible如何扩展？</li>
-<li>是否支持SSH以外的协议？</li>
-<li>Ansible的适用场景有哪些？</li>
-</ul>
-</li>
-</ul>
-
-
-<h2>为什么命名为“Ansible”？</h2>
-
-<p>我最喜爱的书籍之一是奥森·斯科特·卡特的《安德的游戏》。在这本书中，“Ansible”是一种能够跨越时空的即时通讯工具。强烈推荐这本书！</p>
-
-<!-- more -->
-
-
-<h2>Ansible受到了谁的启发？</h2>
-
-<p>我在Red Hat任职期间主要开发Cobbler，很快我和几个同事就发现在部署工具（Cobbler）和配置管理工具（cfengine、Puppet等）之间有一个空缺，即如何更高效地执行临时性的任务。虽然当时有一些并行调用SSH脚本的方案，但并没有形成统一的API。所以我们（Adrian Likins、Seth Vidal、我）就开发了一个SSH分布式脚本框架——Func。</p>
-
-<p>我一直想在Func的基础上开发一个配置管理工具，但因为忙于Cobbler和其他项目的开发，一直没有动手。在此期间，John Eckersberg开发了名为Taboot的自动化部署工具，它基于Func，采用YAML描述，和目前Ansible中的Playbooks很像。</p>
-
-<p>近期我在一家新公司尝试引入Func，但遇到一些SSL和DNS方面的问题，所以想要开发一个更为简单的工具，吸收Func中优秀的理念，并与我在Puppet Labs的工作经验相结合。我希望这一工具能够易于学习，且不需要进行任何安装步骤。使用它不需要引入一整套新的理论，像Puppet和Chef那样，从而降低被某些运维团队排挤的可能。</p>
-
-<p>我也曾参与过一些大型网站的应用部署，发觉现有的配置管理工具都太过复杂了，超过了这些公司的需求。程序发布的过程很繁复，需要一个简单的工具来帮助开发和运维人员。我不想教授他们Puppet或Chef，而且他们也不愿学习这些工具。</p>
-
-<p>于是我便思考，应用程序的部署就应该那么复杂吗？答案是否定的。</p>
-
-<p>我是否能开发一款工具，让运维人员能够在15分钟内学会使用，并用自己熟悉的语言来扩展它？这就是Ansible的由来。运维人员对自己的服务器设施最清楚，Ansible深知这一点，并将同类工具中最核心的功能提取出来，供我们使用。</p>
-
-<p>Ansible不仅易于学习和扩展，它更是集配置管理、应用部署、临时任务等功能于一身。它非常强大，甚至前所未有。</p>
-
-<p>我很想知道你对Ansible的看法，到邮件列表里发表一下意见吧。</p>
-
-<h2>与同类软件比较</h2>
-
-<h3>Func？</h3>
-
-<p>Ansible默认使用SSH，而非SSL和守护进程，无需在远程服务器上安装任何软件。你可以使用任何语言编写插件，只要它能够返回JSON格式即可。Ansible的API深受Func的影响，但它和Func相较提供了配置管理和多节点统一化部署（Playbooks）等功能。</p>
-
-<h3>Puppet？</h3>
-
-<p>首先我要强调的是，如果没有Puppet，就不会有Ansible。Puppet从cfengine中吸收了配置管理的概念，并更合理地加以实现。但是，我依旧认为它可以再简单一些。</p>
-
-<p>Ansible的playbook是一套完整的配置管理系统。和Puppet不同，playbook在编写时就隐含了执行顺序（和Chef类似），但同时也提供了事件机制（和Puppet类似），可以说是结合了两者的优点。</p>
-
-<p>Ansible没有中心节点的概念，从而避免了惊群效应。它一开始就是为多节点部署设计的，这点Puppet很难做到，因为它是一种“拉取”的架构。Ansible以“推送”为基础，从而能够定义执行顺序，同时只操作一部分服务器，无需关注它们的依赖关系。又因为Ansible可以用任何语言进行扩展，因此并不是只有专业的程序员才能为其开发插件。</p>
-
-<p>Ansible中资源的概念深受Puppet的启发，甚至“state”这一关键字直接来自Puppet的“ensure”一词。和Puppet不同的是，Ansbile可以用任何语言进行扩展，甚至是Bash，只需返回JSON格式的输出即可。你不需要懂得Ruby。</p>
-
-<p>和Puppet不同，Ansible若在配置某台服务器时发生错误，它会立即终止这台服务器的配置过程。它提倡的是“提前崩溃”，修正错误，而非最大化应用。这一点在我们需要配置包含依赖关系的服务器架构时尤为重要。</p>
-
-<p>Ansible的学习曲线非常平滑，你不需要掌握编程技能，更不需要学习新的语言。Ansible内置的功能应该能够满足超过80%的用户需求，而且它不会遇到扩展性方面的瓶颈（因为没有中心节点）。</p>
-
-<p>如果系统中安装了factor，Ansible同样支持从中获取系统信息。Ansible使用jinja2作为模板语言，类似于Puppet使用erb文件作为模板。Ansible可以使用自己的信息收集工具，因此factor并不是必需的。</p>
-
-<h3>Chef？</h3>
-
-<p>Ansible与Chef的区别和Puppet类似。Chef的配置非常困难，而且需要你掌握Ruby语言。也因为如此，Chef在Rails使用者中很流行。</p>
-
-<p>Ansible是按照编写顺序来执行任务的，而不是显示地定义依赖关系，这点和Chef相似。但Ansible更进一步，它支持事件触发，比如修改了Apache的配置文件，Apache就会被重启。</p>
-
-<p>和Chef不同的是，Ansible的playbook不是一门编程语言，而是一种可以存储的数据结构。这就意味着你的运维工作不是一项开发型的任务，测试起来也相对简单。</p>
-
-<p>无论你有怎样的语言背景，都可以使用Ansible。Chef和Puppet有超过六万行的代码，而Ansible则是一段小巧简单的程序。我相信这一点会使得Ansible更加健壮和可靠，并汇聚一批活跃的社区贡献者——因为任何人都可以提交补丁或是模块。</p>
-
-<p>Ansible同样支持从ohai中获取系统信息，当然这同样不是必需的。</p>
-
-<h3>Capistrano/Fabric？</h3>
-
-<p>这些工具并不适合用作服务器配置工具，它们主要用于应用程序的部署。</p>
-
-<p>而Ansible则提供了完整的配置管理，以及在扩展性方面提供了一些高级特性。</p>
-
-<p>Ansible playbook的语法简介只占一个HTML页面，有着非常平缓的学习曲线。由于Ansible使用了“推送”的设计，因此对系统管理员（不仅仅是开发者）同样适用，并能用它处理各种临时性的任务。</p>
-
-<h2>其它问题</h2>
-
-<h3>Ansible的安全性如何？</h3>
-
-<p>Ansible没有守护进程，主要使用OpenSSH进行通信，这是一款已被反复检验并广泛使用的软件。其它工具都会在远程服务器上以root用户运行守护进程，因此相较于这些工具，Ansible会更为安全，且无需担心网络方面的问题。</p>
-
-<p>如果你的中心节点遭到入侵（或是被恶意员工登录），只要你是使用SSH-agent、或是经过加密的密码，那你的密钥仍然是被锁定的，别人无法操控你的节点。而对于Chef、Puppet等工具来说，一旦配置文件遭到篡改，那危及的将是整个网络。</p>
-
-<p>此外，由于Ansible没有守护进程，可以节省下一部分内存和计算资源，这对需要最大化性能的用户来说也是一个优点。</p>
-
-<h3>Ansible如何扩展？</h3>
-
-<p>无论是在单次执行模式还是playbook模式下，Ansible都可以并行执行任务，这要感谢Python提供的多进程处理模块。</p>
-
-<p>你可以自行决定要一次性配置5台还是50台服务器，这取决于服务器的计算能力，以及你想要多快完成任务。</p>
-
-<p>由于没有守护进程，所以平时不会占用任何资源，而且你不用担心一次性有太多节点一起从控制节点上获取信息。</p>
-
-<p>对于SSH，Ansible默认使用paramiko库，当然也能使用原始的openssh。Ansible可以利用SSH的ControlMaster特性来重用网络连接。</p>
-
-<p>当要维护上万个节点时，单个Ansible playbook可能不太合理，这时你就能使用Ansible的“拉取”模式。这种模式下需要配合git和cron，可以扩展到任意多台服务器。“拉取”模式可以使用本地连接，或是SSH。关于这个模式的详细说明可以在帮助文档的“Advanced Playbooks”一节查阅。即使在“拉取”模式下，你同样能够享受到Ansible的种种便利。</p>
-
-<p>如果你想进一步探讨扩展性，可以加入到邮件列表中。</p>
-
-<h3>是否支持SSH以外的协议？</h3>
-
-<p>目前Ansible支持SSH和本地连接，但它的接口实际上是非常易于扩展的，因此你可以编写补丁来使Ansible运行于消息系统或XMPP协议之上。</p>
-
-<p>如果你有任何建议，可以加入到邮件列表中一起探讨。Ansible中对于连接的管理都已单独抽象出来，有很强的可扩性。</p>
-
-<h3>Ansible的适用场景有哪些？</h3>
-
-<p>最适场景？使用playbook进行多节点云主机部署；从一个初始的操作系统开始部署应用，或是配置一个现有的系统。</p>
-
-<p>Ansible同样适用于执行临时性的任务，能够用于各类 Unix-like 系统，因为它使用的就是系统本身自带的工具，无需安装额外软件。</p>
-
-<p>你还可以用Ansible来编写各类脚本，用于收集信息、执行各种任务，对QA、运维等团队均适用。</p>
 ]]></content>
   </entry>
   
