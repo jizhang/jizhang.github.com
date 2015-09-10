@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Translation | Ji ZHANG's Blog]]></title>
+  <title><![CDATA[Category: translation | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/translation/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-09-10T13:41:39+08:00</updated>
+  <updated>2015-09-10T15:17:57+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -136,8 +136,7 @@
 
 <p>以下是使用对象指针压缩的x86指令示例：</p>
 
-<p><code>text
-! int R8; oop[] R9;  // R9是64位
+<pre><code class="text">! int R8; oop[] R9;  // R9是64位
 ! oop R10 = R9[R8];  // R10是32位
 ! 从原始基址指针加载压缩对象指针：
 movl R10, [R9 + R8&lt;&lt;3 + 16]
@@ -145,12 +144,11 @@ movl R10, [R9 + R8&lt;&lt;3 + 16]
 ! void* const R12 = GetHeapBase();
 ! 从压缩基址指针加载klass指针：
 movl R11, [R12 + R10&lt;&lt;3 + 8]
-</code></p>
+</code></pre>
 
 <p>以下sparc指令用于解压对象指针（可为空）：</p>
 
-<p><code>text
-! java.lang.Thread::getThreadGroup@1 (line 1072)
+<pre><code class="text">! java.lang.Thread::getThreadGroup@1 (line 1072)
 ! L1 = L7.group
 ld  [ %l7 + 0x44 ], %l1
 ! L3 = decode(L1)
@@ -158,7 +156,7 @@ cmp  %l1, 0
 sllx  %l1, 3, %l3
 brnz,a   %l3, .+8
 add  %l3, %g6, %l3  ! %g6是常量堆基址
-</code></p>
+</code></pre>
 
 <p><em>输出中的注解来自<a href="https://wiki.openjdk.java.net/display/HotSpot/PrintAssembly">PrintAssembly插件</a>。</em></p>
 
@@ -184,38 +182,28 @@ add  %l3, %g6, %l3  ! %g6是常量堆基址
 
 <p>压缩对象指针（narrow-oop）是基于某个地址的偏移量，这个基础地址（narrow-oop-base）是由Java堆内存基址减去一个内存页的大小得来的，从而支持隐式空值检测。所以一个属性字段的地址可以这样得到：</p>
 
-<p><code>text
-&lt;narrow-oop-base&gt; + (&lt;narrow-oop&gt; &lt;&lt; 3) + &lt;field-offset&gt;.
-</code></p>
+<pre><code class="text">&lt;narrow-oop-base&gt; + (&lt;narrow-oop&gt; &lt;&lt; 3) + &lt;field-offset&gt;.
+</code></pre>
 
 <p>如果基础地址可以是0（Java堆内存不一定要从0偏移量开始），那么公式就可以简化为：</p>
 
-<p><code>text
-(&lt;narrow-oop &lt;&lt; 3) + &lt;field-offset&gt;
-</code></p>
+<pre><code class="text">(&lt;narrow-oop &lt;&lt; 3) + &lt;field-offset&gt;
+</code></pre>
 
 <p>理论上说，这一步可以省去一次寄存器上的加和操作。而且使用零基压缩技术后，空值检测也就不需要了。</p>
 
 <p>之前的解压代码是：</p>
 
-<p>```text
-if (&lt;narrow-oop> == NULL)</p>
-
-<pre><code>&lt;wide_oop&gt; = NULL
+<pre><code class="text">if (&lt;narrow-oop&gt; == NULL)
+    &lt;wide_oop&gt; = NULL
+else
+    &lt;wide_oop&gt; = &lt;narrow-oop-base&gt; + (&lt;narrow-oop&gt; &lt;&lt; 3)
 </code></pre>
-
-<p>else</p>
-
-<pre><code>&lt;wide_oop&gt; = &lt;narrow-oop-base&gt; + (&lt;narrow-oop&gt; &lt;&lt; 3)
-</code></pre>
-
-<p>```</p>
 
 <p>使用零基压缩后，只需使用移位操作：</p>
 
-<p><code>text
-&lt;wide_oop&gt; = &lt;narrow-oop&gt; &lt;&lt; 3
-</code></p>
+<pre><code class="text">&lt;wide_oop&gt; = &lt;narrow-oop&gt; &lt;&lt; 3
+</code></pre>
 
 <p>零基压缩技术会根据堆内存的大小以及平台特性来选择不同的策略：</p>
 
@@ -319,25 +307,20 @@ if (&lt;narrow-oop> == NULL)</p>
 
 <p>内省示例：<code>instanceof</code>运算符用于检测某个对象是否属于特定的类。</p>
 
-<p>```java
-if (obj instanceof Dog) {</p>
-
-<pre><code>Dog d = (Dog) obj;
-d.bark();
+<pre><code class="java">if (obj instanceof Dog) {
+    Dog d = (Dog) obj;
+    d.bark();
+}
 </code></pre>
-
-<p>}
-```</p>
 
 <p>反射示例：<code>Class.forName()</code>方法可以通过类或接口的名称（一个字符串或完全限定名）来获取对应的<code>Class</code>对象。<code>forName</code>方法会触发类的初始化。</p>
 
-<p><code>java
-// 使用反射
+<pre><code class="java">// 使用反射
 Class&lt;?&gt; c = Class.forName("classpath.and.classname");
 Object dog = c.newInstance();
 Method m = c.getDeclaredMethod("bark", new Class&lt;?&gt;[0]);
 m.invoke(dog);
-</code></p>
+</code></pre>
 
 <p>在Java中，反射更接近于内省，因为你无法改变一个对象的结构。虽然一些API可以用来修改方法和属性的可见性，但并不能修改结构。</p>
 
@@ -363,28 +346,20 @@ m.invoke(dog);
 
 <p>例如，Spring框架使用如下的配置文件：</p>
 
-<p>```xml
-<bean id="someID" class="com.programcreek.Foo"></p>
-
-<pre><code>&lt;property name="someField" value="someValue" /&gt;
+<pre><code class="xml">&lt;bean id="someID" class="com.programcreek.Foo"&gt;
+    &lt;property name="someField" value="someValue" /&gt;
+&lt;/bean&gt;
 </code></pre>
-
-<p></bean>
-```</p>
 
 <p>当Spring容器处理&lt;bean&gt;元素时，会使用<code>Class.forName("com.programcreek.Foo")</code>来初始化这个类，并再次使用反射获取&lt;property&gt;元素对应的<code>setter</code>方法，为对象的属性赋值。</p>
 
 <p>Servlet也会使用相同的机制：</p>
 
-<p>```xml
-<servlet></p>
-
-<pre><code>&lt;servlet-name&gt;someServlet&lt;/servlet-name&gt;
-&lt;servlet-class&gt;com.programcreek.WhyReflectionServlet&lt;/servlet-class&gt;
+<pre><code class="xml">&lt;servlet&gt;
+    &lt;servlet-name&gt;someServlet&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;com.programcreek.WhyReflectionServlet&lt;/servlet-class&gt;
+&lt;servlet&gt;
 </code></pre>
-
-<p><servlet>
-```</p>
 
 <h2>3. 如何使用反射？</h2>
 
@@ -392,236 +367,200 @@ m.invoke(dog);
 
 <p>示例1：获取对象的类型名称。</p>
 
-<p>```java
-package myreflection;
-import java.lang.reflect.Method;</p>
+<pre><code class="java">package myreflection;
+import java.lang.reflect.Method;
 
-<p>public class ReflectionHelloWorld {</p>
+public class ReflectionHelloWorld {
+    public static void main(String[] args){
+        Foo f = new Foo();
+        System.out.println(f.getClass().getName());         
+    }
+}
 
-<pre><code>public static void main(String[] args){
-    Foo f = new Foo();
-    System.out.println(f.getClass().getName());         
+class Foo {
+    public void print() {
+        System.out.println("abc");
+    }
 }
 </code></pre>
-
-<p>}</p>
-
-<p>class Foo {</p>
-
-<pre><code>public void print() {
-    System.out.println("abc");
-}
-</code></pre>
-
-<p>}
-```</p>
 
 <p>输出：</p>
 
-<p><code>text
-myreflection.Foo
-</code></p>
+<pre><code class="text">myreflection.Foo
+</code></pre>
 
 <p>示例2：调用未知对象的方法。</p>
 
 <p>在下列代码中，设想对象的类型是未知的。通过反射，我们可以判断它是否包含<code>print</code>方法，并调用它。</p>
 
-<p>```java
-package myreflection;
-import java.lang.reflect.Method;</p>
+<pre><code class="java">package myreflection;
+import java.lang.reflect.Method;
 
-<p>public class ReflectionHelloWorld {</p>
+public class ReflectionHelloWorld {
+    public static void main(String[] args){
+        Foo f = new Foo();
 
-<pre><code>public static void main(String[] args){
-    Foo f = new Foo();
+        Method method;
+        try {
+            method = f.getClass().getMethod("print", new Class&lt;?&gt;[0]);
+            method.invoke(f);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }           
+    }
+}
 
-    Method method;
-    try {
-        method = f.getClass().getMethod("print", new Class&lt;?&gt;[0]);
-        method.invoke(f);
-    } catch (Exception e) {
-        e.printStackTrace();
-    }           
+class Foo {
+    public void print() {
+        System.out.println("abc");
+    }
 }
 </code></pre>
 
-<p>}</p>
-
-<p>class Foo {</p>
-
-<pre><code>public void print() {
-    System.out.println("abc");
-}
+<pre><code class="text">abc
 </code></pre>
-
-<p>}
-```</p>
-
-<p><code>text
-abc
-</code></p>
 
 <p>示例3：创建对象</p>
 
-<p>```java
-package myreflection;</p>
+<pre><code class="java">package myreflection;
 
-<p>public class ReflectionHelloWorld {</p>
+public class ReflectionHelloWorld {
+    public static void main(String[] args){
+        // 创建Class实例
+        Class&lt;?&gt; c = null;
+        try{
+            c=Class.forName("myreflection.Foo");
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 
-<pre><code>public static void main(String[] args){
-    // 创建Class实例
-    Class&lt;?&gt; c = null;
-    try{
-        c=Class.forName("myreflection.Foo");
-    }catch(Exception e){
-        e.printStackTrace();
+        // 创建Foo实例
+        Foo f = null;
+
+        try {
+            f = (Foo) c.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }   
+
+        f.print();
     }
+}
 
-    // 创建Foo实例
-    Foo f = null;
-
-    try {
-        f = (Foo) c.newInstance();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }   
-
-    f.print();
+class Foo {
+    public void print() {
+        System.out.println("abc");
+    }
 }
 </code></pre>
-
-<p>}</p>
-
-<p>class Foo {</p>
-
-<pre><code>public void print() {
-    System.out.println("abc");
-}
-</code></pre>
-
-<p>}
-```</p>
 
 <p>示例4：获取构造函数，并创建对象。</p>
 
-<p>```java
-package myreflection;</p>
+<pre><code class="java">package myreflection;
 
-<p>import java.lang.reflect.Constructor;</p>
+import java.lang.reflect.Constructor;
 
-<p>public class ReflectionHelloWorld {</p>
+public class ReflectionHelloWorld {
+    public static void main(String[] args){
+        // 创建Class实例
+        Class&lt;?&gt; c = null;
+        try{
+            c=Class.forName("myreflection.Foo");
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 
-<pre><code>public static void main(String[] args){
-    // 创建Class实例
-    Class&lt;?&gt; c = null;
-    try{
-        c=Class.forName("myreflection.Foo");
-    }catch(Exception e){
-        e.printStackTrace();
+        // 创建Foo实例
+        Foo f1 = null;
+        Foo f2 = null;
+
+        // 获取所有的构造函数
+        Constructor&lt;?&gt; cons[] = c.getConstructors();
+
+        try {
+            f1 = (Foo) cons[0].newInstance();
+            f2 = (Foo) cons[1].newInstance("abc");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }   
+
+        f1.print();
+        f2.print();
+    }
+}
+
+class Foo {
+    String s; 
+
+    public Foo(){}
+
+    public Foo(String s){
+        this.s=s;
     }
 
-    // 创建Foo实例
-    Foo f1 = null;
-    Foo f2 = null;
-
-    // 获取所有的构造函数
-    Constructor&lt;?&gt; cons[] = c.getConstructors();
-
-    try {
-        f1 = (Foo) cons[0].newInstance();
-        f2 = (Foo) cons[1].newInstance("abc");
-    } catch (Exception e) {
-        e.printStackTrace();
-    }   
-
-    f1.print();
-    f2.print();
+    public void print() {
+        System.out.println(s);
+    }
 }
 </code></pre>
 
-<p>}</p>
-
-<p>class Foo {</p>
-
-<pre><code>String s; 
-
-public Foo(){}
-
-public Foo(String s){
-    this.s=s;
-}
-
-public void print() {
-    System.out.println(s);
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p><code>text
-null
+<pre><code class="text">null
 abc
-</code></p>
+</code></pre>
 
 <p>此外，你可以通过<code>Class</code>实例来获取该类实现的接口、父类、声明的属性等。</p>
 
 <p>示例5：通过反射来修改数组的大小。</p>
 
-<p>```java
-package myreflection;</p>
+<pre><code class="java">package myreflection;
 
-<p>import java.lang.reflect.Array;</p>
+import java.lang.reflect.Array;
 
-<p>public class ReflectionHelloWorld {</p>
+public class ReflectionHelloWorld {
+    public static void main(String[] args) {
+        int[] intArray = { 1, 2, 3, 4, 5 };
+        int[] newIntArray = (int[]) changeArraySize(intArray, 10);
+        print(newIntArray);
 
-<pre><code>public static void main(String[] args) {
-    int[] intArray = { 1, 2, 3, 4, 5 };
-    int[] newIntArray = (int[]) changeArraySize(intArray, 10);
-    print(newIntArray);
-
-    String[] atr = { "a", "b", "c", "d", "e" };
-    String[] str1 = (String[]) changeArraySize(atr, 10);
-    print(str1);
-}
-
-// 修改数组的大小
-public static Object changeArraySize(Object obj, int len) {
-    Class&lt;?&gt; arr = obj.getClass().getComponentType();
-    Object newArray = Array.newInstance(arr, len);
-
-    // 复制数组
-    int co = Array.getLength(obj);
-    System.arraycopy(obj, 0, newArray, 0, co);
-    return newArray;
-}
-
-// 打印
-public static void print(Object obj) {
-    Class&lt;?&gt; c = obj.getClass();
-    if (!c.isArray()) {
-        return;
+        String[] atr = { "a", "b", "c", "d", "e" };
+        String[] str1 = (String[]) changeArraySize(atr, 10);
+        print(str1);
     }
 
-    System.out.println("\nArray length: " + Array.getLength(obj));
+    // 修改数组的大小
+    public static Object changeArraySize(Object obj, int len) {
+        Class&lt;?&gt; arr = obj.getClass().getComponentType();
+        Object newArray = Array.newInstance(arr, len);
 
-    for (int i = 0; i &lt; Array.getLength(obj); i++) {
-        System.out.print(Array.get(obj, i) + " ");
+        // 复制数组
+        int co = Array.getLength(obj);
+        System.arraycopy(obj, 0, newArray, 0, co);
+        return newArray;
+    }
+
+    // 打印
+    public static void print(Object obj) {
+        Class&lt;?&gt; c = obj.getClass();
+        if (!c.isArray()) {
+            return;
+        }
+
+        System.out.println("\nArray length: " + Array.getLength(obj));
+
+        for (int i = 0; i &lt; Array.getLength(obj); i++) {
+            System.out.print(Array.get(obj, i) + " ");
+        }
     }
 }
 </code></pre>
 
-<p>}
-```</p>
-
 <p>输出：</p>
 
-<p><code>text
+<pre><code class="text">Array length: 10
+1 2 3 4 5 0 0 0 0 0 
 Array length: 10
-1 2 3 4 5 0 0 0 0 0
-Array length: 10
-a b c d e null null null null null
-</code></p>
+a b c d e null null null null null 
+</code></pre>
 
 <h2>总结</h2>
 

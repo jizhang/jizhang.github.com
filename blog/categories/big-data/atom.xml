@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Big Data | Ji ZHANG's Blog]]></title>
+  <title><![CDATA[Category: big data | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/big-data/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-09-10T13:41:39+08:00</updated>
+  <updated>2015-09-10T15:17:57+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -32,17 +32,15 @@
 
 <p>Spark is mainly built with Maven, so make sure you have Maven installed on your box, and download the latest Spark source code from <a href="http://spark.apache.org/downloads.html">here</a>, unarchive it, and execute the following command:</p>
 
-<p><code>bash
-$ mvn -am -pl core -DskipTests package eclipse:eclipse
-</code></p>
+<pre><code class="bash">$ mvn -am -pl core -DskipTests package eclipse:eclipse
+</code></pre>
 
 <!-- more -->
 
 
 <p>This command does a bunch of things. First, it indicates what modules should be built. Spark is a large project with multiple modules. Currently we&rsquo;re only interested in its core module, so <code>-pl</code> or <code>--projects</code> is used. <code>-am</code> or <code>--also-make</code> tells Maven to build core module&rsquo;s dependencies as well. We can see the module list in output:</p>
 
-<p><code>text
-[INFO] Scanning for projects...
+<pre><code class="text">[INFO] Scanning for projects...
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Build Order:
 [INFO]
@@ -52,46 +50,39 @@ $ mvn -am -pl core -DskipTests package eclipse:eclipse
 [INFO] Spark Project Shuffle Streaming Service
 [INFO] Spark Project Unsafe
 [INFO] Spark Project Core
-</code></p>
+</code></pre>
 
 <p><code>package</code> tells Maven to download all dependencies and compile the source code. If you encounter some <code>OutOfMemoryException</code>, try enlarging the heap size by setting <code>MAVEN_OPTS</code>:</p>
 
-<p><code>bash
-$ MAVEN_OPTS=-Xmx1G mvn ...
-</code></p>
+<pre><code class="bash">$ MAVEN_OPTS=-Xmx1G mvn ...
+</code></pre>
 
 <p><code>eclipse:eclipse</code> will generate the <code>.project</code> and <code>.classpath</code> files for Eclipse. But the result is not perfect, both files need some fixes.</p>
 
 <p>Edit <code>core/.classpath</code>, change the following two lines:</p>
 
-<p><code>xml
-&lt;classpathentry kind="src" path="src/main/scala" including="**/*.java"/&gt;
+<pre><code class="xml">&lt;classpathentry kind="src" path="src/main/scala" including="**/*.java"/&gt;
 &lt;classpathentry kind="src" path="src/test/scala" output="target/scala-2.10/test-classes" including="**/*.java"/&gt;
-</code></p>
+</code></pre>
 
 <p>to</p>
 
-<p><code>xml
-&lt;classpathentry kind="src" path="src/main/scala" including="**/*.java|**/*.scala"/&gt;
+<pre><code class="xml">&lt;classpathentry kind="src" path="src/main/scala" including="**/*.java|**/*.scala"/&gt;
 &lt;classpathentry kind="src" path="src/test/scala" output="target/scala-2.10/test-classes" including="**/*.java|**/*.scala"/&gt;
-</code></p>
+</code></pre>
 
 <p>Edit <code>core/.project</code>, make it looks like this:</p>
 
-<p>```xml
-<buildSpec>
-  <buildCommand></p>
-
-<pre><code>&lt;name&gt;org.scala-ide.sdt.core.scalabuilder&lt;/name&gt;
+<pre><code class="xml">&lt;buildSpec&gt;
+  &lt;buildCommand&gt;
+    &lt;name&gt;org.scala-ide.sdt.core.scalabuilder&lt;/name&gt;
+  &lt;/buildCommand&gt;
+&lt;/buildSpec&gt;
+&lt;natures&gt;
+  &lt;nature&gt;org.scala-ide.sdt.core.scalanature&lt;/nature&gt;
+  &lt;nature&gt;org.eclipse.jdt.core.javanature&lt;/nature&gt;
+&lt;/natures&gt;
 </code></pre>
-
-<p>  </buildCommand>
-</buildSpec>
-<natures>
-  <nature>org.scala-ide.sdt.core.scalanature</nature>
-  <nature>org.eclipse.jdt.core.javanature</nature>
-</natures>
-```</p>
 
 <p>Now you can import &ldquo;Existing Projects into Workspace&rdquo;, including <code>core</code>, <code>launcher</code>, <code>network</code>, and <code>unsafe</code>.</p>
 
@@ -105,18 +96,14 @@ $ MAVEN_OPTS=-Xmx1G mvn ...
 
 <p>Add the following entry into pom&rsquo;s project / build / plugins:</p>
 
-<p>```xml
-<plugin></p>
-
-<pre><code>&lt;artifactId&gt;maven-eclipse-plugin&lt;/artifactId&gt;
-&lt;configuration&gt;
-    &lt;downloadSources&gt;true&lt;/downloadSources&gt;
-    &lt;downloadJavadocs&gt;true&lt;/downloadJavadocs&gt;
-&lt;/configuration&gt;
+<pre><code class="xml">&lt;plugin&gt;
+    &lt;artifactId&gt;maven-eclipse-plugin&lt;/artifactId&gt;
+    &lt;configuration&gt;
+        &lt;downloadSources&gt;true&lt;/downloadSources&gt;
+        &lt;downloadJavadocs&gt;true&lt;/downloadJavadocs&gt;
+    &lt;/configuration&gt;
+&lt;/plugin&gt;
 </code></pre>
-
-<p></plugin>
-```</p>
 
 <h3>build-helper-maven-plugin</h3>
 
@@ -144,22 +131,21 @@ $ MAVEN_OPTS=-Xmx1G mvn ...
 
 <p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we&rsquo;d better use rolling-file appender, to cut log files by size and keep only several recent files. Here&rsquo;s an example:</p>
 
-<p>```properties
-log4j.rootLogger=INFO, rolling</p>
+<pre><code class="properties">log4j.rootLogger=INFO, rolling
 
-<p>log4j.appender.rolling=org.apache.log4j.RollingFileAppender
+log4j.appender.rolling=org.apache.log4j.RollingFileAppender
 log4j.appender.rolling.layout=org.apache.log4j.PatternLayout
 log4j.appender.rolling.layout.conversionPattern=[%d] %p %m (%c)%n
 log4j.appender.rolling.maxFileSize=50MB
 log4j.appender.rolling.maxBackupIndex=5
 log4j.appender.rolling.file=/var/log/spark/${dm.logging.name}.log
-log4j.appender.rolling.encoding=UTF-8</p>
+log4j.appender.rolling.encoding=UTF-8
 
-<p>log4j.logger.org.apache.spark=WARN
-log4j.logger.org.eclipse.jetty=WARN</p>
+log4j.logger.org.apache.spark=WARN
+log4j.logger.org.eclipse.jetty=WARN
 
-<p>log4j.logger.com.anjuke.dm=${dm.logging.level}
-```</p>
+log4j.logger.com.anjuke.dm=${dm.logging.level}
+</code></pre>
 
 <p>This means log4j will roll the log file by 50MB and keep only 5 recent files. These files are saved in <code>/var/log/spark</code> directory, with filename picked from system property <code>dm.logging.name</code>. We also set the logging level of our package <code>com.anjuke.dm</code> according to <code>dm.logging.level</code> property. Another thing to mention is that we set <code>org.apache.spark</code> to level <code>WARN</code>, so as to ignore verbose logs from spark.</p>
 
@@ -183,13 +169,12 @@ log4j.logger.org.eclipse.jetty=WARN</p>
 </ol>
 
 
-<p><code>
-spark-submit
+<pre><code>spark-submit
   --master spark://127.0.0.1:7077
   --driver-java-options "-Dlog4j.configuration=file:/path/to/log4j-driver.properties -Ddm.logging.level=DEBUG"
   --conf "spark.executor.extraJavaOptions=-Dlog4j.configuration=file:/path/to/log4j-executor.properties -Ddm.logging.name=myapp -Ddm.logging.level=DEBUG"
   ...
-</code></p>
+</code></pre>
 
 <h2>Spark on YARN</h2>
 
@@ -197,9 +182,8 @@ spark-submit
 
 <p>When running Spark on YARN, there is a system property <code>spark.yarn.app.container.log.dir</code> indicating the container&rsquo;s log directory. We only need to replace one line of the above log4j config:</p>
 
-<p><code>properties
-log4j.appender.rolling.file=${spark.yarn.app.container.log.dir}/spark.log
-</code></p>
+<pre><code class="properties">log4j.appender.rolling.file=${spark.yarn.app.container.log.dir}/spark.log
+</code></pre>
 
 <p>And these log files can be viewed on YARN&rsquo;s web UI:</p>
 
@@ -207,14 +191,13 @@ log4j.appender.rolling.file=${spark.yarn.app.container.log.dir}/spark.log
 
 <p>The <code>spark-submit</code> command is as following:</p>
 
-<p><code>
-spark-submit
+<pre><code>spark-submit
   --master yarn-cluster
   --files /path/to/log4j-spark.properties
   --conf "spark.driver.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties"
   --conf "spark.executor.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties"
   ...
-</code></p>
+</code></pre>
 
 <p>As you can see, both driver and executor use the same configuration file. That is because in <code>yarn-cluster</code> mode, driver is also run as a container in YARN. In fact, the <code>spark-submit</code> command will just quit after job submission.</p>
 
@@ -326,26 +309,23 @@ spark-submit
 
 <p>原来<code>product_id</code>是Text类型，我们的复合Key则要包含<code>product_id</code>和<code>tag</code>两个数据，并实现<code>WritableComparable</code>接口：</p>
 
-<p>```java
-public class TaggedKey implements WritableComparable<TaggedKey> {</p>
+<pre><code class="java">public class TaggedKey implements WritableComparable&lt;TaggedKey&gt; {
 
-<pre><code>private Text joinKey = new Text();
-private IntWritable tag = new IntWritable();
+    private Text joinKey = new Text();
+    private IntWritable tag = new IntWritable();
 
-@Override
-public int compareTo(TaggedKey taggedKey) {
-    int compareValue = joinKey.compareTo(taggedKey.getJoinKey());
-    if (compareValue == 0) {
-        compareValue = tag.compareTo(taggedKey.getTag());
+    @Override
+    public int compareTo(TaggedKey taggedKey) {
+        int compareValue = joinKey.compareTo(taggedKey.getJoinKey());
+        if (compareValue == 0) {
+            compareValue = tag.compareTo(taggedKey.getTag());
+        }
+        return compareValue;
     }
-    return compareValue;
+
+    // 此处省略部分代码
 }
-
-// 此处省略部分代码
 </code></pre>
-
-<p>}
-```</p>
 
 <p>可以看到，在比较两个TaggedKey时，会先比较joinKey（即<code>product_id</code>），再比较<code>tag</code>。</p>
 
@@ -353,88 +333,79 @@ public int compareTo(TaggedKey taggedKey) {
 
 <p>默认情况下，Hadoop会对Key进行哈希，以保证相同的Key会分配到同一个Reducer中。由于我们改变了Key的结构，因此需要重新编 写分区函数：</p>
 
-<p>```java
-public class TaggedJoiningPartitioner extends Partitioner&lt;TaggedKey, Text> {</p>
+<pre><code class="java">public class TaggedJoiningPartitioner extends Partitioner&lt;TaggedKey, Text&gt; {
 
-<pre><code>@Override
-public int getPartition(TaggedKey taggedKey, Text text, int numPartitions) {
-    return taggedKey.getJoinKey().hashCode() % numPartitions;
+    @Override
+    public int getPartition(TaggedKey taggedKey, Text text, int numPartitions) {
+        return taggedKey.getJoinKey().hashCode() % numPartitions;
+    }
+
 }
 </code></pre>
-
-<p>}
-```</p>
 
 <h3>自定义分组方法</h3>
 
 <p>同理，调用reduce函数需要传入同一个Key的所有记录，这就需要重新定义分组函数：</p>
 
-<p>```java
-public class TaggedJoiningGroupingComparator extends WritableComparator {</p>
+<pre><code class="java">public class TaggedJoiningGroupingComparator extends WritableComparator {
 
-<pre><code>public TaggedJoiningGroupingComparator() {
-    super(TaggedKey.class, true);
-}
+    public TaggedJoiningGroupingComparator() {
+        super(TaggedKey.class, true);
+    }
 
-@SuppressWarnings("rawtypes")
-@Override
-public int compare(WritableComparable a, WritableComparable b) {
-    TaggedKey taggedKey1 = (TaggedKey) a;
-    TaggedKey taggedKey2 = (TaggedKey) b;
-    return taggedKey1.getJoinKey().compareTo(taggedKey2.getJoinKey());
+    @SuppressWarnings("rawtypes")
+    @Override
+    public int compare(WritableComparable a, WritableComparable b) {
+        TaggedKey taggedKey1 = (TaggedKey) a;
+        TaggedKey taggedKey2 = (TaggedKey) b;
+        return taggedKey1.getJoinKey().compareTo(taggedKey2.getJoinKey());
+    }
+
 }
 </code></pre>
 
-<p>}
-```</p>
-
 <h3>配置Job</h3>
 
-<p>```java
-job.setMapOutputKeyClass(TaggedKey.class);
-job.setMapOutputValueClass(Text.class);</p>
+<pre><code class="java">job.setMapOutputKeyClass(TaggedKey.class);
+job.setMapOutputValueClass(Text.class);
 
-<p>job.setPartitionerClass(TaggedJoiningPartitioner.class);
+job.setPartitionerClass(TaggedJoiningPartitioner.class);
 job.setGroupingComparatorClass(TaggedJoiningGroupingComparator.class);
-```</p>
+</code></pre>
 
 <h3>MapReduce过程</h3>
 
 <p>最后，我们在Mapper阶段使用TaggedKey，在Reducer阶段按照tag进行不同的操作就可以了：</p>
 
-<p>```java
-@Override
-protected void reduce(TaggedKey key, Iterable<Text> values, Context context)</p>
+<pre><code class="java">@Override
+protected void reduce(TaggedKey key, Iterable&lt;Text&gt; values, Context context)
+        throws IOException, InterruptedException {
 
-<pre><code>    throws IOException, InterruptedException {
+    List&lt;String&gt; products = new ArrayList&lt;String&gt;();
 
-List&lt;String&gt; products = new ArrayList&lt;String&gt;();
+    for (Text value : values) {
+        switch (key.getTag().get()) {
+        case 1: // Product
+            products.add(value.toString());
+            break;
 
-for (Text value : values) {
-    switch (key.getTag().get()) {
-    case 1: // Product
-        products.add(value.toString());
-        break;
+        case 2: // Order
+            String[] order = value.toString().split(",");
+            for (String productString : products) {
+                String[] product = productString.split(",");
+                List&lt;String&gt; output = new ArrayList&lt;String&gt;();
+                output.add(order[0]);
+                // ...
+                context.write(NullWritable.get(), new Text(StringUtils.join(output, ",")));
+            }
+            break;
 
-    case 2: // Order
-        String[] order = value.toString().split(",");
-        for (String productString : products) {
-            String[] product = productString.split(",");
-            List&lt;String&gt; output = new ArrayList&lt;String&gt;();
-            output.add(order[0]);
-            // ...
-            context.write(NullWritable.get(), new Text(StringUtils.join(output, ",")));
+        default:
+            assert false;
         }
-        break;
-
-    default:
-        assert false;
     }
 }
 </code></pre>
-
-<p>}
-```</p>
 
 <p>遍历values时，开始都是tag=1的记录，之后都是tag=2的记录。以上代码可以<a href="https://github.com/jizhang/mapred-sandbox/blob/master/src/main/java/com/shzhangji/mapred_sandbox/join/ReduceSideJoinJob.java">在这里</a>查看。</p>
 
@@ -442,9 +413,8 @@ for (Text value : values) {
 
 <p>需要注意的是，Hive默认是按SQL中表的书写顺序来决定排序的，因此应该将大表放在最后。如果要人工改变顺序，可以使用STREAMTABLE配置：</p>
 
-<p><code>sql
-SELECT /*+ STREAMTABLE(a) */ a.val, b.val, c.val FROM a JOIN b ON (a.key = b.key1) JOIN c ON (c.key = b.key1)
-</code></p>
+<pre><code class="sql">SELECT /*+ STREAMTABLE(a) */ a.val, b.val, c.val FROM a JOIN b ON (a.key = b.key1) JOIN c ON (c.key = b.key1)
+</code></pre>
 
 <p>但不要将这点和Map-side Join混淆，在配置了<code>hive.auto.convert.join=true</code>后，是不需要注意表的顺序的，Hive会自动将小表缓存在Mapper的内存中。</p>
 
@@ -484,10 +454,9 @@ SELECT /*+ STREAMTABLE(a) */ a.val, b.val, c.val FROM a JOIN b ON (a.key = b.key
 </ul>
 
 
-<p><code>bash
-export SPARK_HOME=/path/to/spark
+<pre><code class="bash">export SPARK_HOME=/path/to/spark
 export PATH=$PATH:$SPARK_HOME/bin
-</code></p>
+</code></pre>
 
 <ul>
 <li>在练习例子时，我们还会用到<a href="http://www.scala-sbt.org/">SBT</a>这个工具，它是用来编译打包Scala项目的。Linux下的安装过程比较简单：
@@ -500,10 +469,9 @@ export PATH=$PATH:$SPARK_HOME/bin
 </ul>
 
 
-<p><code>bash
-SBT_OPTS="-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M"
+<pre><code class="bash">SBT_OPTS="-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M"
 java $SBT_OPTS -jar `dirname $0`/sbt-launch.jar "$@"
-</code></p>
+</code></pre>
 
 <!-- more -->
 
@@ -512,45 +480,36 @@ java $SBT_OPTS -jar `dirname $0`/sbt-launch.jar "$@"
 
 <p>假设我们有如下格式的日志文件，保存在/tmp/logs.txt文件中：</p>
 
-<p><code>text
-2014-12-11 18:33:52 INFO    Java    some message
+<pre><code class="text">2014-12-11 18:33:52 INFO    Java    some message
 2014-12-11 18:34:33 INFO    MySQL   some message
 2014-12-11 18:34:54 WARN    Java    some message
 2014-12-11 18:35:25 WARN    Nginx   some message
 2014-12-11 18:36:09 INFO    Java    some message
-</code></p>
+</code></pre>
 
 <p>每条记录有四个字段，即时间、级别、应用、信息，使用制表符分隔。</p>
 
 <p>Spark提供了一个交互式的命令行工具，可以直接执行Spark查询：</p>
 
-<p>```
-$ spark-shell
-Welcome to</p>
-
-<pre><code>  ____              __
- / __/__  ___ _____/ /__
-_\ \/ _ \/ _ `/ __/  '_/
+<pre><code>$ spark-shell
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /___/ .__/\_,_/_/ /_/\_\   version 1.1.0
+      /_/
+Spark context available as sc.
+scala&gt;
 </code></pre>
-
-<p>   /<em><strong>/ .</strong>/_,</em>/<em>/ /</em>/_\   version 1.1.0</p>
-
-<pre><code>  /_/
-</code></pre>
-
-<p>Spark context available as sc.
-scala>
-```</p>
 
 <h3>加载并预览数据</h3>
 
-<p>```scala
-scala> val lines = sc.textFile(&ldquo;/tmp/logs.txt&rdquo;)
-lines: org.apache.spark.rdd.RDD[String] = /tmp/logs.txt MappedRDD[1] at textFile at <console>:12</p>
+<pre><code class="scala">scala&gt; val lines = sc.textFile("/tmp/logs.txt")
+lines: org.apache.spark.rdd.RDD[String] = /tmp/logs.txt MappedRDD[1] at textFile at &lt;console&gt;:12
 
-<p>scala> lines.first()
+scala&gt; lines.first()
 res0: String = 2014-12-11 18:33:52  INFO    Java    some message
-```</p>
+</code></pre>
 
 <ul>
 <li>sc是一个SparkContext类型的变量，可以认为是Spark的入口，这个对象在spark-shell中已经自动创建了。</li>
@@ -563,13 +522,12 @@ res0: String = 2014-12-11 18:33:52  INFO    Java    some message
 
 <p>为了能对日志进行筛选，如只处理级别为ERROR的日志，我们需要将每行日志按制表符进行分割：</p>
 
-<p>```scala
-scala> val logs = lines.map(line => line.split(&ldquo;\t&rdquo;))
-logs: org.apache.spark.rdd.RDD[Array[String]] = MappedRDD[2] at map at <console>:14</p>
+<pre><code class="scala">scala&gt; val logs = lines.map(line =&gt; line.split("\t"))
+logs: org.apache.spark.rdd.RDD[Array[String]] = MappedRDD[2] at map at &lt;console&gt;:14
 
-<p>scala> logs.first()
+scala&gt; logs.first()
 res1: Array[String] = Array(2014-12-11 18:33:52, INFO, Java, some message)
-```</p>
+</code></pre>
 
 <ul>
 <li>lines.map(f)表示对RDD中的每一个元素使用f函数来处理，并返回一个新的RDD。</li>
@@ -582,16 +540,15 @@ res1: Array[String] = Array(2014-12-11 18:33:52, INFO, Java, some message)
 
 <p>我们想要统计错误日志的数量：</p>
 
-<p>```scala
-scala> val errors = logs.filter(log => log(1) == &ldquo;ERROR&rdquo;)
-errors: org.apache.spark.rdd.RDD[Array[String]] = FilteredRDD[3] at filter at <console>:16</p>
+<pre><code class="scala">scala&gt; val errors = logs.filter(log =&gt; log(1) == "ERROR")
+errors: org.apache.spark.rdd.RDD[Array[String]] = FilteredRDD[3] at filter at &lt;console&gt;:16
 
-<p>scala> errors.first()
-res2: Array[String] = Array(2014-12-11 18:39:42, ERROR, Java, some message)</p>
+scala&gt; errors.first()
+res2: Array[String] = Array(2014-12-11 18:39:42, ERROR, Java, some message)
 
-<p>scala> errors.count()
+scala&gt; errors.count()
 res3: Long = 158
-```</p>
+</code></pre>
 
 <ul>
 <li>logs.filter(f)表示筛选出满足函数f的记录，其中函数f需要返回一个布尔值。</li>
@@ -604,9 +561,8 @@ res3: Long = 158
 
 <p>由于我们还会对错误日志做一些处理，为了加快速度，可以将错误日志缓存到内存中，从而省去解析和过滤的过程：</p>
 
-<p><code>scala
-scala&gt; errors.cache()
-</code></p>
+<pre><code class="scala">scala&gt; errors.cache()
+</code></pre>
 
 <p>errors.cache()函数会告知Spark计算完成后将结果保存在内存中。所以说Spark是否缓存结果是需要用户手动触发的。在实际应用中，我们需要迭代处理的往往只是一部分数据，因此很适合放到内存里。</p>
 
@@ -614,15 +570,14 @@ scala&gt; errors.cache()
 
 <h3>显示前10条记录</h3>
 
-<p>```scala
-scala> val firstTenErrors = errors.take(10)
-firstTenErrors: Array[Array[String]] = Array(Array(2014-12-11 18:39:42, ERROR, Java, some message), Array(2014-12-11 18:40:23, ERROR, Nginx, some message), &hellip;)</p>
+<pre><code class="scala">scala&gt; val firstTenErrors = errors.take(10)
+firstTenErrors: Array[Array[String]] = Array(Array(2014-12-11 18:39:42, ERROR, Java, some message), Array(2014-12-11 18:40:23, ERROR, Nginx, some message), ...)
 
-<p>scala> firstTenErrors.map(log => log.mkString(&ldquo;\t&rdquo;)).foreach(line => println(line))
+scala&gt; firstTenErrors.map(log =&gt; log.mkString("\t")).foreach(line =&gt; println(line))
 2014-12-11 18:39:42 ERROR   Java    some message
 2014-12-11 18:40:23 ERROR   Nginx   some message
-&hellip;
-```</p>
+...
+</code></pre>
 
 <p>errors.take(n)方法可用于返回RDD前N条记录，它的返回值是一个数组。之后对firstTenErrors的处理使用的是Scala集合类库中的方法，如map、foreach，和RDD提供的接口基本一致。所以说用Scala编写Spark程序是最自然的。</p>
 
@@ -630,30 +585,28 @@ firstTenErrors: Array[Array[String]] = Array(Array(2014-12-11 18:39:42, ERROR, J
 
 <p>我们想要知道错误日志中有几条Java、几条Nginx，这和常见的Wordcount思路是一样的。</p>
 
-<p>```scala
-scala> val apps = errors.map(log => (log(2), 1))
-apps: org.apache.spark.rdd.RDD[(String, Int)] = MappedRDD[15] at map at <console>:18</p>
+<pre><code class="scala">scala&gt; val apps = errors.map(log =&gt; (log(2), 1))
+apps: org.apache.spark.rdd.RDD[(String, Int)] = MappedRDD[15] at map at &lt;console&gt;:18
 
-<p>scala> apps.first()
-res20: (String, Int) = (Java,1)</p>
+scala&gt; apps.first()
+res20: (String, Int) = (Java,1)
 
-<p>scala> val counts = apps.reduceByKey((a, b) => a + b)
-counts: org.apache.spark.rdd.RDD[(String, Int)] = ShuffledRDD[17] at reduceByKey at <console>:20</p>
+scala&gt; val counts = apps.reduceByKey((a, b) =&gt; a + b)
+counts: org.apache.spark.rdd.RDD[(String, Int)] = ShuffledRDD[17] at reduceByKey at &lt;console&gt;:20
 
-<p>scala> counts.foreach(t => println(t))
+scala&gt; counts.foreach(t =&gt; println(t))
 (Java,58)
 (Nginx,53)
 (MySQL,47)
-```</p>
+</code></pre>
 
 <p>errors.map(log => (log(2), 1))用于将每条日志转换为键值对，键是应用（Java、Nginx等），值是1，如<code>("Java", 1)</code>，这种数据结构在Scala中称为元组（Tuple），这里它有两个元素，因此称为二元组。</p>
 
 <p>对于数据类型是二元组的RDD，Spark提供了额外的方法，reduceByKey(f)就是其中之一。它的作用是按键进行分组，然后对同一个键下的所有值使用f函数进行归约（reduce）。归约的过程是：使用列表中第一、第二个元素进行计算，然后用结果和第三元素进行计算，直至列表耗尽。如：</p>
 
-<p><code>scala
-scala&gt; Array(1, 2, 3, 4).reduce((a, b) =&gt; a + b)
+<pre><code class="scala">scala&gt; Array(1, 2, 3, 4).reduce((a, b) =&gt; a + b)
 res23: Int = 10
-</code></p>
+</code></pre>
 
 <p>上述代码的计算过程即<code>((1 + 2) + 3) + 4</code>。</p>
 
@@ -663,20 +616,16 @@ res23: Int = 10
 
 <p>为了让我们的日志分析程序能够在集群上运行，我们需要创建一个Scala项目。项目的大致结构是：</p>
 
-<p>```
-spark-sandbox
+<pre><code>spark-sandbox
 ├── build.sbt
 ├── project
 │   ├── build.properties
 │   └── plugins.sbt
-└── src</p>
-
-<pre><code>└── main
-    └── scala
-        └── LogMining.scala
+└── src
+    └── main
+        └── scala
+            └── LogMining.scala
 </code></pre>
-
-<p>```</p>
 
 <p>你可以直接使用<a href="https://github.com/jizhang/spark-sandbox">这个项目</a>作为模板。下面说明一些关键部分：</p>
 
@@ -684,47 +633,44 @@ spark-sandbox
 
 <p><code>build.sbt</code></p>
 
-<p><code>scala
-libraryDependencies += "org.apache.spark" %% "spark-core" % "1.1.1"
-</code></p>
+<pre><code class="scala">libraryDependencies += "org.apache.spark" %% "spark-core" % "1.1.1"
+</code></pre>
 
 <h3>程序内容</h3>
 
 <p><code>src/main/scala/LogMining.scala</code></p>
 
-<p>```scala
-import org.apache.spark.SparkContext
+<pre><code class="scala">import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
-import org.apache.spark.SparkConf</p>
+import org.apache.spark.SparkConf
 
-<p>object LogMining extends App {
-  val conf = new SparkConf().setAppName(&ldquo;LogMining&rdquo;)
+object LogMining extends App {
+  val conf = new SparkConf().setAppName("LogMining")
   val sc = new SparkContext(conf)
   val inputFile = args(0)
   val lines = sc.textFile(inputFile)
   // 解析日志
-  val logs = lines.map(<em>.split(&ldquo;\t&rdquo;))
-  val errors = logs.filter(</em>(1) == &ldquo;ERROR&rdquo;)
+  val logs = lines.map(_.split("\t"))
+  val errors = logs.filter(_(1) == "ERROR")
   // 缓存错误日志
   errors.cache()
   // 统计错误日志记录数
   println(errors.count())
   // 获取前10条MySQL的错误日志
-  val mysqlErrors = errors.filter(<em>(2) == &ldquo;MySQL&rdquo;)
-  mysqlErrors.take(10).map(</em> mkString &ldquo;\t&rdquo;).foreach(println)
+  val mysqlErrors = errors.filter(_(2) == "MySQL")
+  mysqlErrors.take(10).map(_ mkString "\t").foreach(println)
   // 统计每个应用的错误日志数
-  val errorApps = errors.map(_(2) &ndash;> 1)
+  val errorApps = errors.map(_(2) -&gt; 1)
   errorApps.countByKey().foreach(println)
 }
-```</p>
+</code></pre>
 
 <h3>打包运行</h3>
 
-<p><code>bash
-$ cd spark-sandbox
+<pre><code class="bash">$ cd spark-sandbox
 $ sbt package
 $ spark-submit --class LogMining --master local target/scala-2.10/spark-sandbox_2.10-0.1.0.jar data/logs.txt
-</code></p>
+</code></pre>
 
 <h2>参考资料</h2>
 

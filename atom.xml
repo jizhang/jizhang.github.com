@@ -4,7 +4,7 @@
   <title><![CDATA[Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-09-10T13:41:39+08:00</updated>
+  <updated>2015-09-10T15:17:57+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -56,7 +56,7 @@
     <link href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/"/>
     <updated>2015-09-01T18:38:00+08:00</updated>
     <id>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse</id>
-    <content type="html"><![CDATA[<p>Reading source code is a great way to learn opensource projects. I used to read Java projects&#8217; source code on <a href="http://grepcode.com/">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/">GitHub</a>, it&rsquo;s quite necessary to setup an IDE to view the code more efficiently. Here&rsquo;s a howto of viewing Spark source code in Eclipse.</p>
+    <content type="html"><![CDATA[<p>Reading source code is a great way to learn opensource projects. I used to read Java projects' source code on <a href="http://grepcode.com/">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/">GitHub</a>, it&rsquo;s quite necessary to setup an IDE to view the code more efficiently. Here&rsquo;s a howto of viewing Spark source code in Eclipse.</p>
 
 <h2>Install Eclipse and Scala IDE Plugin</h2>
 
@@ -592,7 +592,7 @@
 <li>For search-only fields, set <code>store</code> to false.</li>
 <li>Disable <code>_all</code> field, if you always know which field to search.</li>
 <li>Disable <code>_source</code> fields, if documents are big and you don&rsquo;t need the update capability.</li>
-<li>If you have a document key, set this field in <code>_id</code> &ndash; <code>path</code>, instead of index the field twice.</li>
+<li>If you have a document key, set this field in <code>_id</code> - <code>path</code>, instead of index the field twice.</li>
 <li>Set <code>index.refresh_interval</code> to a larger number (default 1s), if you don&rsquo;t need near-realtime search. It&rsquo;s also an important option in bulk-load operation described below.</li>
 </ul>
 
@@ -788,8 +788,8 @@
 <span class='line-number'>16</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TaggedKey</span> <span class="kd">implements</span> <span class="n">WritableComparable</span><span class="o">&lt;</span><span class="n">TaggedKey</span><span class="o">&gt;</span> <span class="o">{</span>
 </span><span class='line'>
-</span><span class='line'>    <span class="kd">private</span> <span class="n">Text</span> <span class="n">joinKey</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="o">();</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="n">IntWritable</span> <span class="n">tag</span> <span class="o">=</span> <span class="k">new</span> <span class="n">IntWritable</span><span class="o">();</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Text</span> <span class="n">joinKey</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Text</span><span class="o">();</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">IntWritable</span> <span class="n">tag</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">IntWritable</span><span class="o">();</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="nd">@Override</span>
 </span><span class='line'>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compareTo</span><span class="o">(</span><span class="n">TaggedKey</span> <span class="n">taggedKey</span><span class="o">)</span> <span class="o">{</span>
@@ -933,7 +933,7 @@
 </span><span class='line'>                <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">output</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;();</span>
 </span><span class='line'>                <span class="n">output</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">order</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
 </span><span class='line'>                <span class="c1">// ...</span>
-</span><span class='line'>                <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">NullWritable</span><span class="o">.</span><span class="na">get</span><span class="o">(),</span> <span class="k">new</span> <span class="n">Text</span><span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">join</span><span class="o">(</span><span class="n">output</span><span class="o">,</span> <span class="s">&quot;,&quot;</span><span class="o">)));</span>
+</span><span class='line'>                <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">NullWritable</span><span class="o">.</span><span class="na">get</span><span class="o">(),</span> <span class="k">new</span> <span class="nf">Text</span><span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">join</span><span class="o">(</span><span class="n">output</span><span class="o">,</span> <span class="s">&quot;,&quot;</span><span class="o">)));</span>
 </span><span class='line'>            <span class="o">}</span>
 </span><span class='line'>            <span class="k">break</span><span class="o">;</span>
 </span><span class='line'>
@@ -969,7 +969,7 @@
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[使用git rebase让历史变得清晰]]></title>
+    <title type="html"><![CDATA[使用git Rebase让历史变得清晰]]></title>
     <link href="http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/"/>
     <updated>2014-12-23T16:10:00+08:00</updated>
     <id>http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history</id>
@@ -983,9 +983,9 @@
 
 <p>要避免Merge branch提交也有一个“土法”：先pull、再commit、最后push。不过万一commit和push之间远程又发生了改动，还需要再pull一次，就又会产生Merge branch提交。</p>
 
-<h2>使用git pull &mdash;rebase</h2>
+<h2>使用git pull &ndash;rebase</h2>
 
-<p>修改代码→commit→git pull &mdash;rebase→git push。也就是将get merge origin/master替换成了git rebase origin/master，它的过程是先将HEAD指向origin/master，然后逐一应用本地的修改，这样就不会产生Merge branch提交了。具体过程见下文扩展阅读。</p>
+<p>修改代码→commit→git pull &ndash;rebase→git push。也就是将get merge origin/master替换成了git rebase origin/master，它的过程是先将HEAD指向origin/master，然后逐一应用本地的修改，这样就不会产生Merge branch提交了。具体过程见下文扩展阅读。</p>
 
 <!-- more -->
 
@@ -1024,7 +1024,7 @@
 
 <h2>修改git pull的默认行为</h2>
 
-<p>每次都加&mdash;rebase似乎有些麻烦，我们可以指定某个分支在执行git pull时默认采用rebase方式：</p>
+<p>每次都加&ndash;rebase似乎有些麻烦，我们可以指定某个分支在执行git pull时默认采用rebase方式：</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>$ git config branch.master.rebase true</span></code></pre></td></tr></table></div></figure>
@@ -1056,7 +1056,7 @@
 
 <p>Feature分支中的两个提交被“嫁接”到了Master分支的头部，或者说Feature分支的“基”（base）变成了 Master，rebase也因此得名。</p>
 
-<h2>扩展阅读[2]：git merge &mdash;no-ff</h2>
+<h2>扩展阅读[2]：git merge &ndash;no-ff</h2>
 
 <p>在做项目开发时会用到分支，合并时采用以下步骤：</p>
 
@@ -1076,7 +1076,7 @@
 
 <p><img src="http://shzhangji.com/images/git-rebase/no-ff.png" alt="" /></p>
 
-<p>可以看到，Merge branch &lsquo;feature-branch&#8217;那段可以很好的展现出这些提交是属于某一特性的。</p>
+<p>可以看到，Merge branch &lsquo;feature-branch'那段可以很好的展现出这些提交是属于某一特性的。</p>
 ]]></content>
   </entry>
   
@@ -1249,7 +1249,7 @@
 
 <ul>
 <li>logs.filter(f)表示筛选出满足函数f的记录，其中函数f需要返回一个布尔值。</li>
-<li>log(1) == &ldquo;ERROR&#8221;表示获取每行日志的第二个元素（即日志级别），并判断是否等于ERROR。</li>
+<li>log(1) == &ldquo;ERROR"表示获取每行日志的第二个元素（即日志级别），并判断是否等于ERROR。</li>
 <li>errors.count()用于返回该RDD中的记录。</li>
 </ul>
 
@@ -2257,7 +2257,7 @@
 </span><span class='line'>
 </span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ReflectionHelloWorld</span> <span class="o">{</span>
 </span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">){</span>
-</span><span class='line'>        <span class="n">Foo</span> <span class="n">f</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Foo</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Foo</span> <span class="n">f</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Foo</span><span class="o">();</span>
 </span><span class='line'>        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">f</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getName</span><span class="o">());</span>           
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'><span class="o">}</span>
@@ -2308,7 +2308,7 @@
 </span><span class='line'>
 </span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ReflectionHelloWorld</span> <span class="o">{</span>
 </span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">){</span>
-</span><span class='line'>        <span class="n">Foo</span> <span class="n">f</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Foo</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Foo</span> <span class="n">f</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Foo</span><span class="o">();</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="n">Method</span> <span class="n">method</span><span class="o">;</span>
 </span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
@@ -2764,7 +2764,7 @@
 </span><span class='line'>            <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="n">id</span> <span class="o">+=</span> <span class="n">increment</span><span class="o">;</span>
-</span><span class='line'>        <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="k">new</span> <span class="n">LongWritable</span><span class="o">(</span><span class="n">id</span><span class="o">),</span>
+</span><span class='line'>        <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="k">new</span> <span class="nf">LongWritable</span><span class="o">(</span><span class="n">id</span><span class="o">),</span>
 </span><span class='line'>                <span class="k">new</span> <span class="nf">Text</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;%d, %s&quot;</span><span class="o">,</span> <span class="n">key</span><span class="o">.</span><span class="na">get</span><span class="o">(),</span> <span class="n">value</span><span class="o">.</span><span class="na">toString</span><span class="o">())));</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
@@ -2847,7 +2847,7 @@
 <span class='line-number'>9</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">SequenceFile</span><span class="o">.</span><span class="na">Writer</span> <span class="n">writer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SequenceFile</span><span class="o">.</span><span class="na">Writer</span><span class="o">(</span><span class="n">fs</span><span class="o">,</span> <span class="n">getConf</span><span class="o">(),</span> <span class="n">partition</span><span class="o">,</span>
 </span><span class='line'>        <span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">NullWritable</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'><span class="n">Text</span> <span class="n">key</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="o">();</span>
+</span><span class='line'><span class="n">Text</span> <span class="n">key</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Text</span><span class="o">();</span>
 </span><span class='line'><span class="n">NullWritable</span> <span class="n">value</span> <span class="o">=</span> <span class="n">NullWritable</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
 </span><span class='line'><span class="n">key</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">&quot;12:00&quot;</span><span class="o">);</span>
 </span><span class='line'><span class="n">writer</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
@@ -2941,7 +2941,7 @@
 </span><span class='line'>            <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">cleanup</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">mos</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="s">&quot;count&quot;</span><span class="o">,</span> <span class="n">NullWritable</span><span class="o">.</span><span class="na">get</span><span class="o">(),</span> <span class="k">new</span> <span class="n">LongWritable</span><span class="o">(</span><span class="n">count</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">mos</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="s">&quot;count&quot;</span><span class="o">,</span> <span class="n">NullWritable</span><span class="o">.</span><span class="na">get</span><span class="o">(),</span> <span class="k">new</span> <span class="nf">LongWritable</span><span class="o">(</span><span class="n">count</span><span class="o">));</span>
 </span><span class='line'>        <span class="n">mos</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
@@ -2961,7 +2961,7 @@
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Job</span><span class="o">(</span><span class="n">getConf</span><span class="o">());</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Job</span><span class="o">(</span><span class="n">getConf</span><span class="o">());</span>
 </span><span class='line'><span class="n">MultipleOutputs</span><span class="o">.</span><span class="na">addNamedOutput</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="s">&quot;count&quot;</span><span class="o">,</span> <span class="n">SequenceFileOutputFormat</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
 </span><span class='line'>    <span class="n">NullWritable</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">LongWritable</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 </span></code></pre></td></tr></table></div></figure>
@@ -3058,7 +3058,7 @@
 </span><span class='line'>
 </span><span class='line'>    <span class="n">SequenceFile</span><span class="o">.</span><span class="na">Reader</span> <span class="n">reader</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SequenceFile</span><span class="o">.</span><span class="na">Reader</span><span class="o">(</span><span class="n">fs</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">getConf</span><span class="o">());</span>
 </span><span class='line'>    <span class="n">NullWritable</span> <span class="n">key</span> <span class="o">=</span> <span class="n">NullWritable</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">LongWritable</span> <span class="n">value</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LongWritable</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">LongWritable</span> <span class="n">value</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">LongWritable</span><span class="o">();</span>
 </span><span class='line'>    <span class="k">if</span> <span class="o">(!</span><span class="n">reader</span><span class="o">.</span><span class="na">next</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="n">value</span><span class="o">))</span> <span class="o">{</span>
 </span><span class='line'>        <span class="k">continue</span><span class="o">;</span>
 </span><span class='line'>    <span class="o">}</span>
@@ -3092,7 +3092,7 @@
 </span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">map</span><span class="o">(</span><span class="n">NullWritable</span> <span class="n">key</span><span class="o">,</span> <span class="n">Text</span> <span class="n">value</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span>
 </span><span class='line'>            <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
 </span><span class='line'>
-</span><span class='line'>        <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="k">new</span> <span class="n">LongWritable</span><span class="o">(</span><span class="n">startId</span><span class="o">++),</span> <span class="n">value</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="k">new</span> <span class="nf">LongWritable</span><span class="o">(</span><span class="n">startId</span><span class="o">++),</span> <span class="n">value</span><span class="o">);</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">}</span>
@@ -3183,7 +3183,7 @@
 <ol>
 <li>解压hive-xyz.tar.gz；</li>
 <li>在conf/hive-site.xml中配置Hadoop以及用于存放库表信息的第三方数据库；</li>
-<li>执行bin/hive -e &ldquo;&hellip;&#8221;即可使用。DataNucleus会按需创建上述的DBS等表。</li>
+<li>执行bin/hive -e &ldquo;&hellip;"即可使用。DataNucleus会按需创建上述的DBS等表。</li>
 </ol>
 
 

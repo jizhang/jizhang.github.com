@@ -18,17 +18,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job">
+  <link rel="canonical" href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
   <script src="/javascripts/libs/jquery.min.js"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<!--<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>-->
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+-->
 
   
   <script type="text/javascript">
@@ -46,7 +47,7 @@
 
 </head>
 
-<body   class="collapse-sidebar sidebar-footer" >
+<body    class="collapse-sidebar sidebar-footer" >
   <header role="banner"><hgroup>
   <h1><a href="/">Ji ZHANG's Blog</a></h1>
   
@@ -60,9 +61,9 @@
   
 </ul>
   
-<form action="http://google.com/search" method="get">
+<form action="https://google.com/search" method="get">
   <fieldset role="search">
-    <input type="hidden" name="q" value="site:shzhangji.com" />
+    <input type="hidden" name="sitesearch" value="shzhangji.com">
     <input class="search" type="text" name="q" results="0" placeholder="Search"/>
   </fieldset>
 </form>
@@ -93,14 +94,7 @@
 
 
 
-
-
-
-
-  
-
-
-<time datetime="2013-10-31T09:35:00+08:00" pubdate data-updated="true">Oct 31<span>st</span>, 2013</time>
+<time class='entry-date' datetime='2013-10-31T09:35:00+08:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>31</span><span class='date-suffix'>st</span>, <span class='date-year'>2013</span></span> <span class='time'>9:35 am</span></time>
         
       </p>
     
@@ -187,7 +181,7 @@
 </span><span class='line'>            <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="n">id</span> <span class="o">+=</span> <span class="n">increment</span><span class="o">;</span>
-</span><span class='line'>        <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="k">new</span> <span class="n">LongWritable</span><span class="o">(</span><span class="n">id</span><span class="o">),</span>
+</span><span class='line'>        <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="k">new</span> <span class="nf">LongWritable</span><span class="o">(</span><span class="n">id</span><span class="o">),</span>
 </span><span class='line'>                <span class="k">new</span> <span class="nf">Text</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;%d, %s&quot;</span><span class="o">,</span> <span class="n">key</span><span class="o">.</span><span class="na">get</span><span class="o">(),</span> <span class="n">value</span><span class="o">.</span><span class="na">toString</span><span class="o">())));</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
@@ -270,7 +264,7 @@
 <span class='line-number'>9</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">SequenceFile</span><span class="o">.</span><span class="na">Writer</span> <span class="n">writer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SequenceFile</span><span class="o">.</span><span class="na">Writer</span><span class="o">(</span><span class="n">fs</span><span class="o">,</span> <span class="n">getConf</span><span class="o">(),</span> <span class="n">partition</span><span class="o">,</span>
 </span><span class='line'>        <span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">NullWritable</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'><span class="n">Text</span> <span class="n">key</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="o">();</span>
+</span><span class='line'><span class="n">Text</span> <span class="n">key</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Text</span><span class="o">();</span>
 </span><span class='line'><span class="n">NullWritable</span> <span class="n">value</span> <span class="o">=</span> <span class="n">NullWritable</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
 </span><span class='line'><span class="n">key</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">&quot;12:00&quot;</span><span class="o">);</span>
 </span><span class='line'><span class="n">writer</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
@@ -364,7 +358,7 @@
 </span><span class='line'>            <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">cleanup</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">mos</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="s">&quot;count&quot;</span><span class="o">,</span> <span class="n">NullWritable</span><span class="o">.</span><span class="na">get</span><span class="o">(),</span> <span class="k">new</span> <span class="n">LongWritable</span><span class="o">(</span><span class="n">count</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">mos</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="s">&quot;count&quot;</span><span class="o">,</span> <span class="n">NullWritable</span><span class="o">.</span><span class="na">get</span><span class="o">(),</span> <span class="k">new</span> <span class="nf">LongWritable</span><span class="o">(</span><span class="n">count</span><span class="o">));</span>
 </span><span class='line'>        <span class="n">mos</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
@@ -384,7 +378,7 @@
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Job</span><span class="o">(</span><span class="n">getConf</span><span class="o">());</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Job</span><span class="o">(</span><span class="n">getConf</span><span class="o">());</span>
 </span><span class='line'><span class="n">MultipleOutputs</span><span class="o">.</span><span class="na">addNamedOutput</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="s">&quot;count&quot;</span><span class="o">,</span> <span class="n">SequenceFileOutputFormat</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
 </span><span class='line'>    <span class="n">NullWritable</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">LongWritable</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 </span></code></pre></td></tr></table></div></figure>
@@ -481,7 +475,7 @@
 </span><span class='line'>
 </span><span class='line'>    <span class="n">SequenceFile</span><span class="o">.</span><span class="na">Reader</span> <span class="n">reader</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SequenceFile</span><span class="o">.</span><span class="na">Reader</span><span class="o">(</span><span class="n">fs</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">getConf</span><span class="o">());</span>
 </span><span class='line'>    <span class="n">NullWritable</span> <span class="n">key</span> <span class="o">=</span> <span class="n">NullWritable</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">LongWritable</span> <span class="n">value</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LongWritable</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">LongWritable</span> <span class="n">value</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">LongWritable</span><span class="o">();</span>
 </span><span class='line'>    <span class="k">if</span> <span class="o">(!</span><span class="n">reader</span><span class="o">.</span><span class="na">next</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="n">value</span><span class="o">))</span> <span class="o">{</span>
 </span><span class='line'>        <span class="k">continue</span><span class="o">;</span>
 </span><span class='line'>    <span class="o">}</span>
@@ -515,7 +509,7 @@
 </span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">map</span><span class="o">(</span><span class="n">NullWritable</span> <span class="n">key</span><span class="o">,</span> <span class="n">Text</span> <span class="n">value</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span>
 </span><span class='line'>            <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
 </span><span class='line'>
-</span><span class='line'>        <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="k">new</span> <span class="n">LongWritable</span><span class="o">(</span><span class="n">startId</span><span class="o">++),</span> <span class="n">value</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="k">new</span> <span class="nf">LongWritable</span><span class="o">(</span><span class="n">startId</span><span class="o">++),</span> <span class="n">value</span><span class="o">);</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">}</span>
@@ -569,19 +563,12 @@
 
 
 
-
-
-
-
-  
-
-
-<time datetime="2013-10-31T09:35:00+08:00" pubdate data-updated="true">Oct 31<span>st</span>, 2013</time>
+<time class='entry-date' datetime='2013-10-31T09:35:00+08:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>31</span><span class='date-suffix'>st</span>, <span class='date-year'>2013</span></span> <span class='time'>9:35 am</span></time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/big-data/'>Big Data</a>, <a class='category' href='/blog/categories/notes/'>Notes</a>
+    <a class='category' href='/blog/categories/big-data/'>big data</a>, <a class='category' href='/blog/categories/notes/'>notes</a>
   
 </span>
 
@@ -590,7 +577,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -618,92 +605,11 @@
 </div>
   </section>
 
-
 </div>
 
 <aside class="sidebar">
   
-    <section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
     
-      <li class="post">
-        <a href="/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">HotSpot JVM中的对象指针压缩</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a>
-      </li>
-    
-  </ul>
-</section>
-
-<section>
-  <h1>GitHub Repos</h1>
-  <ul id="gh_repos">
-    <li class="loading">Status updating...</li>
-  </ul>
-  
-  <a href="https://github.com/jizhang">@jizhang</a> on GitHub
-  
-  <script type="text/javascript">
-    $(document).ready(function(){
-        if (!window.jXHR){
-            var jxhr = document.createElement('script');
-            jxhr.type = 'text/javascript';
-            jxhr.src = '/javascripts/libs/jXHR.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(jxhr, s);
-        }
-
-        github.showRepos({
-            user: 'jizhang',
-            count: 3,
-            skip_forks: true,
-            target: '#gh_repos'
-        });
-    });
-  </script>
-  <script src="/javascripts/github.js" type="text/javascript"> </script>
-</section>
-
-<section>
-<a href="http://stackoverflow.com/users/1030720/jerry">
-<img src="http://stackoverflow.com/users/flair/1030720.png?theme=clean" width="208" height="58" alt="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers" title="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers">
-</a>
-</section>
-
-<section>
-  <h1>On Delicious</h1>
-  <div id="delicious"></div>
-  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/zjerryj?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
-  <p><a href="http://delicious.com/zjerryj">My Delicious Bookmarks &raquo;</a></p>
-</section>
-
-
-<section class="googleplus">
-  <h1>
-    <a href="https://plus.google.com/zhangji87@gmail.com?rel=author">
-      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
-      Google+
-    </a>
-  </h1>
-</section>
-
-
-
   
 </aside>
 
@@ -729,13 +635,10 @@
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     }());
 </script>
-
-
-
 
 
 
@@ -765,7 +668,7 @@
       var twitterWidgets = document.createElement('script');
       twitterWidgets.type = 'text/javascript';
       twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
       document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
     })();
   </script>

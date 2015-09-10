@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Notes | Ji ZHANG's Blog]]></title>
+  <title><![CDATA[Category: notes | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-09-10T13:41:39+08:00</updated>
+  <updated>2015-09-10T15:17:57+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -32,17 +32,15 @@
 
 <p>Spark is mainly built with Maven, so make sure you have Maven installed on your box, and download the latest Spark source code from <a href="http://spark.apache.org/downloads.html">here</a>, unarchive it, and execute the following command:</p>
 
-<p><code>bash
-$ mvn -am -pl core -DskipTests package eclipse:eclipse
-</code></p>
+<pre><code class="bash">$ mvn -am -pl core -DskipTests package eclipse:eclipse
+</code></pre>
 
 <!-- more -->
 
 
 <p>This command does a bunch of things. First, it indicates what modules should be built. Spark is a large project with multiple modules. Currently we&rsquo;re only interested in its core module, so <code>-pl</code> or <code>--projects</code> is used. <code>-am</code> or <code>--also-make</code> tells Maven to build core module&rsquo;s dependencies as well. We can see the module list in output:</p>
 
-<p><code>text
-[INFO] Scanning for projects...
+<pre><code class="text">[INFO] Scanning for projects...
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Build Order:
 [INFO]
@@ -52,46 +50,39 @@ $ mvn -am -pl core -DskipTests package eclipse:eclipse
 [INFO] Spark Project Shuffle Streaming Service
 [INFO] Spark Project Unsafe
 [INFO] Spark Project Core
-</code></p>
+</code></pre>
 
 <p><code>package</code> tells Maven to download all dependencies and compile the source code. If you encounter some <code>OutOfMemoryException</code>, try enlarging the heap size by setting <code>MAVEN_OPTS</code>:</p>
 
-<p><code>bash
-$ MAVEN_OPTS=-Xmx1G mvn ...
-</code></p>
+<pre><code class="bash">$ MAVEN_OPTS=-Xmx1G mvn ...
+</code></pre>
 
 <p><code>eclipse:eclipse</code> will generate the <code>.project</code> and <code>.classpath</code> files for Eclipse. But the result is not perfect, both files need some fixes.</p>
 
 <p>Edit <code>core/.classpath</code>, change the following two lines:</p>
 
-<p><code>xml
-&lt;classpathentry kind="src" path="src/main/scala" including="**/*.java"/&gt;
+<pre><code class="xml">&lt;classpathentry kind="src" path="src/main/scala" including="**/*.java"/&gt;
 &lt;classpathentry kind="src" path="src/test/scala" output="target/scala-2.10/test-classes" including="**/*.java"/&gt;
-</code></p>
+</code></pre>
 
 <p>to</p>
 
-<p><code>xml
-&lt;classpathentry kind="src" path="src/main/scala" including="**/*.java|**/*.scala"/&gt;
+<pre><code class="xml">&lt;classpathentry kind="src" path="src/main/scala" including="**/*.java|**/*.scala"/&gt;
 &lt;classpathentry kind="src" path="src/test/scala" output="target/scala-2.10/test-classes" including="**/*.java|**/*.scala"/&gt;
-</code></p>
+</code></pre>
 
 <p>Edit <code>core/.project</code>, make it looks like this:</p>
 
-<p>```xml
-<buildSpec>
-  <buildCommand></p>
-
-<pre><code>&lt;name&gt;org.scala-ide.sdt.core.scalabuilder&lt;/name&gt;
+<pre><code class="xml">&lt;buildSpec&gt;
+  &lt;buildCommand&gt;
+    &lt;name&gt;org.scala-ide.sdt.core.scalabuilder&lt;/name&gt;
+  &lt;/buildCommand&gt;
+&lt;/buildSpec&gt;
+&lt;natures&gt;
+  &lt;nature&gt;org.scala-ide.sdt.core.scalanature&lt;/nature&gt;
+  &lt;nature&gt;org.eclipse.jdt.core.javanature&lt;/nature&gt;
+&lt;/natures&gt;
 </code></pre>
-
-<p>  </buildCommand>
-</buildSpec>
-<natures>
-  <nature>org.scala-ide.sdt.core.scalanature</nature>
-  <nature>org.eclipse.jdt.core.javanature</nature>
-</natures>
-```</p>
 
 <p>Now you can import &ldquo;Existing Projects into Workspace&rdquo;, including <code>core</code>, <code>launcher</code>, <code>network</code>, and <code>unsafe</code>.</p>
 
@@ -105,18 +96,14 @@ $ MAVEN_OPTS=-Xmx1G mvn ...
 
 <p>Add the following entry into pom&rsquo;s project / build / plugins:</p>
 
-<p>```xml
-<plugin></p>
-
-<pre><code>&lt;artifactId&gt;maven-eclipse-plugin&lt;/artifactId&gt;
-&lt;configuration&gt;
-    &lt;downloadSources&gt;true&lt;/downloadSources&gt;
-    &lt;downloadJavadocs&gt;true&lt;/downloadJavadocs&gt;
-&lt;/configuration&gt;
+<pre><code class="xml">&lt;plugin&gt;
+    &lt;artifactId&gt;maven-eclipse-plugin&lt;/artifactId&gt;
+    &lt;configuration&gt;
+        &lt;downloadSources&gt;true&lt;/downloadSources&gt;
+        &lt;downloadJavadocs&gt;true&lt;/downloadJavadocs&gt;
+    &lt;/configuration&gt;
+&lt;/plugin&gt;
 </code></pre>
-
-<p></plugin>
-```</p>
 
 <h3>build-helper-maven-plugin</h3>
 
@@ -144,22 +131,21 @@ $ MAVEN_OPTS=-Xmx1G mvn ...
 
 <p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we&rsquo;d better use rolling-file appender, to cut log files by size and keep only several recent files. Here&rsquo;s an example:</p>
 
-<p>```properties
-log4j.rootLogger=INFO, rolling</p>
+<pre><code class="properties">log4j.rootLogger=INFO, rolling
 
-<p>log4j.appender.rolling=org.apache.log4j.RollingFileAppender
+log4j.appender.rolling=org.apache.log4j.RollingFileAppender
 log4j.appender.rolling.layout=org.apache.log4j.PatternLayout
 log4j.appender.rolling.layout.conversionPattern=[%d] %p %m (%c)%n
 log4j.appender.rolling.maxFileSize=50MB
 log4j.appender.rolling.maxBackupIndex=5
 log4j.appender.rolling.file=/var/log/spark/${dm.logging.name}.log
-log4j.appender.rolling.encoding=UTF-8</p>
+log4j.appender.rolling.encoding=UTF-8
 
-<p>log4j.logger.org.apache.spark=WARN
-log4j.logger.org.eclipse.jetty=WARN</p>
+log4j.logger.org.apache.spark=WARN
+log4j.logger.org.eclipse.jetty=WARN
 
-<p>log4j.logger.com.anjuke.dm=${dm.logging.level}
-```</p>
+log4j.logger.com.anjuke.dm=${dm.logging.level}
+</code></pre>
 
 <p>This means log4j will roll the log file by 50MB and keep only 5 recent files. These files are saved in <code>/var/log/spark</code> directory, with filename picked from system property <code>dm.logging.name</code>. We also set the logging level of our package <code>com.anjuke.dm</code> according to <code>dm.logging.level</code> property. Another thing to mention is that we set <code>org.apache.spark</code> to level <code>WARN</code>, so as to ignore verbose logs from spark.</p>
 
@@ -183,13 +169,12 @@ log4j.logger.org.eclipse.jetty=WARN</p>
 </ol>
 
 
-<p><code>
-spark-submit
+<pre><code>spark-submit
   --master spark://127.0.0.1:7077
   --driver-java-options "-Dlog4j.configuration=file:/path/to/log4j-driver.properties -Ddm.logging.level=DEBUG"
   --conf "spark.executor.extraJavaOptions=-Dlog4j.configuration=file:/path/to/log4j-executor.properties -Ddm.logging.name=myapp -Ddm.logging.level=DEBUG"
   ...
-</code></p>
+</code></pre>
 
 <h2>Spark on YARN</h2>
 
@@ -197,9 +182,8 @@ spark-submit
 
 <p>When running Spark on YARN, there is a system property <code>spark.yarn.app.container.log.dir</code> indicating the container&rsquo;s log directory. We only need to replace one line of the above log4j config:</p>
 
-<p><code>properties
-log4j.appender.rolling.file=${spark.yarn.app.container.log.dir}/spark.log
-</code></p>
+<pre><code class="properties">log4j.appender.rolling.file=${spark.yarn.app.container.log.dir}/spark.log
+</code></pre>
 
 <p>And these log files can be viewed on YARN&rsquo;s web UI:</p>
 
@@ -207,14 +191,13 @@ log4j.appender.rolling.file=${spark.yarn.app.container.log.dir}/spark.log
 
 <p>The <code>spark-submit</code> command is as following:</p>
 
-<p><code>
-spark-submit
+<pre><code>spark-submit
   --master yarn-cluster
   --files /path/to/log4j-spark.properties
   --conf "spark.driver.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties"
   --conf "spark.executor.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties"
   ...
-</code></p>
+</code></pre>
 
 <p>As you can see, both driver and executor use the same configuration file. That is because in <code>yarn-cluster</code> mode, driver is also run as a container in YARN. In fact, the <code>spark-submit</code> command will just quit after job submission.</p>
 
@@ -285,12 +268,11 @@ spark-submit
 
 <p>Here&rsquo;s an example of using unicast:</p>
 
-<p><code>
-node.name: "NODE-1"
+<pre><code>node.name: "NODE-1"
 discovery.zen.ping.multicast.enabled: false
 discovery.zen.ping.unicast.hosts: ["node-1.example.com", "node-2.example.com", "node-3.example.com"]
 discovery.zen.minimum_master_nodes: 2
-</code></p>
+</code></pre>
 
 <p>The <code>discovery.zen.minimum_master_nodes</code> setting is a way to prevent split-brain symptom, i.e. more than one node thinks itself the master of the cluster. And for this setting to work, you should have an odd number of nodes, and set this config to <code>ceil(num_of_nodes / 2)</code>. In the above cluster, you can lose at most one node. It&rsquo;s much like a quorum in <a href="http://zookeeper.apache.org">Zookeeper</a>.</p>
 
@@ -303,7 +285,7 @@ discovery.zen.minimum_master_nodes: 2
 <li>For search-only fields, set <code>store</code> to false.</li>
 <li>Disable <code>_all</code> field, if you always know which field to search.</li>
 <li>Disable <code>_source</code> fields, if documents are big and you don&rsquo;t need the update capability.</li>
-<li>If you have a document key, set this field in <code>_id</code> &ndash; <code>path</code>, instead of index the field twice.</li>
+<li>If you have a document key, set this field in <code>_id</code> - <code>path</code>, instead of index the field twice.</li>
 <li>Set <code>index.refresh_interval</code> to a larger number (default 1s), if you don&rsquo;t need near-realtime search. It&rsquo;s also an important option in bulk-load operation described below.</li>
 </ul>
 
@@ -349,17 +331,13 @@ discovery.zen.minimum_master_nodes: 2
 </ul>
 
 
-<p>```scala
-val settings = ImmutableSettings.settingsBuilder()</p>
-
-<pre><code>.put("cluster.name", "elasticsearch")
-.put("processors", 2)
-.build()
-</code></pre>
-
-<p>val uri = ElasticsearchClientUri(&ldquo;elasticsearch://127.0.0.1:9300&rdquo;)
+<pre><code class="scala">val settings = ImmutableSettings.settingsBuilder()
+    .put("cluster.name", "elasticsearch")
+    .put("processors", 2)
+    .build()
+val uri = ElasticsearchClientUri("elasticsearch://127.0.0.1:9300")
 ElasticClient.remote(settings, uri)
-```</p>
+</code></pre>
 
 <h2>References</h2>
 
@@ -389,52 +367,45 @@ ElasticClient.remote(settings, uri)
 
 <p>要避免Merge branch提交也有一个“土法”：先pull、再commit、最后push。不过万一commit和push之间远程又发生了改动，还需要再pull一次，就又会产生Merge branch提交。</p>
 
-<h2>使用git pull &mdash;rebase</h2>
+<h2>使用git pull &ndash;rebase</h2>
 
-<p>修改代码→commit→git pull &mdash;rebase→git push。也就是将get merge origin/master替换成了git rebase origin/master，它的过程是先将HEAD指向origin/master，然后逐一应用本地的修改，这样就不会产生Merge branch提交了。具体过程见下文扩展阅读。</p>
+<p>修改代码→commit→git pull &ndash;rebase→git push。也就是将get merge origin/master替换成了git rebase origin/master，它的过程是先将HEAD指向origin/master，然后逐一应用本地的修改，这样就不会产生Merge branch提交了。具体过程见下文扩展阅读。</p>
 
 <!-- more -->
 
 
 <p>使用git rebase是有条件的，你的本地仓库要“足够干净”。可以用git status命令查看当前改动：：</p>
 
-<p><code>
-$ git status
+<pre><code>$ git status
 On branch master
 Your branch is up-to-date with 'origin/master'.
 nothing to commit, working directory clean
-</code></p>
+</code></pre>
 
 <p>本地没有任何未提交的改动，这是最“干净”的。稍差一些的是这样：</p>
 
-<p>```
-$ git status
+<pre><code>$ git status
 On branch master
-Your branch is up-to-date with &lsquo;origin/master&rsquo;.
+Your branch is up-to-date with 'origin/master'.
 Untracked files:
-  (use &ldquo;git add <file>&hellip;&rdquo; to include in what will be committed)</p>
-
-<pre><code>test.txt
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+    test.txt
+nothing added to commit but untracked files present (use "git add" to track)
 </code></pre>
-
-<p>nothing added to commit but untracked files present (use &ldquo;git add&rdquo; to track)
-```</p>
 
 <p>即本地只有新增文件未提交，没有改动文件。我们应该尽量保持本地仓库的“整洁”，这样才能顺利使用git rebase。特殊情况下也可以用git stash来解决问题，有兴趣的可自行搜索。</p>
 
 <h2>修改git pull的默认行为</h2>
 
-<p>每次都加&mdash;rebase似乎有些麻烦，我们可以指定某个分支在执行git pull时默认采用rebase方式：</p>
+<p>每次都加&ndash;rebase似乎有些麻烦，我们可以指定某个分支在执行git pull时默认采用rebase方式：</p>
 
-<p><code>
-$ git config branch.master.rebase true
-</code></p>
+<pre><code>$ git config branch.master.rebase true
+</code></pre>
 
 <p>如果你觉得所有的分支都应该用rebase，那就设置：</p>
 
-<p><code>
-$ git config --global branch.autosetuprebase always
-</code></p>
+<pre><code>$ git config --global branch.autosetuprebase always
+</code></pre>
 
 <p>这样对于新建的分支都会设定上面的rebase=true了。已经创建好的分支还是需要手动配置的。</p>
 
@@ -456,17 +427,16 @@ $ git config --global branch.autosetuprebase always
 
 <p>Feature分支中的两个提交被“嫁接”到了Master分支的头部，或者说Feature分支的“基”（base）变成了 Master，rebase也因此得名。</p>
 
-<h2>扩展阅读[2]：git merge &mdash;no-ff</h2>
+<h2>扩展阅读[2]：git merge &ndash;no-ff</h2>
 
 <p>在做项目开发时会用到分支，合并时采用以下步骤：</p>
 
-<p><code>
-$ git checkout feature-branch
+<pre><code>$ git checkout feature-branch
 $ git rebase master
 $ git checkout master
 $ git merge --no-ff feature-branch
 $ git push origin master
-</code></p>
+</code></pre>
 
 <p>历史就成了这样：</p>
 
@@ -525,18 +495,16 @@ $ git push origin master
 
 <p>为了让sbt使用Nexus镜像，需要创建一个~/.sbt/repositories文件，内容为：</p>
 
-<p><code>
-[repositories]
+<pre><code>[repositories]
   local
   my-ivy-proxy-releases: http://10.x.x.x:8081/nexus/content/groups/ivy-releases/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
   my-maven-proxy-releases: http://10.x.x.x:8081/nexus/content/groups/public/
-</code></p>
+</code></pre>
 
 <p>这样配置对大部分项目来说是足够了。但是有些项目会在构建描述文件中添加其它仓库，我们需要覆盖这种行为，方法是：</p>
 
-<p><code>bash
-$ sbt -Dsbt.override.build.repos=true
-</code></p>
+<pre><code class="bash">$ sbt -Dsbt.override.build.repos=true
+</code></pre>
 
 <p>你也可以通过设置SBT_OPTS环境变量来进行全局配置。</p>
 

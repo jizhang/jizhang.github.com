@@ -18,17 +18,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://shzhangji.com/blog/2012/12/23/nginx-live-upgrade">
+  <link rel="canonical" href="http://shzhangji.com/blog/2012/12/23/nginx-live-upgrade/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
   <script src="/javascripts/libs/jquery.min.js"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<!--<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>-->
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+-->
 
   
   <script type="text/javascript">
@@ -46,7 +47,7 @@
 
 </head>
 
-<body   class="collapse-sidebar sidebar-footer" >
+<body    class="collapse-sidebar sidebar-footer" >
   <header role="banner"><hgroup>
   <h1><a href="/">Ji ZHANG's Blog</a></h1>
   
@@ -60,9 +61,9 @@
   
 </ul>
   
-<form action="http://google.com/search" method="get">
+<form action="https://google.com/search" method="get">
   <fieldset role="search">
-    <input type="hidden" name="q" value="site:shzhangji.com" />
+    <input type="hidden" name="sitesearch" value="shzhangji.com">
     <input class="search" type="text" name="q" results="0" placeholder="Search"/>
   </fieldset>
 </form>
@@ -93,14 +94,7 @@
 
 
 
-
-
-
-
-  
-
-
-<time datetime="2012-12-23T22:11:00+08:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2012</time>
+<time class='entry-date' datetime='2012-12-23T22:11:00+08:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2012</span></span> <span class='time'>10:11 pm</span></time>
         
       </p>
     
@@ -126,15 +120,15 @@
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>prey:~ root# ps -ef|grep nginx
-</span><span class='line'> 127     1   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
-</span><span class='line'> 129   127   nginx: worker process
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>prey:~ root# ps -ef<span class="p">|</span>grep nginx
+</span><span class='line'> <span class="m">127</span>     <span class="m">1</span>   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+</span><span class='line'> <span class="m">129</span>   <span class="m">127</span>   nginx: worker process
 </span><span class='line'>prey:~ root# <span class="nb">kill</span> -USR2 127
-</span><span class='line'>prey:~ root# ps -ef|grep nginx
-</span><span class='line'> 127     1   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
-</span><span class='line'> 129   127   nginx: worker process
-</span><span class='line'>5180   127   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
-</span><span class='line'>5182  5180   nginx: worker process
+</span><span class='line'>prey:~ root# ps -ef<span class="p">|</span>grep nginx
+</span><span class='line'> <span class="m">127</span>     <span class="m">1</span>   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+</span><span class='line'> <span class="m">129</span>   <span class="m">127</span>   nginx: worker process
+</span><span class='line'><span class="m">5180</span>   <span class="m">127</span>   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+</span><span class='line'><span class="m">5182</span>  <span class="m">5180</span>   nginx: worker process
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -151,10 +145,10 @@
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'>prey:~ root# <span class="nb">kill</span> -WINCH 127
-</span><span class='line'>prey:~ root# ps -ef|grep nginx
-</span><span class='line'> 127     1   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
-</span><span class='line'>5180   127   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
-</span><span class='line'>5182  5180   nginx: worker process
+</span><span class='line'>prey:~ root# ps -ef<span class="p">|</span>grep nginx
+</span><span class='line'> <span class="m">127</span>     <span class="m">1</span>   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+</span><span class='line'><span class="m">5180</span>   <span class="m">127</span>   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+</span><span class='line'><span class="m">5182</span>  <span class="m">5180</span>   nginx: worker process
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -167,9 +161,9 @@
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'>prey:~ root# <span class="nb">kill </span>127
-</span><span class='line'>prey:~ root# ps -ef|grep nginx
-</span><span class='line'>5180     1   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
-</span><span class='line'>5182  5180   nginx: worker process
+</span><span class='line'>prey:~ root# ps -ef<span class="p">|</span>grep nginx
+</span><span class='line'><span class="m">5180</span>     <span class="m">1</span>   nginx: master process /usr/local/nginx-1.2.4/sbin/nginx
+</span><span class='line'><span class="m">5182</span>  <span class="m">5180</span>   nginx: worker process
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -217,9 +211,9 @@
 <span class='line-number'>30</span>
 </pre></td><td class='code'><pre><code class='c'><span class='line'><span class="c1">// src/os/unix/ngx_process_cycle.c</span>
 </span><span class='line'><span class="kt">void</span>
-</span><span class='line'><span class="nf">ngx_master_process_cycle</span><span class="p">(</span><span class="n">ngx_cycle_t</span> <span class="o">*</span><span class="n">cycle</span><span class="p">)</span>
+</span><span class='line'><span class="nf">ngx_master_process_cycle</span><span class="p">(</span><span class="kt">ngx_cycle_t</span> <span class="o">*</span><span class="n">cycle</span><span class="p">)</span>
 </span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">sigset_t</span>           <span class="n">set</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">sigset_t</span>           <span class="n">set</span><span class="p">;</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="n">sigemptyset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">set</span><span class="p">);</span>
 </span><span class='line'>    <span class="n">sigaddset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">set</span><span class="p">,</span> <span class="n">SIGCHLD</span><span class="p">);</span>
@@ -285,7 +279,7 @@
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'>dso <span class="o">{</span>
-</span><span class='line'>    load ngx_http_sub_filter_module.so;
+</span><span class='line'>    load ngx_http_sub_filter_module.so<span class="p">;</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -362,19 +356,12 @@
 
 
 
-
-
-
-
-  
-
-
-<time datetime="2012-12-23T22:11:00+08:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2012</time>
+<time class='entry-date' datetime='2012-12-23T22:11:00+08:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2012</span></span> <span class='time'>10:11 pm</span></time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/notes/'>Notes</a>
+    <a class='category' href='/blog/categories/notes/'>notes</a>
   
 </span>
 
@@ -383,7 +370,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2012/12/23/nginx-live-upgrade/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2012/12/23/nginx-live-upgrade/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2012/12/23/nginx-live-upgrade/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2012/12/23/nginx-live-upgrade/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -411,92 +398,11 @@
 </div>
   </section>
 
-
 </div>
 
 <aside class="sidebar">
   
-    <section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
     
-      <li class="post">
-        <a href="/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">HotSpot JVM中的对象指针压缩</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a>
-      </li>
-    
-  </ul>
-</section>
-
-<section>
-  <h1>GitHub Repos</h1>
-  <ul id="gh_repos">
-    <li class="loading">Status updating...</li>
-  </ul>
-  
-  <a href="https://github.com/jizhang">@jizhang</a> on GitHub
-  
-  <script type="text/javascript">
-    $(document).ready(function(){
-        if (!window.jXHR){
-            var jxhr = document.createElement('script');
-            jxhr.type = 'text/javascript';
-            jxhr.src = '/javascripts/libs/jXHR.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(jxhr, s);
-        }
-
-        github.showRepos({
-            user: 'jizhang',
-            count: 3,
-            skip_forks: true,
-            target: '#gh_repos'
-        });
-    });
-  </script>
-  <script src="/javascripts/github.js" type="text/javascript"> </script>
-</section>
-
-<section>
-<a href="http://stackoverflow.com/users/1030720/jerry">
-<img src="http://stackoverflow.com/users/flair/1030720.png?theme=clean" width="208" height="58" alt="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers" title="profile for Jerry at Stack Overflow, Q&amp;A for professional and enthusiast programmers">
-</a>
-</section>
-
-<section>
-  <h1>On Delicious</h1>
-  <div id="delicious"></div>
-  <script type="text/javascript" src="http://feeds.delicious.com/v2/json/zjerryj?count=3&amp;sort=date&amp;callback=renderDeliciousLinks"></script>
-  <p><a href="http://delicious.com/zjerryj">My Delicious Bookmarks &raquo;</a></p>
-</section>
-
-
-<section class="googleplus">
-  <h1>
-    <a href="https://plus.google.com/zhangji87@gmail.com?rel=author">
-      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
-      Google+
-    </a>
-  </h1>
-</section>
-
-
-
   
 </aside>
 
@@ -522,13 +428,10 @@
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     }());
 </script>
-
-
-
 
 
 
@@ -558,7 +461,7 @@
       var twitterWidgets = document.createElement('script');
       twitterWidgets.type = 'text/javascript';
       twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
       document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
     })();
   </script>
