@@ -4,7 +4,7 @@ title: "Apache HBase的适用场景"
 date: 2015-03-08 08:03
 comments: true
 categories: [Translation, Big Data]
-published: false
+published: true
 ---
 
 原文：http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/
@@ -39,7 +39,15 @@ Cloudera是HBase的铁杆粉丝。我们热爱这项技术，热爱这个社区�
 
 ## 非适用场景
 
+上文讲述了HBase的适用场景和最佳实践，以下则是一些需要规避的问题。比如，不要期许HBase可以完全替代关系型数据库——虽然它在许多方面都表现优秀。它不支持SQL，也没有优化器，更不能支持跨越多条记录的事务或关联查询。如果你用不到这些特性，那HBase将是你的不二选择。
+
+在复用HBase的服务器时有一些注意事项。如果你需要保证HBase的服务器质量，同时又想在HBase上运行批处理脚本（如使用Pig从HBase中获取数据进行处理），建议还是另搭一套集群。HBase在处理大量顺序I/O操作时（如MapReduce），其CPU和内存资源将会十分紧张。将这两类应用放置在同一集群上会造成不可预估的服务延迟。此外，共享集群时还需要调低任务槽（task slot）的数量，至少要留一半的CPU核数给HBase。密切关注内存，因为一旦发生swap，HBase很可能会停止心跳，从而被集群判为无效，最终产生一系列宕机。
+
 ## 总结
+
+最后要提的一点是，在加载数据到HBase时，应该使用MapReduce+HFileOutputFormat来实现。如果仅使用客户端API，不仅速度慢，也没有充分利用HBase的分布式特性。
+
+用一句话概述，HBase可以让你用键来存储和搜索数据，且无需定义表结构。
 
 ## <a id="use-cases"></a>使用案例
 
