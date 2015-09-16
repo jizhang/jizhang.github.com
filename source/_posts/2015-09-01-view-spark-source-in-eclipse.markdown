@@ -22,7 +22,7 @@ Then go to Scala IDE's [official site](http://scala-ide.org/download/current.htm
 Spark is mainly built with Maven, so make sure you have Maven installed on your box, and download the latest Spark source code from [here](http://spark.apache.org/downloads.html), unarchive it, and execute the following command:
 
 ```bash
-$ mvn -am -pl core -DskipTests package eclipse:eclipse
+$ mvn -am -pl core dependency:resolve eclipse:eclipse
 ```
 
 <!-- more -->
@@ -42,13 +42,7 @@ This command does a bunch of things. First, it indicates what modules should be 
 [INFO] Spark Project Core
 ```
 
-`package` tells Maven to download all dependencies and compile the source code. If you encounter some `OutOfMemoryException`, try enlarging the heap size by setting `MAVEN_OPTS`:
-
-```bash
-$ MAVEN_OPTS=-Xmx1G mvn ...
-```
-
-`eclipse:eclipse` will generate the `.project` and `.classpath` files for Eclipse. But the result is not perfect, both files need some fixes.
+`dependency:resolve` tells Maven to download all dependencies. `eclipse:eclipse` will generate the `.project` and `.classpath` files for Eclipse. But the result is not perfect, both files need some fixes.
 
 Edit `core/.classpath`, change the following two lines:
 
