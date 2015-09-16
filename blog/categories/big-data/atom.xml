@@ -4,7 +4,7 @@
   <title><![CDATA[Category: big data | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/big-data/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-09-10T15:17:57+08:00</updated>
+  <updated>2015-09-16T12:34:49+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -32,7 +32,7 @@
 
 <p>Spark is mainly built with Maven, so make sure you have Maven installed on your box, and download the latest Spark source code from <a href="http://spark.apache.org/downloads.html">here</a>, unarchive it, and execute the following command:</p>
 
-<pre><code class="bash">$ mvn -am -pl core -DskipTests package eclipse:eclipse
+<pre><code class="bash">$ mvn -am -pl core dependency:resolve eclipse:eclipse
 </code></pre>
 
 <!-- more -->
@@ -52,12 +52,7 @@
 [INFO] Spark Project Core
 </code></pre>
 
-<p><code>package</code> tells Maven to download all dependencies and compile the source code. If you encounter some <code>OutOfMemoryException</code>, try enlarging the heap size by setting <code>MAVEN_OPTS</code>:</p>
-
-<pre><code class="bash">$ MAVEN_OPTS=-Xmx1G mvn ...
-</code></pre>
-
-<p><code>eclipse:eclipse</code> will generate the <code>.project</code> and <code>.classpath</code> files for Eclipse. But the result is not perfect, both files need some fixes.</p>
+<p><code>dependency:resolve</code> tells Maven to download all dependencies. <code>eclipse:eclipse</code> will generate the <code>.project</code> and <code>.classpath</code> files for Eclipse. But the result is not perfect, both files need some fixes.</p>
 
 <p>Edit <code>core/.classpath</code>, change the following two lines:</p>
 
