@@ -4,7 +4,7 @@
   <title><![CDATA[Category: notes | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-09-20T17:26:35+08:00</updated>
+  <updated>2015-09-20T17:33:21+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -114,7 +114,7 @@ public class Application {
 
 <p><a href="https://github.com/spring-projects/spring-framework/blob/master/spring-aspects/src/main/java/org/springframework/beans/factory/aspectj/AnnotationBeanConfigurerAspect.aj">AnnotationBeanConfigurerAspect.aj</a></p>
 
-<pre><code class="aj">public aspect AnnotationBeanConfigurerAspect implements BeanFactoryAware {
+<pre><code class="aspectj">public aspect AnnotationBeanConfigurerAspect implements BeanFactoryAware {
 
     private BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
 
