@@ -17,6 +17,70 @@ published: false
 
 <!-- more -->
 
+## Configurable注解
+
+Spring应用程序会定义一个上下文容器，在该容器内创建的对象会由Spring负责注入依赖。对于容器外创建的对象，我们可以使用`@Configurable`来修饰类，告知Spring对这些类的实例也进行依赖注入。
+
+假设有一个`Report`类（领域模型），其中一个方法需要解析JSON，我们可以使用`@Configurable`将容器内的`ObjectMapper`对象注入到类的实例中：
+
+```java
+@Entity
+@Configurable(autowire = Autowire.BY_TYPE)
+public class Report {
+
+    @Id @GeneratedValue
+    private Integer id;
+    
+    @Autowired @Transient
+    private ObjectMapper mapper;
+
+    public String render() {
+        mapper.readValue(...);
+    }
+
+}
+```
+
+* `autowire`参数默认是`NO`，因此需要显式打开，否则只能使用XML定义依赖。`@Autowired`是目前比较推荐的注入方式。
+* `@Transient`用于告知JPA该属性不需要进行持久化。你也可以使用`transient`关键字来声明，效果相同。
+* 项目依赖中需要包含`spring-aspects`。如果已经使用了`spring-boot-starter-data-jpa`，则无需配置。
+* 应用程序配置中需要加入`@EnableSpringConfigured`：
+
+```java
+@SpringBootApplication
+@EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
+@EnableSpringConfigured
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+}
+```
+
+## 运行时织入（Load-Time Weaving, LTW）
+
+除了项目依赖和应用程序配置，我们还需要选择一种织入方式来使AOP生效。Spring AOP推荐的方式是运行时织入，并提供了一个专用的Jar包。运行时织入的原理是：当类加载器在读取类文件时，动态修改类的字节码。这一机制是从[JDK1.5](http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/instrument/package-summary.html)开始提供的，需要使用`-javaagent`参数开启，如：
+
+```bash
+$ java -javaagent:/path/to/spring-instrument.jar -jar app.jar
+```
+
+在测试时发现，Spring AOP提供的这一Jar包对普通的类是有效果的，但对于使用`@Entity`修饰的类就没有作用了。因此，我们改用AspectJ提供的Jar包：
+
+```bash
+$ java -javaagent:/path/to/aspectjweaver.jar -jar app.jar
+```
+
+可以在[Maven中央仓库](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.aspectj%22%20AND%20a%3A%22aspectjweaver%22)下载到这些Jar包。
+
+对于[Spring Boot](http://projects.spring.io/spring-boot/)应用程序，可以在Maven命令中加入以下参数：
+
+```bash
+$ mvn spring-boot:run -Drun.agent=/path/to/aspectjweaver.jar
+```
+
 ## 其它方案
 
 ## 参考资料
