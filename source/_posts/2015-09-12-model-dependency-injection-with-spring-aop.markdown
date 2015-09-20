@@ -99,18 +99,16 @@ $ mvn spring-boot:run -Drun.agent=/path/to/aspectjweaver.jar
 
 ## AnnotationBeanConfigurerAspect
 
-到这里我们已经通过简单配置完成了领域模型的依赖注入，这背后都是Spring中的`AnnotationBeanConfigurerAspect`在做工作。我们不妨简单浏览一下这部分源码：
+到这里我们已经通过简单配置完成了领域模型的依赖注入，这背后都是Spring中的`AnnotationBeanConfigurerAspect`在做工作。我们不妨浏览一下精简后的源码：
 
 [AnnotationBeanConfigurerAspect.aj](https://github.com/spring-projects/spring-framework/blob/master/spring-aspects/src/main/java/org/springframework/beans/factory/aspectj/AnnotationBeanConfigurerAspect.aj)
 
 ```aj
-public aspect AnnotationBeanConfigurerAspect extends AbstractInterfaceDrivenDependencyInjectionAspect
-		implements BeanFactoryAware, InitializingBean, DisposableBean {
+public aspect AnnotationBeanConfigurerAspect implements BeanFactoryAware {
 
 	private BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
 
 	public void setBeanFactory(BeanFactory beanFactory) {
-		this.beanConfigurerSupport.setBeanWiringInfoResolver(new AnnotationBeanWiringInfoResolver());
 		this.beanConfigurerSupport.setBeanFactory(beanFactory);
 	}
 
@@ -120,12 +118,24 @@ public aspect AnnotationBeanConfigurerAspect extends AbstractInterfaceDrivenDepe
 
 	public pointcut inConfigurableBean() : @this(Configurable);
 
-	public pointcut preConstructionConfiguration() : preConstructionConfigurationSupport(*);
-
 	declare parents: @Configurable * implements ConfigurableObject;
+	
+	public pointcut beanConstruction(Object bean) :
+			initialization(ConfigurableObject+.new(..)) && this(bean);
 
+	after(Object bean) returning :
+		beanConstruction(bean) && inConfigurableBean() {
+		configureBean(bean);
+	}
 }
 ```
+
+* `.aj`文件是AspectJ定义的语言，增加了pointcut、after等关键字，用来定义切点、通知等；
+* `inConfigurationBean`切点用于匹配使用`Configurable`修饰的类型；
+* `declare parents`将这些类型声明为`ConfigurableObject`接口，从而匹配`beanConstruction`切点；
+* `ConfigurableObject+.new(..)`表示匹配该类型所有的构造函数；
+* `after`定义一个通知，表示对象创建完成后执行`configureBean`方法；
+* 该方法会调用`BeanConfigurerSupport`来对新实例进行依赖注入。
 
 ## 其它方案
 
