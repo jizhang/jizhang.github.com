@@ -59,6 +59,18 @@ public class Application {
 }
 ```
 
+* 在`src/main/resources`目录下，新建`META-INF/aop.xml`文件，用来限定哪些包会用到AOP。否则，AOP的织入操作会作用于所有的类（包括第三方类库），产生不必要的的报错信息。
+
+```xml
+<!DOCTYPE aspectj PUBLIC "-//AspectJ//DTD//EN" "http://www.eclipse.org/aspectj/dtd/aspectj.dtd">
+
+<aspectj>
+    <weaver>
+        <include within="com.foobar..*"/>
+    </weaver>
+</aspectj>
+```
+
 ## 运行时织入（Load-Time Weaving, LTW）
 
 除了项目依赖和应用程序配置，我们还需要选择一种织入方式来使AOP生效。Spring AOP推荐的方式是运行时织入，并提供了一个专用的Jar包。运行时织入的原理是：当类加载器在读取类文件时，动态修改类的字节码。这一机制是从[JDK1.5](http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/instrument/package-summary.html)开始提供的，需要使用`-javaagent`参数开启，如：
@@ -67,18 +79,52 @@ public class Application {
 $ java -javaagent:/path/to/spring-instrument.jar -jar app.jar
 ```
 
-在测试时发现，Spring AOP提供的这一Jar包对普通的类是有效果的，但对于使用`@Entity`修饰的类就没有作用了。因此，我们改用AspectJ提供的Jar包：
+在测试时发现，Spring AOP提供的这一Jar包对普通的类是有效果的，但对于使用`@Entity`修饰的类就没有作用了。因此，我们改用AspectJ提供的Jar包（可到[Maven中央仓库](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.aspectj%22%20AND%20a%3A%22aspectjweaver%22)下载）：
 
 ```bash
 $ java -javaagent:/path/to/aspectjweaver.jar -jar app.jar
 ```
 
-可以在[Maven中央仓库](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.aspectj%22%20AND%20a%3A%22aspectjweaver%22)下载到这些Jar包。
-
 对于[Spring Boot](http://projects.spring.io/spring-boot/)应用程序，可以在Maven命令中加入以下参数：
 
 ```bash
 $ mvn spring-boot:run -Drun.agent=/path/to/aspectjweaver.jar
+```
+
+此外，在使用AspectJ作为LTW的提供方后，会影响到Spring的事务管理，因此需要在应用程序配置中加入：
+
+```java
+@EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
+```
+
+## AnnotationBeanConfigurerAspect
+
+到这里我们已经通过简单配置完成了领域模型的依赖注入，这背后都是Spring中的`AnnotationBeanConfigurerAspect`在做工作。我们不妨简单浏览一下这部分源码：
+
+[AnnotationBeanConfigurerAspect.aj](https://github.com/spring-projects/spring-framework/blob/master/spring-aspects/src/main/java/org/springframework/beans/factory/aspectj/AnnotationBeanConfigurerAspect.aj)
+
+```aj
+public aspect AnnotationBeanConfigurerAspect extends AbstractInterfaceDrivenDependencyInjectionAspect
+		implements BeanFactoryAware, InitializingBean, DisposableBean {
+
+	private BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
+
+	public void setBeanFactory(BeanFactory beanFactory) {
+		this.beanConfigurerSupport.setBeanWiringInfoResolver(new AnnotationBeanWiringInfoResolver());
+		this.beanConfigurerSupport.setBeanFactory(beanFactory);
+	}
+
+	public void configureBean(Object bean) {
+		this.beanConfigurerSupport.configureBean(bean);
+	}
+
+	public pointcut inConfigurableBean() : @this(Configurable);
+
+	public pointcut preConstructionConfiguration() : preConstructionConfigurationSupport(*);
+
+	declare parents: @Configurable * implements ConfigurableObject;
+
+}
 ```
 
 ## 其它方案
