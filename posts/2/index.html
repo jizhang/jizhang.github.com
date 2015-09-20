@@ -9,8 +9,10 @@
   <meta name="author" content="Ji ZHANG">
 
   
-  <meta name="description" content="ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误： 1
-Incorrect string value: '\xF0\x9D\x8C\x86' for &hellip;">
+  <meta name="description" content="在公司网络中使用sbt、Maven等项目构建工具时，我们通常会搭建一个公用的Nexus镜像服务，原因有以下几个： 避免重复下载依赖，节省公司带宽；
+国内网络环境不理想，下载速度慢；
+IDC服务器没有外网访问权限；
+用于发布内部模块。 sbt的依赖管理基于Ivy， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -83,6 +85,50 @@ Incorrect string value: '\xF0\x9D\x8C\x86' for &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/07/sbt-offline/">离线环境下构建sbt项目</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-07T15:02:00+08:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:02 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>在公司网络中使用<a href="http://www.scala-sbt.org/">sbt</a>、<a href="http://maven.apache.org/">Maven</a>等项目构建工具时，我们通常会搭建一个公用的<a href="http://www.sonatype.org/nexus/">Nexus</a>镜像服务，原因有以下几个：</p>
+
+<ul>
+<li>避免重复下载依赖，节省公司带宽；</li>
+<li>国内网络环境不理想，下载速度慢；</li>
+<li>IDC服务器没有外网访问权限；</li>
+<li>用于发布内部模块。</li>
+</ul>
+
+
+<p>sbt的依赖管理基于<a href="http://ant.apache.org/ivy/">Ivy</a>，虽然它能直接使用<a href="http://search.maven.org/">Maven中央仓库</a>中的Jar包，在配置时还是有一些注意事项的。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/11/07/sbt-offline/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -570,52 +616,6 @@ Incorrect string value: '\xF0\x9D\x8C\x86' for &hellip;">
   
     <footer>
       <a rel="full-article" href="/blog/2013/06/11/ansible-faq/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/05/25/apache-hadoop-yarn-background-and-an-overview/">Apache Hadoop YARN - 项目背景与简介</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-05-25T10:57:00+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:57 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://hortonworks.com/blog/apache-hadoop-yarn-background-and-an-overview/">http://hortonworks.com/blog/apache-hadoop-yarn-background-and-an-overview/</a></p>
-
-<p>日前，Apache Hadoop YARN已被提升为Apache软件基金会的子项目，这是一个值得庆祝的里程碑。这里我们也第一时间为各位献上Apache Hadoop YARN项目的系列介绍文章。YARN是一个普适的、分布式的应用管理框架，运行于Hadoop集群之上，用以替代传统的Apache Hadoop MapReduce框架。</p>
-
-<h2>MapReduce 模式</h2>
-
-<p>本质上来说，MapReduce模型包含两个部分：一是Map过程，将数据拆分成若干份，分别处理，彼此之间没有依赖关系；二是Reduce过程，将中间结果汇总计算成最终结果。这是一种简单而又条件苛刻的模型，但也促使它成为高效和极易扩展的并行计算方式。</p>
-
-<p>Apache Hadoop MapReduce是当下最流行的开源MapReduce模型。</p>
-
-<p>特别地，当MapReduce配合分布式文件系统，类似Apache Hadoop HDFS，就能在大集群上提供高吞吐量的计算，这一经济效应是Hadoop得以流行的重要原因。</p>
-
-<p>这一模式成功的原因之一是，它使用的是“移动计算能力至数据节点”而非通过网络“移动数据至计算节点”的方式。具体来说，一个MapReduce任务会被调度到输入数据所在的HDFS节点执行，这会极大地减少I/O支出，因为大部分I/O会发生在本地磁盘或是同一机架中——这是核心优势。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/05/25/apache-hadoop-yarn-background-and-an-overview/">Read on &rarr;</a>
     </footer>
   
 
