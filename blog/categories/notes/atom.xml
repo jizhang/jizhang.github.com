@@ -4,7 +4,7 @@
   <title><![CDATA[Category: notes | Ji ZHANG's Blog]]></title>
   <link href="http://shzhangji.com/blog/categories/notes/atom.xml" rel="self"/>
   <link href="http://shzhangji.com/"/>
-  <updated>2015-09-16T12:34:49+08:00</updated>
+  <updated>2015-09-20T17:26:35+08:00</updated>
   <id>http://shzhangji.com/</id>
   <author>
     <name><![CDATA[Ji ZHANG]]></name>
@@ -12,6 +12,164 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[使用Spring AOP向领域模型注入依赖]]></title>
+    <link href="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/"/>
+    <updated>2015-09-12T22:03:00+08:00</updated>
+    <id>http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop</id>
+    <content type="html"><![CDATA[<p>在<a href="{%%20post_url%202015-09-05-anemic-domain-model%20%}">贫血领域模型</a>这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter，所有的业务逻辑都写在服务层中，领域模型仅仅用来传递数据。为了编写真正的领域模型，我们需要将业务逻辑移至模型对象中，这就引出另一个问题：业务逻辑通常需要调用其他服务或模型，而使用<code>new</code>关键字或由JPA创建的对象是不受Spring托管的，也就无法进行依赖注入。解决这个问题的方法有很多，比较之后我选择使用面向切面编程来实现。</p>
+
+<h2>面向切面编程</h2>
+
+<p>面向切面编程，或<a href="https://en.wikipedia.org/wiki/Aspect-oriented_programming">AOP</a>，是一种编程范式，和面向对象编程（<a href="https://en.wikipedia.org/wiki/Object-oriented_programming">OOP</a>）互为补充。简单来说，AOP可以在不修改既有代码的情况下改变代码的行为。开发者通过定义一组规则，在特定的类方法前后增加逻辑，如记录日志、性能监控、事务管理等。这些逻辑称为切面（Aspect），规则称为切点（Pointcut），在调用前还是调用后执行称为通知（Before advice, After advice）。最后，我们可以选择在编译期将这些逻辑写入类文件，或是在运行时动态加载这些逻辑，这是两种不同的织入方式（Compile-time weaving, Load-time weaving）。</p>
+
+<p>对于领域模型的依赖注入，我们要做的就是使用AOP在对象创建后调用Spring框架来注入依赖。幸运的是，<a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#aop">Spring AOP</a>已经提供了<code>@Configurable</code>注解来帮助我们实现这一需求。</p>
+
+<!-- more -->
+
+
+<h2>Configurable注解</h2>
+
+<p>Spring应用程序会定义一个上下文容器，在该容器内创建的对象会由Spring负责注入依赖。对于容器外创建的对象，我们可以使用<code>@Configurable</code>来修饰类，告知Spring对这些类的实例也进行依赖注入。</p>
+
+<p>假设有一个<code>Report</code>类（领域模型），其中一个方法需要解析JSON，我们可以使用<code>@Configurable</code>将容器内的<code>ObjectMapper</code>对象注入到类的实例中：</p>
+
+<pre><code class="java">@Entity
+@Configurable(autowire = Autowire.BY_TYPE)
+public class Report {
+
+    @Id @GeneratedValue
+    private Integer id;
+
+    @Autowired @Transient
+    private ObjectMapper mapper;
+
+    public String render() {
+        mapper.readValue(...);
+    }
+
+}
+</code></pre>
+
+<ul>
+<li><code>autowire</code>参数默认是<code>NO</code>，因此需要显式打开，否则只能使用XML定义依赖。<code>@Autowired</code>是目前比较推荐的注入方式。</li>
+<li><code>@Transient</code>用于告知JPA该属性不需要进行持久化。你也可以使用<code>transient</code>关键字来声明，效果相同。</li>
+<li>项目依赖中需要包含<code>spring-aspects</code>。如果已经使用了<code>spring-boot-starter-data-jpa</code>，则无需配置。</li>
+<li>应用程序配置中需要加入<code>@EnableSpringConfigured</code>：</li>
+</ul>
+
+
+<pre><code class="java">@SpringBootApplication
+@EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
+@EnableSpringConfigured
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+}
+</code></pre>
+
+<ul>
+<li>在<code>src/main/resources</code>目录下，新建<code>META-INF/aop.xml</code>文件，用来限定哪些包会用到AOP。否则，AOP的织入操作会作用于所有的类（包括第三方类库），产生不必要的的报错信息。</li>
+</ul>
+
+
+<pre><code class="xml">&lt;!DOCTYPE aspectj PUBLIC "-//AspectJ//DTD//EN" "http://www.eclipse.org/aspectj/dtd/aspectj.dtd"&gt;
+
+&lt;aspectj&gt;
+    &lt;weaver&gt;
+        &lt;include within="com.foobar..*"/&gt;
+    &lt;/weaver&gt;
+&lt;/aspectj&gt;
+</code></pre>
+
+<h2>运行时织入（Load-Time Weaving, LTW）</h2>
+
+<p>除了项目依赖和应用程序配置，我们还需要选择一种织入方式来使AOP生效。Spring AOP推荐的方式是运行时织入，并提供了一个专用的Jar包。运行时织入的原理是：当类加载器在读取类文件时，动态修改类的字节码。这一机制是从<a href="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/instrument/package-summary.html">JDK1.5</a>开始提供的，需要使用<code>-javaagent</code>参数开启，如：</p>
+
+<pre><code class="bash">$ java -javaagent:/path/to/spring-instrument.jar -jar app.jar
+</code></pre>
+
+<p>在测试时发现，Spring AOP提供的这一Jar包对普通的类是有效果的，但对于使用<code>@Entity</code>修饰的类就没有作用了。因此，我们改用AspectJ提供的Jar包（可到<a href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.aspectj%22%20AND%20a%3A%22aspectjweaver%22">Maven中央仓库</a>下载）：</p>
+
+<pre><code class="bash">$ java -javaagent:/path/to/aspectjweaver.jar -jar app.jar
+</code></pre>
+
+<p>对于<a href="http://projects.spring.io/spring-boot/">Spring Boot</a>应用程序，可以在Maven命令中加入以下参数：</p>
+
+<pre><code class="bash">$ mvn spring-boot:run -Drun.agent=/path/to/aspectjweaver.jar
+</code></pre>
+
+<p>此外，在使用AspectJ作为LTW的提供方后，会影响到Spring的事务管理，因此需要在应用程序配置中加入：</p>
+
+<pre><code class="java">@EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
+</code></pre>
+
+<h2>AnnotationBeanConfigurerAspect</h2>
+
+<p>到这里我们已经通过简单配置完成了领域模型的依赖注入，这背后都是Spring中的<code>AnnotationBeanConfigurerAspect</code>在做工作。我们不妨浏览一下精简后的源码：</p>
+
+<p><a href="https://github.com/spring-projects/spring-framework/blob/master/spring-aspects/src/main/java/org/springframework/beans/factory/aspectj/AnnotationBeanConfigurerAspect.aj">AnnotationBeanConfigurerAspect.aj</a></p>
+
+<pre><code class="aj">public aspect AnnotationBeanConfigurerAspect implements BeanFactoryAware {
+
+    private BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
+
+    public void setBeanFactory(BeanFactory beanFactory) {
+        this.beanConfigurerSupport.setBeanFactory(beanFactory);
+    }
+
+    public void configureBean(Object bean) {
+        this.beanConfigurerSupport.configureBean(bean);
+    }
+
+    public pointcut inConfigurableBean() : @this(Configurable);
+
+    declare parents: @Configurable * implements ConfigurableObject;
+
+    public pointcut beanConstruction(Object bean) :
+            initialization(ConfigurableObject+.new(..)) &amp;&amp; this(bean);
+
+    after(Object bean) returning :
+        beanConstruction(bean) &amp;&amp; inConfigurableBean() {
+        configureBean(bean);
+    }
+}
+</code></pre>
+
+<ul>
+<li><code>.aj</code>文件是AspectJ定义的语言，增加了pointcut、after等关键字，用来定义切点、通知等；</li>
+<li><code>inConfigurationBean</code>切点用于匹配使用<code>Configurable</code>修饰的类型；</li>
+<li><code>declare parents</code>将这些类型声明为<code>ConfigurableObject</code>接口，从而匹配<code>beanConstruction</code>切点；</li>
+<li><code>ConfigurableObject+.new(..)</code>表示匹配该类型所有的构造函数；</li>
+<li><code>after</code>定义一个通知，表示对象创建完成后执行<code>configureBean</code>方法；</li>
+<li>该方法会调用<code>BeanConfigurerSupport</code>来对新实例进行依赖注入。</li>
+</ul>
+
+
+<h2>其它方案</h2>
+
+<ol>
+<li>将依赖作为参数传入。比如上文中的<code>render</code>方法可以定义为<code>render(ObjectMapper mapper)</code>。</li>
+<li>将<code>ApplicationContext</code>作为某个类的静态成员，领域模型通过这个引用来获取依赖。</li>
+<li>编写一个工厂方法，所有新建对象都要通过这个方法生成，进行依赖注入。</li>
+<li>如果领域模型大多从数据库获得，并且JPA的提供方是Hibernate，则可以使用它的拦截器功能进行依赖注入。</li>
+</ol>
+
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#aop-atconfigurable">http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#aop-atconfigurable</a></li>
+<li><a href="http://blog.igorstoyanov.com/2005/12/dependency-injection-or-service.html">http://blog.igorstoyanov.com/2005/12/dependency-injection-or-service.html</a></li>
+<li><a href="http://jblewitt.com/blog/?p=129">http://jblewitt.com/blog/?p=129</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[View Spark Source in Eclipse]]></title>
@@ -438,72 +596,6 @@ $ git push origin master
 <p><img src="/images/git-rebase/no-ff.png" alt="" /></p>
 
 <p>可以看到，Merge branch &lsquo;feature-branch'那段可以很好的展现出这些提交是属于某一特性的。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[离线环境下构建sbt项目]]></title>
-    <link href="http://shzhangji.com/blog/2014/11/07/sbt-offline/"/>
-    <updated>2014-11-07T15:02:00+08:00</updated>
-    <id>http://shzhangji.com/blog/2014/11/07/sbt-offline</id>
-    <content type="html"><![CDATA[<p>在公司网络中使用<a href="http://www.scala-sbt.org/">sbt</a>、<a href="http://maven.apache.org/">Maven</a>等项目构建工具时，我们通常会搭建一个公用的<a href="http://www.sonatype.org/nexus/">Nexus</a>镜像服务，原因有以下几个：</p>
-
-<ul>
-<li>避免重复下载依赖，节省公司带宽；</li>
-<li>国内网络环境不理想，下载速度慢；</li>
-<li>IDC服务器没有外网访问权限；</li>
-<li>用于发布内部模块。</li>
-</ul>
-
-
-<p>sbt的依赖管理基于<a href="http://ant.apache.org/ivy/">Ivy</a>，虽然它能直接使用<a href="http://search.maven.org/">Maven中央仓库</a>中的Jar包，在配置时还是有一些注意事项的。</p>
-
-<!-- more -->
-
-
-<h2>配置Nexus镜像</h2>
-
-<p>根据这篇<a href="http://www.scala-sbt.org/0.13/docs/Proxy-Repositories.html">官方文档</a>的描述，Ivy和Maven在依赖管理方面有些许差异，因此不能直接将两者的镜像仓库配置成一个，而需分别建立两个虚拟镜像组。</p>
-
-<p><img src="http://www.scala-sbt.org/0.13/docs/files/proxy-ivy-mvn-setup.png" alt="" /></p>
-
-<p>安装Nexus后默认会有一个Public Repositories组，可以将其作为Maven的镜像组，并添加一些常用的第三方镜像：</p>
-
-<ul>
-<li>cloudera: <a href="https://repository.cloudera.com/artifactory/cloudera-repos/">https://repository.cloudera.com/artifactory/cloudera-repos/</a></li>
-<li>spring: <a href="http://repo.springsource.org/libs-release-remote/">http://repo.springsource.org/libs-release-remote/</a></li>
-<li>scala-tools: <a href="https://oss.sonatype.org/content/groups/scala-tools/">https://oss.sonatype.org/content/groups/scala-tools/</a></li>
-</ul>
-
-
-<p>对于Ivy镜像，我们创建一个新的虚拟组：ivy-releases，并添加以下两个镜像：</p>
-
-<ul>
-<li>type-safe: <a href="http://repo.typesafe.com/typesafe/ivy-releases/">http://repo.typesafe.com/typesafe/ivy-releases/</a></li>
-<li>sbt-plugin: <a href="http://dl.bintray.com/sbt/sbt-plugin-releases/">http://dl.bintray.com/sbt/sbt-plugin-releases/</a></li>
-</ul>
-
-
-<p>对于sbt-plugin，由于一些原因，Nexus会将其置为Automatically Blocked状态，因此要在配置中将这个选项关闭，否则将无法下载远程的依赖包。</p>
-
-<h2>配置sbt</h2>
-
-<p>为了让sbt使用Nexus镜像，需要创建一个~/.sbt/repositories文件，内容为：</p>
-
-<pre><code>[repositories]
-  local
-  my-ivy-proxy-releases: http://10.x.x.x:8081/nexus/content/groups/ivy-releases/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
-  my-maven-proxy-releases: http://10.x.x.x:8081/nexus/content/groups/public/
-</code></pre>
-
-<p>这样配置对大部分项目来说是足够了。但是有些项目会在构建描述文件中添加其它仓库，我们需要覆盖这种行为，方法是：</p>
-
-<pre><code class="bash">$ sbt -Dsbt.override.build.repos=true
-</code></pre>
-
-<p>你也可以通过设置SBT_OPTS环境变量来进行全局配置。</p>
-
-<p>经过以上步骤，sbt执行过程中就不需要访问外网了，因此速度会有很大提升。</p>
 ]]></content>
   </entry>
   
