@@ -1,699 +1,728 @@
-
 <!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
-<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<html>
 <head>
   <meta charset="utf-8">
-  <title>Ji ZHANG's Blog</title>
-  <meta name="author" content="Ji ZHANG">
-
   
-  <meta name="description" content="在贫血领域模型这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter， &hellip;">
+  <title>Ji ZHANG&#39; Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Ji ZHANG' Blog">
+<meta property="og:url" content="http://shzhangji.com/index.html">
+<meta property="og:site_name" content="Ji ZHANG' Blog">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ji ZHANG' Blog">
+<meta name="twitter:creator" content="@zjerryj">
+<link rel="publisher" href="zhangji87@gmail.com">
   
-
-  <!-- http://t.co/dKP3o1e -->
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39; Blog" type="application/atom+xml">
   
-  <link rel="canonical" href="http://shzhangji.com/">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/libs/jquery.min.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
--->
-
   
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-37223379-1']);
-    _gaq.push(['_trackPageview']);
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.useso.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  </script>
+ga('create', 'UA-37223379-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
 
 
 </head>
 
-<body    class="collapse-sidebar sidebar-footer" >
-  <header role="banner"><hgroup>
-  <h1><a href="/">Ji ZHANG's Blog</a></h1>
-  
-    <h2>If I rest, I rust.</h2>
-  
-</hgroup>
-
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Ji ZHANG&#39; Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">If I rest, I rust.</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+      </div>
+    </div>
+  </div>
 </header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+      <div class="outer">
+        <section id="main">
   
-</ul>
-  
-<form action="https://google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="sitesearch" value="shzhangji.com">
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/blog/categories/tutorial">Tutorial</a></li>
-  <li><a href="/blog/categories/translation">Translation</a></li>
-  <li><a href="/blog/categories/notes">Notes</a></li>
-  <li><a href="/blog/categories/big-data">Big Data</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-</ul>
+    <article id="post-model-dependency-injection-with-spring-aop" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2015/09/12/model-dependency-injection-with-spring-aop/" class="article-date">
+  <time datetime="2015-09-12T14:03:00.000Z" itemprop="datePublished">2015-09-12</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Notes/">Notes</a>
+  </div>
 
-</nav>
-  <div id="main">
-    <div id="content">
-      <div class="blog-index">
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2015/09/12/model-dependency-injection-with-spring-aop/">使用Spring AOP向领域模型注入依赖</a>
+    </h1>
   
-  
-    <article>
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/09/12/model-dependency-injection-with-spring-aop/">使用Spring AOP向领域模型注入依赖</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-09-12T22:03:00+08:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>10:03 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>在<a href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter，所有的业务逻辑都写在服务层中，领域模型仅仅用来传递数据。为了编写真正的领域模型，我们需要将业务逻辑移至模型对象中，这就引出另一个问题：业务逻辑通常需要调用其他服务或模型，而使用<code>new</code>关键字或由JPA创建的对象是不受Spring托管的，也就无法进行依赖注入。解决这个问题的方法有很多，比较之后我选择使用面向切面编程来实现。</p>
-
-<h2>面向切面编程</h2>
-
-<p>面向切面编程，或<a href="https://en.wikipedia.org/wiki/Aspect-oriented_programming">AOP</a>，是一种编程范式，和面向对象编程（<a href="https://en.wikipedia.org/wiki/Object-oriented_programming">OOP</a>）互为补充。简单来说，AOP可以在不修改既有代码的情况下改变代码的行为。开发者通过定义一组规则，在特定的类方法前后增加逻辑，如记录日志、性能监控、事务管理等。这些逻辑称为切面（Aspect），规则称为切点（Pointcut），在调用前还是调用后执行称为通知（Before advice, After advice）。最后，我们可以选择在编译期将这些逻辑写入类文件，或是在运行时动态加载这些逻辑，这是两种不同的织入方式（Compile-time weaving, Load-time weaving）。</p>
-
+        <p>在<a href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter，所有的业务逻辑都写在服务层中，领域模型仅仅用来传递数据。为了编写真正的领域模型，我们需要将业务逻辑移至模型对象中，这就引出另一个问题：业务逻辑通常需要调用其他服务或模型，而使用<code>new</code>关键字或由JPA创建的对象是不受Spring托管的，也就无法进行依赖注入。解决这个问题的方法有很多，比较之后我选择使用面向切面编程来实现。</p>
+<h2 id="面向切面编程"><a href="#面向切面编程" class="headerlink" title="面向切面编程"></a>面向切面编程</h2><p>面向切面编程，或<a href="https://en.wikipedia.org/wiki/Aspect-oriented_programming">AOP</a>，是一种编程范式，和面向对象编程（<a href="https://en.wikipedia.org/wiki/Object-oriented_programming">OOP</a>）互为补充。简单来说，AOP可以在不修改既有代码的情况下改变代码的行为。开发者通过定义一组规则，在特定的类方法前后增加逻辑，如记录日志、性能监控、事务管理等。这些逻辑称为切面（Aspect），规则称为切点（Pointcut），在调用前还是调用后执行称为通知（Before advice, After advice）。最后，我们可以选择在编译期将这些逻辑写入类文件，或是在运行时动态加载这些逻辑，这是两种不同的织入方式（Compile-time weaving, Load-time weaving）。</p>
 <p>对于领域模型的依赖注入，我们要做的就是使用AOP在对象创建后调用Spring框架来注入依赖。幸运的是，<a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#aop">Spring AOP</a>已经提供了<code>@Configurable</code>注解来帮助我们实现这一需求。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/09/12/model-dependency-injection-with-spring-aop/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+        
+          <p class="article-more-link">
+            <a href="/blog/2015/09/12/model-dependency-injection-with-spring-aop/#more">Read More</a>
+          </p>
+        
       
-  <header>
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/" data-id="cirizuq7v003598oyqh3olc3i" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-anemic-domain-model" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2015/09/05/anemic-domain-model/" class="article-date">
+  <time datetime="2015-09-05T11:02:00.000Z" itemprop="datePublished">2015-09-05</time>
+</a>
     
-      <h1 class="entry-title"><a href="/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a></h1>
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Translation/">Translation</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
     
     
-      <p class="meta">
+      <header class="article-header">
         
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>
+    </h1>
+  
 
-
-
-
-<time class='entry-date' datetime='2015-09-05T19:02:00+08:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>7:02 pm</span></time>
-        
-      </p>
+      </header>
     
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://www.martinfowler.com/bliki/AnemicDomainModel.html">http://www.martinfowler.com/bliki/AnemicDomainModel.html</a></p>
-
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>原文：<a href="http://www.martinfowler.com/bliki/AnemicDomainModel.html">http://www.martinfowler.com/bliki/AnemicDomainModel.html</a></p>
 <p>贫血领域模型是一个存在已久的反模式，目前仍有许多拥趸者。一次我和Eric Evans聊天谈到它时，都觉得这个模型似乎越来越流行了。作为<a href="http://martinfowler.com/eaaCatalog/domainModel.html">领域模型</a>的推广者，我们觉得这不是一件好事。</p>
-
 <p>贫血领域模型的最初症状是：它第一眼看起来还真像这么回事儿。项目中有许多对象，它们的命名都是根据领域来的。对象之间有着丰富的连接方式，和真正的领域模型非常相似。但当你检视这些对象的行为时，会发现它们基本上没有任何行为，仅仅是一堆getter和setter的集合。其实这些对象在设计之初就被定义为只能包含数据，不能加入领域逻辑。这些逻辑要全部写入一组叫Service的对象中。这些Service构建在领域模型之上，使用这些模型来传递数据。</p>
-
 <p>这种反模式的恐怖之处在于，它完全是和面向对象设计背道而驰。面向对象设计主张将数据和行为绑定在一起，而贫血领域模型则更像是一种面向过程设计，我和Eric在Smalltalk时就极力反对这种做法。更糟糕的时，很多人认为这些贫血领域对象是真正的对象，从而彻底误解了面向对象设计的涵义。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/09/05/anemic-domain-model/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+        
+          <p class="article-more-link">
+            <a href="/blog/2015/09/05/anemic-domain-model/#more">Read More</a>
+          </p>
+        
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-09-01T18:38:00+08:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2015</span></span> <span class='time'>6:38 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Reading source code is a great way to learn opensource projects. I used to read Java projects' source code on <a href="http://grepcode.com/">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/">GitHub</a>, it&rsquo;s quite necessary to setup an IDE to view the code more efficiently. Here&rsquo;s a howto of viewing Spark source code in Eclipse.</p>
-
-<h2>Install Eclipse and Scala IDE Plugin</h2>
-
-<p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/">here</a>. I recommend the &ldquo;Eclipse IDE for Java EE Developers&rdquo;, which contains a lot of daily-used features.</p>
-
-<p><img src="/images/scala-ide.png" alt="" /></p>
-
-<p>Then go to Scala IDE&rsquo;s <a href="http://scala-ide.org/download/current.html">official site</a> and install the plugin through update site or zip archive.</p>
-
-<h2>Generate Project File with Maven</h2>
-
-<p>Spark is mainly built with Maven, so make sure you have Maven installed on your box, and download the latest Spark source code from <a href="http://spark.apache.org/downloads.html">here</a>, unarchive it, and execute the following command:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>mvn -am -pl core dependency:resolve eclipse:eclipse
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/09/01/view-spark-source-in-eclipse/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/" data-id="cirizuq7s003398oyqvg36dd2" class="article-share-link">Share</a>
       
-  <header>
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-view-spark-source-in-eclipse" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2015/09/01/view-spark-source-in-eclipse/" class="article-date">
+  <time datetime="2015-09-01T10:38:00.000Z" itemprop="datePublished">2015-09-01</time>
+</a>
     
-      <h1 class="entry-title"><a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">HotSpot JVM中的对象指针压缩</a></h1>
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Notes/">Notes</a>►<a class="article-category-link" href="/categories/Notes/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
     
     
-      <p class="meta">
+      <header class="article-header">
         
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
+    </h1>
+  
 
-
-
-
-<time class='entry-date' datetime='2015-06-25T17:41:00+08:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:41 pm</span></time>
-        
-      </p>
+      </header>
     
-  </header>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
+<h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
+<p><img src="/images/scala-ide.png" alt=""></p>
+<p>Then go to Scala IDE’s <a href="http://scala-ide.org/download/current.html">official site</a> and install the plugin through update site or zip archive.</p>
+<h2 id="Generate-Project-File-with-Maven"><a href="#Generate-Project-File-with-Maven" class="headerlink" title="Generate Project File with Maven"></a>Generate Project File with Maven</h2><p>Spark is mainly built with Maven, so make sure you have Maven installed on your box, and download the latest Spark source code from <a href="http://spark.apache.org/downloads.html">here</a>, unarchive it, and execute the following command:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mvn -am -pl core dependency:resolve eclipse:eclipse</div></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/blog/2015/09/01/view-spark-source-in-eclipse/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="cirizuq7p002y98oy6wsog53e" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
 
 
-  <div class="entry-content"><p>原文：<a href="https://wiki.openjdk.java.net/display/HotSpot/CompressedOops">https://wiki.openjdk.java.net/display/HotSpot/CompressedOops</a></p>
+  
+    <article id="post-compressed-oops-in-the-hotspot-jvm" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/" class="article-date">
+  <time datetime="2015-06-25T09:41:00.000Z" itemprop="datePublished">2015-06-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Translation/">Translation</a>
+  </div>
 
-<h2>什么是一般对象指针？</h2>
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">HotSpot JVM中的对象指针压缩</a>
+    </h1>
+  
 
-<p>一般对象指针（oop, ordinary object pointer）是HotSpot虚拟机的一个术语，表示受托管的对象指针。它的大小通常和本地指针是一样的。Java应用程序和GC子系统会非常小心地跟踪这些受托管的指针，以便在销毁对象时回收内存空间，或是在对空间进行整理时移动（复制）对象。</p>
-
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>原文：<a href="https://wiki.openjdk.java.net/display/HotSpot/CompressedOops">https://wiki.openjdk.java.net/display/HotSpot/CompressedOops</a></p>
+<h2 id="什么是一般对象指针？"><a href="#什么是一般对象指针？" class="headerlink" title="什么是一般对象指针？"></a>什么是一般对象指针？</h2><p>一般对象指针（oop, ordinary object pointer）是HotSpot虚拟机的一个术语，表示受托管的对象指针。它的大小通常和本地指针是一样的。Java应用程序和GC子系统会非常小心地跟踪这些受托管的指针，以便在销毁对象时回收内存空间，或是在对空间进行整理时移动（复制）对象。</p>
 <p>在一些从Smalltalk和Self演变而来的虚拟机实现中都有一般对象指针这个术语，包括：</p>
-
 <ul>
 <li><a href="https://github.com/russellallen/self/blob/master/vm/src/any/objects/oop.hh">Self</a>：一门基于原型的语言，是Smalltalk的近亲</li>
 <li><a href="http://code.google.com/p/strongtalk/wiki/VMTypesForSmalltalkObjects">Strongtalk</a>：Smalltalk的一种实现</li>
 <li><a href="http://hg.openjdk.java.net/hsx/hotspot-main/hotspot/file/0/src/share/vm/oops/oop.hpp">Hotspot</a></li>
 <li><a href="http://code.google.com/p/v8/source/browse/trunk/src/objects.h">V8</a></li>
 </ul>
-
-
 <p>部分系统中会使用小整型（smi, small integers）这个名称，表示一个指向30位整型的虚拟指针。这个术语在Smalltalk的V8实现中也可以看到。</p>
-
-<h2>为什么需要压缩？</h2>
-
-<p>在<a href="http://docs.oracle.com/cd/E19620-01/805-3024/lp64-1/index.html">LP64</a>系统中，指针需要使用64位来表示；<a href="http://docs.oracle.com/cd/E19620-01/805-3024/lp64-1/index.html">ILP32</a>系统中则只需要32位。在ILP32系统中，堆内存的大小只能支持到4Gb，这对很多应用程序来说是不够的。在LP64系统中，所有应用程序运行时占用的空间都会比ILP32大1.5倍左右，这是因为指针占用的空间增加了。虽然内存是比较廉价的，但网络带宽和缓存容量是紧张的。所以，为了解决4Gb的限制而增加堆内存的占用空间，就有些得不偿失了。</p>
-
+<h2 id="为什么需要压缩？"><a href="#为什么需要压缩？" class="headerlink" title="为什么需要压缩？"></a>为什么需要压缩？</h2><p>在<a href="http://docs.oracle.com/cd/E19620-01/805-3024/lp64-1/index.html">LP64</a>系统中，指针需要使用64位来表示；<a href="http://docs.oracle.com/cd/E19620-01/805-3024/lp64-1/index.html">ILP32</a>系统中则只需要32位。在ILP32系统中，堆内存的大小只能支持到4Gb，这对很多应用程序来说是不够的。在LP64系统中，所有应用程序运行时占用的空间都会比ILP32大1.5倍左右，这是因为指针占用的空间增加了。虽然内存是比较廉价的，但网络带宽和缓存容量是紧张的。所以，为了解决4Gb的限制而增加堆内存的占用空间，就有些得不偿失了。</p>
 <p>在x86芯片中，ILP32模式可用的寄存器数量是LP64模式的一半。SPARC没有此限制；RISC芯片本来就提供了很多寄存器，LP64模式下会提供更多。</p>
-
 <p>压缩后的一般对象指针在使用时需要将32位整型按因数8进行扩展，并加到一个64位的基础地址上，从而找到所指向的对象。这种方法可以表示四十亿个对象，相当于32Gb的堆内存。同时，使用此法压缩数据结构也能达到和ILP32系统相近的效果。</p>
-
 <p>我们使用<em>解码</em>来表示从32位对象指针转换成64位地址的过程，其反过程则称为<em>编码</em>。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+        
+          <p class="article-more-link">
+            <a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/#more">Read More</a>
+          </p>
+        
       
-  <header>
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/" data-id="cirizuq7i002v98oyijlbmpzl" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-spark-streaming-logging-configuration" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2015/05/31/spark-streaming-logging-configuration/" class="article-date">
+  <time datetime="2015-05-31T10:18:00.000Z" itemprop="datePublished">2015-05-31</time>
+</a>
     
-      <h1 class="entry-title"><a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a></h1>
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Notes/">Notes</a>►<a class="article-category-link" href="/categories/Notes/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
     
     
-      <p class="meta">
+      <header class="article-header">
         
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
+    </h1>
+  
 
-
-
-
-<time class='entry-date' datetime='2015-05-31T18:18:00+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>31</span><span class='date-suffix'>st</span>, <span class='date-year'>2015</span></span> <span class='time'>6:18 pm</span></time>
-        
-      </p>
+      </header>
     
-  </header>
-
-
-  <div class="entry-content"><p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
-
-<h2>Log4j&rsquo;s RollingFileAppender</h2>
-
-<p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we&rsquo;d better use rolling-file appender, to cut log files by size and keep only several recent files. Here&rsquo;s an example:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='properties'><span class='line'><span class="na">log4j.rootLogger</span><span class="o">=</span><span class="s">INFO, rolling</span>
-</span><span class='line'>
-</span><span class='line'><span class="na">log4j.appender.rolling</span><span class="o">=</span><span class="s">org.apache.log4j.RollingFileAppender</span>
-</span><span class='line'><span class="na">log4j.appender.rolling.layout</span><span class="o">=</span><span class="s">org.apache.log4j.PatternLayout</span>
-</span><span class='line'><span class="na">log4j.appender.rolling.layout.conversionPattern</span><span class="o">=</span><span class="s">[%d] %p %m (%c)%n</span>
-</span><span class='line'><span class="na">log4j.appender.rolling.maxFileSize</span><span class="o">=</span><span class="s">50MB</span>
-</span><span class='line'><span class="na">log4j.appender.rolling.maxBackupIndex</span><span class="o">=</span><span class="s">5</span>
-</span><span class='line'><span class="na">log4j.appender.rolling.file</span><span class="o">=</span><span class="s">/var/log/spark/${dm.logging.name}.log</span>
-</span><span class='line'><span class="na">log4j.appender.rolling.encoding</span><span class="o">=</span><span class="s">UTF-8</span>
-</span><span class='line'>
-</span><span class='line'><span class="na">log4j.logger.org.apache.spark</span><span class="o">=</span><span class="s">WARN</span>
-</span><span class='line'><span class="na">log4j.logger.org.eclipse.jetty</span><span class="o">=</span><span class="s">WARN</span>
-</span><span class='line'>
-</span><span class='line'><span class="na">log4j.logger.com.anjuke.dm</span><span class="o">=</span><span class="s">${dm.logging.level}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
+<h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">log4j.rootLogger=INFO, rolling</div><div class="line"></div><div class="line">log4j.appender.rolling=org.apache.log4j.RollingFileAppender</div><div class="line">log4j.appender.rolling.layout=org.apache.log4j.PatternLayout</div><div class="line">log4j.appender.rolling.layout.conversionPattern=[%d] %p %m (%c)%n</div><div class="line">log4j.appender.rolling.maxFileSize=50MB</div><div class="line">log4j.appender.rolling.maxBackupIndex=5</div><div class="line">log4j.appender.rolling.file=/var/log/spark/$&#123;dm.logging.name&#125;.log</div><div class="line">log4j.appender.rolling.encoding=UTF-8</div><div class="line"></div><div class="line">log4j.logger.org.apache.spark=WARN</div><div class="line">log4j.logger.org.eclipse.jetty=WARN</div><div class="line"></div><div class="line">log4j.logger.com.anjuke.dm=$&#123;dm.logging.level&#125;</div></pre></td></tr></table></figure>
 <p>This means log4j will roll the log file by 50MB and keep only 5 recent files. These files are saved in <code>/var/log/spark</code> directory, with filename picked from system property <code>dm.logging.name</code>. We also set the logging level of our package <code>com.anjuke.dm</code> according to <code>dm.logging.level</code> property. Another thing to mention is that we set <code>org.apache.spark</code> to level <code>WARN</code>, so as to ignore verbose logs from spark.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/05/31/spark-streaming-logging-configuration/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+        
+          <p class="article-more-link">
+            <a href="/blog/2015/05/31/spark-streaming-logging-configuration/#more">Read More</a>
+          </p>
+        
       
-  <header>
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="cirizuq7d002r98oykbrcb1sj" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-elasticsearch-performance-tips" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2015/04/28/elasticsearch-performance-tips/" class="article-date">
+  <time datetime="2015-04-28T15:08:00.000Z" itemprop="datePublished">2015-04-28</time>
+</a>
     
-      <h1 class="entry-title"><a href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a></h1>
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Notes/">Notes</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
     
     
-      <p class="meta">
+      <header class="article-header">
         
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a>
+    </h1>
+  
 
-
-
-
-<time class='entry-date' datetime='2015-04-28T23:08:00+08:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:08 pm</span></time>
-        
-      </p>
+      </header>
     
-  </header>
-
-
-  <div class="entry-content"><p>Recently we&rsquo;re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch&rsquo;s rich and out-of-the-box functionality, it doesn&rsquo;t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here&rsquo;s a list of ElasticSearch performance tips that we learned from practice.</p>
-
-<h2>Tip 1 Set Num-of-shards to Num-of-nodes</h2>
-
-<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">Shard</a> is the foundation of ElasticSearch&rsquo;s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there&rsquo;re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it&rsquo;ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
-
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
+<h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
 <p>Shards have two roles, primary shard and replica shard. Replica shard serves as a backup to the primary shard. When primary goes down, the replica takes its job. It also helps improving the search and get performance, for these requests can be executed on either primary or replica shard.</p>
-
 <p>Shards can be visualized by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">elasticsearch-head</a> plugin:</p>
-
-<p><img src="/images/elasticsearch/shards-head.png" alt="" /></p>
-
+<p><img src="/images/elasticsearch/shards-head.png" alt=""></p>
 <p>The <code>cu_docs</code> index has two shards <code>0</code> and <code>1</code>, with <code>number_of_replicas</code> set to 1. Primary shard <code>0</code> (bold bordered) resides in server <code>Leon</code>, and its replica in <code>Pris</code>. They are green becuase all primary shards have enough repicas sitting in different servers, so the cluster is healthy.</p>
-
 <p>Since <code>number_of_shards</code> of an index cannot be changed after creation (while <code>number_of_replicas</code> can), one should choose this config wisely. Here are some suggestions:</p>
-
 <ol>
-<li>How many nodes do you have, now and future? If you&rsquo;re sure you&rsquo;ll only have 3 nodes, set number of shards to 2 and replicas to 1, so there&rsquo;ll be 4 shards across 3 nodes. If you&rsquo;ll add some servers in the future, you can set number of shards to 3, so when the cluster grows to 5 nodes, there&rsquo;ll be 6 distributed shards.</li>
-<li>How big is your index? If it&rsquo;s small, one shard with one replica will due.</li>
-<li>How is the read and write frequency, respectively? If it&rsquo;s search heavy, setup more relicas.</li>
+<li>How many nodes do you have, now and future? If you’re sure you’ll only have 3 nodes, set number of shards to 2 and replicas to 1, so there’ll be 4 shards across 3 nodes. If you’ll add some servers in the future, you can set number of shards to 3, so when the cluster grows to 5 nodes, there’ll be 6 distributed shards.</li>
+<li>How big is your index? If it’s small, one shard with one replica will due.</li>
+<li>How is the read and write frequency, respectively? If it’s search heavy, setup more relicas. </li>
 </ol>
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/04/28/elasticsearch-performance-tips/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+        
+          <p class="article-more-link">
+            <a href="/blog/2015/04/28/elasticsearch-performance-tips/#more">Read More</a>
+          </p>
+        
       
-  <header>
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cirizuq7a002p98oyx40vly7r" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-hbase-dos-and-donts" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2015/03/08/hbase-dos-and-donts/" class="article-date">
+  <time datetime="2015-03-08T00:03:00.000Z" itemprop="datePublished">2015-03-08</time>
+</a>
     
-      <h1 class="entry-title"><a href="/blog/2015/03/08/hbase-dos-and-donts/">Apache HBase的适用场景</a></h1>
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Translation/">Translation</a>►<a class="article-category-link" href="/categories/Translation/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
     
     
-      <p class="meta">
+      <header class="article-header">
         
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2015/03/08/hbase-dos-and-donts/">Apache HBase的适用场景</a>
+    </h1>
+  
 
-
-
-
-<time class='entry-date' datetime='2015-03-08T08:03:00+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>8:03 am</span></time>
-        
-      </p>
+      </header>
     
-  </header>
-
-
-  <div class="entry-content"><p>原文：<a href="http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/">http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/</a></p>
-
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>原文：<a href="http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/">http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/</a></p>
 <p>最近我在<a href="http://www.meetup.com/LA-HUG/">洛杉矶Hadoop用户组</a>做了一次关于<a href="http://www.meetup.com/LA-HUG/pages/Video_from_April_13th_HBASE_DO%27S_and_DON%27TS/">HBase适用场景</a>的分享。在场的听众水平都很高，给到了我很多值得深思的反馈。主办方是来自Shopzilla的Jody，我非常感谢他能给我一个在60多位Hadoop使用者面前演讲的机会。可能一些朋友没有机会来洛杉矶参加这次会议，我将分享中的主要内容做了一个整理。如果你没有时间阅读全文，以下是一些摘要：</p>
-
 <ul>
 <li>HBase很棒，但不是关系型数据库或HDFS的替代者；</li>
 <li>配置得当才能运行良好；</li>
 <li>监控，监控，监控，重要的事情要说三遍。</li>
 </ul>
-
-
 <p>Cloudera是HBase的铁杆粉丝。我们热爱这项技术，热爱这个社区，发现它能适用于非常多的应用场景。HBase如今已经有很多<a href="#use-cases">成功案例</a>，所以很多公司也在考虑如何将其应用到自己的架构中。我做这次分享以及写这篇文章的动因就是希望能列举出HBase的适用场景，并提醒各位哪些场景是不适用的，以及如何做好HBase的部署。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/03/08/hbase-dos-and-donts/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+        
+          <p class="article-more-link">
+            <a href="/blog/2015/03/08/hbase-dos-and-donts/#more">Read More</a>
+          </p>
+        
       
-  <header>
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts/" data-id="cirizuq74002l98oyo8lskmlu" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-understand-reduce-side-join" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2015/01/13/understand-reduce-side-join/" class="article-date">
+  <time datetime="2015-01-13T06:20:00.000Z" itemprop="datePublished">2015-01-13</time>
+</a>
     
-      <h1 class="entry-title"><a href="/blog/2015/01/13/understand-reduce-side-join/">深入理解Reduce-side Join</a></h1>
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
     
     
-      <p class="meta">
+      <header class="article-header">
         
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2015/01/13/understand-reduce-side-join/">深入理解Reduce-side Join</a>
+    </h1>
+  
 
-
-
-
-<time class='entry-date' datetime='2015-01-13T14:20:00+08:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:20 pm</span></time>
-        
-      </p>
+      </header>
     
-  </header>
-
-
-  <div class="entry-content"><p>在《<a href="http://www.amazon.com/MapReduce-Design-Patterns-Effective-Algorithms/dp/1449327176">MapReduce Design Patterns</a>》一书中，作者给出了Reduce-side Join的实现方法，大致步骤如下：</p>
-
-<p><img src="/images/reduce-side-join/reduce-side-join.png" alt="" /></p>
-
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在《<a href="http://www.amazon.com/MapReduce-Design-Patterns-Effective-Algorithms/dp/1449327176">MapReduce Design Patterns</a>》一书中，作者给出了Reduce-side Join的实现方法，大致步骤如下：</p>
+<p><img src="/images/reduce-side-join/reduce-side-join.png" alt=""></p>
 <ol>
 <li>使用<a href="https://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapred/lib/MultipleInputs.html">MultipleInputs</a>指定不同的来源表和相应的Mapper类；</li>
 <li>Mapper输出的Key为Join的字段内容，Value为打了来源表标签的记录；</li>
-<li>Reducer在接收到同一个Key的记录后，执行以下两步：
-
-<ol>
+<li>Reducer在接收到同一个Key的记录后，执行以下两步：<ol>
 <li>遍历Values，根据标签将来源表的记录分别放到两个List中；</li>
 <li>遍历两个List，输出Join结果。</li>
 </ol>
 </li>
 </ol>
-
-
 <p>具体实现可以参考<a href="https://github.com/jizhang/mapred-sandbox/blob/master/src/main/java/com/shzhangji/mapred_sandbox/join/InnerJoinJob.java">这段代码</a>。但是这种实现方法有一个问题：如果同一个Key的记录数过多，存放在List中就会占用很多内存，严重的会造成内存溢出（Out of Memory, OOM）。这种方法在一对一的情况下没有问题，而一对多、多对多的情况就会有隐患。那么，Hive在做Reduce-side Join时是如何避免OOM的呢？两个关键点：</p>
-
 <ol>
 <li>Reducer在遍历Values时，会将前面的表缓存在内存中，对于最后一张表则边扫描边输出；</li>
 <li>如果前面几张表内存中放不下，就写入磁盘。</li>
 </ol>
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/01/13/understand-reduce-side-join/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+        
+          <p class="article-more-link">
+            <a href="/blog/2015/01/13/understand-reduce-side-join/#more">Read More</a>
+          </p>
+        
       
-  <header>
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2015/01/13/understand-reduce-side-join/" data-id="cirizuq71002j98oydz2bkz3j" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-use-git-rebase-to-clarify-history" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/" class="article-date">
+  <time datetime="2014-12-23T08:10:00.000Z" itemprop="datePublished">2014-12-23</time>
+</a>
     
-      <h1 class="entry-title"><a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">使用git Rebase让历史变得清晰</a></h1>
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Notes/">Notes</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
     
     
-      <p class="meta">
+      <header class="article-header">
         
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">使用git rebase让历史变得清晰</a>
+    </h1>
+  
 
-
-
-
-<time class='entry-date' datetime='2014-12-23T16:10:00+08:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>4:10 pm</span></time>
-        
-      </p>
+      </header>
     
-  </header>
-
-
-  <div class="entry-content"><p>当多人协作开发一个分支时，历史记录通常如下方左图所示，比较凌乱。如果希望能像右图那样呈线性提交，就需要学习git rebase的用法。</p>
-
-<p><img src="/images/git-rebase/rebase-result.png" alt="" /></p>
-
-<h2>“Merge branch”提交的产生</h2>
-
-<p>我们的工作流程是：修改代码→提交到本地仓库→拉取远程改动→推送。正是在git pull这一步产生的Merge branch提交。事实上，git pull等效于get fetch origin和get merge origin/master这两条命令，前者是拉取远程仓库到本地临时库，后者是将临时库中的改动合并到本地分支中。</p>
-
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>当多人协作开发一个分支时，历史记录通常如下方左图所示，比较凌乱。如果希望能像右图那样呈线性提交，就需要学习git rebase的用法。</p>
+<p><img src="/images/git-rebase/rebase-result.png" alt=""></p>
+<h2 id="“Merge-branch”提交的产生"><a href="#“Merge-branch”提交的产生" class="headerlink" title="“Merge branch”提交的产生"></a>“Merge branch”提交的产生</h2><p>我们的工作流程是：修改代码→提交到本地仓库→拉取远程改动→推送。正是在git pull这一步产生的Merge branch提交。事实上，git pull等效于get fetch origin和get merge origin/master这两条命令，前者是拉取远程仓库到本地临时库，后者是将临时库中的改动合并到本地分支中。</p>
 <p>要避免Merge branch提交也有一个“土法”：先pull、再commit、最后push。不过万一commit和push之间远程又发生了改动，还需要再pull一次，就又会产生Merge branch提交。</p>
-
-<h2>使用git pull &ndash;rebase</h2>
-
-<p>修改代码→commit→git pull &ndash;rebase→git push。也就是将get merge origin/master替换成了git rebase origin/master，它的过程是先将HEAD指向origin/master，然后逐一应用本地的修改，这样就不会产生Merge branch提交了。具体过程见下文扩展阅读。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+<h2 id="使用git-pull-–rebase"><a href="#使用git-pull-–rebase" class="headerlink" title="使用git pull –rebase"></a>使用git pull –rebase</h2><p>修改代码→commit→git pull –rebase→git push。也就是将get merge origin/master替换成了git rebase origin/master，它的过程是先将HEAD指向origin/master，然后逐一应用本地的修改，这样就不会产生Merge branch提交了。具体过程见下文扩展阅读。</p>
+        
+          <p class="article-more-link">
+            <a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/#more">Read More</a>
+          </p>
+        
       
-  <header>
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/" data-id="cirizuq6w002e98oy5uq8sywk" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-spark-quick-start" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/12/16/spark-quick-start/" class="article-date">
+  <time datetime="2014-12-16T07:59:00.000Z" itemprop="datePublished">2014-12-16</time>
+</a>
     
-      <h1 class="entry-title"><a href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a></h1>
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Tutorial/">Tutorial</a>►<a class="article-category-link" href="/categories/Tutorial/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
     
     
-      <p class="meta">
+      <header class="article-header">
         
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/12/16/spark-quick-start/">Spark快速入门</a>
+    </h1>
+  
 
-
-
-
-<time class='entry-date' datetime='2014-12-16T15:59:00+08:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:59 pm</span></time>
-        
-      </p>
+      </header>
     
-  </header>
-
-
-  <div class="entry-content"><p><img src="http://spark.apache.org/images/spark-logo.png" alt="" /></p>
-
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="http://spark.apache.org/images/spark-logo.png" alt=""></p>
 <p><a href="http://spark.apache.org">Apache Spark</a>是新兴的一种快速通用的大规模数据处理引擎。它的优势有三个方面：</p>
-
 <ul>
 <li><strong>通用计算引擎</strong> 能够运行MapReduce、数据挖掘、图运算、流式计算、SQL等多种框架；</li>
 <li><strong>基于内存</strong> 数据可缓存在内存中，特别适用于需要迭代多次运算的场景；</li>
 <li><strong>与Hadoop集成</strong> 能够直接读写HDFS中的数据，并能运行在YARN之上。</li>
 </ul>
-
-
 <p>Spark是用<a href="http://www.scala-lang.org/">Scala语言</a>编写的，所提供的API也很好地利用了这门语言的特性。它也可以使用Java和Python编写应用。本文将用Scala进行讲解。</p>
-
-<h2>安装Spark和SBT</h2>
-
-<ul>
+<h2 id="安装Spark和SBT"><a href="#安装Spark和SBT" class="headerlink" title="安装Spark和SBT"></a>安装Spark和SBT</h2><ul>
 <li>从<a href="http://spark.apache.org/downloads.html">官网</a>上下载编译好的压缩包，解压到一个文件夹中。下载时需注意对应的Hadoop版本，如要读写CDH4 HDFS中的数据，则应下载Pre-built for CDH4这个版本。</li>
 <li>为了方便起见，可以将spark/bin添加到$PATH环境变量中：</li>
 </ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">SPARK_HOME</span><span class="o">=</span>/path/to/spark
-</span><span class='line'><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$SPARK_HOME</span>/bin
-</span></code></pre></td></tr></table></div></figure>
-
-
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">export</span> SPARK_HOME=/path/to/spark</div><div class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$SPARK_HOME</span>/bin</div></pre></td></tr></table></figure>
 <ul>
-<li>在练习例子时，我们还会用到<a href="http://www.scala-sbt.org/">SBT</a>这个工具，它是用来编译打包Scala项目的。Linux下的安装过程比较简单：
-
-<ul>
+<li>在练习例子时，我们还会用到<a href="http://www.scala-sbt.org/">SBT</a>这个工具，它是用来编译打包Scala项目的。Linux下的安装过程比较简单：<ul>
 <li>下载<a href="https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.7/sbt-launch.jar">sbt-launch.jar</a>到$HOME/bin目录；</li>
 <li>新建$HOME/bin/sbt文件，权限设置为755，内容如下：</li>
 </ul>
 </li>
 </ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">SBT_OPTS</span><span class="o">=</span><span class="s2">&quot;-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M&quot;</span>
-</span><span class='line'>java <span class="nv">$SBT_OPTS</span> -jar <span class="sb">`</span>dirname <span class="nv">$0</span><span class="sb">`</span>/sbt-launch.jar <span class="s2">&quot;$@&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/12/16/spark-quick-start/">Read on &rarr;</a>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">SBT_OPTS=<span class="string">"-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M"</span></div><div class="line">java <span class="variable">$SBT_OPTS</span> -jar `dirname <span class="variable">$0</span>`/sbt-launch.jar <span class="string">"<span class="variable">$@</span>"</span></div></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/blog/2014/12/16/spark-quick-start/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2014/12/16/spark-quick-start/" data-id="cirizuq6s002c98oyaslueeh8" class="article-share-link">Share</a>
+      
+      
     </footer>
-  
-
-
-    </article>
-  
-  <div class="pagination">
-    
-      <a class="prev" href="/posts/2">&larr; Older</a>
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
   </div>
-</div>
-<aside class="sidebar">
+  
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">__('next') &raquo;</a>
+  </nav>
+</section>
+        
+          <aside id="sidebar">
   
     
-  
-</aside>
-
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Big-Data/">Big Data</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/Big-Data/">Big Data</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Translation/">Translation</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Translation/Big-Data/">Big Data</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Translation/Tutorial/">Tutorial</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Tutorial/">Tutorial</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Tutorial/Big-Data/">Big Data</a></li></ul></li></ul>
     </div>
   </div>
-  <footer role="contentinfo"><p>
-  Copyright &copy; 2015 - Ji ZHANG -
-  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
-</p>
 
-</footer>
+
   
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/aosa/">aosa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/clojure/">clojure</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fp/">fp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hive/">hive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/javascript/">javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/noir/">noir</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ops/">ops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/perl/">perl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/programming/">programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storm/">storm</a></li></ul>
+    </div>
+  </div>
 
-<script type="text/javascript">
-      var disqus_shortname = 'jizhang';
-      
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/aosa/" style="font-size: 13.33px;">aosa</a> <a href="/tags/clojure/" style="font-size: 20px;">clojure</a> <a href="/tags/fp/" style="font-size: 10px;">fp</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hadoop/" style="font-size: 13.33px;">hadoop</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/javascript/" style="font-size: 10px;">javascript</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/noir/" style="font-size: 16.67px;">noir</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/perl/" style="font-size: 13.33px;">perl</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/storm/" style="font-size: 10px;">storm</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">April 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/06/">June 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/05/">May 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/02/">February 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/01/">January 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/11/">November 2012</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
         
-        var disqus_script = 'count.js';
-      
-    (function () {
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    }());
-</script>
+          <li>
+            <a href="/blog/2015/09/12/model-dependency-injection-with-spring-aop/">使用Spring AOP向领域模型注入依赖</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">HotSpot JVM中的对象指针压缩</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Ji ZHANG<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.useso.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
 
 
+<script src="/js/script.js"></script>
 
-  <script type="text/javascript">
-    (function() {
-      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
-      script.src = 'https://apis.google.com/js/plusone.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
-    })();
-  </script>
-
-
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
-
-
-
-
-
+  </div>
 </body>
 </html>

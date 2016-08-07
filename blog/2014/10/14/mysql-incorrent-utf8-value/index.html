@@ -1,290 +1,282 @@
-
 <!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
-<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<html>
 <head>
   <meta charset="utf-8">
-  <title>MySQL异常UTF-8字符的处理 - Ji ZHANG's Blog</title>
-  <meta name="author" content="Ji ZHANG">
-
   
-  <meta name="description" content="ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误： 1
-Incorrect string value: '\xF0\x9D\x8C\x86' for &hellip;">
+  <title>MySQL异常UTF-8字符的处理 | Ji ZHANG&#39; Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误：
+1Incorrect string value: &amp;apos;\xF0\x9D\x8C\x86&amp;apos; for column ...
+经查，这个字段中保存的是用户聊天记录，因此会有一些表情符号。这些符号">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL异常UTF-8字符的处理">
+<meta property="og:url" content="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/index.html">
+<meta property="og:site_name" content="Ji ZHANG' Blog">
+<meta property="og:description" content="ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误：
+1Incorrect string value: &amp;apos;\xF0\x9D\x8C\x86&amp;apos; for column ...
+经查，这个字段中保存的是用户聊天记录，因此会有一些表情符号。这些符号">
+<meta property="og:updated_time" content="2016-08-06T09:42:56.178Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL异常UTF-8字符的处理">
+<meta name="twitter:description" content="ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误：
+1Incorrect string value: &amp;apos;\xF0\x9D\x8C\x86&amp;apos; for column ...
+经查，这个字段中保存的是用户聊天记录，因此会有一些表情符号。这些符号">
+<meta name="twitter:creator" content="@zjerryj">
+<link rel="publisher" href="zhangji87@gmail.com">
   
-
-  <!-- http://t.co/dKP3o1e -->
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39; Blog" type="application/atom+xml">
   
-  <link rel="canonical" href="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/libs/jquery.min.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
--->
-
   
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-37223379-1']);
-    _gaq.push(['_trackPageview']);
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.useso.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  </script>
+ga('create', 'UA-37223379-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
 
 
 </head>
 
-<body    class="collapse-sidebar sidebar-footer" >
-  <header role="banner"><hgroup>
-  <h1><a href="/">Ji ZHANG's Blog</a></h1>
-  
-    <h2>If I rest, I rust.</h2>
-  
-</hgroup>
-
-</header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
-  
-</ul>
-  
-<form action="https://google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="sitesearch" value="shzhangji.com">
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/blog/categories/tutorial">Tutorial</a></li>
-  <li><a href="/blog/categories/translation">Translation</a></li>
-  <li><a href="/blog/categories/notes">Notes</a></li>
-  <li><a href="/blog/categories/big-data">Big Data</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-</ul>
-
-</nav>
-  <div id="main">
-    <div id="content">
-      <div>
-<article class="hentry" role="article">
-  
-  <header>
-    
-      <h1 class="entry-title">MySQL异常UTF-8字符的处理</h1>
-    
-    
-      <p class="meta">
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Ji ZHANG&#39; Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">If I rest, I rust.</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
         
-
-
-
-
-<time class='entry-date' datetime='2014-10-14T13:16:00+08:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:16 pm</span></time>
+          <a class="main-nav-link" href="/">Home</a>
         
-      </p>
-    
-  </header>
-
-
-<div class="entry-content"><p>ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Incorrect string value: '\xF0\x9D\x8C\x86' for column ...</span></code></pre></td></tr></table></div></figure>
-
-
-<p>经查，这个字段中保存的是用户聊天记录，因此会有一些表情符号。这些符号在UTF-8编码下需要使用4个字节来记录，而MySQL中的utf8编码只支持3个字节，因此无法导入。</p>
-
-<p>根据UTF-8的编码规范，3个字节支持的Unicode字符范围是U+0000–U+FFFF，因此可以在Hive中对数据做一下清洗：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="n">REGEXP_REPLACE</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;[^\\u0000-\\uFFFF]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">FROM</span> <span class="p">...</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这样就能排除那些需要使用3个以上字节来记录的字符了，从而成功导入MySQL。</p>
-
-<p>以下是一些详细说明和参考资料。</p>
-
-<!-- more -->
-
-
-<h2>Unicode字符集和UTF编码</h2>
-
-<p><a href="http://en.wikipedia.org/wiki/Unicode">Unicode字符集</a>是一种将全球所有文字都囊括在内的字符集，从而实现跨语言、跨平台的文字信息交换。它由<a href="http://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane">基本多语平面（BMP）</a>和多个扩展平面（non-BMP）组成。前者的编码范围是U+0000-U+FFFF，包括了绝大多数现代语言文字，因此最为常用。</p>
-
-<p><a href="http://en.wikipedia.org/wiki/Unicode#Unicode_Transformation_Format_and_Universal_Character_Set">UTF</a>则是一种编码格式，负责将Unicode字符对应的编号转换为计算机可以识别的二进制数据，进行保存和读取。</p>
-
-<p>比如，磁盘上记录了以下二进制数据：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="mi">1101000</span> <span class="mi">1100101</span> <span class="mi">1101100</span> <span class="mi">1101100</span> <span class="mi">1101111</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>读取它的程序知道这是以UTF-8编码保存的字符串，因此将其解析为以下编号：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="mi">104</span> <span class="mi">101</span> <span class="mi">108</span> <span class="mi">108</span> <span class="mi">111</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>又因为UTF-8编码对应的字符集是Unicode，所以上面这五个编号对应的字符便是“hello”。</p>
-
-<p>很多人会将Unicode和UTF混淆，但两者并不具可比性，它们完成的功能是不同的。</p>
-
-<h2>UTF-8编码</h2>
-
-<p>UTF编码家族也有很多成员，其中<a href="http://en.wikipedia.org/wiki/UTF-8">UTF-8</a>最为常用。它是一种变长的编码格式，对于ASCII码中的字符使用1个字节进行编码，对于中文等则使用3个字节。这样做的优点是在存储西方语言文字时不会造成空间浪费，不像UTF-16和UTF-32，分别使用两个字节和四个字节对所有字符进行编码。</p>
-
-<p>UTF-8编码的字节数上限并不是3个。对于U+0000-U+FFFF范围内的字符，使用3个字节可以表示完全；对于non-BMP中的字符，则会使用4-6个字节来表示。同样，UTF-16编码也会使用四个字节来表示non-BMP中的字符。</p>
-
-<h2>MySQL的UTF-8编码</h2>
-
-<p>根据MySQL的<a href="http://dev.mysql.com/doc/refman/5.5/en/charset-unicode.html">官方文档</a>，它的UTF-8编码支持是不完全的，最多使用3个字符，这也是导入数据时报错的原因。</p>
-
-<p>MySQL5.5开始支持utf8mb4编码，至多使用4个字节，因此能包含到non-BMP字符。只是我们的MySQL版本仍是5.1，因此选择丢弃这些字符。</p>
-
-<h2>参考资料</h2>
-
-<ul>
-<li><a href="http://stackoverflow.com/questions/3951722/whats-the-difference-between-unicode-and-utf8">http://stackoverflow.com/questions/3951722/whats-the-difference-between-unicode-and-utf8</a></li>
-<li><a href="http://www.joelonsoftware.com/articles/Unicode.html">http://www.joelonsoftware.com/articles/Unicode.html</a></li>
-<li><a href="http://apps.timwhitlock.info/emoji/tables/unicode">http://apps.timwhitlock.info/emoji/tables/unicode</a></li>
-</ul>
-
-</div>
-
-
-  <footer>
-    <p class="meta">
-      
-  
-
-<span class="byline author vcard">Posted by <span class="fn">Ji ZHANG</span></span>
-
-      
-
-
-
-
-<time class='entry-date' datetime='2014-10-14T13:16:00+08:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:16 pm</span></time>
-      
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/notes/'>notes</a>
-  
-</span>
-
-
-    </p>
-    
-      <div class="sharing">
-  
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/" >Tweet</a>
-  
-  
-  <div class="g-plusone" data-size="medium"></div>
-  
-  
-</div>
-
-    
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/" title="Previous Post: 在CDH 4.5上安装Shark 0.9">&laquo; 在CDH 4.5上安装Shark 0.9</a>
-      
-      
-        <a class="basic-alignment right" href="/blog/2014/11/07/sbt-offline/" title="Next Post: 离线环境下构建sbt项目">离线环境下构建sbt项目 &raquo;</a>
-      
-    </p>
-  </footer>
-</article>
-
-  <section>
-    <h1>Comments</h1>
-    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</div>
-  </section>
-
-</div>
-
-<aside class="sidebar">
-  
-    
-  
-</aside>
-
-
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+      </div>
     </div>
   </div>
-  <footer role="contentinfo"><p>
-  Copyright &copy; 2015 - Ji ZHANG -
-  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
-</p>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-mysql-incorrent-utf8-value" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/10/14/mysql-incorrent-utf8-value/" class="article-date">
+  <time datetime="2014-10-14T05:16:00.000Z" itemprop="datePublished">2014-10-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Notes/">Notes</a>
+  </div>
 
-</footer>
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      MySQL异常UTF-8字符的处理
+    </h1>
   
 
-<script type="text/javascript">
-      var disqus_shortname = 'jizhang';
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
       
+        <p>ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Incorrect string value: &apos;\xF0\x9D\x8C\x86&apos; for column ...</div></pre></td></tr></table></figure>
+<p>经查，这个字段中保存的是用户聊天记录，因此会有一些表情符号。这些符号在UTF-8编码下需要使用4个字节来记录，而MySQL中的utf8编码只支持3个字节，因此无法导入。</p>
+<p>根据UTF-8的编码规范，3个字节支持的Unicode字符范围是U+0000–U+FFFF，因此可以在Hive中对数据做一下清洗：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> REGEXP_REPLACE(<span class="keyword">content</span>, <span class="string">'[^\\u0000-\\uFFFF]'</span>, <span class="string">''</span>) <span class="keyword">FROM</span> ...</div></pre></td></tr></table></figure>
+<p>这样就能排除那些需要使用3个以上字节来记录的字符了，从而成功导入MySQL。</p>
+<p>以下是一些详细说明和参考资料。</p>
+<a id="more"></a>
+<h2 id="Unicode字符集和UTF编码"><a href="#Unicode字符集和UTF编码" class="headerlink" title="Unicode字符集和UTF编码"></a>Unicode字符集和UTF编码</h2><p><a href="http://en.wikipedia.org/wiki/Unicode" target="_blank" rel="external">Unicode字符集</a>是一种将全球所有文字都囊括在内的字符集，从而实现跨语言、跨平台的文字信息交换。它由<a href="http://en.wikipedia.org/wiki/Plane_\(Unicode\" target="_blank" rel="external">基本多语平面（BMP）</a>#Basic_Multilingual_Plane)和多个扩展平面（non-BMP）组成。前者的编码范围是U+0000-U+FFFF，包括了绝大多数现代语言文字，因此最为常用。</p>
+<p><a href="http://en.wikipedia.org/wiki/Unicode#Unicode_Transformation_Format_and_Universal_Character_Set" target="_blank" rel="external">UTF</a>则是一种编码格式，负责将Unicode字符对应的编号转换为计算机可以识别的二进制数据，进行保存和读取。</p>
+<p>比如，磁盘上记录了以下二进制数据：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">1101000 1100101 1101100 1101100 1101111</div></pre></td></tr></table></figure>
+<p>读取它的程序知道这是以UTF-8编码保存的字符串，因此将其解析为以下编号：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">104 101 108 108 111</div></pre></td></tr></table></figure>
+<p>又因为UTF-8编码对应的字符集是Unicode，所以上面这五个编号对应的字符便是“hello”。</p>
+<p>很多人会将Unicode和UTF混淆，但两者并不具可比性，它们完成的功能是不同的。</p>
+<h2 id="UTF-8编码"><a href="#UTF-8编码" class="headerlink" title="UTF-8编码"></a>UTF-8编码</h2><p>UTF编码家族也有很多成员，其中<a href="http://en.wikipedia.org/wiki/UTF-8" target="_blank" rel="external">UTF-8</a>最为常用。它是一种变长的编码格式，对于ASCII码中的字符使用1个字节进行编码，对于中文等则使用3个字节。这样做的优点是在存储西方语言文字时不会造成空间浪费，不像UTF-16和UTF-32，分别使用两个字节和四个字节对所有字符进行编码。</p>
+<p>UTF-8编码的字节数上限并不是3个。对于U+0000-U+FFFF范围内的字符，使用3个字节可以表示完全；对于non-BMP中的字符，则会使用4-6个字节来表示。同样，UTF-16编码也会使用四个字节来表示non-BMP中的字符。</p>
+<h2 id="MySQL的UTF-8编码"><a href="#MySQL的UTF-8编码" class="headerlink" title="MySQL的UTF-8编码"></a>MySQL的UTF-8编码</h2><p>根据MySQL的<a href="http://dev.mysql.com/doc/refman/5.5/en/charset-unicode.html" target="_blank" rel="external">官方文档</a>，它的UTF-8编码支持是不完全的，最多使用3个字符，这也是导入数据时报错的原因。</p>
+<p>MySQL5.5开始支持utf8mb4编码，至多使用4个字节，因此能包含到non-BMP字符。只是我们的MySQL版本仍是5.1，因此选择丢弃这些字符。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://stackoverflow.com/questions/3951722/whats-the-difference-between-unicode-and-utf8" target="_blank" rel="external">http://stackoverflow.com/questions/3951722/whats-the-difference-between-unicode-and-utf8</a></li>
+<li><a href="http://www.joelonsoftware.com/articles/Unicode.html" target="_blank" rel="external">http://www.joelonsoftware.com/articles/Unicode.html</a></li>
+<li><a href="http://apps.timwhitlock.info/emoji/tables/unicode" target="_blank" rel="external">http://apps.timwhitlock.info/emoji/tables/unicode</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/" data-id="cirizuq6g002498oyqqntlvgv" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/blog/2014/11/07/sbt-offline/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
         
-        // var disqus_developer = 1;
-        var disqus_identifier = 'http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/';
-        var disqus_url = 'http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/';
-        var disqus_script = 'embed.js';
-      
-    (function () {
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    }());
-</script>
+          离线环境下构建sbt项目
+        
+      </div>
+    </a>
+  
+  
+    <a href="/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">在CDH 4.5上安装Shark 0.9</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Big-Data/">Big Data</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/Big-Data/">Big Data</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Translation/">Translation</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Translation/Big-Data/">Big Data</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Translation/Tutorial/">Tutorial</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Tutorial/">Tutorial</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Tutorial/Big-Data/">Big Data</a></li></ul></li></ul>
+    </div>
+  </div>
 
 
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/aosa/">aosa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/clojure/">clojure</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fp/">fp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hive/">hive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/javascript/">javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/noir/">noir</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ops/">ops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/perl/">perl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/programming/">programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storm/">storm</a></li></ul>
+    </div>
+  </div>
 
 
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/aosa/" style="font-size: 13.33px;">aosa</a> <a href="/tags/clojure/" style="font-size: 20px;">clojure</a> <a href="/tags/fp/" style="font-size: 10px;">fp</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hadoop/" style="font-size: 13.33px;">hadoop</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/javascript/" style="font-size: 10px;">javascript</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/noir/" style="font-size: 16.67px;">noir</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/perl/" style="font-size: 13.33px;">perl</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/storm/" style="font-size: 10px;">storm</a>
+    </div>
+  </div>
 
-  <script type="text/javascript">
-    (function() {
-      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
-      script.src = 'https://apis.google.com/js/plusone.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
-    })();
-  </script>
-
-
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">April 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/06/">June 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/05/">May 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/02/">February 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/01/">January 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/11/">November 2012</a></li></ul>
+    </div>
+  </div>
 
 
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2015/09/12/model-dependency-injection-with-spring-aop/">使用Spring AOP向领域模型注入依赖</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">HotSpot JVM中的对象指针压缩</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Ji ZHANG<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.useso.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
 
+
+<script src="/js/script.js"></script>
+
+  </div>
 </body>
 </html>

@@ -1,296 +1,142 @@
-
 <!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
-<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<html>
 <head>
   <meta charset="utf-8">
-  <title>使用Spring AOP向领域模型注入依赖 - Ji ZHANG's Blog</title>
-  <meta name="author" content="Ji ZHANG">
-
   
-  <meta name="description" content="在贫血领域模型这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter， &hellip;">
+  <title>使用Spring AOP向领域模型注入依赖 | Ji ZHANG&#39; Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="在贫血领域模型这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter，所有的业务逻辑都写在服务层中，领域模型仅仅用来传递数据。为了编写真正的领域模型，我们需要将业务逻辑移至模型对象中，这就">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Spring AOP向领域模型注入依赖">
+<meta property="og:url" content="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/index.html">
+<meta property="og:site_name" content="Ji ZHANG' Blog">
+<meta property="og:description" content="在贫血领域模型这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter，所有的业务逻辑都写在服务层中，领域模型仅仅用来传递数据。为了编写真正的领域模型，我们需要将业务逻辑移至模型对象中，这就">
+<meta property="og:updated_time" content="2016-08-06T09:42:56.178Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Spring AOP向领域模型注入依赖">
+<meta name="twitter:description" content="在贫血领域模型这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter，所有的业务逻辑都写在服务层中，领域模型仅仅用来传递数据。为了编写真正的领域模型，我们需要将业务逻辑移至模型对象中，这就">
+<meta name="twitter:creator" content="@zjerryj">
+<link rel="publisher" href="zhangji87@gmail.com">
   
-
-  <!-- http://t.co/dKP3o1e -->
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39; Blog" type="application/atom+xml">
   
-  <link rel="canonical" href="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="Ji ZHANG's Blog" type="application/atom+xml">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/libs/jquery.min.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
--->
-
   
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-37223379-1']);
-    _gaq.push(['_trackPageview']);
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.useso.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  </script>
+ga('create', 'UA-37223379-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
 
 
 </head>
 
-<body    class="collapse-sidebar sidebar-footer" >
-  <header role="banner"><hgroup>
-  <h1><a href="/">Ji ZHANG's Blog</a></h1>
-  
-    <h2>If I rest, I rust.</h2>
-  
-</hgroup>
-
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Ji ZHANG&#39; Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">If I rest, I rust.</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+      </div>
+    </div>
+  </div>
 </header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
-  
-</ul>
-  
-<form action="https://google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="sitesearch" value="shzhangji.com">
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/blog/categories/tutorial">Tutorial</a></li>
-  <li><a href="/blog/categories/translation">Translation</a></li>
-  <li><a href="/blog/categories/notes">Notes</a></li>
-  <li><a href="/blog/categories/big-data">Big Data</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-</ul>
+      <div class="outer">
+        <section id="main"><article id="post-model-dependency-injection-with-spring-aop" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2015/09/12/model-dependency-injection-with-spring-aop/" class="article-date">
+  <time datetime="2015-09-12T14:03:00.000Z" itemprop="datePublished">2015-09-12</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Notes/">Notes</a>
+  </div>
 
-</nav>
-  <div id="main">
-    <div id="content">
-      <div>
-<article class="hentry" role="article">
-  
-  <header>
-    
-      <h1 class="entry-title">使用Spring AOP向领域模型注入依赖</h1>
+  </div>
+  <div class="article-inner">
     
     
-      <p class="meta">
+      <header class="article-header">
         
+  
+    <h1 class="article-title" itemprop="name">
+      使用Spring AOP向领域模型注入依赖
+    </h1>
+  
 
-
-
-
-<time class='entry-date' datetime='2015-09-12T22:03:00+08:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>10:03 pm</span></time>
-        
-      </p>
+      </header>
     
-  </header>
-
-
-<div class="entry-content"><p>在<a href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter，所有的业务逻辑都写在服务层中，领域模型仅仅用来传递数据。为了编写真正的领域模型，我们需要将业务逻辑移至模型对象中，这就引出另一个问题：业务逻辑通常需要调用其他服务或模型，而使用<code>new</code>关键字或由JPA创建的对象是不受Spring托管的，也就无法进行依赖注入。解决这个问题的方法有很多，比较之后我选择使用面向切面编程来实现。</p>
-
-<h2>面向切面编程</h2>
-
-<p>面向切面编程，或<a href="https://en.wikipedia.org/wiki/Aspect-oriented_programming">AOP</a>，是一种编程范式，和面向对象编程（<a href="https://en.wikipedia.org/wiki/Object-oriented_programming">OOP</a>）互为补充。简单来说，AOP可以在不修改既有代码的情况下改变代码的行为。开发者通过定义一组规则，在特定的类方法前后增加逻辑，如记录日志、性能监控、事务管理等。这些逻辑称为切面（Aspect），规则称为切点（Pointcut），在调用前还是调用后执行称为通知（Before advice, After advice）。最后，我们可以选择在编译期将这些逻辑写入类文件，或是在运行时动态加载这些逻辑，这是两种不同的织入方式（Compile-time weaving, Load-time weaving）。</p>
-
-<p>对于领域模型的依赖注入，我们要做的就是使用AOP在对象创建后调用Spring框架来注入依赖。幸运的是，<a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#aop">Spring AOP</a>已经提供了<code>@Configurable</code>注解来帮助我们实现这一需求。</p>
-
-<!-- more -->
-
-
-<h2>Configurable注解</h2>
-
-<p>Spring应用程序会定义一个上下文容器，在该容器内创建的对象会由Spring负责注入依赖。对于容器外创建的对象，我们可以使用<code>@Configurable</code>来修饰类，告知Spring对这些类的实例也进行依赖注入。</p>
-
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在<a href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter，所有的业务逻辑都写在服务层中，领域模型仅仅用来传递数据。为了编写真正的领域模型，我们需要将业务逻辑移至模型对象中，这就引出另一个问题：业务逻辑通常需要调用其他服务或模型，而使用<code>new</code>关键字或由JPA创建的对象是不受Spring托管的，也就无法进行依赖注入。解决这个问题的方法有很多，比较之后我选择使用面向切面编程来实现。</p>
+<h2 id="面向切面编程"><a href="#面向切面编程" class="headerlink" title="面向切面编程"></a>面向切面编程</h2><p>面向切面编程，或<a href="https://en.wikipedia.org/wiki/Aspect-oriented_programming" target="_blank" rel="external">AOP</a>，是一种编程范式，和面向对象编程（<a href="https://en.wikipedia.org/wiki/Object-oriented_programming" target="_blank" rel="external">OOP</a>）互为补充。简单来说，AOP可以在不修改既有代码的情况下改变代码的行为。开发者通过定义一组规则，在特定的类方法前后增加逻辑，如记录日志、性能监控、事务管理等。这些逻辑称为切面（Aspect），规则称为切点（Pointcut），在调用前还是调用后执行称为通知（Before advice, After advice）。最后，我们可以选择在编译期将这些逻辑写入类文件，或是在运行时动态加载这些逻辑，这是两种不同的织入方式（Compile-time weaving, Load-time weaving）。</p>
+<p>对于领域模型的依赖注入，我们要做的就是使用AOP在对象创建后调用Spring框架来注入依赖。幸运的是，<a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#aop" target="_blank" rel="external">Spring AOP</a>已经提供了<code>@Configurable</code>注解来帮助我们实现这一需求。</p>
+<a id="more"></a>
+<h2 id="Configurable注解"><a href="#Configurable注解" class="headerlink" title="Configurable注解"></a>Configurable注解</h2><p>Spring应用程序会定义一个上下文容器，在该容器内创建的对象会由Spring负责注入依赖。对于容器外创建的对象，我们可以使用<code>@Configurable</code>来修饰类，告知Spring对这些类的实例也进行依赖注入。</p>
 <p>假设有一个<code>Report</code>类（领域模型），其中一个方法需要解析JSON，我们可以使用<code>@Configurable</code>将容器内的<code>ObjectMapper</code>对象注入到类的实例中：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Entity</span>
-</span><span class='line'><span class="nd">@Configurable</span><span class="o">(</span><span class="n">autowire</span> <span class="o">=</span> <span class="n">Autowire</span><span class="o">.</span><span class="na">BY_TYPE</span><span class="o">)</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Report</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Id</span> <span class="nd">@GeneratedValue</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Autowired</span> <span class="nd">@Transient</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="n">ObjectMapper</span> <span class="n">mapper</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">render</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">mapper</span><span class="o">.</span><span class="na">readValue</span><span class="o">(...);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Entity</span></div><div class="line"><span class="meta">@Configurable</span>(autowire = Autowire.BY_TYPE)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Report</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Id</span> <span class="meta">@GeneratedValue</span></div><div class="line">    <span class="keyword">private</span> Integer id;</div><div class="line">    </div><div class="line">    <span class="meta">@Autowired</span> <span class="meta">@Transient</span></div><div class="line">    <span class="keyword">private</span> ObjectMapper mapper;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">render</span><span class="params">()</span> </span>&#123;</div><div class="line">        mapper.readValue(...);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <ul>
 <li><code>autowire</code>参数默认是<code>NO</code>，因此需要显式打开，否则只能使用XML定义依赖。<code>@Autowired</code>是目前比较推荐的注入方式。</li>
 <li><code>@Transient</code>用于告知JPA该属性不需要进行持久化。你也可以使用<code>transient</code>关键字来声明，效果相同。</li>
 <li>项目依赖中需要包含<code>spring-aspects</code>。如果已经使用了<code>spring-boot-starter-data-jpa</code>，则无需配置。</li>
 <li>应用程序配置中需要加入<code>@EnableSpringConfigured</code>：</li>
 </ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@SpringBootApplication</span>
-</span><span class='line'><span class="nd">@EnableTransactionManagement</span><span class="o">(</span><span class="n">mode</span> <span class="o">=</span> <span class="n">AdviceMode</span><span class="o">.</span><span class="na">ASPECTJ</span><span class="o">)</span>
-</span><span class='line'><span class="nd">@EnableSpringConfigured</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Application</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">SpringApplication</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">Application</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@SpringBootApplication</span></div><div class="line"><span class="meta">@EnableTransactionManagement</span>(mode = AdviceMode.ASPECTJ)</div><div class="line"><span class="meta">@EnableSpringConfigured</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        SpringApplication.run(Application.class, args);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <ul>
 <li>在<code>src/main/resources</code>目录下，新建<code>META-INF/aop.xml</code>文件，用来限定哪些包会用到AOP。否则，AOP的织入操作会作用于所有的类（包括第三方类库），产生不必要的的报错信息。</li>
 </ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;!DOCTYPE aspectj PUBLIC &quot;-//AspectJ//DTD//EN&quot; &quot;http://www.eclipse.org/aspectj/dtd/aspectj.dtd&quot;&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;aspectj&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;weaver&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;include</span> <span class="na">within=</span><span class="s">&quot;com.foobar..*&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/weaver&gt;</span>
-</span><span class='line'><span class="nt">&lt;/aspectj&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>运行时织入（Load-Time Weaving, LTW）</h2>
-
-<p>除了项目依赖和应用程序配置，我们还需要选择一种织入方式来使AOP生效。Spring AOP推荐的方式是运行时织入，并提供了一个专用的Jar包。运行时织入的原理是：当类加载器在读取类文件时，动态修改类的字节码。这一机制是从<a href="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/instrument/package-summary.html">JDK1.5</a>开始提供的，需要使用<code>-javaagent</code>参数开启，如：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>java -javaagent:/path/to/spring-instrument.jar -jar app.jar
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>在测试时发现，Spring AOP提供的这一Jar包对普通的类是有效果的，但对于使用<code>@Entity</code>修饰的类就没有作用了。因此，我们改用AspectJ提供的Jar包（可到<a href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.aspectj%22%20AND%20a%3A%22aspectjweaver%22">Maven中央仓库</a>下载）：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>java -javaagent:/path/to/aspectjweaver.jar -jar app.jar
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>对于<a href="http://projects.spring.io/spring-boot/">Spring Boot</a>应用程序，可以在Maven命令中加入以下参数：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>mvn spring-boot:run -Drun.agent<span class="o">=</span>/path/to/aspectjweaver.jar
-</span></code></pre></td></tr></table></div></figure>
-
-
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&lt;!DOCTYPE aspectj PUBLIC "-//AspectJ//DTD//EN" "http://www.eclipse.org/aspectj/dtd/aspectj.dtd"&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;<span class="name">aspectj</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">weaver</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">include</span> <span class="attr">within</span>=<span class="string">"com.foobar..*"</span>/&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">weaver</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">aspectj</span>&gt;</span></div></pre></td></tr></table></figure>
+<h2 id="运行时织入（Load-Time-Weaving-LTW）"><a href="#运行时织入（Load-Time-Weaving-LTW）" class="headerlink" title="运行时织入（Load-Time Weaving, LTW）"></a>运行时织入（Load-Time Weaving, LTW）</h2><p>除了项目依赖和应用程序配置，我们还需要选择一种织入方式来使AOP生效。Spring AOP推荐的方式是运行时织入，并提供了一个专用的Jar包。运行时织入的原理是：当类加载器在读取类文件时，动态修改类的字节码。这一机制是从<a href="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/instrument/package-summary.html" target="_blank" rel="external">JDK1.5</a>开始提供的，需要使用<code>-javaagent</code>参数开启，如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ java -javaagent:/path/to/spring-instrument.jar -jar app.jar</div></pre></td></tr></table></figure>
+<p>在测试时发现，Spring AOP提供的这一Jar包对普通的类是有效果的，但对于使用<code>@Entity</code>修饰的类就没有作用了。因此，我们改用AspectJ提供的Jar包（可到<a href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.aspectj%22%20AND%20a%3A%22aspectjweaver%22" target="_blank" rel="external">Maven中央仓库</a>下载）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ java -javaagent:/path/to/aspectjweaver.jar -jar app.jar</div></pre></td></tr></table></figure>
+<p>对于<a href="http://projects.spring.io/spring-boot/" target="_blank" rel="external">Spring Boot</a>应用程序，可以在Maven命令中加入以下参数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mvn spring-boot:run -Drun.agent=/path/to/aspectjweaver.jar</div></pre></td></tr></table></figure>
 <p>此外，在使用AspectJ作为LTW的提供方后，会影响到Spring的事务管理，因此需要在应用程序配置中加入：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@EnableTransactionManagement</span><span class="o">(</span><span class="n">mode</span> <span class="o">=</span> <span class="n">AdviceMode</span><span class="o">.</span><span class="na">ASPECTJ</span><span class="o">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>AnnotationBeanConfigurerAspect</h2>
-
-<p>到这里我们已经通过简单配置完成了领域模型的依赖注入，这背后都是Spring中的<code>AnnotationBeanConfigurerAspect</code>在做工作。我们不妨浏览一下精简后的源码：</p>
-
-<p><a href="https://github.com/spring-projects/spring-framework/blob/master/spring-aspects/src/main/java/org/springframework/beans/factory/aspectj/AnnotationBeanConfigurerAspect.aj">AnnotationBeanConfigurerAspect.aj</a></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='aspectj'><span class='line'><span class="kd">public</span> <span class="k">aspect</span> <span class="n">AnnotationBeanConfigurerAspect</span> <span class="kd">implements</span> <span class="n">BeanFactoryAware</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">private</span> <span class="n">BeanConfigurerSupport</span> <span class="n">beanConfigurerSupport</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">BeanConfigurerSupport</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setBeanFactory</span><span class="o">(</span><span class="n">BeanFactory</span> <span class="n">beanFactory</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">beanConfigurerSupport</span><span class="o">.</span><span class="na">setBeanFactory</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configureBean</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">beanConfigurerSupport</span><span class="o">.</span><span class="na">configureBean</span><span class="o">(</span><span class="n">bean</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="k">pointcut</span> <span class="nf">inConfigurableBean</span><span class="o">()</span> <span class="o">:</span> <span class="nd">@this</span><span class="o">(</span><span class="n">Configurable</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">declare</span> <span class="k">parents</span><span class="o">:</span> <span class="nd">@Configurable</span> <span class="o">*</span> <span class="kd">implements</span> <span class="n">ConfigurableObject</span><span class="o">;</span>
-</span><span class='line'>  
-</span><span class='line'>  <span class="kd">public</span> <span class="k">pointcut</span> <span class="nf">beanConstruction</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">)</span> <span class="o">:</span>
-</span><span class='line'>          <span class="k">initialization</span><span class="o">(</span><span class="n">ConfigurableObject</span><span class="o">+.</span><span class="na">new</span><span class="o">(..))</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="o">(</span><span class="n">bean</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">after</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">)</span> <span class="k">returning</span> <span class="o">:</span>
-</span><span class='line'>      <span class="n">beanConstruction</span><span class="o">(</span><span class="n">bean</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">inConfigurableBean</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">configureBean</span><span class="o">(</span><span class="n">bean</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@EnableTransactionManagement</span>(mode = AdviceMode.ASPECTJ)</div></pre></td></tr></table></figure>
+<h2 id="AnnotationBeanConfigurerAspect"><a href="#AnnotationBeanConfigurerAspect" class="headerlink" title="AnnotationBeanConfigurerAspect"></a>AnnotationBeanConfigurerAspect</h2><p>到这里我们已经通过简单配置完成了领域模型的依赖注入，这背后都是Spring中的<code>AnnotationBeanConfigurerAspect</code>在做工作。我们不妨浏览一下精简后的源码：</p>
+<p><a href="https://github.com/spring-projects/spring-framework/blob/master/spring-aspects/src/main/java/org/springframework/beans/factory/aspectj/AnnotationBeanConfigurerAspect.aj" target="_blank" rel="external">AnnotationBeanConfigurerAspect.aj</a></p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">aspect</span> <span class="title">AnnotationBeanConfigurerAspect</span> <span class="keyword">implements</span> <span class="title">BeanFactoryAware</span> </span>&#123;</div><div class="line"></div><div class="line">	<span class="keyword">private</span> BeanConfigurerSupport beanConfigurerSupport = <span class="keyword">new</span> BeanConfigurerSupport();</div><div class="line"></div><div class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">setBeanFactory</span><span class="params">(BeanFactory beanFactory)</span> </span>&#123;</div><div class="line">		<span class="keyword">this</span>.beanConfigurerSupport.setBeanFactory(beanFactory);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">configureBean</span><span class="params">(Object bean)</span> </span>&#123;</div><div class="line">		<span class="keyword">this</span>.beanConfigurerSupport.configureBean(bean);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">public</span> <span class="keyword">pointcut</span> <span class="title">inConfigurableBean</span>() : @<span class="keyword">this</span>(Configurable);</div><div class="line"></div><div class="line">	<span class="keyword">declare</span> <span class="keyword">parents</span>: @Configurable * <span class="keyword">implements</span> ConfigurableObject;</div><div class="line">	</div><div class="line">	<span class="keyword">public</span> <span class="keyword">pointcut</span> <span class="title">beanConstruction</span>(Object bean) :</div><div class="line">			<span class="keyword">initialization</span>(ConfigurableObject+.<span class="keyword">new</span>(..)) &amp;&amp; <span class="keyword">this</span>(bean);</div><div class="line"></div><div class="line">	<span class="keyword">after</span>(Object bean) <span class="keyword">returning</span> :</div><div class="line">		<span class="title">beanConstruction</span>(bean) &amp;&amp; inConfigurableBean() &#123;</div><div class="line">		configureBean(bean);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <ul>
 <li><code>.aj</code>文件是AspectJ定义的语言，增加了pointcut、after等关键字，用来定义切点、通知等；</li>
 <li><code>inConfigurationBean</code>切点用于匹配使用<code>Configurable</code>修饰的类型；</li>
@@ -299,141 +145,146 @@
 <li><code>after</code>定义一个通知，表示对象创建完成后执行<code>configureBean</code>方法；</li>
 <li>该方法会调用<code>BeanConfigurerSupport</code>来对新实例进行依赖注入。</li>
 </ul>
-
-
-<h2>其它方案</h2>
-
-<ol>
+<h2 id="其它方案"><a href="#其它方案" class="headerlink" title="其它方案"></a>其它方案</h2><ol>
 <li>将依赖作为参数传入。比如上文中的<code>render</code>方法可以定义为<code>render(ObjectMapper mapper)</code>。</li>
 <li>将<code>ApplicationContext</code>作为某个类的静态成员，领域模型通过这个引用来获取依赖。</li>
 <li>编写一个工厂方法，所有新建对象都要通过这个方法生成，进行依赖注入。</li>
 <li>如果领域模型大多从数据库获得，并且JPA的提供方是Hibernate，则可以使用它的拦截器功能进行依赖注入。</li>
 </ol>
-
-
-<h2>参考资料</h2>
-
-<ul>
-<li><a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#aop-atconfigurable">http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#aop-atconfigurable</a></li>
-<li><a href="http://blog.igorstoyanov.com/2005/12/dependency-injection-or-service.html">http://blog.igorstoyanov.com/2005/12/dependency-injection-or-service.html</a></li>
-<li><a href="http://jblewitt.com/blog/?p=129">http://jblewitt.com/blog/?p=129</a></li>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#aop-atconfigurable" target="_blank" rel="external">http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#aop-atconfigurable</a></li>
+<li><a href="http://blog.igorstoyanov.com/2005/12/dependency-injection-or-service.html" target="_blank" rel="external">http://blog.igorstoyanov.com/2005/12/dependency-injection-or-service.html</a></li>
+<li><a href="http://jblewitt.com/blog/?p=129" target="_blank" rel="external">http://jblewitt.com/blog/?p=129</a></li>
 </ul>
 
-</div>
-
-
-  <footer>
-    <p class="meta">
       
-  
-
-<span class="byline author vcard">Posted by <span class="fn">Ji ZHANG</span></span>
-
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/" data-id="cirizuq7v003598oyqh3olc3i" class="article-share-link">Share</a>
       
-
-
-
-
-<time class='entry-date' datetime='2015-09-12T22:03:00+08:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>10:03 pm</span></time>
       
-
-<span class="categories">
+    </footer>
+  </div>
   
-    <a class='category' href='/blog/categories/notes/'>notes</a>
-  
-</span>
-
-
-    </p>
     
-      <div class="sharing">
-  
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/" data-via="zjerryj" data-counturl="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/" >Tweet</a>
+<nav id="article-nav">
   
   
-  <div class="g-plusone" data-size="medium"></div>
+    <a href="/blog/2015/09/05/anemic-domain-model/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">贫血领域模型</div>
+    </a>
   
-  
-</div>
+</nav>
 
-    
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2015/09/05/anemic-domain-model/" title="Previous Post: 贫血领域模型">&laquo; 贫血领域模型</a>
-      
-      
-    </p>
-  </footer>
+  
 </article>
 
-  <section>
-    <h1>Comments</h1>
-    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</div>
-  </section>
-
-</div>
-
-<aside class="sidebar">
+</section>
+        
+          <aside id="sidebar">
   
     
-  
-</aside>
-
-
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Big-Data/">Big Data</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/">Notes</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Notes/Big-Data/">Big Data</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Translation/">Translation</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Translation/Big-Data/">Big Data</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Translation/Tutorial/">Tutorial</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Tutorial/">Tutorial</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Tutorial/Big-Data/">Big Data</a></li></ul></li></ul>
     </div>
   </div>
-  <footer role="contentinfo"><p>
-  Copyright &copy; 2015 - Ji ZHANG -
-  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
-</p>
 
-</footer>
+
   
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/aosa/">aosa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/clojure/">clojure</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fp/">fp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hive/">hive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/javascript/">javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/noir/">noir</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ops/">ops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/perl/">perl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/programming/">programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storm/">storm</a></li></ul>
+    </div>
+  </div>
 
-<script type="text/javascript">
-      var disqus_shortname = 'jizhang';
-      
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/aosa/" style="font-size: 13.33px;">aosa</a> <a href="/tags/clojure/" style="font-size: 20px;">clojure</a> <a href="/tags/fp/" style="font-size: 10px;">fp</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hadoop/" style="font-size: 13.33px;">hadoop</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/javascript/" style="font-size: 10px;">javascript</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/noir/" style="font-size: 16.67px;">noir</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/perl/" style="font-size: 13.33px;">perl</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/storm/" style="font-size: 10px;">storm</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">April 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/06/">June 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/05/">May 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/02/">February 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/01/">January 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/11/">November 2012</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
         
-        // var disqus_developer = 1;
-        var disqus_identifier = 'http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/';
-        var disqus_url = 'http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/';
-        var disqus_script = 'embed.js';
-      
-    (function () {
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    }());
-</script>
+          <li>
+            <a href="/blog/2015/09/12/model-dependency-injection-with-spring-aop/">使用Spring AOP向领域模型注入依赖</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">HotSpot JVM中的对象指针压缩</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Ji ZHANG<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.useso.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
 
 
+<script src="/js/script.js"></script>
 
-  <script type="text/javascript">
-    (function() {
-      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
-      script.src = 'https://apis.google.com/js/plusone.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
-    })();
-  </script>
-
-
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
-
-
-
-
-
+  </div>
 </body>
 </html>
