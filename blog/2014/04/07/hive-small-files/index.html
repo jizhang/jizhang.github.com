@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Hive小文件问题的处理 | Ji ZHANG&#39; Blog</title>
+  <title>Hive小文件问题的处理 | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。
 小文件带来的问题关于这个问题的阐述可以读一读Cloudera的这篇文章。简单来说，HDFS的文件元信息，包括位置、大小、分块信">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Hive小文件问题的处理">
 <meta property="og:url" content="http://shzhangji.com/blog/2014/04/07/hive-small-files/index.html">
-<meta property="og:site_name" content="Ji ZHANG' Blog">
+<meta property="og:site_name" content="Ji ZHANG's Blog">
 <meta property="og:description" content="Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。
 小文件带来的问题关于这个问题的阐述可以读一读Cloudera的这篇文章。简单来说，HDFS的文件元信息，包括位置、大小、分块信">
 <meta property="og:image" content="http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/images/federation.gif">
-<meta property="og:updated_time" content="2016-08-06T09:42:56.178Z">
+<meta property="og:updated_time" content="2016-08-08T14:57:42.575Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hive小文件问题的处理">
 <meta name="twitter:description" content="Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。
@@ -23,7 +23,7 @@
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
-    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39; Blog" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39;s Blog" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
@@ -57,7 +57,7 @@ ga('send', 'pageview');
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">Ji ZHANG&#39; Blog</a>
+        <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
       
         <h2 id="subtitle-wrap">
@@ -90,7 +90,7 @@ ga('send', 'pageview');
         <section id="main"><article id="post-hive-small-files" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2014/04/07/hive-small-files/" class="article-date">
-  <time datetime="2014-04-07T09:09:00.000Z" itemprop="datePublished">2014-04-07</time>
+  <time datetime="2014-04-07T17:09:00.000Z" itemprop="datePublished">2014-04-07</time>
 </a>
     
   <div class="article-category">
@@ -145,7 +145,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2014/04/07/hive-small-files/" data-id="cirizuq66001v98oyxa27jmqs" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2014/04/07/hive-small-files/" data-id="cirm6bi5t001v7xvirqrpr87n" class="article-share-link">Share</a>
       
       
     </footer>

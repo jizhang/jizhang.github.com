@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   
-  <title>HotSpot JVM中的对象指针压缩 | Ji ZHANG&#39; Blog</title>
+  <title>HotSpot JVM中的对象指针压缩 | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="原文：https://wiki.openjdk.java.net/display/HotSpot/CompressedOops
 什么是一般对象指针？一般对象指针（oop, ordinary object pointer）是HotSpot虚拟机的一个术语，表示受托管的对象指针。它的大小通常和本地指针是一样的。Java应用程序和GC子系统会非常小心地跟踪这些受托管的指针，以便在销毁对象时回收内存空间，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HotSpot JVM中的对象指针压缩">
 <meta property="og:url" content="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/index.html">
-<meta property="og:site_name" content="Ji ZHANG' Blog">
+<meta property="og:site_name" content="Ji ZHANG's Blog">
 <meta property="og:description" content="原文：https://wiki.openjdk.java.net/display/HotSpot/CompressedOops
 什么是一般对象指针？一般对象指针（oop, ordinary object pointer）是HotSpot虚拟机的一个术语，表示受托管的对象指针。它的大小通常和本地指针是一样的。Java应用程序和GC子系统会非常小心地跟踪这些受托管的指针，以便在销毁对象时回收内存空间，">
-<meta property="og:updated_time" content="2016-08-06T09:42:56.178Z">
+<meta property="og:updated_time" content="2016-08-08T14:57:42.583Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HotSpot JVM中的对象指针压缩">
 <meta name="twitter:description" content="原文：https://wiki.openjdk.java.net/display/HotSpot/CompressedOops
@@ -21,7 +21,7 @@
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
-    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39; Blog" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39;s Blog" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
@@ -55,7 +55,7 @@ ga('send', 'pageview');
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">Ji ZHANG&#39; Blog</a>
+        <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
       
         <h2 id="subtitle-wrap">
@@ -88,7 +88,7 @@ ga('send', 'pageview');
         <section id="main"><article id="post-compressed-oops-in-the-hotspot-jvm" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/" class="article-date">
-  <time datetime="2015-06-25T09:41:00.000Z" itemprop="datePublished">2015-06-25</time>
+  <time datetime="2015-06-25T17:41:00.000Z" itemprop="datePublished">2015-06-25</time>
 </a>
     
   <div class="article-category">
@@ -184,7 +184,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/" data-id="cirizuq7i002v98oyijlbmpzl" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/" data-id="cirm6bidj002v7xvi1vy447ep" class="article-share-link">Share</a>
       
       
     </footer>
