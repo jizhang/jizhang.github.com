@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   
-  <title>fork()与僵尸进程 | Ji ZHANG&#39; Blog</title>
+  <title>fork()与僵尸进程 | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="使用fork()函数派生出多个子进程来并行执行程序的不同代码块，是一种常用的编程泛型。特别是在网络编程中，父进程初始化后派生出指定数量的子进程，共同监听网络端口并处理请求，从而达到扩容的目的。
 但是，在使用fork()函数时若处理不当，很容易产生僵尸进程。根据UNIX系统的定义，僵尸进程是指子进程退出后，它的父进程没有“等待”该子进程，这样的子进程就会成为僵尸进程。何谓“等待”？僵尸进程的危害是什">
 <meta property="og:type" content="article">
 <meta property="og:title" content="fork()与僵尸进程">
 <meta property="og:url" content="http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/index.html">
-<meta property="og:site_name" content="Ji ZHANG' Blog">
+<meta property="og:site_name" content="Ji ZHANG's Blog">
 <meta property="og:description" content="使用fork()函数派生出多个子进程来并行执行程序的不同代码块，是一种常用的编程泛型。特别是在网络编程中，父进程初始化后派生出指定数量的子进程，共同监听网络端口并处理请求，从而达到扩容的目的。
 但是，在使用fork()函数时若处理不当，很容易产生僵尸进程。根据UNIX系统的定义，僵尸进程是指子进程退出后，它的父进程没有“等待”该子进程，这样的子进程就会成为僵尸进程。何谓“等待”？僵尸进程的危害是什">
 <meta property="og:updated_time" content="2016-08-07T03:08:04.711Z">
@@ -21,7 +21,7 @@
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
-    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39; Blog" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39;s Blog" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
@@ -55,7 +55,7 @@ ga('send', 'pageview');
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">Ji ZHANG&#39; Blog</a>
+        <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
       
         <h2 id="subtitle-wrap">
