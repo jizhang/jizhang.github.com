@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://shzhangji.com/"/>
-  <updated>2016-08-13T00:35:15.670Z</updated>
+  <updated>2016-09-05T13:25:19.364Z</updated>
   <id>http://shzhangji.com/</id>
   
   <author>
@@ -19,8 +19,8 @@
     <title>开发人员必知的5种开源框架</title>
     <link href="http://shzhangji.com/blog/2016/03/13/top-5-frameworks/"/>
     <id>http://shzhangji.com/blog/2016/03/13/top-5-frameworks/</id>
-    <published>2016-03-13T08:25:00.000Z</published>
-    <updated>2016-08-13T00:35:15.670Z</updated>
+    <published>2016-03-13T16:25:00.000Z</published>
+    <updated>2016-09-05T13:25:19.364Z</updated>
     
     <content type="html"><![CDATA[<p>作者：<a href="https://opensource.com/business/15/12/top-5-frameworks" target="_blank" rel="external">John Esposito</a></p>
 <p>软件侵吞着世界<a href="http://www.wsj.com/articles/SB10001424053111903480904576512250915629460" target="_blank" rel="external">已经四年多了</a>，但开发人员看待软件的方式稍有不同。我们一直在致力于<a href="http://www.dougengelbart.org/pubs/augment-3906.html" target="_blank" rel="external">解决实际问题</a>，而<a href="http://worrydream.com/refs/Brooks-NoSilverBullet.pdf" target="_blank" rel="external">很少思考软件开发的基石</a>。当问题变得更庞大、解决方案更复杂时，一些实用的、不怎么<a href="http://www.joelonsoftware.com/articles/LeakyAbstractions.html" target="_blank" rel="external">产生泄漏</a>的抽象工具就显得越来越重要。</p>
@@ -74,8 +74,8 @@
     <title>使用Spring AOP向领域模型注入依赖</title>
     <link href="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/"/>
     <id>http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/</id>
-    <published>2015-09-12T14:03:00.000Z</published>
-    <updated>2016-08-07T03:08:04.715Z</updated>
+    <published>2015-09-12T22:03:00.000Z</published>
+    <updated>2016-09-05T13:25:19.364Z</updated>
     
     <content type="html"><![CDATA[<p>在<a href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter，所有的业务逻辑都写在服务层中，领域模型仅仅用来传递数据。为了编写真正的领域模型，我们需要将业务逻辑移至模型对象中，这就引出另一个问题：业务逻辑通常需要调用其他服务或模型，而使用<code>new</code>关键字或由JPA创建的对象是不受Spring托管的，也就无法进行依赖注入。解决这个问题的方法有很多，比较之后我选择使用面向切面编程来实现。</p>
 <h2 id="面向切面编程"><a href="#面向切面编程" class="headerlink" title="面向切面编程"></a>面向切面编程</h2><p>面向切面编程，或<a href="https://en.wikipedia.org/wiki/Aspect-oriented_programming" target="_blank" rel="external">AOP</a>，是一种编程范式，和面向对象编程（<a href="https://en.wikipedia.org/wiki/Object-oriented_programming" target="_blank" rel="external">OOP</a>）互为补充。简单来说，AOP可以在不修改既有代码的情况下改变代码的行为。开发者通过定义一组规则，在特定的类方法前后增加逻辑，如记录日志、性能监控、事务管理等。这些逻辑称为切面（Aspect），规则称为切点（Pointcut），在调用前还是调用后执行称为通知（Before advice, After advice）。最后，我们可以选择在编译期将这些逻辑写入类文件，或是在运行时动态加载这些逻辑，这是两种不同的织入方式（Compile-time weaving, Load-time weaving）。</p>
@@ -144,8 +144,8 @@
     <title>贫血领域模型</title>
     <link href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/"/>
     <id>http://shzhangji.com/blog/2015/09/05/anemic-domain-model/</id>
-    <published>2015-09-05T11:02:00.000Z</published>
-    <updated>2016-08-07T03:08:04.715Z</updated>
+    <published>2015-09-05T19:02:00.000Z</published>
+    <updated>2016-09-05T13:25:19.364Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://www.martinfowler.com/bliki/AnemicDomainModel.html" target="_blank" rel="external">http://www.martinfowler.com/bliki/AnemicDomainModel.html</a></p>
 <p>贫血领域模型是一个存在已久的反模式，目前仍有许多拥趸者。一次我和Eric Evans聊天谈到它时，都觉得这个模型似乎越来越流行了。作为<a href="http://martinfowler.com/eaaCatalog/domainModel.html" target="_blank" rel="external">领域模型</a>的推广者，我们觉得这不是一件好事。</p>
@@ -186,8 +186,8 @@
     <title>View Spark Source in Eclipse</title>
     <link href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/"/>
     <id>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</id>
-    <published>2015-09-01T10:38:00.000Z</published>
-    <updated>2016-08-07T03:08:04.715Z</updated>
+    <published>2015-09-01T18:38:00.000Z</published>
+    <updated>2016-09-05T13:25:19.364Z</updated>
     
     <content type="html"><![CDATA[<p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/" target="_blank" rel="external">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/" target="_blank" rel="external">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
 <h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/" target="_blank" rel="external">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
@@ -239,8 +239,8 @@
     <title>HotSpot JVM中的对象指针压缩</title>
     <link href="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/"/>
     <id>http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/</id>
-    <published>2015-06-25T09:41:00.000Z</published>
-    <updated>2016-08-07T03:08:04.715Z</updated>
+    <published>2015-06-25T17:41:00.000Z</published>
+    <updated>2016-09-05T13:25:19.364Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="https://wiki.openjdk.java.net/display/HotSpot/CompressedOops" target="_blank" rel="external">https://wiki.openjdk.java.net/display/HotSpot/CompressedOops</a></p>
 <h2 id="什么是一般对象指针？"><a href="#什么是一般对象指针？" class="headerlink" title="什么是一般对象指针？"></a>什么是一般对象指针？</h2><p>一般对象指针（oop, ordinary object pointer）是HotSpot虚拟机的一个术语，表示受托管的对象指针。它的大小通常和本地指针是一样的。Java应用程序和GC子系统会非常小心地跟踪这些受托管的指针，以便在销毁对象时回收内存空间，或是在对空间进行整理时移动（复制）对象。</p>
@@ -341,8 +341,8 @@
     <title>Spark Streaming Logging Configuration</title>
     <link href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/"/>
     <id>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</id>
-    <published>2015-05-31T10:18:00.000Z</published>
-    <updated>2016-08-07T03:08:04.715Z</updated>
+    <published>2015-05-31T18:18:00.000Z</published>
+    <updated>2016-09-05T13:25:19.364Z</updated>
     
     <content type="html"><![CDATA[<p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
 <h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
@@ -390,8 +390,8 @@
     <title>ElasticSearch Performance Tips</title>
     <link href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/"/>
     <id>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</id>
-    <published>2015-04-28T15:08:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2015-04-28T23:08:00.000Z</published>
+    <updated>2016-09-05T13:25:19.364Z</updated>
     
     <content type="html"><![CDATA[<p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
 <h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard" target="_blank" rel="external">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing" target="_blank" rel="external">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
@@ -490,8 +490,8 @@
     <title>Apache HBase的适用场景</title>
     <link href="http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts/"/>
     <id>http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts/</id>
-    <published>2015-03-08T00:03:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2015-03-08T08:03:00.000Z</published>
+    <updated>2016-09-05T13:25:19.364Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/" target="_blank" rel="external">http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/</a></p>
 <p>最近我在<a href="http://www.meetup.com/LA-HUG/" target="_blank" rel="external">洛杉矶Hadoop用户组</a>做了一次关于<a href="http://www.meetup.com/LA-HUG/pages/Video_from_April_13th_HBASE_DO%27S_and_DON%27TS/" target="_blank" rel="external">HBase适用场景</a>的分享。在场的听众水平都很高，给到了我很多值得深思的反馈。主办方是来自Shopzilla的Jody，我非常感谢他能给我一个在60多位Hadoop使用者面前演讲的机会。可能一些朋友没有机会来洛杉矶参加这次会议，我将分享中的主要内容做了一个整理。如果你没有时间阅读全文，以下是一些摘要：</p>
@@ -544,8 +544,8 @@
     <title>深入理解Reduce-side Join</title>
     <link href="http://shzhangji.com/blog/2015/01/13/understand-reduce-side-join/"/>
     <id>http://shzhangji.com/blog/2015/01/13/understand-reduce-side-join/</id>
-    <published>2015-01-13T06:20:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2015-01-13T14:20:00.000Z</published>
+    <updated>2016-09-05T13:25:19.364Z</updated>
     
     <content type="html"><![CDATA[<p>在《<a href="http://www.amazon.com/MapReduce-Design-Patterns-Effective-Algorithms/dp/1449327176" target="_blank" rel="external">MapReduce Design Patterns</a>》一书中，作者给出了Reduce-side Join的实现方法，大致步骤如下：</p>
 <p><img src="/images/reduce-side-join/reduce-side-join.png" alt=""></p>
@@ -617,8 +617,8 @@
     <title>使用git rebase让历史变得清晰</title>
     <link href="http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/"/>
     <id>http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/</id>
-    <published>2014-12-23T08:10:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2014-12-23T16:10:00.000Z</published>
+    <updated>2016-09-05T13:25:19.364Z</updated>
     
     <content type="html"><![CDATA[<p>当多人协作开发一个分支时，历史记录通常如下方左图所示，比较凌乱。如果希望能像右图那样呈线性提交，就需要学习git rebase的用法。</p>
 <p><img src="/images/git-rebase/rebase-result.png" alt=""></p>
@@ -670,8 +670,8 @@
     <title>Spark快速入门</title>
     <link href="http://shzhangji.com/blog/2014/12/16/spark-quick-start/"/>
     <id>http://shzhangji.com/blog/2014/12/16/spark-quick-start/</id>
-    <published>2014-12-16T07:59:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2014-12-16T15:59:00.000Z</published>
+    <updated>2016-09-05T13:25:19.364Z</updated>
     
     <content type="html"><![CDATA[<p><img src="http://spark.apache.org/images/spark-logo.png" alt=""></p>
 <p><a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>是新兴的一种快速通用的大规模数据处理引擎。它的优势有三个方面：</p>
@@ -785,8 +785,8 @@
     <title>离线环境下构建sbt项目</title>
     <link href="http://shzhangji.com/blog/2014/11/07/sbt-offline/"/>
     <id>http://shzhangji.com/blog/2014/11/07/sbt-offline/</id>
-    <published>2014-11-07T07:02:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2014-11-07T15:02:00.000Z</published>
+    <updated>2016-09-05T13:25:19.360Z</updated>
     
     <content type="html"><![CDATA[<p>在公司网络中使用<a href="http://www.scala-sbt.org/" target="_blank" rel="external">sbt</a>、<a href="http://maven.apache.org/" target="_blank" rel="external">Maven</a>等项目构建工具时，我们通常会搭建一个公用的<a href="http://www.sonatype.org/nexus/" target="_blank" rel="external">Nexus</a>镜像服务，原因有以下几个：</p>
 <ul>
@@ -841,8 +841,8 @@
     <title>MySQL异常UTF-8字符的处理</title>
     <link href="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/"/>
     <id>http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/</id>
-    <published>2014-10-14T05:16:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2014-10-14T13:16:00.000Z</published>
+    <updated>2016-09-05T13:25:19.360Z</updated>
     
     <content type="html"><![CDATA[<p>ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Incorrect string value: &apos;\xF0\x9D\x8C\x86&apos; for column ...</div></pre></td></tr></table></figure>
@@ -892,8 +892,8 @@
     <title>在CDH 4.5上安装Shark 0.9</title>
     <link href="http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/"/>
     <id>http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/</id>
-    <published>2014-07-05T09:16:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2014-07-05T17:16:00.000Z</published>
+    <updated>2016-09-05T13:25:19.360Z</updated>
     
     <content type="html"><![CDATA[<p><a href="http://spark.apache.org" target="_blank" rel="external">Spark</a>是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的<a href="http://hadoop.apache.org" target="_blank" rel="external">Hadoop</a>生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于<a href="http://hive.apache.org" target="_blank" rel="external">Hive</a>，Spark也有相应的替代项目——<a href="http://shark.cs.berkeley.edu/" target="_blank" rel="external">Shark</a>，能做到 <strong>drop-in replacement</strong> ，直接构建在现有集群之上。本文就将简要阐述如何在CDH4.5上搭建Shark0.9集群。</p>
 <h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><ul>
@@ -1009,8 +1009,8 @@
     <title>Use WebJars in Scalatra Project</title>
     <link href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/"/>
     <id>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</id>
-    <published>2014-05-27T09:44:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2014-05-27T17:44:00.000Z</published>
+    <updated>2016-09-05T13:25:19.360Z</updated>
     
     <content type="html"><![CDATA[<p>As I’m working with my first <a href="http://www.scalatra.org/" target="_blank" rel="external">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/" target="_blank" rel="external">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation" target="_blank" rel="external">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
 <h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/" target="_blank" rel="external">Dojo</a> for example.</p>
@@ -1049,8 +1049,8 @@
     <title>Hive小文件问题的处理</title>
     <link href="http://shzhangji.com/blog/2014/04/07/hive-small-files/"/>
     <id>http://shzhangji.com/blog/2014/04/07/hive-small-files/</id>
-    <published>2014-04-07T09:09:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2014-04-07T17:09:00.000Z</published>
+    <updated>2016-09-05T13:25:19.360Z</updated>
     
     <content type="html"><![CDATA[<p>Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。</p>
 <h2 id="小文件带来的问题"><a href="#小文件带来的问题" class="headerlink" title="小文件带来的问题"></a>小文件带来的问题</h2><p>关于这个问题的阐述可以读一读Cloudera的<a href="http://blog.cloudera.com/blog/2009/02/the-small-files-problem/" target="_blank" rel="external">这篇文章</a>。简单来说，HDFS的文件元信息，包括位置、大小、分块信息等，都是保存在NameNode的内存中的。每个对象大约占用150个字节，因此一千万个文件及分块就会占用约3G的内存空间，一旦接近这个量级，NameNode的性能就会开始下降了。</p>
@@ -1101,8 +1101,8 @@
     <title>Java反射机制</title>
     <link href="http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/"/>
     <id>http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/</id>
-    <published>2014-01-25T01:42:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2014-01-25T09:42:00.000Z</published>
+    <updated>2016-09-05T13:25:19.360Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://www.programcreek.com/2013/09/java-reflection-tutorial/" target="_blank" rel="external">http://www.programcreek.com/2013/09/java-reflection-tutorial/</a></p>
 <p>什么是反射？它有何用处？</p>
@@ -1188,8 +1188,8 @@
     <title>抽象泄漏定律</title>
     <link href="http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions/"/>
     <id>http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions/</id>
-    <published>2013-12-17T05:05:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2013-12-17T13:05:00.000Z</published>
+    <updated>2016-09-05T13:25:19.360Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://www.joelonsoftware.com/articles/LeakyAbstractions.html" target="_blank" rel="external">http://www.joelonsoftware.com/articles/LeakyAbstractions.html</a></p>
 <p>TCP协议是互联网的基石，我们每天都需要依靠它来构建各类互联网应用。也正是在这一协议中，时刻发生着一件近乎神奇的事情。</p>
@@ -1246,8 +1246,8 @@
     <title>Generate Auto-increment Id in Map-reduce Job</title>
     <link href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/"/>
     <id>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</id>
-    <published>2013-10-31T01:35:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2013-10-31T09:35:00.000Z</published>
+    <updated>2016-09-05T13:25:19.360Z</updated>
     
     <content type="html"><![CDATA[<p>In DBMS world, it’s easy to generate a unique, auto-increment id, using MySQL’s <a href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html" target="_blank" rel="external">AUTO_INCREMENT attribute</a> on a primary key or MongoDB’s <a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/" target="_blank" rel="external">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it’ll take some steps.</p>
 <h2 id="Solution-A-Single-Reducer"><a href="#Solution-A-Single-Reducer" class="headerlink" title="Solution A: Single Reducer"></a>Solution A: Single Reducer</h2><p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
@@ -1331,8 +1331,8 @@
     <title>Hive并发情况下报DELETEME表不存在的异常</title>
     <link href="http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/"/>
     <id>http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/</id>
-    <published>2013-09-06T03:20:00.000Z</published>
-    <updated>2016-08-07T03:08:04.711Z</updated>
+    <published>2013-09-06T11:20:00.000Z</published>
+    <updated>2016-09-05T13:25:19.360Z</updated>
     
     <content type="html"><![CDATA[<p>在每天运行的Hive脚本中，偶尔会抛出以下错误：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">2013-09-03 01:39:00,973 ERROR parse.SemanticAnalyzer (SemanticAnalyzer.java:getMetaData(1128)) - org.apache.hadoop.hive.ql.metadata.HiveException: Unable to fetch table dw_xxx_xxx</div><div class="line">        at org.apache.hadoop.hive.ql.metadata.Hive.getTable(Hive.java:896)</div><div class="line">        ...</div><div class="line">Caused by: javax.jdo.JDODataStoreException: Exception thrown obtaining schema column information from datastore</div><div class="line">NestedThrowables:</div><div class="line">com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Table &apos;hive.DELETEME1378143540925&apos; doesn&apos;t exist</div><div class="line">        at org.datanucleus.jdo.NucleusJDOHelper.getJDOExceptionForNucleusException(NucleusJDOHelper.java:313)</div><div class="line">        ...</div></pre></td></tr></table></figure>
