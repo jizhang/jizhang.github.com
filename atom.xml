@@ -187,7 +187,7 @@
     <link href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/"/>
     <id>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</id>
     <published>2015-09-01T18:38:00.000Z</published>
-    <updated>2016-09-05T13:25:19.364Z</updated>
+    <updated>2017-01-02T09:32:02.905Z</updated>
     
     <content type="html"><![CDATA[<p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/" target="_blank" rel="external">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/" target="_blank" rel="external">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
 <h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/" target="_blank" rel="external">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
@@ -228,10 +228,12 @@
     
     </summary>
     
-      <category term="Notes" scheme="http://shzhangji.com/categories/Notes/"/>
+      <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
-      <category term="Big Data" scheme="http://shzhangji.com/categories/Notes/Big-Data/"/>
     
+      <category term="english" scheme="http://shzhangji.com/tags/english/"/>
+    
+      <category term="spark" scheme="http://shzhangji.com/tags/spark/"/>
     
   </entry>
   
@@ -342,7 +344,7 @@
     <link href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/"/>
     <id>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</id>
     <published>2015-05-31T18:18:00.000Z</published>
-    <updated>2016-09-05T13:25:19.364Z</updated>
+    <updated>2017-01-02T09:28:05.293Z</updated>
     
     <content type="html"><![CDATA[<p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
 <h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
@@ -379,10 +381,12 @@
     
     </summary>
     
-      <category term="Notes" scheme="http://shzhangji.com/categories/Notes/"/>
+      <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
-      <category term="Big Data" scheme="http://shzhangji.com/categories/Notes/Big-Data/"/>
     
+      <category term="english" scheme="http://shzhangji.com/tags/english/"/>
+    
+      <category term="spark" scheme="http://shzhangji.com/tags/spark/"/>
     
   </entry>
   
@@ -391,7 +395,7 @@
     <link href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/"/>
     <id>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</id>
     <published>2015-04-28T23:08:00.000Z</published>
-    <updated>2016-09-05T13:25:19.364Z</updated>
+    <updated>2017-01-02T09:35:39.345Z</updated>
     
     <content type="html"><![CDATA[<p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
 <h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard" target="_blank" rel="external">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing" target="_blank" rel="external">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
@@ -481,8 +485,12 @@
     
     </summary>
     
-      <category term="Notes" scheme="http://shzhangji.com/categories/Notes/"/>
+      <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
+    
+      <category term="elasticsearch" scheme="http://shzhangji.com/tags/elasticsearch/"/>
+    
+      <category term="english" scheme="http://shzhangji.com/tags/english/"/>
     
   </entry>
   
@@ -1010,7 +1018,7 @@
     <link href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/"/>
     <id>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</id>
     <published>2014-05-27T17:44:00.000Z</published>
-    <updated>2016-09-05T13:25:19.360Z</updated>
+    <updated>2017-01-02T09:32:40.201Z</updated>
     
     <content type="html"><![CDATA[<p>As I’m working with my first <a href="http://www.scalatra.org/" target="_blank" rel="external">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/" target="_blank" rel="external">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation" target="_blank" rel="external">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
 <h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/" target="_blank" rel="external">Dojo</a> for example.</p>
@@ -1040,8 +1048,16 @@
     
     </summary>
     
-      <category term="Notes" scheme="http://shzhangji.com/categories/Notes/"/>
+      <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
+    
+      <category term="english" scheme="http://shzhangji.com/tags/english/"/>
+    
+      <category term="scala" scheme="http://shzhangji.com/tags/scala/"/>
+    
+      <category term="scalatra" scheme="http://shzhangji.com/tags/scalatra/"/>
+    
+      <category term="webjars" scheme="http://shzhangji.com/tags/webjars/"/>
     
   </entry>
   
