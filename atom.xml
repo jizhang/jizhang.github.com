@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://shzhangji.com/"/>
-  <updated>2016-09-05T13:25:19.364Z</updated>
+  <updated>2017-01-08T12:26:54.422Z</updated>
   <id>http://shzhangji.com/</id>
   
   <author>
@@ -16,11 +16,148 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Python 2 to 3 Quick Guide</title>
+    <link href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/"/>
+    <id>http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</id>
+    <published>2017-01-08T12:26:54.000Z</published>
+    <updated>2017-01-08T12:26:54.422Z</updated>
+    
+    <content type="html"><![CDATA[<p>Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python 3 is <a href="http://py3readiness.org/" target="_blank" rel="external">totally ready</a>, and here’s a list of references for those (including me) who are adopting Python 3 with a 2.x background.</p>
+<ol>
+<li>All Strings Are Unicode</li>
+<li><code>print</code> Becomes a Function</li>
+<li>Less Lists More Views</li>
+<li>Integer Division Returns Float</li>
+<li>Comparison Operators Raises <code>TypeError</code></li>
+<li>Set Literal Support</li>
+<li>New String Formatting</li>
+<li>Exception Handling</li>
+<li>Global Function Changes</li>
+<li>Renaming Modules and Relative Import</li>
+</ol>
+<h2 id="All-Strings-Are-Unicode"><a href="#All-Strings-Are-Unicode" class="headerlink" title="All Strings Are Unicode"></a>All Strings Are Unicode</h2><p>When dealing with non-ASCII encodings in Python 2, there’re <code>str</code>, <code>unicode</code>, <code>u&#39;...&#39;</code>, <code>s.encode()</code>, etc. In Python 3, there’re only <strong>text</strong> and <strong>binary data</strong>. The former is <code>str</code>, strings that are always represented in Unicode; the later is <code>bytes</code>, which is just a sequence of byte numbers.</p>
+<ul>
+<li>Conversion between <code>str</code> and <code>bytes</code>:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># str to bytes</span></div><div class="line"><span class="string">'str'</span>.encode(<span class="string">'UTF-8'</span>)</div><div class="line">bytes(<span class="string">'str'</span>, encoding=<span class="string">'UTF-8'</span>)</div><div class="line"></div><div class="line"><span class="comment"># bytes to str</span></div><div class="line"><span class="string">b'bytes'</span>.decode(<span class="string">'UTF-8'</span>)</div><div class="line">str(<span class="string">b'bytes'</span>, encoding=<span class="string">'UTF-8'</span>)</div></pre></td></tr></table></figure>
+<ul>
+<li><code>basestring</code> is removed, use <code>str</code> as type: <code>isinstance(s, str)</code></li>
+<li><code>bytes</code> is immutable, the corresponding mutable version is <code>bytearray</code>.</li>
+<li>The default source file encoding is UTF-8 now.</li>
+</ul>
+<a id="more"></a>
+<h2 id="print-Becomes-a-Function"><a href="#print-Becomes-a-Function" class="headerlink" title="print Becomes a Function"></a><code>print</code> Becomes a Function</h2><p>In Python 2, <code>print</code> is a statement, and now it’s used as a function:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">print</span>   <span class="comment"># Old: print a new line</span></div><div class="line">print() <span class="comment"># New</span></div><div class="line"></div><div class="line"><span class="keyword">print</span> <span class="string">'hello'</span>, <span class="string">'world'</span>,          <span class="comment"># Old: trailing comma suppresses new line</span></div><div class="line">print(<span class="string">'hello'</span>, <span class="string">'world'</span>, end=<span class="string">' '</span>) <span class="comment"># New: end defaults to '\n'</span></div><div class="line"></div><div class="line"><span class="keyword">print</span> &gt;&gt;sys.stderr, <span class="string">'error'</span>     <span class="comment"># Old: write to stderr</span></div><div class="line">print(<span class="string">'error'</span>, file=sys.stderr) <span class="comment"># New</span></div></pre></td></tr></table></figure>
+<p><code>print</code> function also provides <code>sep</code> and <code>flush</code> parameters:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">print(<span class="string">'hello'</span>, <span class="string">'world'</span>, sep=<span class="string">','</span>, flush=<span class="keyword">True</span>)</div><div class="line"></div><div class="line"><span class="comment"># Instead of:</span></div><div class="line"><span class="keyword">print</span> <span class="string">','</span>.join((<span class="string">'hello'</span>, <span class="string">'world'</span>))</div><div class="line">sys.stdout.flush()</div></pre></td></tr></table></figure>
+<h2 id="Less-Lists-More-Views"><a href="#Less-Lists-More-Views" class="headerlink" title="Less Lists More Views"></a>Less Lists More Views</h2><p>A lot of well-known methods now return iterators, or ‘views’,  instead of eager-evaluated lists. </p>
+<ul>
+<li>Dictionary’s <code>keys</code>, <code>items</code>, and <code>values</code> methods, while removing <code>iterkeys</code>, <code>iteritems</code>, and <code>itervalues</code>. For example, when you need a sorted key list:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">k = d.keys(); k.sort() <span class="comment"># Old</span></div><div class="line">k = sorted(d.keys())   <span class="comment"># New</span></div></pre></td></tr></table></figure>
+<ul>
+<li><code>map</code>, <code>filter</code>, and <code>zip</code>, while removing <code>imap</code> methods in <code>itertools</code> module. To get a concrete list, use list comprehension or the <code>list</code> global function:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[x * <span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]]</div><div class="line">list(map(<span class="keyword">lambda</span> x: x * <span class="number">2</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]))</div></pre></td></tr></table></figure>
+<ul>
+<li><code>range</code> is now equivalent to <code>xrange</code> in Python 2, the later is removed.</li>
+<li>For iterators, the <code>next</code> method is renamed to <code>__next__</code>, and there’s a global <code>next</code> function, which accepts an iterator and calls its <code>__next__</code> method.</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iter([<span class="number">1</span>]).next()     <span class="comment"># Old</span></div><div class="line">iter([<span class="number">1</span>]).__next__() <span class="comment"># New</span></div><div class="line">next(iter([<span class="number">1</span>]))      <span class="comment"># New</span></div></pre></td></tr></table></figure>
+<h2 id="Integer-Division-Returns-Float"><a href="#Integer-Division-Returns-Float" class="headerlink" title="Integer Division Returns Float"></a>Integer Division Returns Float</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">print 1 / 2   # Old: prints 0</div><div class="line">print 1 / 2.0 # Old: prints 0.5</div><div class="line">print(1 / 2)  # New: prints 0.5</div><div class="line">print(1 // 2) # New: prints 0</div></pre></td></tr></table></figure>
+<ul>
+<li>There’s no difference between <code>long</code> and <code>int</code> now, use <code>int</code> only.</li>
+<li>Octal literals are represented as <code>0o755</code>, instead of <code>0755</code>.</li>
+</ul>
+<h2 id="Comparison-Operators-Raises-TypeError"><a href="#Comparison-Operators-Raises-TypeError" class="headerlink" title="Comparison Operators Raises TypeError"></a>Comparison Operators Raises <code>TypeError</code></h2><ul>
+<li><code>&lt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>&gt;</code> can no longer be used between different types.</li>
+<li><code>==</code> and <code>!=</code> remains the same.</li>
+<li><code>cmp</code> parameter in <code>sort</code> is removed. Use <code>key</code> to extract a comparison key from each element.</li>
+</ul>
+<h2 id="Set-Literal-Support"><a href="#Set-Literal-Support" class="headerlink" title="Set Literal Support"></a>Set Literal Support</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">s = set([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]) <span class="comment"># Old, also valid in Python 3</span></div><div class="line">s = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;      <span class="comment"># New</span></div><div class="line">s = set()          <span class="comment"># Empty set</span></div><div class="line">d = &#123;&#125;             <span class="comment"># Empty dict</span></div></pre></td></tr></table></figure>
+<h2 id="New-String-Formatting"><a href="#New-String-Formatting" class="headerlink" title="New String Formatting"></a>New String Formatting</h2><p>Python 3 introduces a new form of string formatting, and it’s also back-ported to Python 2.x. The old <code>%s</code> formatting is still available in 3.x, but the <a href="https://docs.python.org/3/library/string.html#format-string-syntax" target="_blank" rel="external">new format</a> seems more expressive and powerful.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># by position</span></div><div class="line"><span class="string">'&#123;&#125;, &#123;&#125;, &#123;&#125;'</span>.format(<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>)    <span class="comment"># a, b, c</span></div><div class="line"><span class="string">'&#123;2&#125;, &#123;1&#125;, &#123;0&#125;'</span>.format(<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>) <span class="comment"># c, b, a</span></div><div class="line"></div><div class="line"><span class="comment"># by name</span></div><div class="line"><span class="string">'Hello, &#123;name&#125;'</span>.format(name=<span class="string">'Jerry'</span>) <span class="comment"># Hello, Jerry</span></div><div class="line"></div><div class="line"><span class="comment"># by attribute</span></div><div class="line">c = <span class="number">1</span> - <span class="number">2j</span></div><div class="line"><span class="string">'real: &#123;0.real&#125;'</span>.format(c) <span class="comment"># real: 1.0</span></div><div class="line"></div><div class="line"><span class="comment"># by index</span></div><div class="line"><span class="string">'X: &#123;0[0]&#125;, Y: &#123;0[1]&#125;'</span>.format((<span class="number">1</span>, <span class="number">2</span>)) <span class="comment"># X: 1, Y: 2</span></div><div class="line"></div><div class="line"><span class="comment"># format number</span></div><div class="line"><span class="string">'&#123;:.2f&#125;'</span>.format(<span class="number">1.2</span>)   <span class="comment"># 1.20</span></div><div class="line"><span class="string">'&#123;:.2%&#125;'</span>.format(<span class="number">0.012</span>) <span class="comment"># 1.20%</span></div><div class="line"><span class="string">'&#123;:,&#125;'</span>.format(<span class="number">1234567</span>) <span class="comment"># 1,234,567</span></div><div class="line"></div><div class="line"><span class="comment"># padding</span></div><div class="line"><span class="string">'&#123;:&gt;05&#125;'</span>.format(<span class="number">1</span>) <span class="comment"># 00001</span></div></pre></td></tr></table></figure>
+<p>Furthermore, Python 3.6 introduces literal string interpolation (<a href="https://www.python.org/dev/peps/pep-0498/" target="_blank" rel="external">PEP 498</a>).</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">name = <span class="string">'Jerry'</span></div><div class="line">print(f<span class="string">'Hello, &#123;name&#125;'</span>)</div></pre></td></tr></table></figure>
+<h2 id="Exception-Handling"><a href="#Exception-Handling" class="headerlink" title="Exception Handling"></a>Exception Handling</h2><p>Raise and catch exceptions in a more standard way:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Old</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">  <span class="keyword">raise</span> Exception, <span class="string">'message'</span></div><div class="line"><span class="keyword">except</span> Exception, e:</div><div class="line">  tb = sys.exc_info()[<span class="number">2</span>]</div><div class="line">  </div><div class="line"><span class="comment"># New</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">  <span class="keyword">raise</span> Exception(<span class="string">'message'</span>)</div><div class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">  tb = e.__traceback__</div></pre></td></tr></table></figure>
+<h2 id="Global-Function-Changes"><a href="#Global-Function-Changes" class="headerlink" title="Global Function Changes"></a>Global Function Changes</h2><p>Some global functions are (re)moved to reduce duplication and language cruft.</p>
+<ul>
+<li><code>reduce</code> is removed, use <code>functools.reduce</code>, or explict <code>for</code> loop instead.</li>
+<li><code>apply</code> is removed, use <code>f(*args)</code> instead of <code>apply(f, args)</code>.</li>
+<li><code>execfile</code> is removed, use <code>exec(open(fn).read())</code></li>
+<li>Removed backticks, use <code>repr</code> instread.</li>
+<li><code>raw_input</code> is renamed to <code>input</code>, and the old <code>input</code> behaviour can be achieved by <code>eval(input())</code></li>
+</ul>
+<h2 id="Renaming-Modules-and-Relative-Import"><a href="#Renaming-Modules-and-Relative-Import" class="headerlink" title="Renaming Modules and Relative Import"></a>Renaming Modules and Relative Import</h2><ul>
+<li>Different URL modules are unified into <code>urllib</code> module, e.g.</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> urllib.request <span class="keyword">import</span> urlopen, Request</div><div class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> urlencode</div><div class="line">req = Request(<span class="string">'http://shzhangji.com?'</span> + urlencode(&#123;<span class="string">'t'</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="keyword">with</span> urlopen(req) <span class="keyword">as</span> f:</div><div class="line">  print(f.read())</div></pre></td></tr></table></figure>
+<ul>
+<li>Some modules are renamed according to <a href="https://www.python.org/dev/peps/pep-0008" target="_blank" rel="external">PEP 8</a>, such as:<ul>
+<li>ConfigParser -&gt; configparser</li>
+<li>copy_reg -&gt; copyreg</li>
+<li>test.test_support -&gt; test.support</li>
+</ul>
+</li>
+<li>Some modules have both pure Python implementation along with an accelerated version, like StringIO and cStringIO. In Python 3, user should always import the standard module, and fallback would happen automatically.<ul>
+<li>StringIO + cStringIO -&gt; io</li>
+<li>pickle + cPickle -&gt; pickle</li>
+</ul>
+</li>
+<li>All <code>import</code> forms are interpreted as absolute imports, unless started with <code>.</code>:</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> . <span class="keyword">import</span> somemod</div><div class="line"><span class="keyword">from</span> .somemod <span class="keyword">import</span> moremod</div></pre></td></tr></table></figure>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://docs.python.org/3/whatsnew/3.0.html" target="_blank" rel="external">What’s New In Python 3.0</a></li>
+<li><a href="http://www.diveintopython3.net/porting-code-to-python-3-with-2to3.html" target="_blank" rel="external">Porting Code to Python 3 with 2to3</a></li>
+<li><a href="http://sebastianraschka.com/Articles/2014_python_2_3_key_diff.html" target="_blank" rel="external">The key differences between Python 2.7.x and Python 3.x with examples</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python 3 is &lt;a href=&quot;http://py3readiness.org/&quot;&gt;totally ready&lt;/a&gt;, and here’s a list of references for those (including me) who are adopting Python 3 with a 2.x background.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;All Strings Are Unicode&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;print&lt;/code&gt; Becomes a Function&lt;/li&gt;
+&lt;li&gt;Less Lists More Views&lt;/li&gt;
+&lt;li&gt;Integer Division Returns Float&lt;/li&gt;
+&lt;li&gt;Comparison Operators Raises &lt;code&gt;TypeError&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Set Literal Support&lt;/li&gt;
+&lt;li&gt;New String Formatting&lt;/li&gt;
+&lt;li&gt;Exception Handling&lt;/li&gt;
+&lt;li&gt;Global Function Changes&lt;/li&gt;
+&lt;li&gt;Renaming Modules and Relative Import&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;All-Strings-Are-Unicode&quot;&gt;&lt;a href=&quot;#All-Strings-Are-Unicode&quot; class=&quot;headerlink&quot; title=&quot;All Strings Are Unicode&quot;&gt;&lt;/a&gt;All Strings Are Unicode&lt;/h2&gt;&lt;p&gt;When dealing with non-ASCII encodings in Python 2, there’re &lt;code&gt;str&lt;/code&gt;, &lt;code&gt;unicode&lt;/code&gt;, &lt;code&gt;u&amp;#39;...&amp;#39;&lt;/code&gt;, &lt;code&gt;s.encode()&lt;/code&gt;, etc. In Python 3, there’re only &lt;strong&gt;text&lt;/strong&gt; and &lt;strong&gt;binary data&lt;/strong&gt;. The former is &lt;code&gt;str&lt;/code&gt;, strings that are always represented in Unicode; the later is &lt;code&gt;bytes&lt;/code&gt;, which is just a sequence of byte numbers.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Conversion between &lt;code&gt;str&lt;/code&gt; and &lt;code&gt;bytes&lt;/code&gt;:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# str to bytes&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;string&quot;&gt;&#39;str&#39;&lt;/span&gt;.encode(&lt;span class=&quot;string&quot;&gt;&#39;UTF-8&#39;&lt;/span&gt;)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;bytes(&lt;span class=&quot;string&quot;&gt;&#39;str&#39;&lt;/span&gt;, encoding=&lt;span class=&quot;string&quot;&gt;&#39;UTF-8&#39;&lt;/span&gt;)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# bytes to str&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;string&quot;&gt;b&#39;bytes&#39;&lt;/span&gt;.decode(&lt;span class=&quot;string&quot;&gt;&#39;UTF-8&#39;&lt;/span&gt;)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;str(&lt;span class=&quot;string&quot;&gt;b&#39;bytes&#39;&lt;/span&gt;, encoding=&lt;span class=&quot;string&quot;&gt;&#39;UTF-8&#39;&lt;/span&gt;)&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;basestring&lt;/code&gt; is removed, use &lt;code&gt;str&lt;/code&gt; as type: &lt;code&gt;isinstance(s, str)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;bytes&lt;/code&gt; is immutable, the corresponding mutable version is &lt;code&gt;bytearray&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;The default source file encoding is UTF-8 now.&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
+    
+    
+      <category term="python" scheme="http://shzhangji.com/tags/python/"/>
+    
+      <category term="english" scheme="http://shzhangji.com/tags/english/"/>
+    
+  </entry>
+  
+  <entry>
     <title>开发人员必知的5种开源框架</title>
     <link href="http://shzhangji.com/blog/2016/03/13/top-5-frameworks/"/>
     <id>http://shzhangji.com/blog/2016/03/13/top-5-frameworks/</id>
     <published>2016-03-13T16:25:00.000Z</published>
-    <updated>2016-09-05T13:25:19.364Z</updated>
+    <updated>2016-12-04T10:25:33.929Z</updated>
     
     <content type="html"><![CDATA[<p>作者：<a href="https://opensource.com/business/15/12/top-5-frameworks" target="_blank" rel="external">John Esposito</a></p>
 <p>软件侵吞着世界<a href="http://www.wsj.com/articles/SB10001424053111903480904576512250915629460" target="_blank" rel="external">已经四年多了</a>，但开发人员看待软件的方式稍有不同。我们一直在致力于<a href="http://www.dougengelbart.org/pubs/augment-3906.html" target="_blank" rel="external">解决实际问题</a>，而<a href="http://worrydream.com/refs/Brooks-NoSilverBullet.pdf" target="_blank" rel="external">很少思考软件开发的基石</a>。当问题变得更庞大、解决方案更复杂时，一些实用的、不怎么<a href="http://www.joelonsoftware.com/articles/LeakyAbstractions.html" target="_blank" rel="external">产生泄漏</a>的抽象工具就显得越来越重要。</p>
@@ -75,7 +212,7 @@
     <link href="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/"/>
     <id>http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/</id>
     <published>2015-09-12T22:03:00.000Z</published>
-    <updated>2016-09-05T13:25:19.364Z</updated>
+    <updated>2016-12-04T10:25:33.929Z</updated>
     
     <content type="html"><![CDATA[<p>在<a href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter，所有的业务逻辑都写在服务层中，领域模型仅仅用来传递数据。为了编写真正的领域模型，我们需要将业务逻辑移至模型对象中，这就引出另一个问题：业务逻辑通常需要调用其他服务或模型，而使用<code>new</code>关键字或由JPA创建的对象是不受Spring托管的，也就无法进行依赖注入。解决这个问题的方法有很多，比较之后我选择使用面向切面编程来实现。</p>
 <h2 id="面向切面编程"><a href="#面向切面编程" class="headerlink" title="面向切面编程"></a>面向切面编程</h2><p>面向切面编程，或<a href="https://en.wikipedia.org/wiki/Aspect-oriented_programming" target="_blank" rel="external">AOP</a>，是一种编程范式，和面向对象编程（<a href="https://en.wikipedia.org/wiki/Object-oriented_programming" target="_blank" rel="external">OOP</a>）互为补充。简单来说，AOP可以在不修改既有代码的情况下改变代码的行为。开发者通过定义一组规则，在特定的类方法前后增加逻辑，如记录日志、性能监控、事务管理等。这些逻辑称为切面（Aspect），规则称为切点（Pointcut），在调用前还是调用后执行称为通知（Before advice, After advice）。最后，我们可以选择在编译期将这些逻辑写入类文件，或是在运行时动态加载这些逻辑，这是两种不同的织入方式（Compile-time weaving, Load-time weaving）。</p>
@@ -145,7 +282,7 @@
     <link href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/"/>
     <id>http://shzhangji.com/blog/2015/09/05/anemic-domain-model/</id>
     <published>2015-09-05T19:02:00.000Z</published>
-    <updated>2016-09-05T13:25:19.364Z</updated>
+    <updated>2016-12-04T10:25:33.929Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://www.martinfowler.com/bliki/AnemicDomainModel.html" target="_blank" rel="external">http://www.martinfowler.com/bliki/AnemicDomainModel.html</a></p>
 <p>贫血领域模型是一个存在已久的反模式，目前仍有许多拥趸者。一次我和Eric Evans聊天谈到它时，都觉得这个模型似乎越来越流行了。作为<a href="http://martinfowler.com/eaaCatalog/domainModel.html" target="_blank" rel="external">领域模型</a>的推广者，我们觉得这不是一件好事。</p>
@@ -187,7 +324,7 @@
     <link href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/"/>
     <id>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</id>
     <published>2015-09-01T18:38:00.000Z</published>
-    <updated>2017-01-02T09:32:02.905Z</updated>
+    <updated>2017-01-03T10:46:48.218Z</updated>
     
     <content type="html"><![CDATA[<p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/" target="_blank" rel="external">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/" target="_blank" rel="external">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
 <h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/" target="_blank" rel="external">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
@@ -242,7 +379,7 @@
     <link href="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/"/>
     <id>http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/</id>
     <published>2015-06-25T17:41:00.000Z</published>
-    <updated>2016-09-05T13:25:19.364Z</updated>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="https://wiki.openjdk.java.net/display/HotSpot/CompressedOops" target="_blank" rel="external">https://wiki.openjdk.java.net/display/HotSpot/CompressedOops</a></p>
 <h2 id="什么是一般对象指针？"><a href="#什么是一般对象指针？" class="headerlink" title="什么是一般对象指针？"></a>什么是一般对象指针？</h2><p>一般对象指针（oop, ordinary object pointer）是HotSpot虚拟机的一个术语，表示受托管的对象指针。它的大小通常和本地指针是一样的。Java应用程序和GC子系统会非常小心地跟踪这些受托管的指针，以便在销毁对象时回收内存空间，或是在对空间进行整理时移动（复制）对象。</p>
@@ -344,7 +481,7 @@
     <link href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/"/>
     <id>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</id>
     <published>2015-05-31T18:18:00.000Z</published>
-    <updated>2017-01-02T09:28:05.293Z</updated>
+    <updated>2017-01-03T10:46:48.218Z</updated>
     
     <content type="html"><![CDATA[<p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
 <h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
@@ -395,7 +532,7 @@
     <link href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/"/>
     <id>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</id>
     <published>2015-04-28T23:08:00.000Z</published>
-    <updated>2017-01-02T09:35:39.345Z</updated>
+    <updated>2017-01-03T10:46:48.218Z</updated>
     
     <content type="html"><![CDATA[<p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
 <h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard" target="_blank" rel="external">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing" target="_blank" rel="external">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
@@ -488,9 +625,9 @@
       <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
-      <category term="elasticsearch" scheme="http://shzhangji.com/tags/elasticsearch/"/>
-    
       <category term="english" scheme="http://shzhangji.com/tags/english/"/>
+    
+      <category term="elasticsearch" scheme="http://shzhangji.com/tags/elasticsearch/"/>
     
   </entry>
   
@@ -499,7 +636,7 @@
     <link href="http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts/"/>
     <id>http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts/</id>
     <published>2015-03-08T08:03:00.000Z</published>
-    <updated>2016-09-05T13:25:19.364Z</updated>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/" target="_blank" rel="external">http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/</a></p>
 <p>最近我在<a href="http://www.meetup.com/LA-HUG/" target="_blank" rel="external">洛杉矶Hadoop用户组</a>做了一次关于<a href="http://www.meetup.com/LA-HUG/pages/Video_from_April_13th_HBASE_DO%27S_and_DON%27TS/" target="_blank" rel="external">HBase适用场景</a>的分享。在场的听众水平都很高，给到了我很多值得深思的反馈。主办方是来自Shopzilla的Jody，我非常感谢他能给我一个在60多位Hadoop使用者面前演讲的机会。可能一些朋友没有机会来洛杉矶参加这次会议，我将分享中的主要内容做了一个整理。如果你没有时间阅读全文，以下是一些摘要：</p>
@@ -553,7 +690,7 @@
     <link href="http://shzhangji.com/blog/2015/01/13/understand-reduce-side-join/"/>
     <id>http://shzhangji.com/blog/2015/01/13/understand-reduce-side-join/</id>
     <published>2015-01-13T14:20:00.000Z</published>
-    <updated>2016-09-05T13:25:19.364Z</updated>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>在《<a href="http://www.amazon.com/MapReduce-Design-Patterns-Effective-Algorithms/dp/1449327176" target="_blank" rel="external">MapReduce Design Patterns</a>》一书中，作者给出了Reduce-side Join的实现方法，大致步骤如下：</p>
 <p><img src="/images/reduce-side-join/reduce-side-join.png" alt=""></p>
@@ -626,7 +763,7 @@
     <link href="http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/"/>
     <id>http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/</id>
     <published>2014-12-23T16:10:00.000Z</published>
-    <updated>2016-09-05T13:25:19.364Z</updated>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>当多人协作开发一个分支时，历史记录通常如下方左图所示，比较凌乱。如果希望能像右图那样呈线性提交，就需要学习git rebase的用法。</p>
 <p><img src="/images/git-rebase/rebase-result.png" alt=""></p>
@@ -679,7 +816,7 @@
     <link href="http://shzhangji.com/blog/2014/12/16/spark-quick-start/"/>
     <id>http://shzhangji.com/blog/2014/12/16/spark-quick-start/</id>
     <published>2014-12-16T15:59:00.000Z</published>
-    <updated>2016-09-05T13:25:19.364Z</updated>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p><img src="http://spark.apache.org/images/spark-logo.png" alt=""></p>
 <p><a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>是新兴的一种快速通用的大规模数据处理引擎。它的优势有三个方面：</p>
@@ -794,7 +931,7 @@
     <link href="http://shzhangji.com/blog/2014/11/07/sbt-offline/"/>
     <id>http://shzhangji.com/blog/2014/11/07/sbt-offline/</id>
     <published>2014-11-07T15:02:00.000Z</published>
-    <updated>2016-09-05T13:25:19.360Z</updated>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>在公司网络中使用<a href="http://www.scala-sbt.org/" target="_blank" rel="external">sbt</a>、<a href="http://maven.apache.org/" target="_blank" rel="external">Maven</a>等项目构建工具时，我们通常会搭建一个公用的<a href="http://www.sonatype.org/nexus/" target="_blank" rel="external">Nexus</a>镜像服务，原因有以下几个：</p>
 <ul>
@@ -850,7 +987,7 @@
     <link href="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/"/>
     <id>http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/</id>
     <published>2014-10-14T13:16:00.000Z</published>
-    <updated>2016-09-05T13:25:19.360Z</updated>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Incorrect string value: &apos;\xF0\x9D\x8C\x86&apos; for column ...</div></pre></td></tr></table></figure>
@@ -901,7 +1038,7 @@
     <link href="http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/"/>
     <id>http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/</id>
     <published>2014-07-05T17:16:00.000Z</published>
-    <updated>2016-09-05T13:25:19.360Z</updated>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p><a href="http://spark.apache.org" target="_blank" rel="external">Spark</a>是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的<a href="http://hadoop.apache.org" target="_blank" rel="external">Hadoop</a>生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于<a href="http://hive.apache.org" target="_blank" rel="external">Hive</a>，Spark也有相应的替代项目——<a href="http://shark.cs.berkeley.edu/" target="_blank" rel="external">Shark</a>，能做到 <strong>drop-in replacement</strong> ，直接构建在现有集群之上。本文就将简要阐述如何在CDH4.5上搭建Shark0.9集群。</p>
 <h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><ul>
@@ -1018,7 +1155,7 @@
     <link href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/"/>
     <id>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</id>
     <published>2014-05-27T17:44:00.000Z</published>
-    <updated>2017-01-02T09:32:40.201Z</updated>
+    <updated>2017-01-03T10:46:48.218Z</updated>
     
     <content type="html"><![CDATA[<p>As I’m working with my first <a href="http://www.scalatra.org/" target="_blank" rel="external">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/" target="_blank" rel="external">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation" target="_blank" rel="external">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
 <h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/" target="_blank" rel="external">Dojo</a> for example.</p>
@@ -1066,7 +1203,7 @@
     <link href="http://shzhangji.com/blog/2014/04/07/hive-small-files/"/>
     <id>http://shzhangji.com/blog/2014/04/07/hive-small-files/</id>
     <published>2014-04-07T17:09:00.000Z</published>
-    <updated>2016-09-05T13:25:19.360Z</updated>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。</p>
 <h2 id="小文件带来的问题"><a href="#小文件带来的问题" class="headerlink" title="小文件带来的问题"></a>小文件带来的问题</h2><p>关于这个问题的阐述可以读一读Cloudera的<a href="http://blog.cloudera.com/blog/2009/02/the-small-files-problem/" target="_blank" rel="external">这篇文章</a>。简单来说，HDFS的文件元信息，包括位置、大小、分块信息等，都是保存在NameNode的内存中的。每个对象大约占用150个字节，因此一千万个文件及分块就会占用约3G的内存空间，一旦接近这个量级，NameNode的性能就会开始下降了。</p>
@@ -1118,7 +1255,7 @@
     <link href="http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/"/>
     <id>http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/</id>
     <published>2014-01-25T09:42:00.000Z</published>
-    <updated>2016-09-05T13:25:19.360Z</updated>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://www.programcreek.com/2013/09/java-reflection-tutorial/" target="_blank" rel="external">http://www.programcreek.com/2013/09/java-reflection-tutorial/</a></p>
 <p>什么是反射？它有何用处？</p>
@@ -1205,7 +1342,7 @@
     <link href="http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions/"/>
     <id>http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions/</id>
     <published>2013-12-17T13:05:00.000Z</published>
-    <updated>2016-09-05T13:25:19.360Z</updated>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://www.joelonsoftware.com/articles/LeakyAbstractions.html" target="_blank" rel="external">http://www.joelonsoftware.com/articles/LeakyAbstractions.html</a></p>
 <p>TCP协议是互联网的基石，我们每天都需要依靠它来构建各类互联网应用。也正是在这一协议中，时刻发生着一件近乎神奇的事情。</p>
@@ -1263,7 +1400,7 @@
     <link href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/"/>
     <id>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</id>
     <published>2013-10-31T09:35:00.000Z</published>
-    <updated>2016-09-05T13:25:19.360Z</updated>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>In DBMS world, it’s easy to generate a unique, auto-increment id, using MySQL’s <a href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html" target="_blank" rel="external">AUTO_INCREMENT attribute</a> on a primary key or MongoDB’s <a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/" target="_blank" rel="external">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it’ll take some steps.</p>
 <h2 id="Solution-A-Single-Reducer"><a href="#Solution-A-Single-Reducer" class="headerlink" title="Solution A: Single Reducer"></a>Solution A: Single Reducer</h2><p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
@@ -1340,67 +1477,6 @@
     
       <category term="Big Data" scheme="http://shzhangji.com/categories/Notes/Big-Data/"/>
     
-    
-  </entry>
-  
-  <entry>
-    <title>Hive并发情况下报DELETEME表不存在的异常</title>
-    <link href="http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/"/>
-    <id>http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/</id>
-    <published>2013-09-06T11:20:00.000Z</published>
-    <updated>2016-09-05T13:25:19.360Z</updated>
-    
-    <content type="html"><![CDATA[<p>在每天运行的Hive脚本中，偶尔会抛出以下错误：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">2013-09-03 01:39:00,973 ERROR parse.SemanticAnalyzer (SemanticAnalyzer.java:getMetaData(1128)) - org.apache.hadoop.hive.ql.metadata.HiveException: Unable to fetch table dw_xxx_xxx</div><div class="line">        at org.apache.hadoop.hive.ql.metadata.Hive.getTable(Hive.java:896)</div><div class="line">        ...</div><div class="line">Caused by: javax.jdo.JDODataStoreException: Exception thrown obtaining schema column information from datastore</div><div class="line">NestedThrowables:</div><div class="line">com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Table &apos;hive.DELETEME1378143540925&apos; doesn&apos;t exist</div><div class="line">        at org.datanucleus.jdo.NucleusJDOHelper.getJDOExceptionForNucleusException(NucleusJDOHelper.java:313)</div><div class="line">        ...</div></pre></td></tr></table></figure>
-<p>查阅了网上的资料，是DataNucleus的问题。</p>
-<p>背景1：我们知道MySQL中的库表信息是存放在information_schema库中的，Hive也有类似的机制，它会将库表信息存放在一个第三方的RDBMS中，目前我们线上配置的是本机MySQL，即：</p>
-<p>$ mysql -uhive -ppassword hive</p>
-<p><img src="/images/hive-deleteme-error/1.png" alt="1.png"></p>
-<a id="more"></a>
-<p>背景2：Hive使用的是DataNuclues ORM库来操作数据库的，而基本上所有的ORM框架（对象关系映射）都会提供自动建表的功能，即开发者只需编写Java对象，ORM会自动生成DDL。DataNuclues也有这一功能，而且它在初始化时会通过生成临时表的方式来获取数据库的Catalog和Schema，也就是 DELETEME表：</p>
-<p><img src="/images/hive-deleteme-error/2.png" alt="2.png"></p>
-<p>这样就有一个问题：在并发量大的情况下，DELETEME表名中的毫秒数可能相同，那在pt.drop(conn)的时候就会产生找不到表的报错。</p>
-<p>解决办法已经可以在代码中看到了：将datanucleus.fixedDataStore选项置为true，即告知DataNuclues该数据库的表结构是既定的，不允许执行DDL操作。</p>
-<p>这样配置会有什么问题？让我们回忆一下Hive的安装步骤：</p>
-<ol>
-<li>解压hive-xyz.tar.gz；</li>
-<li>在conf/hive-site.xml中配置Hadoop以及用于存放库表信息的第三方数据库；</li>
-<li>执行bin/hive -e “…”即可使用。DataNucleus会按需创建上述的DBS等表。</li>
-</ol>
-<p>这对新手来说很有用，因为不需要手动去执行建表语句，但对生产环境来说，普通帐号是没有DDL权限的，我们公司建表也都是提DB-RT给DBA操作。同理，线上Hive数据库也应该采用手工创建的方式，导入scripts/metastore/upgrade/mysql/hive-schema-0.9.0.mysql.sql文件即可。这样一来，就可以放心地配置datanucleus.fixedDataStore以及 datanecleus.autoCreateSchema两个选项了。</p>
-<p>这里我们也明确了一个问题：设置datanucleus.fixedDataStore=true不会影响Hive建库建表，因为Hive中的库表只是DBS、TBLS表中的一条记录而已。</p>
-<p>建议的操作：</p>
-<ol>
-<li>在线上导入hive-schema-0.9.0.mysql.sql，将尚未创建的表创建好（比如我们没有用过Hive的权限管理，所以DataNucleus没有自动创建DB_PRIVS表）；</li>
-<li>在hive-site.xml中配置 datanucleus.fixedDataStore=true；datanecleus.autoCreateSchema=false。</li>
-</ol>
-<p>这样就可以彻底解决这个异常了。</p>
-<p>为什么HWI没有遇到类似问题？因为它是常驻内存的，DELETEME表只会在启动的时候创建，后续的查询不会创建。而我们这里每次调用hive命令行都会去创建，所以才有这样的问题。</p>
-<p>参考链接：</p>
-<ul>
-<li><a href="http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html" target="_blank" rel="external">http://www.cnblogs.com/ggjucheng/archive/2012/07/25/2608633.html</a></li>
-<li><a href="https://github.com/dianping/cosmos-hive/issues/10" target="_blank" rel="external">https://github.com/dianping/cosmos-hive/issues/10</a></li>
-<li><a href="https://issues.apache.org/jira/browse/HIVE-1841" target="_blank" rel="external">https://issues.apache.org/jira/browse/HIVE-1841</a></li>
-</ul>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;在每天运行的Hive脚本中，偶尔会抛出以下错误：&lt;/p&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;2013-09-03 01:39:00,973 ERROR parse.SemanticAnalyzer (SemanticAnalyzer.java:getMetaData(1128)) - org.apache.hadoop.hive.ql.metadata.HiveException: Unable to fetch table dw_xxx_xxx&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        at org.apache.hadoop.hive.ql.metadata.Hive.getTable(Hive.java:896)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        ...&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;Caused by: javax.jdo.JDODataStoreException: Exception thrown obtaining schema column information from datastore&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;NestedThrowables:&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Table &amp;apos;hive.DELETEME1378143540925&amp;apos; doesn&amp;apos;t exist&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        at org.datanucleus.jdo.NucleusJDOHelper.getJDOExceptionForNucleusException(NucleusJDOHelper.java:313)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        ...&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;查阅了网上的资料，是DataNucleus的问题。&lt;/p&gt;
-&lt;p&gt;背景1：我们知道MySQL中的库表信息是存放在information_schema库中的，Hive也有类似的机制，它会将库表信息存放在一个第三方的RDBMS中，目前我们线上配置的是本机MySQL，即：&lt;/p&gt;
-&lt;p&gt;$ mysql -uhive -ppassword hive&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/images/hive-deleteme-error/1.png&quot; alt=&quot;1.png&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Notes" scheme="http://shzhangji.com/categories/Notes/"/>
-    
-      <category term="Big Data" scheme="http://shzhangji.com/categories/Notes/Big-Data/"/>
-    
-    
-      <category term="hive" scheme="http://shzhangji.com/tags/hive/"/>
     
   </entry>
   

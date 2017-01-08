@@ -84,6 +84,57 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-use-git-rebase-to-clarify-history" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/" class="article-date">
+  <time datetime="2014-12-23T16:10:00.000Z" itemprop="datePublished">2014-12-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Notes/">Notes</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/12/23/use-git-rebase-to-clarify-history/">使用git rebase让历史变得清晰</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>当多人协作开发一个分支时，历史记录通常如下方左图所示，比较凌乱。如果希望能像右图那样呈线性提交，就需要学习git rebase的用法。</p>
+<p><img src="/images/git-rebase/rebase-result.png" alt=""></p>
+<h2 id="“Merge-branch”提交的产生"><a href="#“Merge-branch”提交的产生" class="headerlink" title="“Merge branch”提交的产生"></a>“Merge branch”提交的产生</h2><p>我们的工作流程是：修改代码→提交到本地仓库→拉取远程改动→推送。正是在git pull这一步产生的Merge branch提交。事实上，git pull等效于get fetch origin和get merge origin/master这两条命令，前者是拉取远程仓库到本地临时库，后者是将临时库中的改动合并到本地分支中。</p>
+<p>要避免Merge branch提交也有一个“土法”：先pull、再commit、最后push。不过万一commit和push之间远程又发生了改动，还需要再pull一次，就又会产生Merge branch提交。</p>
+<h2 id="使用git-pull-–rebase"><a href="#使用git-pull-–rebase" class="headerlink" title="使用git pull –rebase"></a>使用git pull –rebase</h2><p>修改代码→commit→git pull –rebase→git push。也就是将get merge origin/master替换成了git rebase origin/master，它的过程是先将HEAD指向origin/master，然后逐一应用本地的修改，这样就不会产生Merge branch提交了。具体过程见下文扩展阅读。</p>
+        
+          <p class="article-more-link">
+            <a href="/blog/2014/12/23/use-git-rebase-to-clarify-history/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/" data-id="cixo4lqkv002qq4m6633i191e" class="article-share-link">Share</a>
+      
+        <a href="http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-spark-quick-start" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2014/12/16/spark-quick-start/" class="article-date">
@@ -139,7 +190,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2014/12/16/spark-quick-start/" data-id="ciwah8df400295zm6qj49t8j0" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2014/12/16/spark-quick-start/" data-id="cixo4lqk8002gq4m68r0fg8dp" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2014/12/16/spark-quick-start/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -193,7 +244,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2014/11/07/sbt-offline/" data-id="ciwah8df000275zm6qctsadsp" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2014/11/07/sbt-offline/" data-id="cixo4lqk0002cq4m624p404ux" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2014/11/07/sbt-offline/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -246,7 +297,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/" data-id="ciwah8dex00225zm6h7uypzxp" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/" data-id="cixo4lqjy0029q4m64fiq5p76" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -309,7 +360,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/" data-id="ciwah8des001z5zm6jz9pfsg4" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/" data-id="cixo4lqjp0025q4m6oawcgf5r" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -359,7 +410,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="ciwah8deo001v5zm63onsm26j" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="cixo4lqja001sq4m6aa1x0b69" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -410,7 +461,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2014/04/07/hive-small-files/" data-id="ciwah8dej001t5zm6xnczbgln" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2014/04/07/hive-small-files/" data-id="cixo4lqjk0021q4m6vhz5sapm" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2014/04/07/hive-small-files/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -465,7 +516,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/" data-id="ciwah8deh001q5zm60zhxv6wm" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/" data-id="cixo4lqji001yq4m6ha2596pf" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -517,7 +568,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions/" data-id="ciwah8ddz001m5zm6zffq38s7" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions/" data-id="cixo4lqje001vq4m6q9cqwzq8" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -573,65 +624,11 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="ciwah8ddo001j5zm6j2w840pm" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="cixo4lqj0001oq4m6yxvvllsz" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hive-deleteme-error" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2013/09/06/hive-deleteme-error/" class="article-date">
-  <time datetime="2013-09-06T11:20:00.000Z" itemprop="datePublished">2013-09-06</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Notes/">Notes</a>►<a class="article-category-link" href="/categories/Notes/Big-Data/">Big Data</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2013/09/06/hive-deleteme-error/">Hive并发情况下报DELETEME表不存在的异常</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>在每天运行的Hive脚本中，偶尔会抛出以下错误：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">2013-09-03 01:39:00,973 ERROR parse.SemanticAnalyzer (SemanticAnalyzer.java:getMetaData(1128)) - org.apache.hadoop.hive.ql.metadata.HiveException: Unable to fetch table dw_xxx_xxx</div><div class="line">        at org.apache.hadoop.hive.ql.metadata.Hive.getTable(Hive.java:896)</div><div class="line">        ...</div><div class="line">Caused by: javax.jdo.JDODataStoreException: Exception thrown obtaining schema column information from datastore</div><div class="line">NestedThrowables:</div><div class="line">com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Table &apos;hive.DELETEME1378143540925&apos; doesn&apos;t exist</div><div class="line">        at org.datanucleus.jdo.NucleusJDOHelper.getJDOExceptionForNucleusException(NucleusJDOHelper.java:313)</div><div class="line">        ...</div></pre></td></tr></table></figure>
-<p>查阅了网上的资料，是DataNucleus的问题。</p>
-<p>背景1：我们知道MySQL中的库表信息是存放在information_schema库中的，Hive也有类似的机制，它会将库表信息存放在一个第三方的RDBMS中，目前我们线上配置的是本机MySQL，即：</p>
-<p>$ mysql -uhive -ppassword hive</p>
-<p><img src="/images/hive-deleteme-error/1.png" alt="1.png"></p>
-        
-          <p class="article-more-link">
-            <a href="/blog/2013/09/06/hive-deleteme-error/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/" data-id="ciwah8ddk001g5zm6keltr0is" class="article-share-link">Share</a>
-      
-        <a href="http://shzhangji.com/blog/2013/09/06/hive-deleteme-error/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hive/">hive</a></li></ul>
-
     </footer>
   </div>
   
@@ -652,7 +649,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/aosa/" style="font-size: 12.5px;">aosa</a> <a href="/tags/clojure/" style="font-size: 20px;">clojure</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/english/" style="font-size: 17.5px;">english</a> <a href="/tags/fp/" style="font-size: 10px;">fp</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hadoop/" style="font-size: 12.5px;">hadoop</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/javascript/" style="font-size: 10px;">javascript</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/noir/" style="font-size: 15px;">noir</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/perl/" style="font-size: 12.5px;">perl</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/scala/" style="font-size: 10px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 12.5px;">spark</a> <a href="/tags/storm/" style="font-size: 10px;">storm</a> <a href="/tags/translation/" style="font-size: 10px;">translation</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a>
+      <a href="/tags/aosa/" style="font-size: 12.5px;">aosa</a> <a href="/tags/clojure/" style="font-size: 20px;">clojure</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/english/" style="font-size: 17.5px;">english</a> <a href="/tags/fp/" style="font-size: 10px;">fp</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hadoop/" style="font-size: 12.5px;">hadoop</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/javascript/" style="font-size: 10px;">javascript</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/noir/" style="font-size: 15px;">noir</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/perl/" style="font-size: 12.5px;">perl</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/python/" style="font-size: 12.5px;">python</a> <a href="/tags/scala/" style="font-size: 10px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 12.5px;">spark</a> <a href="/tags/storm/" style="font-size: 10px;">storm</a> <a href="/tags/translation/" style="font-size: 10px;">translation</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a>
     </div>
   </div>
 
@@ -661,7 +658,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">April 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/06/">June 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/05/">May 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/02/">February 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/01/">January 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/11/">November 2012</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">April 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/06/">June 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/05/">May 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/02/">February 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/01/">January 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/11/">November 2012</a></li></ul>
     </div>
   </div>
 
@@ -672,6 +669,10 @@ ga('send', 'pageview');
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/blog/2017/01/08/python-2-to-3-quick-guide/">Python 2 to 3 Quick Guide</a>
+          </li>
         
           <li>
             <a href="/blog/2016/03/13/top-5-frameworks/">开发人员必知的5种开源框架</a>
@@ -687,10 +688,6 @@ ga('send', 'pageview');
         
           <li>
             <a href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/">HotSpot JVM中的对象指针压缩</a>
           </li>
         
       </ul>
