@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://shzhangji.com/"/>
-  <updated>2017-01-13T01:00:25.000Z</updated>
+  <updated>2017-01-29T14:18:29.534Z</updated>
   <id>http://shzhangji.com/</id>
   
   <author>
@@ -16,11 +16,61 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Difference Between Lodash _.assign and _.assignIn</title>
+    <link href="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/"/>
+    <id>http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</id>
+    <published>2017-01-29T14:18:29.000Z</published>
+    <updated>2017-01-29T14:18:29.534Z</updated>
+    
+    <content type="html"><![CDATA[<p>In Lodash, both <code>_.assign</code> and <code>_.assignIn</code> are ways to copy source objects’ properties into target object. According the <a href="https://lodash.com/docs/" target="_blank" rel="external">documentation</a>, <code>_.assign</code> processes <strong>own enumerable string keyed properties</strong>, while <code>_.assignIn</code> processes both <strong>own and inherited source properties</strong>. There’re also other companion functions like <code>_.forOwn</code> and <code>_.forIn</code>, <code>_.has</code> and <code>_.hasIn</code>. So what’s the difference between them?</p>
+<p>In brief, the <code>In</code> in latter methods implies the way <code>for...in</code> loop behaves, which <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in" target="_blank" rel="external">iterates all enumerable properties of the object itself and those the object inherits from its constructor’s prototype</a>. JavaScript has an inheritance mechanism called prototype chain. When iterating an object’s properties with <code>for...in</code> or <code>_.forIn</code>, all properties appeared in the object and its prototype are processed, until the prototype resolves to <code>null</code>. Here’s the example code taken from Lodash’s doc:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">Foo</span>(<span class="params"></span>) </span>&#123; <span class="keyword">this</span>.a = <span class="number">1</span>; &#125;</div><div class="line">Foo.prototype.b = <span class="number">2</span>;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">Bar</span>(<span class="params"></span>) </span>&#123; <span class="keyword">this</span>.c = <span class="number">3</span>; &#125;</div><div class="line">Bar.prototype.d = <span class="number">4</span>;</div><div class="line">_.assign(&#123;a: <span class="number">0</span>&#125;, <span class="keyword">new</span> Foo, <span class="keyword">new</span> Bar); <span class="comment">// =&gt; &#123;a: 1, c: 3&#125;</span></div><div class="line">_.assignIn(&#123;a: <span class="number">0</span>&#125;, <span class="keyword">new</span> Foo, <span class="keyword">new</span> Bar); <span class="comment">// =&gt; &#123;a:1, b:2, c:3, d:4&#125;</span></div></pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="How-assign-Picks-Properties"><a href="#How-assign-Picks-Properties" class="headerlink" title="How _.assign Picks Properties"></a>How <code>_.assign</code> Picks Properties</h2><p>Let’s dissect the phrase “own enumerable string-keys properties” into three parts. </p>
+<h3 id="Own-Property"><a href="#Own-Property" class="headerlink" title="Own Property"></a>Own Property</h3><p>JavaScript is a prototype-based language, but there’re several ways to simulate class and instance, like object literal, function prototype, <code>Object.create</code>, and the newly added <code>class</code> keyword. In either case, we can use <code>Object.prototype.hasOwnProperty()</code> to determine if the property is inherited or not.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> foo = <span class="keyword">new</span> Foo();</div><div class="line">foo.hasOwnProperty(<span class="string">'a'</span>); <span class="comment">// =&gt; true</span></div><div class="line"><span class="built_in">Object</span>.prototype.hasOwnProperty.call(foo, <span class="string">'b'</span>); <span class="comment">// =&gt; false</span></div></pre></td></tr></table></figure>
+<p><code>Object.getOwnPropertyNames()</code> and <code>Object.keys()</code> can retrieve all properties defined directly in the object, except that <code>Object.keys()</code> only returns enumerable keys (see next section).</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> o1 = &#123;a: <span class="number">1</span>&#125;;</div><div class="line"><span class="keyword">let</span> o2 = <span class="built_in">Object</span>.create(o1);</div><div class="line">o2.b = <span class="number">2</span>;</div><div class="line"><span class="built_in">Object</span>.getOwnPropertyNames(o2); <span class="comment">// =&gt; ['b']</span></div><div class="line"><span class="built_in">Object</span>.keys(o2); <span class="comment">// =&gt; ['b']</span></div></pre></td></tr></table></figure>
+<h3 id="Enumerable-Property"><a href="#Enumerable-Property" class="headerlink" title="Enumerable Property"></a>Enumerable Property</h3><p>Object property can be defined with either data descriptor or accessor descriptor. Among data descriptor options, the <code>enumerable</code> boolean indicates whether this property shows in <code>for...in</code> or <code>Object.keys()</code>. </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> o = &#123;&#125;;</div><div class="line"><span class="built_in">Object</span>.defineProperty(o, <span class="string">'a'</span>, &#123; enumerable: <span class="literal">false</span>, value: <span class="number">1</span> &#125;);</div><div class="line"><span class="built_in">Object</span>.keys(o); <span class="comment">// =&gt; []</span></div><div class="line">o.propertyIsEnumerable(<span class="string">'a'</span>); <span class="comment">// =&gt; false</span></div></pre></td></tr></table></figure>
+<p>You can refer to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty" target="_blank" rel="external">Object.defineProperty()</a> for more information.</p>
+<h3 id="String-keyed-Property"><a href="#String-keyed-Property" class="headerlink" title="String-keyed Property"></a>String-keyed Property</h3><p>Before ES6, object’s keys are always String. ES6 introduces a new primitive type <a href="https://developer.mozilla.org/en-US/docs/Glossary/Symbol" target="_blank" rel="external">Symbol</a>, which can be used as a key for private property. Symbol property is non-enumerable.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> s = <span class="built_in">Symbol</span>();</div><div class="line"><span class="keyword">let</span> o = &#123;&#125;;</div><div class="line">o[s] = <span class="number">1</span>;</div><div class="line"><span class="built_in">Object</span>.keys(o); <span class="comment">// =&gt; []</span></div></pre></td></tr></table></figure>
+<p>There’s a nice <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Enumerability_and_ownership_of_properties#Detection_Table" target="_blank" rel="external">Detection Table</a> to help you figure out which built-in methods process enumerable or inherited properties.</p>
+<h2 id="assign-and-assignIn-Implementation"><a href="#assign-and-assignIn-Implementation" class="headerlink" title="_.assign and _.assignIn Implementation"></a><code>_.assign</code> and <code>_.assignIn</code> Implementation</h2><p>Both methods calls <code>_.keys</code> and <code>_.keysIn</code> respectively. <code>_.keys</code> calls <code>Object.keys()</code> and <code>_.keysIn</code> uses <code>for...in</code> loop. Actually <code>Object.keys()</code> is not difficult to implement. As mentioned above, <code>for...in</code> can be used to retrieve both own and inherited properties, while <code>hasOwnProperty</code> determines whether this property is defined in the object itself.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">keys</span>(<span class="params">object</span>) </span>&#123;</div><div class="line">  <span class="keyword">let</span> result = [];</div><div class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> <span class="built_in">Object</span>(object)) &#123;</div><div class="line">    <span class="keyword">if</span> (<span class="built_in">Object</span>.prototype.hasOwnProperty.call(object, key)) &#123;</div><div class="line">      result.push(key);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> result;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>Object.assign()</code> does the same thing as <code>_.assign()</code>. Use Lodash if you need to run your code on older browsers.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign" target="_blank" rel="external">Object.assign() - JavaScript | MDN</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain" target="_blank" rel="external">Inheritance and The Prototype Chain</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;In Lodash, both &lt;code&gt;_.assign&lt;/code&gt; and &lt;code&gt;_.assignIn&lt;/code&gt; are ways to copy source objects’ properties into target object. According the &lt;a href=&quot;https://lodash.com/docs/&quot;&gt;documentation&lt;/a&gt;, &lt;code&gt;_.assign&lt;/code&gt; processes &lt;strong&gt;own enumerable string keyed properties&lt;/strong&gt;, while &lt;code&gt;_.assignIn&lt;/code&gt; processes both &lt;strong&gt;own and inherited source properties&lt;/strong&gt;. There’re also other companion functions like &lt;code&gt;_.forOwn&lt;/code&gt; and &lt;code&gt;_.forIn&lt;/code&gt;, &lt;code&gt;_.has&lt;/code&gt; and &lt;code&gt;_.hasIn&lt;/code&gt;. So what’s the difference between them?&lt;/p&gt;
+&lt;p&gt;In brief, the &lt;code&gt;In&lt;/code&gt; in latter methods implies the way &lt;code&gt;for...in&lt;/code&gt; loop behaves, which &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in&quot;&gt;iterates all enumerable properties of the object itself and those the object inherits from its constructor’s prototype&lt;/a&gt;. JavaScript has an inheritance mechanism called prototype chain. When iterating an object’s properties with &lt;code&gt;for...in&lt;/code&gt; or &lt;code&gt;_.forIn&lt;/code&gt;, all properties appeared in the object and its prototype are processed, until the prototype resolves to &lt;code&gt;null&lt;/code&gt;. Here’s the example code taken from Lodash’s doc:&lt;/p&gt;
+&lt;figure class=&quot;highlight javascript&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Foo&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;&amp;#123; &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.a = &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;; &amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;Foo.prototype.b = &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Bar&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;&amp;#123; &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.c = &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;; &amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;Bar.prototype.d = &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;_.assign(&amp;#123;a: &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;&amp;#125;, &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Foo, &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Bar); &lt;span class=&quot;comment&quot;&gt;// =&amp;gt; &amp;#123;a: 1, c: 3&amp;#125;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;_.assignIn(&amp;#123;a: &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;&amp;#125;, &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Foo, &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Bar); &lt;span class=&quot;comment&quot;&gt;// =&amp;gt; &amp;#123;a:1, b:2, c:3, d:4&amp;#125;&lt;/span&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+      <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
+    
+    
+      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
+    
+      <category term="javascript" scheme="http://shzhangji.com/tags/javascript/"/>
+    
+      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Python 2 to 3 Quick Guide</title>
     <link href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/"/>
     <id>http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</id>
-    <published>2017-01-08T04:26:54.000Z</published>
-    <updated>2017-01-13T01:00:25.000Z</updated>
+    <published>2017-01-08T12:26:54.000Z</published>
+    <updated>2017-01-08T12:26:54.422Z</updated>
     
     <content type="html"><![CDATA[<p>Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python 3 is <a href="http://py3readiness.org/" target="_blank" rel="external">totally ready</a>, and here’s a list of references for those (including me) who are adopting Python 3 with a 2.x background.</p>
 <ol>
@@ -156,8 +206,8 @@
     <title>开发人员必知的5种开源框架</title>
     <link href="http://shzhangji.com/blog/2016/03/13/top-5-frameworks/"/>
     <id>http://shzhangji.com/blog/2016/03/13/top-5-frameworks/</id>
-    <published>2016-03-13T08:25:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2016-03-13T16:25:00.000Z</published>
+    <updated>2016-12-04T10:25:33.929Z</updated>
     
     <content type="html"><![CDATA[<p>作者：<a href="https://opensource.com/business/15/12/top-5-frameworks" target="_blank" rel="external">John Esposito</a></p>
 <p>软件侵吞着世界<a href="http://www.wsj.com/articles/SB10001424053111903480904576512250915629460" target="_blank" rel="external">已经四年多了</a>，但开发人员看待软件的方式稍有不同。我们一直在致力于<a href="http://www.dougengelbart.org/pubs/augment-3906.html" target="_blank" rel="external">解决实际问题</a>，而<a href="http://worrydream.com/refs/Brooks-NoSilverBullet.pdf" target="_blank" rel="external">很少思考软件开发的基石</a>。当问题变得更庞大、解决方案更复杂时，一些实用的、不怎么<a href="http://www.joelonsoftware.com/articles/LeakyAbstractions.html" target="_blank" rel="external">产生泄漏</a>的抽象工具就显得越来越重要。</p>
@@ -211,8 +261,8 @@
     <title>使用Spring AOP向领域模型注入依赖</title>
     <link href="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/"/>
     <id>http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/</id>
-    <published>2015-09-12T14:03:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2015-09-12T22:03:00.000Z</published>
+    <updated>2016-12-04T10:25:33.929Z</updated>
     
     <content type="html"><![CDATA[<p>在<a href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter，所有的业务逻辑都写在服务层中，领域模型仅仅用来传递数据。为了编写真正的领域模型，我们需要将业务逻辑移至模型对象中，这就引出另一个问题：业务逻辑通常需要调用其他服务或模型，而使用<code>new</code>关键字或由JPA创建的对象是不受Spring托管的，也就无法进行依赖注入。解决这个问题的方法有很多，比较之后我选择使用面向切面编程来实现。</p>
 <h2 id="面向切面编程"><a href="#面向切面编程" class="headerlink" title="面向切面编程"></a>面向切面编程</h2><p>面向切面编程，或<a href="https://en.wikipedia.org/wiki/Aspect-oriented_programming" target="_blank" rel="external">AOP</a>，是一种编程范式，和面向对象编程（<a href="https://en.wikipedia.org/wiki/Object-oriented_programming" target="_blank" rel="external">OOP</a>）互为补充。简单来说，AOP可以在不修改既有代码的情况下改变代码的行为。开发者通过定义一组规则，在特定的类方法前后增加逻辑，如记录日志、性能监控、事务管理等。这些逻辑称为切面（Aspect），规则称为切点（Pointcut），在调用前还是调用后执行称为通知（Before advice, After advice）。最后，我们可以选择在编译期将这些逻辑写入类文件，或是在运行时动态加载这些逻辑，这是两种不同的织入方式（Compile-time weaving, Load-time weaving）。</p>
@@ -281,8 +331,8 @@
     <title>贫血领域模型</title>
     <link href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/"/>
     <id>http://shzhangji.com/blog/2015/09/05/anemic-domain-model/</id>
-    <published>2015-09-05T11:02:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2015-09-05T19:02:00.000Z</published>
+    <updated>2016-12-04T10:25:33.929Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://www.martinfowler.com/bliki/AnemicDomainModel.html" target="_blank" rel="external">http://www.martinfowler.com/bliki/AnemicDomainModel.html</a></p>
 <p>贫血领域模型是一个存在已久的反模式，目前仍有许多拥趸者。一次我和Eric Evans聊天谈到它时，都觉得这个模型似乎越来越流行了。作为<a href="http://martinfowler.com/eaaCatalog/domainModel.html" target="_blank" rel="external">领域模型</a>的推广者，我们觉得这不是一件好事。</p>
@@ -323,8 +373,8 @@
     <title>View Spark Source in Eclipse</title>
     <link href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/"/>
     <id>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</id>
-    <published>2015-09-01T10:38:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2015-09-01T18:38:00.000Z</published>
+    <updated>2017-01-03T10:46:48.218Z</updated>
     
     <content type="html"><![CDATA[<p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/" target="_blank" rel="external">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/" target="_blank" rel="external">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
 <h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/" target="_blank" rel="external">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
@@ -378,8 +428,8 @@
     <title>HotSpot JVM中的对象指针压缩</title>
     <link href="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/"/>
     <id>http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/</id>
-    <published>2015-06-25T09:41:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2015-06-25T17:41:00.000Z</published>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="https://wiki.openjdk.java.net/display/HotSpot/CompressedOops" target="_blank" rel="external">https://wiki.openjdk.java.net/display/HotSpot/CompressedOops</a></p>
 <h2 id="什么是一般对象指针？"><a href="#什么是一般对象指针？" class="headerlink" title="什么是一般对象指针？"></a>什么是一般对象指针？</h2><p>一般对象指针（oop, ordinary object pointer）是HotSpot虚拟机的一个术语，表示受托管的对象指针。它的大小通常和本地指针是一样的。Java应用程序和GC子系统会非常小心地跟踪这些受托管的指针，以便在销毁对象时回收内存空间，或是在对空间进行整理时移动（复制）对象。</p>
@@ -480,8 +530,8 @@
     <title>Spark Streaming Logging Configuration</title>
     <link href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/"/>
     <id>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</id>
-    <published>2015-05-31T10:18:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2015-05-31T18:18:00.000Z</published>
+    <updated>2017-01-03T10:46:48.218Z</updated>
     
     <content type="html"><![CDATA[<p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
 <h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
@@ -531,8 +581,8 @@
     <title>ElasticSearch Performance Tips</title>
     <link href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/"/>
     <id>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</id>
-    <published>2015-04-28T15:08:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2015-04-28T23:08:00.000Z</published>
+    <updated>2017-01-03T10:46:48.218Z</updated>
     
     <content type="html"><![CDATA[<p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
 <h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard" target="_blank" rel="external">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing" target="_blank" rel="external">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
@@ -635,8 +685,8 @@
     <title>Apache HBase的适用场景</title>
     <link href="http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts/"/>
     <id>http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts/</id>
-    <published>2015-03-08T00:03:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2015-03-08T08:03:00.000Z</published>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/" target="_blank" rel="external">http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/</a></p>
 <p>最近我在<a href="http://www.meetup.com/LA-HUG/" target="_blank" rel="external">洛杉矶Hadoop用户组</a>做了一次关于<a href="http://www.meetup.com/LA-HUG/pages/Video_from_April_13th_HBASE_DO%27S_and_DON%27TS/" target="_blank" rel="external">HBase适用场景</a>的分享。在场的听众水平都很高，给到了我很多值得深思的反馈。主办方是来自Shopzilla的Jody，我非常感谢他能给我一个在60多位Hadoop使用者面前演讲的机会。可能一些朋友没有机会来洛杉矶参加这次会议，我将分享中的主要内容做了一个整理。如果你没有时间阅读全文，以下是一些摘要：</p>
@@ -689,8 +739,8 @@
     <title>深入理解Reduce-side Join</title>
     <link href="http://shzhangji.com/blog/2015/01/13/understand-reduce-side-join/"/>
     <id>http://shzhangji.com/blog/2015/01/13/understand-reduce-side-join/</id>
-    <published>2015-01-13T06:20:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2015-01-13T14:20:00.000Z</published>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>在《<a href="http://www.amazon.com/MapReduce-Design-Patterns-Effective-Algorithms/dp/1449327176" target="_blank" rel="external">MapReduce Design Patterns</a>》一书中，作者给出了Reduce-side Join的实现方法，大致步骤如下：</p>
 <p><img src="/images/reduce-side-join/reduce-side-join.png" alt=""></p>
@@ -762,8 +812,8 @@
     <title>使用git rebase让历史变得清晰</title>
     <link href="http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/"/>
     <id>http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/</id>
-    <published>2014-12-23T08:10:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2014-12-23T16:10:00.000Z</published>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>当多人协作开发一个分支时，历史记录通常如下方左图所示，比较凌乱。如果希望能像右图那样呈线性提交，就需要学习git rebase的用法。</p>
 <p><img src="/images/git-rebase/rebase-result.png" alt=""></p>
@@ -815,8 +865,8 @@
     <title>Spark快速入门</title>
     <link href="http://shzhangji.com/blog/2014/12/16/spark-quick-start/"/>
     <id>http://shzhangji.com/blog/2014/12/16/spark-quick-start/</id>
-    <published>2014-12-16T07:59:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2014-12-16T15:59:00.000Z</published>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p><img src="http://spark.apache.org/images/spark-logo.png" alt=""></p>
 <p><a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>是新兴的一种快速通用的大规模数据处理引擎。它的优势有三个方面：</p>
@@ -930,8 +980,8 @@
     <title>离线环境下构建sbt项目</title>
     <link href="http://shzhangji.com/blog/2014/11/07/sbt-offline/"/>
     <id>http://shzhangji.com/blog/2014/11/07/sbt-offline/</id>
-    <published>2014-11-07T07:02:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2014-11-07T15:02:00.000Z</published>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>在公司网络中使用<a href="http://www.scala-sbt.org/" target="_blank" rel="external">sbt</a>、<a href="http://maven.apache.org/" target="_blank" rel="external">Maven</a>等项目构建工具时，我们通常会搭建一个公用的<a href="http://www.sonatype.org/nexus/" target="_blank" rel="external">Nexus</a>镜像服务，原因有以下几个：</p>
 <ul>
@@ -986,8 +1036,8 @@
     <title>MySQL异常UTF-8字符的处理</title>
     <link href="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/"/>
     <id>http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/</id>
-    <published>2014-10-14T05:16:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2014-10-14T13:16:00.000Z</published>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Incorrect string value: &apos;\xF0\x9D\x8C\x86&apos; for column ...</div></pre></td></tr></table></figure>
@@ -1037,8 +1087,8 @@
     <title>在CDH 4.5上安装Shark 0.9</title>
     <link href="http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/"/>
     <id>http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/</id>
-    <published>2014-07-05T09:16:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2014-07-05T17:16:00.000Z</published>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p><a href="http://spark.apache.org" target="_blank" rel="external">Spark</a>是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的<a href="http://hadoop.apache.org" target="_blank" rel="external">Hadoop</a>生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于<a href="http://hive.apache.org" target="_blank" rel="external">Hive</a>，Spark也有相应的替代项目——<a href="http://shark.cs.berkeley.edu/" target="_blank" rel="external">Shark</a>，能做到 <strong>drop-in replacement</strong> ，直接构建在现有集群之上。本文就将简要阐述如何在CDH4.5上搭建Shark0.9集群。</p>
 <h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><ul>
@@ -1154,8 +1204,8 @@
     <title>Use WebJars in Scalatra Project</title>
     <link href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/"/>
     <id>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</id>
-    <published>2014-05-27T09:44:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2014-05-27T17:44:00.000Z</published>
+    <updated>2017-01-03T10:46:48.218Z</updated>
     
     <content type="html"><![CDATA[<p>As I’m working with my first <a href="http://www.scalatra.org/" target="_blank" rel="external">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/" target="_blank" rel="external">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation" target="_blank" rel="external">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
 <h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/" target="_blank" rel="external">Dojo</a> for example.</p>
@@ -1202,8 +1252,8 @@
     <title>Hive小文件问题的处理</title>
     <link href="http://shzhangji.com/blog/2014/04/07/hive-small-files/"/>
     <id>http://shzhangji.com/blog/2014/04/07/hive-small-files/</id>
-    <published>2014-04-07T09:09:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2014-04-07T17:09:00.000Z</published>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。</p>
 <h2 id="小文件带来的问题"><a href="#小文件带来的问题" class="headerlink" title="小文件带来的问题"></a>小文件带来的问题</h2><p>关于这个问题的阐述可以读一读Cloudera的<a href="http://blog.cloudera.com/blog/2009/02/the-small-files-problem/" target="_blank" rel="external">这篇文章</a>。简单来说，HDFS的文件元信息，包括位置、大小、分块信息等，都是保存在NameNode的内存中的。每个对象大约占用150个字节，因此一千万个文件及分块就会占用约3G的内存空间，一旦接近这个量级，NameNode的性能就会开始下降了。</p>
@@ -1254,8 +1304,8 @@
     <title>Java反射机制</title>
     <link href="http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/"/>
     <id>http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/</id>
-    <published>2014-01-25T01:42:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2014-01-25T09:42:00.000Z</published>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://www.programcreek.com/2013/09/java-reflection-tutorial/" target="_blank" rel="external">http://www.programcreek.com/2013/09/java-reflection-tutorial/</a></p>
 <p>什么是反射？它有何用处？</p>
@@ -1341,8 +1391,8 @@
     <title>抽象泄漏定律</title>
     <link href="http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions/"/>
     <id>http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions/</id>
-    <published>2013-12-17T05:05:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
+    <published>2013-12-17T13:05:00.000Z</published>
+    <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://www.joelonsoftware.com/articles/LeakyAbstractions.html" target="_blank" rel="external">http://www.joelonsoftware.com/articles/LeakyAbstractions.html</a></p>
 <p>TCP协议是互联网的基石，我们每天都需要依靠它来构建各类互联网应用。也正是在这一协议中，时刻发生着一件近乎神奇的事情。</p>
@@ -1391,91 +1441,6 @@
     </summary>
     
       <category term="Translation" scheme="http://shzhangji.com/categories/Translation/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>Generate Auto-increment Id in Map-reduce Job</title>
-    <link href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/"/>
-    <id>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</id>
-    <published>2013-10-31T01:35:00.000Z</published>
-    <updated>2017-01-03T12:40:57.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>In DBMS world, it’s easy to generate a unique, auto-increment id, using MySQL’s <a href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html" target="_blank" rel="external">AUTO_INCREMENT attribute</a> on a primary key or MongoDB’s <a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/" target="_blank" rel="external">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it’ll take some steps.</p>
-<h2 id="Solution-A-Single-Reducer"><a href="#Solution-A-Single-Reducer" class="headerlink" title="Solution A: Single Reducer"></a>Solution A: Single Reducer</h2><p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">job.setNumReduceTasks(<span class="number">1</span>);</div></pre></td></tr></table></figure>
-<p>And also obvious, there are several demerits:</p>
-<ol>
-<li>All mappers output will be copied to one task tracker.</li>
-<li>Only one process is working on shuffel &amp; sort.</li>
-<li>When producing output, there’s also only one process.</li>
-</ol>
-<p>The above is not a problem for small data sets, or at least small mapper outputs. And it is also the approach that Pig and Hive use when they need to perform a total sort. But when hitting a certain threshold, the sort and copy phase will become very slow and unacceptable.</p>
-<a id="more"></a>
-<h2 id="Solution-B-Increment-by-Number-of-Tasks"><a href="#Solution-B-Increment-by-Number-of-Tasks" class="headerlink" title="Solution B: Increment by Number of Tasks"></a>Solution B: Increment by Number of Tasks</h2><p>Inspired by a <a href="http://mail-archives.apache.org/mod_mbox/hadoop-common-user/200904.mbox/%3C49E13557.7090504@domaintools.com%3E" target="_blank" rel="external">mailing list</a> that is quite hard to find, which is inspired by MySQL master-master setup (with auto_increment_increment and auto_increment_offset), there’s a brilliant way to generate a globally unique integer id across mappers or reducers. Let’s take mapper for example:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">JobMapper</span> <span class="keyword">extends</span> <span class="title">Mapper</span>&lt;<span class="title">LongWritable</span>, <span class="title">Text</span>, <span class="title">LongWritable</span>, <span class="title">Text</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">long</span> id;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> increment;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">setup</span><span class="params">(Context context)</span> <span class="keyword">throws</span> IOException,</span></div><div class="line">            InterruptedException &#123;</div><div class="line"></div><div class="line">        <span class="keyword">super</span>.setup(context);</div><div class="line"></div><div class="line">        id = context.getTaskAttemptID().getTaskID().getId();</div><div class="line">        increment = context.getConfiguration().getInt(<span class="string">"mapred.map.tasks"</span>, <span class="number">0</span>);</div><div class="line">        <span class="keyword">if</span> (increment == <span class="number">0</span>) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"mapred.map.tasks is zero"</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">map</span><span class="params">(LongWritable key, Text value, Context context)</span></span></div><div class="line">            <span class="keyword">throws</span> IOException, InterruptedException &#123;</div><div class="line"></div><div class="line">        id += increment;</div><div class="line">        context.write(<span class="keyword">new</span> LongWritable(id),</div><div class="line">                <span class="keyword">new</span> Text(String.format(<span class="string">"%d, %s"</span>, key.get(), value.toString())));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>The basic idea is simple:</p>
-<ol>
-<li>Set the initial id to current tasks’s id.</li>
-<li>When mapping each row, increment the id by the number of tasks.</li>
-</ol>
-<p>It’s also applicable to reducers.</p>
-<h2 id="Solution-C-Sorted-Auto-increment-Id"><a href="#Solution-C-Sorted-Auto-increment-Id" class="headerlink" title="Solution C: Sorted Auto-increment Id"></a>Solution C: Sorted Auto-increment Id</h2><p>Here’s a real senario: we have several log files pulled from different machines, and we want to identify each row by an auto-increment id, and they should be in time sequence order.</p>
-<p>We know Hadoop has a sort phase, so we can use timestamp as the mapper output key, and the framework will do the trick. But the sorting thing happends in one reducer (partition, in fact), so when using multiple reducer tasks, the result is not in total order. To achieve this, we can use the <a href="http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapred/lib/TotalOrderPartitioner.html" target="_blank" rel="external">TotalOrderPartitioner</a>.</p>
-<p>How about the incremental id? Even though the outputs are in total order, Solution B is not applicable here. So we take another approach: seperate the job in two phases, use the reducer to do sorting <em>and</em> counting, then use the second mapper to generate the id.</p>
-<p>Here’s what we gonna do:</p>
-<ol>
-<li>Use TotalOrderPartitioner, and generate the partition file.</li>
-<li>Parse logs in mapper A, use time as the output key.</li>
-<li>Let the framework do partitioning and sorting.</li>
-<li>Count records in reducer, write it with <a href="http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapreduce/lib/output/MultipleOutputs.html" target="_blank" rel="external">MultipleOutput</a>.</li>
-<li>In mapper B, use count as offset, and increment by 1.</li>
-</ol>
-<p>To simplify the situation, we assume to have the following inputs and outputs:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"> Input       Output</div><div class="line"> </div><div class="line">11:00 a     1 11:00 a</div><div class="line">12:00 b     2 11:01 aa</div><div class="line">13:00 c     3 11:02 aaa</div><div class="line"></div><div class="line">11:01 aa    4 12:00 b</div><div class="line">12:01 bb    5 12:01 bb</div><div class="line">13:01 cc    6 12:02 bbb</div><div class="line"></div><div class="line">11:02 aaa   7 13:00 c</div><div class="line">12:02 bbb   8 13:01 cc</div><div class="line">13:02 ccc   9 13:02 ccc</div></pre></td></tr></table></figure>
-<h3 id="Generate-Partition-File"><a href="#Generate-Partition-File" class="headerlink" title="Generate Partition File"></a>Generate Partition File</h3><p>To use TotalOrderpartitioner, we need a partition file (i.e. boundaries) to tell the partitioner how to partition the mapper outputs. Usually we’ll use <a href="https://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapreduce/lib/partition/InputSampler.RandomSampler.html" target="_blank" rel="external">InputSampler.RandomSampler</a> class, but this time let’s use a manual partition file.</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">SequenceFile.Writer writer = <span class="keyword">new</span> SequenceFile.Writer(fs, getConf(), partition,</div><div class="line">        Text.class, NullWritable.class);</div><div class="line">Text key = <span class="keyword">new</span> Text();</div><div class="line">NullWritable value = NullWritable.get();</div><div class="line">key.set(<span class="string">"12:00"</span>);</div><div class="line">writer.append(key, value);</div><div class="line">key.set(<span class="string">"13:00"</span>);</div><div class="line">writer.append(key, value);</div><div class="line">writer.close();</div></pre></td></tr></table></figure>
-<p>So basically, the partitioner will partition the mapper outputs into three parts, the first part will be less than “12:00”, seceond part [“12:00”, “13:00”), thrid [“13:00”, ).</p>
-<p>And then, indicate the job to use this partition file:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">job.setPartitionerClass(TotalOrderPartitioner.class);</div><div class="line">otalOrderPartitioner.setPartitionFile(job.getConfiguration(), partition);</div><div class="line"></div><div class="line"><span class="comment">// The number of reducers should equal the number of partitions.</span></div><div class="line">job.setNumReduceTasks(<span class="number">3</span>);</div></pre></td></tr></table></figure>
-<h3 id="Use-MutipleOutputs"><a href="#Use-MutipleOutputs" class="headerlink" title="Use MutipleOutputs"></a>Use MutipleOutputs</h3><p>In the reducer, we need to note down the row count of this partition, to do that, we’ll need the MultipleOutputs class, which let use output multiple result files apart from the default “part-r-xxxxx”. The reducer’s code is as following:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">JobReducer</span> <span class="keyword">extends</span> <span class="title">Reducer</span>&lt;<span class="title">Text</span>, <span class="title">Text</span>, <span class="title">NullWritable</span>, <span class="title">Text</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> MultipleOutputs&lt;NullWritable, Text&gt; mos;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">long</span> count;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">setup</span><span class="params">(Context context)</span></span></div><div class="line">            <span class="keyword">throws</span> IOException, InterruptedException &#123;</div><div class="line"></div><div class="line">        <span class="keyword">super</span>.setup(context);</div><div class="line">        mos = <span class="keyword">new</span> MultipleOutputs&lt;NullWritable, Text&gt;(context);</div><div class="line">        count = <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">reduce</span><span class="params">(Text key, Iterable&lt;Text&gt; values, Context context)</span></span></div><div class="line">            <span class="keyword">throws</span> IOException, InterruptedException &#123;</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (Text value : values) &#123;</div><div class="line">            context.write(NullWritable.get(), value);</div><div class="line">            ++count;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">cleanup</span><span class="params">(Context context)</span></span></div><div class="line">            <span class="keyword">throws</span> IOException, InterruptedException &#123;</div><div class="line"></div><div class="line">        <span class="keyword">super</span>.cleanup(context);</div><div class="line">        mos.write(<span class="string">"count"</span>, NullWritable.get(), <span class="keyword">new</span> LongWritable(count));</div><div class="line">        mos.close();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>There’re several things to pay attention to:</p>
-<ol>
-<li>MultipleOutputs is declared as class member, defined in Reducer#setup method, and must be closed at Reducer#cleanup (otherwise the file will be empty).</li>
-<li>When instantiating MultipleOutputs class, the generic type needs to be the same as reducer’s output key/value class.</li>
-<li>In order to use a different output key/value class, additional setup needs to be done at job definition:</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Job job = <span class="keyword">new</span> Job(getConf());</div><div class="line">MultipleOutputs.addNamedOutput(job, <span class="string">"count"</span>, SequenceFileOutputFormat.class,</div><div class="line">    NullWritable.class, LongWritable.class);</div></pre></td></tr></table></figure>
-<p>For example, if the output folder is “/tmp/total-sort/“, there’ll be the following files when job is done:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">/tmp/total-sort/count-r-00001</div><div class="line">/tmp/total-sort/count-r-00002</div><div class="line">/tmp/total-sort/count-r-00003</div><div class="line">/tmp/total-sort/part-r-00001</div><div class="line">/tmp/total-sort/part-r-00002</div><div class="line">/tmp/total-sort/part-r-00003</div></pre></td></tr></table></figure>
-<h3 id="Pass-Start-Ids-to-Mapper"><a href="#Pass-Start-Ids-to-Mapper" class="headerlink" title="Pass Start Ids to Mapper"></a>Pass Start Ids to Mapper</h3><p>When the second mapper processes the inputs, we want them to know the initial id of its partition, which can be calculated from the “count-*” files we produce before. To pass this information, we can use the job’s Configuration object.</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Read and calculate the start id from those row-count files.</span></div><div class="line">Map&lt;String, Long&gt; startIds = <span class="keyword">new</span> HashMap&lt;String, Long&gt;();</div><div class="line"><span class="keyword">long</span> startId = <span class="number">1</span>;</div><div class="line">FileSystem fs = FileSystem.get(getConf());</div><div class="line"><span class="keyword">for</span> (FileStatus file : fs.listStatus(countPath)) &#123;</div><div class="line"></div><div class="line">    Path path = file.getPath();</div><div class="line">    String name = path.getName();</div><div class="line">    <span class="keyword">if</span> (!name.startsWith(<span class="string">"count-"</span>)) &#123;</div><div class="line">        <span class="keyword">continue</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    startIds.put(name.substring(name.length() - <span class="number">5</span>), startId);</div><div class="line"></div><div class="line">    SequenceFile.Reader reader = <span class="keyword">new</span> SequenceFile.Reader(fs, path, getConf());</div><div class="line">    NullWritable key = NullWritable.get();</div><div class="line">    LongWritable value = <span class="keyword">new</span> LongWritable();</div><div class="line">    <span class="keyword">if</span> (!reader.next(key, value)) &#123;</div><div class="line">        <span class="keyword">continue</span>;</div><div class="line">    &#125;</div><div class="line">    startId += value.get();</div><div class="line">    reader.close();</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// Serialize the map and pass it to Configuration.</span></div><div class="line">job.getConfiguration().set(<span class="string">"startIds"</span>, Base64.encodeBase64String(</div><div class="line">        SerializationUtils.serialize((Serializable) startIds)));</div><div class="line">        </div><div class="line"><span class="comment">// Recieve it in Mapper#setup</span></div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">JobMapperB</span> <span class="keyword">extends</span> <span class="title">Mapper</span>&lt;<span class="title">NullWritable</span>, <span class="title">Text</span>, <span class="title">LongWritable</span>, <span class="title">Text</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> Map&lt;String, Long&gt; startIds;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">long</span> startId;</div><div class="line"></div><div class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">setup</span><span class="params">(Context context)</span></span></div><div class="line">            <span class="keyword">throws</span> IOException, InterruptedException &#123;</div><div class="line"></div><div class="line">        <span class="keyword">super</span>.setup(context);</div><div class="line">        startIds = (Map&lt;String, Long&gt;) SerializationUtils.deserialize(</div><div class="line">                Base64.decodeBase64(context.getConfiguration().get(<span class="string">"startIds"</span>)));</div><div class="line">        String name = ((FileSplit) context.getInputSplit()).getPath().getName();</div><div class="line">        startId = startIds.get(name.substring(name.length() - <span class="number">5</span>));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">map</span><span class="params">(NullWritable key, Text value, Context context)</span></span></div><div class="line">            <span class="keyword">throws</span> IOException, InterruptedException &#123;</div><div class="line"></div><div class="line">        context.write(<span class="keyword">new</span> LongWritable(startId++), value);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h3 id="Set-the-Input-Non-splitable"><a href="#Set-the-Input-Non-splitable" class="headerlink" title="Set the Input Non-splitable"></a>Set the Input Non-splitable</h3><p>When the file is bigger than a block or so (depending on some configuration entries), Hadoop will split it, which is not good for us. So let’s define a new InputFormat class to disable the splitting behaviour:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">NonSplitableSequence</span> <span class="keyword">extends</span> <span class="title">SequenceFileInputFormat</span>&lt;<span class="title">NullWritable</span>, <span class="title">Text</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">isSplitable</span><span class="params">(JobContext context, Path filename)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// use it</span></div><div class="line">job.setInputFormatClass(NonSplitableSequence.class);</div></pre></td></tr></table></figure>
-<p>And that’s it, we are able to generate a unique, auto-increment id for a sorted collection, with Hadoop’s parallel computing capability. The process is rather complicated, which requires several techniques about Hadoop. It’s worthwhile to dig.</p>
-<p>A workable example can be found in my <a href="https://github.com/jizhang/mapred-sandbox/blob/master/src/main/java/com/shzhangji/mapred_sandbox/AutoIncrementId2Job.java" target="_blank" rel="external">Github repository</a>. If you have some more straight-forward approach, please do let me know.</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;In DBMS world, it’s easy to generate a unique, auto-increment id, using MySQL’s &lt;a href=&quot;http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html&quot;&gt;AUTO_INCREMENT attribute&lt;/a&gt; on a primary key or MongoDB’s &lt;a href=&quot;http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/&quot;&gt;Counters Collection&lt;/a&gt; pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it’ll take some steps.&lt;/p&gt;
-&lt;h2 id=&quot;Solution-A-Single-Reducer&quot;&gt;&lt;a href=&quot;#Solution-A-Single-Reducer&quot; class=&quot;headerlink&quot; title=&quot;Solution A: Single Reducer&quot;&gt;&lt;/a&gt;Solution A: Single Reducer&lt;/h2&gt;&lt;p&gt;This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:&lt;/p&gt;
-&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;job.setNumReduceTasks(&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;);&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;And also obvious, there are several demerits:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;All mappers output will be copied to one task tracker.&lt;/li&gt;
-&lt;li&gt;Only one process is working on shuffel &amp;amp; sort.&lt;/li&gt;
-&lt;li&gt;When producing output, there’s also only one process.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;The above is not a problem for small data sets, or at least small mapper outputs. And it is also the approach that Pig and Hive use when they need to perform a total sort. But when hitting a certain threshold, the sort and copy phase will become very slow and unacceptable.&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Notes" scheme="http://shzhangji.com/categories/Notes/"/>
-    
-      <category term="Big Data" scheme="http://shzhangji.com/categories/Notes/Big-Data/"/>
     
     
   </entry>

@@ -84,10 +84,63 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-currying-and-partial-application" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2013/03/07/currying-and-partial-application/" class="article-date">
+  <time datetime="2013-03-07T20:59:00.000Z" itemprop="datePublished">2013-03-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Translation/">Translation</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2013/03/07/currying-and-partial-application/">柯里化与偏应用（JavaScript描述）</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>原文：<a href="http://raganwald.com/2013/03/07/currying-and-partial-application.html">http://raganwald.com/2013/03/07/currying-and-partial-application.html</a></p>
+<p>上周末我参加了<a href="http://wrocloverb.com/">wroc_love.rb大会</a>，其间<a href="http://steveklabnik.com/">Steve Klabnik</a>的一张PPT中提到了<a href="https://en.wikipedia.org/wiki/Partial_application">偏应用（Partial Application）</a>和<a href="https://en.wikipedia.org/wiki/Currying">柯里化（Currying）</a>，并说这两者之间的区别如今已经不重要了。但是我不这么认为。</p>
+<p>在这周发布的博文中，我用五种方式对<code>this</code>和闭包做了解释，但只有三到四种提到了柯里化。所以这篇博文就重点来谈谈这个。</p>
+<h2 id="函数参数的个数"><a href="#函数参数的个数" class="headerlink" title="函数参数的个数"></a>函数参数的个数</h2><p>在讲解之前，我们先明确一些术语。函数定义时会写明它所接收的参数个数（Arity）。“一元函数”（Unary）接收一个参数，“多元函数”（Polyadic）接收多个参数。还有一些特殊的名称，如“二元函数”（Binary）接收两个参数，“三元函数”（Ternary）接收三个参数等。你可以对照希腊语或拉丁语词汇来创造这些特殊的名称。</p>
+<p>有些函数能够接收不定数量的参数，我们称之为“可变参数函数”（Variadic）。不过这类函数、以及不接收参数的函数并不是本文讨论的重点。</p>
+        
+          <p class="article-more-link">
+            <a href="/blog/2013/03/07/currying-and-partial-application/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2013/03/07/currying-and-partial-application/" data-id="ciyir4uzy000ovem6tz1vye60" class="article-share-link">Share</a>
+      
+        <a href="http://shzhangji.com/blog/2013/03/07/currying-and-partial-application/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fp/">fp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-cia-hadoop" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2013/02/09/cia-hadoop/" class="article-date">
-  <time datetime="2013-02-09T08:43:00.000Z" itemprop="datePublished">2013-02-09</time>
+  <time datetime="2013-02-09T16:43:00.000Z" itemprop="datePublished">2013-02-09</time>
 </a>
     
   <div class="article-category">
@@ -121,7 +174,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2013/02/09/cia-hadoop/" data-id="cixigvbzy000n3czj05mrbtye" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2013/02/09/cia-hadoop/" data-id="ciyir4uzu000nvem6x528x25x" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2013/02/09/cia-hadoop/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -138,7 +191,7 @@ ga('send', 'pageview');
     <article id="post-clojure-style-guide" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2013/01/04/clojure-style-guide/" class="article-date">
-  <time datetime="2013-01-04T12:49:00.000Z" itemprop="datePublished">2013-01-04</time>
+  <time datetime="2013-01-04T20:49:00.000Z" itemprop="datePublished">2013-01-04</time>
 </a>
     
   <div class="article-category">
@@ -174,7 +227,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2013/01/04/clojure-style-guide/" data-id="cixigvbzx000i3czjk46keoaq" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2013/01/04/clojure-style-guide/" data-id="ciyir4uzr000ivem67idakh29" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2013/01/04/clojure-style-guide/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -191,7 +244,7 @@ ga('send', 'pageview');
     <article id="post-nginx-live-upgrade" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2012/12/23/nginx-live-upgrade/" class="article-date">
-  <time datetime="2012-12-23T14:11:00.000Z" itemprop="datePublished">2012-12-23</time>
+  <time datetime="2012-12-23T22:11:00.000Z" itemprop="datePublished">2012-12-23</time>
 </a>
     
   <div class="article-category">
@@ -227,7 +280,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2012/12/23/nginx-live-upgrade/" data-id="cixigvbzw000g3czj33ie3rp2" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2012/12/23/nginx-live-upgrade/" data-id="ciyir4uzp000gvem6yaecxohg" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2012/12/23/nginx-live-upgrade/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -244,7 +297,7 @@ ga('send', 'pageview');
     <article id="post-cia-noir-3" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2012/12/16/cia-noir-3/" class="article-date">
-  <time datetime="2012-12-16T12:20:00.000Z" itemprop="datePublished">2012-12-16</time>
+  <time datetime="2012-12-16T20:20:00.000Z" itemprop="datePublished">2012-12-16</time>
 </a>
     
   <div class="article-category">
@@ -281,7 +334,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2012/12/16/cia-noir-3/" data-id="cixigvbzu000d3czjld2z5vcl" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2012/12/16/cia-noir-3/" data-id="ciyir4uzl000dvem6d4nwququ" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2012/12/16/cia-noir-3/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -298,7 +351,7 @@ ga('send', 'pageview');
     <article id="post-cia-noir-2" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2012/12/08/cia-noir-2/" class="article-date">
-  <time datetime="2012-12-08T04:09:00.000Z" itemprop="datePublished">2012-12-08</time>
+  <time datetime="2012-12-08T12:09:00.000Z" itemprop="datePublished">2012-12-08</time>
 </a>
     
   <div class="article-category">
@@ -339,7 +392,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2012/12/08/cia-noir-2/" data-id="cixigvbzq000b3czjq62u5tc5" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2012/12/08/cia-noir-2/" data-id="ciyir4uzd000bvem6hlrf0fsg" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2012/12/08/cia-noir-2/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -356,7 +409,7 @@ ga('send', 'pageview');
     <article id="post-cia-noir-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2012/11/25/cia-noir-1/" class="article-date">
-  <time datetime="2012-11-25T08:58:00.000Z" itemprop="datePublished">2012-11-25</time>
+  <time datetime="2012-11-25T16:58:00.000Z" itemprop="datePublished">2012-11-25</time>
 </a>
     
   <div class="article-category">
@@ -391,7 +444,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2012/11/25/cia-noir-1/" data-id="cixigvbzk00073czjt0li183i" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2012/11/25/cia-noir-1/" data-id="ciyir4uza0008vem6x1ug6wc8" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2012/11/25/cia-noir-1/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -408,7 +461,7 @@ ga('send', 'pageview');
     <article id="post-aosa-python-packaging" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2012/11/18/aosa-python-packaging/" class="article-date">
-  <time datetime="2012-11-18T11:20:00.000Z" itemprop="datePublished">2012-11-18</time>
+  <time datetime="2012-11-18T19:20:00.000Z" itemprop="datePublished">2012-11-18</time>
 </a>
     
   <div class="article-category">
@@ -445,7 +498,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2012/11/18/aosa-python-packaging/" data-id="cixigvbzo00083czjhrsvnsl7" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2012/11/18/aosa-python-packaging/" data-id="ciyir4uz80007vem66uul1ums" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2012/11/18/aosa-python-packaging/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -462,7 +515,7 @@ ga('send', 'pageview');
     <article id="post-aosa-git" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2012/11/16/aosa-git/" class="article-date">
-  <time datetime="2012-11-16T15:54:00.000Z" itemprop="datePublished">2012-11-16</time>
+  <time datetime="2012-11-16T23:54:00.000Z" itemprop="datePublished">2012-11-16</time>
 </a>
     
   <div class="article-category">
@@ -500,7 +553,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2012/11/16/aosa-git/" data-id="cixigvbzj00063czjaxmf1vcg" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2012/11/16/aosa-git/" data-id="ciyir4uz50006vem6jsc571yw" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2012/11/16/aosa-git/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -527,7 +580,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/aosa/" style="font-size: 12.5px;">aosa</a> <a href="/tags/clojure/" style="font-size: 20px;">clojure</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/english/" style="font-size: 17.5px;">english</a> <a href="/tags/fp/" style="font-size: 10px;">fp</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hadoop/" style="font-size: 12.5px;">hadoop</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/javascript/" style="font-size: 10px;">javascript</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/noir/" style="font-size: 15px;">noir</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/perl/" style="font-size: 12.5px;">perl</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/python/" style="font-size: 12.5px;">python</a> <a href="/tags/scala/" style="font-size: 10px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 12.5px;">spark</a> <a href="/tags/storm/" style="font-size: 10px;">storm</a> <a href="/tags/translation/" style="font-size: 10px;">translation</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a>
+      <a href="/tags/aosa/" style="font-size: 12.5px;">aosa</a> <a href="/tags/clojure/" style="font-size: 20px;">clojure</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/english/" style="font-size: 17.5px;">english</a> <a href="/tags/fp/" style="font-size: 10px;">fp</a> <a href="/tags/frontend/" style="font-size: 10px;">frontend</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hadoop/" style="font-size: 12.5px;">hadoop</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/javascript/" style="font-size: 12.5px;">javascript</a> <a href="/tags/lodash/" style="font-size: 10px;">lodash</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/noir/" style="font-size: 15px;">noir</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/perl/" style="font-size: 12.5px;">perl</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/python/" style="font-size: 12.5px;">python</a> <a href="/tags/scala/" style="font-size: 10px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 12.5px;">spark</a> <a href="/tags/storm/" style="font-size: 10px;">storm</a> <a href="/tags/translation/" style="font-size: 10px;">translation</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a>
     </div>
   </div>
 
@@ -549,6 +602,10 @@ ga('send', 'pageview');
       <ul>
         
           <li>
+            <a href="/blog/2017/01/29/difference-between-lodash-assign-and-assignin/">Difference Between Lodash _.assign and _.assignIn</a>
+          </li>
+        
+          <li>
             <a href="/blog/2017/01/08/python-2-to-3-quick-guide/">Python 2 to 3 Quick Guide</a>
           </li>
         
@@ -562,10 +619,6 @@ ga('send', 'pageview');
         
           <li>
             <a href="/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
           </li>
         
       </ul>
