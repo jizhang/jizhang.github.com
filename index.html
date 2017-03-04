@@ -84,10 +84,64 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-process-python-collections-with-functional-programming" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2017/03/04/process-python-collections-with-functional-programming/" class="article-date">
+  <time datetime="2017-03-04T14:32:17.000Z" itemprop="datePublished">2017-03-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2017/03/04/process-python-collections-with-functional-programming/">Process Python Collections with Functional Programming</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>I develop Spark applications with Scala, and it has a very powerful <a href="http://docs.scala-lang.org/overviews/collections/introduction">collection system</a>, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In JavaScript, there is a <a href="https://lodash.com/">Lodash</a> library that provides powerful tools to process arrays and objects. When my primary work language changes to Python, I am wondering if it’s possible to manipulate collections in a FP way, and fortunately Python already provides syntax and tools for functional programming. Though list comprehension is the pythonic way to deal with collections, but the idea and concepts of FP is definitely worth learning.</p>
+<h2 id="Wordcount-Example"><a href="#Wordcount-Example" class="headerlink" title="Wordcount Example"></a>Wordcount Example</h2><p>Let’s first write a snippet to count the word occurences from a paragraph, in of course a functional way.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> re</div><div class="line"><span class="keyword">import</span> itertools</div><div class="line"></div><div class="line"></div><div class="line">content = <span class="string">"""</div><div class="line">an apple orange the grape</div><div class="line">banana an apple melon</div><div class="line">an orange banana apple</div><div class="line">"""</span></div><div class="line"></div><div class="line">word_matches = re.finditer(<span class="string">r'\S+'</span>, content)</div><div class="line">words = map(<span class="keyword">lambda</span> m: m.group(<span class="number">0</span>), word_matches)</div><div class="line">fruits = filter(<span class="keyword">lambda</span> s: len(s) &gt; <span class="number">3</span>, words)</div><div class="line">grouped_fruits = itertools.groupby(sorted(fruits))</div><div class="line">fruit_counts = map(<span class="keyword">lambda</span> t: (t[<span class="number">0</span>], len(list(t[<span class="number">1</span>]))), grouped_fruits)</div><div class="line">print(list(fruit_counts))</div></pre></td></tr></table></figure>
+<p>Run this example and you’ll get a list of fruits, along with their counts:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[(&apos;apple&apos;, 3), (&apos;banana&apos;, 2), (&apos;grape&apos;, 1), (&apos;melon&apos;, 1), (&apos;orange&apos;, 2)]</div></pre></td></tr></table></figure>
+<p>This example includes most aspects of processing collections with FP style. For instance, <code>re.finditer</code> returns an <code>iterator</code> that is lazily evaluated; <code>map</code> and <code>filter</code> are used to do transformations; <code>itertools</code> module provides various functions to cope with iterables; and last but not least, the <code>lambda</code> expression, an easy way to define inline anonymous function. All of them will be described in the following sections.</p>
+        
+          <p class="article-more-link">
+            <a href="/blog/2017/03/04/process-python-collections-with-functional-programming/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cizvcmcy2003mq5m6u3j32ph8" class="article-share-link">Share</a>
+      
+        <a href="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fp/">fp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-difference-between-lodash-assign-and-assignin" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" class="article-date">
-  <time datetime="2017-01-29T14:18:29.000Z" itemprop="datePublished">2017-01-29</time>
+  <time datetime="2017-01-29T06:18:29.000Z" itemprop="datePublished">2017-01-29</time>
 </a>
     
   <div class="article-category">
@@ -121,7 +175,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" data-id="ciyir4v3x003hvem6p2abnecn" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" data-id="cizvcmcxz003hq5m6b9jf18ah" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -138,7 +192,7 @@ ga('send', 'pageview');
     <article id="post-python-2-to-3-quick-guide" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2017/01/08/python-2-to-3-quick-guide/" class="article-date">
-  <time datetime="2017-01-08T12:26:54.000Z" itemprop="datePublished">2017-01-08</time>
+  <time datetime="2017-01-08T04:26:54.000Z" itemprop="datePublished">2017-01-08</time>
 </a>
     
   <div class="article-category">
@@ -192,7 +246,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="ciyir4v3u003evem6rtvd4um7" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cizvcmcxu003eq5m6wkz1b1v0" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -209,7 +263,7 @@ ga('send', 'pageview');
     <article id="post-top-5-frameworks" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2016/03/13/top-5-frameworks/" class="article-date">
-  <time datetime="2016-03-13T16:25:00.000Z" itemprop="datePublished">2016-03-14</time>
+  <time datetime="2016-03-13T08:25:00.000Z" itemprop="datePublished">2016-03-13</time>
 </a>
     
   <div class="article-category">
@@ -249,7 +303,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2016/03/13/top-5-frameworks/" data-id="ciyir4v3r0039vem6vhg1fcp7" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2016/03/13/top-5-frameworks/" data-id="cizvcmcxr0039q5m65s0avlt3" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2016/03/13/top-5-frameworks/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -266,7 +320,7 @@ ga('send', 'pageview');
     <article id="post-model-dependency-injection-with-spring-aop" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2015/09/12/model-dependency-injection-with-spring-aop/" class="article-date">
-  <time datetime="2015-09-12T22:03:00.000Z" itemprop="datePublished">2015-09-13</time>
+  <time datetime="2015-09-12T14:03:00.000Z" itemprop="datePublished">2015-09-12</time>
 </a>
     
   <div class="article-category">
@@ -300,7 +354,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/" data-id="ciyir4v3o0036vem625akb0y5" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/" data-id="cizvcmcxo0036q5m63pa67rkf" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -315,7 +369,7 @@ ga('send', 'pageview');
     <article id="post-anemic-domain-model" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2015/09/05/anemic-domain-model/" class="article-date">
-  <time datetime="2015-09-05T19:02:00.000Z" itemprop="datePublished">2015-09-06</time>
+  <time datetime="2015-09-05T11:02:00.000Z" itemprop="datePublished">2015-09-05</time>
 </a>
     
   <div class="article-category">
@@ -350,7 +404,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/" data-id="ciyir4v3m0033vem64sjd9q88" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/" data-id="cizvcmcxl0033q5m6keef4tmd" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -365,7 +419,7 @@ ga('send', 'pageview');
     <article id="post-view-spark-source-in-eclipse" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2015/09/01/view-spark-source-in-eclipse/" class="article-date">
-  <time datetime="2015-09-01T18:38:00.000Z" itemprop="datePublished">2015-09-02</time>
+  <time datetime="2015-09-01T10:38:00.000Z" itemprop="datePublished">2015-09-01</time>
 </a>
     
   <div class="article-category">
@@ -402,7 +456,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="ciyir4v3d0030vem675ibj0a1" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="cizvcmcx70030q5m6u7v3bfrc" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -419,7 +473,7 @@ ga('send', 'pageview');
     <article id="post-compressed-oops-in-the-hotspot-jvm" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/" class="article-date">
-  <time datetime="2015-06-25T17:41:00.000Z" itemprop="datePublished">2015-06-26</time>
+  <time datetime="2015-06-25T09:41:00.000Z" itemprop="datePublished">2015-06-25</time>
 </a>
     
   <div class="article-category">
@@ -464,7 +518,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/" data-id="ciyir4v3a002wvem6144c3frl" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/" data-id="cizvcmcx5002wq5m64wuk4evm" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -479,7 +533,7 @@ ga('send', 'pageview');
     <article id="post-spark-streaming-logging-configuration" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2015/05/31/spark-streaming-logging-configuration/" class="article-date">
-  <time datetime="2015-05-31T18:18:00.000Z" itemprop="datePublished">2015-06-01</time>
+  <time datetime="2015-05-31T10:18:00.000Z" itemprop="datePublished">2015-05-31</time>
 </a>
     
   <div class="article-category">
@@ -514,7 +568,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="ciyir4v38002svem6bby4g6e0" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="cizvcmcx3002sq5m6h0cp1nfj" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -531,7 +585,7 @@ ga('send', 'pageview');
     <article id="post-elasticsearch-performance-tips" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2015/04/28/elasticsearch-performance-tips/" class="article-date">
-  <time datetime="2015-04-28T23:08:00.000Z" itemprop="datePublished">2015-04-29</time>
+  <time datetime="2015-04-28T15:08:00.000Z" itemprop="datePublished">2015-04-28</time>
 </a>
     
   <div class="article-category">
@@ -574,67 +628,13 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="ciyir4v35002pvem6wn96dbcb" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cizvcmcwz002pq5m6wto7jr2q" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/english/">english</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hbase-dos-and-donts" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2015/03/08/hbase-dos-and-donts/" class="article-date">
-  <time datetime="2015-03-08T08:03:00.000Z" itemprop="datePublished">2015-03-08</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Translation/">Translation</a>►<a class="article-category-link" href="/categories/Translation/Big-Data/">Big Data</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2015/03/08/hbase-dos-and-donts/">Apache HBase的适用场景</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>原文：<a href="http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/">http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/</a></p>
-<p>最近我在<a href="http://www.meetup.com/LA-HUG/">洛杉矶Hadoop用户组</a>做了一次关于<a href="http://www.meetup.com/LA-HUG/pages/Video_from_April_13th_HBASE_DO%27S_and_DON%27TS/">HBase适用场景</a>的分享。在场的听众水平都很高，给到了我很多值得深思的反馈。主办方是来自Shopzilla的Jody，我非常感谢他能给我一个在60多位Hadoop使用者面前演讲的机会。可能一些朋友没有机会来洛杉矶参加这次会议，我将分享中的主要内容做了一个整理。如果你没有时间阅读全文，以下是一些摘要：</p>
-<ul>
-<li>HBase很棒，但不是关系型数据库或HDFS的替代者；</li>
-<li>配置得当才能运行良好；</li>
-<li>监控，监控，监控，重要的事情要说三遍。</li>
-</ul>
-<p>Cloudera是HBase的铁杆粉丝。我们热爱这项技术，热爱这个社区，发现它能适用于非常多的应用场景。HBase如今已经有很多<a href="#use-cases">成功案例</a>，所以很多公司也在考虑如何将其应用到自己的架构中。我做这次分享以及写这篇文章的动因就是希望能列举出HBase的适用场景，并提醒各位哪些场景是不适用的，以及如何做好HBase的部署。</p>
-        
-          <p class="article-more-link">
-            <a href="/blog/2015/03/08/hbase-dos-and-donts/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts/" data-id="ciyir4v2v002mvem64oxf221m" class="article-share-link">Share</a>
-      
-        <a href="http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
     </footer>
   </div>
   
@@ -655,7 +655,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/aosa/" style="font-size: 12.5px;">aosa</a> <a href="/tags/clojure/" style="font-size: 20px;">clojure</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/english/" style="font-size: 17.5px;">english</a> <a href="/tags/fp/" style="font-size: 10px;">fp</a> <a href="/tags/frontend/" style="font-size: 10px;">frontend</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hadoop/" style="font-size: 12.5px;">hadoop</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/javascript/" style="font-size: 12.5px;">javascript</a> <a href="/tags/lodash/" style="font-size: 10px;">lodash</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/noir/" style="font-size: 15px;">noir</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/perl/" style="font-size: 12.5px;">perl</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/python/" style="font-size: 12.5px;">python</a> <a href="/tags/scala/" style="font-size: 10px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 12.5px;">spark</a> <a href="/tags/storm/" style="font-size: 10px;">storm</a> <a href="/tags/translation/" style="font-size: 10px;">translation</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a>
+      <a href="/tags/aosa/" style="font-size: 12.5px;">aosa</a> <a href="/tags/clojure/" style="font-size: 20px;">clojure</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/english/" style="font-size: 17.5px;">english</a> <a href="/tags/fp/" style="font-size: 12.5px;">fp</a> <a href="/tags/frontend/" style="font-size: 10px;">frontend</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hadoop/" style="font-size: 12.5px;">hadoop</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/javascript/" style="font-size: 12.5px;">javascript</a> <a href="/tags/lodash/" style="font-size: 10px;">lodash</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/noir/" style="font-size: 15px;">noir</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/perl/" style="font-size: 12.5px;">perl</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/scala/" style="font-size: 10px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 12.5px;">spark</a> <a href="/tags/storm/" style="font-size: 10px;">storm</a> <a href="/tags/translation/" style="font-size: 10px;">translation</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a>
     </div>
   </div>
 
@@ -664,7 +664,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">April 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/06/">June 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/05/">May 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/02/">February 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/01/">January 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/11/">November 2012</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">April 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/06/">June 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/05/">May 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/02/">February 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/01/">January 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/11/">November 2012</a></li></ul>
     </div>
   </div>
 
@@ -675,6 +675,10 @@ ga('send', 'pageview');
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/blog/2017/03/04/process-python-collections-with-functional-programming/">Process Python Collections with Functional Programming</a>
+          </li>
         
           <li>
             <a href="/blog/2017/01/29/difference-between-lodash-assign-and-assignin/">Difference Between Lodash _.assign and _.assignIn</a>
@@ -690,10 +694,6 @@ ga('send', 'pageview');
         
           <li>
             <a href="/blog/2015/09/12/model-dependency-injection-with-spring-aop/">使用Spring AOP向领域模型注入依赖</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>
           </li>
         
       </ul>

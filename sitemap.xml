@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/</loc>
+    
+    <lastmod>2017-03-04T14:32:17.879Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</loc>
     
-    <lastmod>2017-01-29T14:18:29.534Z</lastmod>
+    <lastmod>2017-01-29T14:19:40.162Z</lastmod>
     
   </url>
   
@@ -12,13 +19,6 @@
     <loc>http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</loc>
     
     <lastmod>2017-01-08T12:26:54.422Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</loc>
-    
-    <lastmod>2017-01-03T10:46:48.218Z</lastmod>
     
   </url>
   
@@ -37,16 +37,16 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</loc>
+    <loc>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</loc>
     
     <lastmod>2017-01-03T10:46:48.218Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://shzhangji.com/baidu_verify_1JbAXNs5zK.html</loc>
+    <loc>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</loc>
     
-    <lastmod>2016-12-04T10:25:33.929Z</lastmod>
+    <lastmod>2017-01-03T10:46:48.218Z</lastmod>
     
   </url>
   
@@ -72,16 +72,16 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/googlee297afcb6441ee00.html</loc>
+    <loc>http://shzhangji.com/baidu_verify_1JbAXNs5zK.html</loc>
     
     <lastmod>2016-12-04T10:25:33.929Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/</loc>
+    <loc>http://shzhangji.com/googlee297afcb6441ee00.html</loc>
     
-    <lastmod>2016-12-04T10:25:33.925Z</lastmod>
+    <lastmod>2016-12-04T10:25:33.929Z</lastmod>
     
   </url>
   
@@ -262,6 +262,13 @@
   
   <url>
     <loc>http://shzhangji.com/blog/2013/03/27/fork-and-zombie-process/</loc>
+    
+    <lastmod>2016-12-04T10:25:33.925Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://shzhangji.com/blog/2013/03/28/perl-prime-in-action-jvm-monitoring-2/</loc>
     
     <lastmod>2016-12-04T10:25:33.925Z</lastmod>
     

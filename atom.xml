@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://shzhangji.com/"/>
-  <updated>2017-01-29T14:18:29.534Z</updated>
+  <updated>2017-03-04T14:32:17.879Z</updated>
   <id>http://shzhangji.com/</id>
   
   <author>
@@ -16,11 +16,81 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Process Python Collections with Functional Programming</title>
+    <link href="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/"/>
+    <id>http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/</id>
+    <published>2017-03-04T14:32:17.000Z</published>
+    <updated>2017-03-04T14:32:17.879Z</updated>
+    
+    <content type="html"><![CDATA[<p>I develop Spark applications with Scala, and it has a very powerful <a href="http://docs.scala-lang.org/overviews/collections/introduction" target="_blank" rel="external">collection system</a>, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In JavaScript, there is a <a href="https://lodash.com/" target="_blank" rel="external">Lodash</a> library that provides powerful tools to process arrays and objects. When my primary work language changes to Python, I am wondering if it’s possible to manipulate collections in a FP way, and fortunately Python already provides syntax and tools for functional programming. Though list comprehension is the pythonic way to deal with collections, but the idea and concepts of FP is definitely worth learning.</p>
+<h2 id="Wordcount-Example"><a href="#Wordcount-Example" class="headerlink" title="Wordcount Example"></a>Wordcount Example</h2><p>Let’s first write a snippet to count the word occurences from a paragraph, in of course a functional way.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> re</div><div class="line"><span class="keyword">import</span> itertools</div><div class="line"></div><div class="line"></div><div class="line">content = <span class="string">"""</span></div><div class="line">an apple orange the grape</div><div class="line">banana an apple melon</div><div class="line">an orange banana apple</div><div class="line">"""</div><div class="line"></div><div class="line">word_matches = re.finditer(<span class="string">r'\S+'</span>, content)</div><div class="line">words = map(<span class="keyword">lambda</span> m: m.group(<span class="number">0</span>), word_matches)</div><div class="line">fruits = filter(<span class="keyword">lambda</span> s: len(s) &gt; <span class="number">3</span>, words)</div><div class="line">grouped_fruits = itertools.groupby(sorted(fruits))</div><div class="line">fruit_counts = map(<span class="keyword">lambda</span> t: (t[<span class="number">0</span>], len(list(t[<span class="number">1</span>]))), grouped_fruits)</div><div class="line">print(list(fruit_counts))</div></pre></td></tr></table></figure>
+<p>Run this example and you’ll get a list of fruits, along with their counts:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[(&apos;apple&apos;, 3), (&apos;banana&apos;, 2), (&apos;grape&apos;, 1), (&apos;melon&apos;, 1), (&apos;orange&apos;, 2)]</div></pre></td></tr></table></figure>
+<p>This example includes most aspects of processing collections with FP style. For instance, <code>re.finditer</code> returns an <code>iterator</code> that is lazily evaluated; <code>map</code> and <code>filter</code> are used to do transformations; <code>itertools</code> module provides various functions to cope with iterables; and last but not least, the <code>lambda</code> expression, an easy way to define inline anonymous function. All of them will be described in the following sections.</p>
+<a id="more"></a>
+<h2 id="Ingredients-of-Functional-Programming"><a href="#Ingredients-of-Functional-Programming" class="headerlink" title="Ingredients of Functional Programming"></a>Ingredients of Functional Programming</h2><p>Python is far from being a functional language, but it provides some basic syntax and tools so that we can choose to write Python in a functional way.</p>
+<h3 id="Function-as-First-class-Citizen"><a href="#Function-as-First-class-Citizen" class="headerlink" title="Function as First-class Citizen"></a>Function as First-class Citizen</h3><p>Function is data. It can be assigned to a variable, pass as a parameter to another function, or returned by a function. The later two cases also refers to higher order functions. Python makes it quite easy, you can define and pass around the function:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(a, b)</span>:</span></div><div class="line">    <span class="keyword">return</span> a + b</div><div class="line">    </div><div class="line">add_two = add</div><div class="line">print(add_two(<span class="number">1</span>, <span class="number">2</span>)) <span class="comment"># =&gt; 3</span></div><div class="line">    </div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">calculate</span><span class="params">(a, b, operation)</span>:</span></div><div class="line">    <span class="keyword">return</span> operation(a, b)</div><div class="line">        </div><div class="line">print(calculate(<span class="number">1</span>, <span class="number">2</span>, add)) <span class="comment"># =&gt; 3</span></div></pre></td></tr></table></figure>
+<p>Or generate a new function from a function:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_n</span><span class="params">(n)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(a)</span>:</span></div><div class="line">        <span class="keyword">return</span> a + n</div><div class="line">    <span class="keyword">return</span> add</div><div class="line">                </div><div class="line">add_1 = add_n(<span class="number">1</span>)</div><div class="line">print(add_1(<span class="number">1</span>)) <span class="comment"># =&gt; 2</span></div></pre></td></tr></table></figure>
+<p>To use function in <code>map</code>, which applies the function to every element of the iterable:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">print(list(map(add_1, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]))) <span class="comment"># =&gt; [2, 3, 4]</span></div></pre></td></tr></table></figure>
+<p>For very short function, we can use lambda expression:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">map(<span class="keyword">lambda</span> a: a + <span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</div></pre></td></tr></table></figure>
+<h3 id="Being-Lazy"><a href="#Being-Lazy" class="headerlink" title="Being Lazy"></a>Being Lazy</h3><p>Lazy evaluation means postponing the execution until it’s necessary. It’s a very common optimization strategy in big data transformation, becuase all map-like operations should be chained and assigned to a single task. In Python, there’s iterator, an stateful object that remembers the current element during iteration. Let’s assume <code>calc</code> is a heavy function, and the following two lines differ:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[calc(i) <span class="keyword">for</span> i <span class="keyword">in</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]]</div><div class="line">map(calc, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</div></pre></td></tr></table></figure>
+<p>List comprehension is eager-evaluated, while <code>map</code> (from Python 3.x on) returns an iterator. You can use the <code>next</code> global function to fetch the next element, or take the first two results using:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> islice</div><div class="line">list(islice(map(calc, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]), <span class="number">2</span>))</div></pre></td></tr></table></figure>
+<p>It’s worth mentioning that from Python 3.x on a lot of methods returns iterator instead of concrete list, you can refer to <a href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#Less-Lists-More-Views">this article</a>.</p>
+<h3 id="Purity"><a href="#Purity" class="headerlink" title="Purity"></a>Purity</h3><p>A function is pure if its output only depends on its input, and it has no side-effect, i.e. without changing outer/global variable space. Here’re some examples of pure/non-pure functions:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">inc</span><span class="params">(a)</span>:</span> <span class="comment"># pure</span></div><div class="line">    <span class="keyword">return</span> a + <span class="number">1</span></div><div class="line"></div><div class="line">i = <span class="number">0</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">count</span><span class="params">(a)</span>:</span> <span class="comment"># non-pure</span></div><div class="line">    i = len(a)</div><div class="line">    </div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">greet</span><span class="params">(name)</span>:</span> <span class="comment"># non-pure, change the console</span></div><div class="line">    print(<span class="string">'hi'</span>, name)</div></pre></td></tr></table></figure>
+<p>Purity is a good functional style because:</p>
+<ul>
+<li>it makes you re-design the functions so that they become shorter;</li>
+<li>and short functions are easier to test, have less bugs;</li>
+<li>purity also enables parallel execution.</li>
+</ul>
+<p>In concurrency programming, sharing state, lock, and context switch are all performance killers. Pure functions ensures codes can be executed in parallel without coordination of states, and can be re-executed multiple times safely.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> concurrent.futures <span class="keyword">import</span> ThreadPoolExecutor</div><div class="line">executor = ThreadPoolExecutor(<span class="number">5</span>)</div><div class="line">list(executor.map(add_1, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]))</div></pre></td></tr></table></figure>
+<h3 id="Function-Composition"><a href="#Function-Composition" class="headerlink" title="Function Composition"></a>Function Composition</h3><p>There’re also topics on combining, currying, partially applying functions, so we can tackle complex problems with small well-defined functions. Python provides <code>decorator</code>, <code>generator</code> syntax, along with <code>functools</code>, <code>operator</code> modules for such tasks. These can be found in Python official documentation.</p>
+<h2 id="Chaining-Operations"><a href="#Chaining-Operations" class="headerlink" title="Chaining Operations"></a>Chaining Operations</h2><p><code>map</code>, <code>filter</code>, and functions in <code>itertools</code> cannot be easily chained. We have to nest the function calls or introduce intermediate variables. Luckily, there’s an open-sourced <a href="https://github.com/EntilZha/PyFunctional" target="_blank" rel="external">PyFunctional</a> package that can help us transform or aggregate collections in a funcional way quite fluently.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> functional <span class="keyword">import</span> seq</div><div class="line"></div><div class="line">seq(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)\</div><div class="line">    .map(<span class="keyword">lambda</span> x: x * <span class="number">2</span>)\</div><div class="line">    .filter(<span class="keyword">lambda</span> x: x &gt; <span class="number">4</span>)\</div><div class="line">    .reduce(<span class="keyword">lambda</span> x, y: x + y)</div><div class="line"><span class="comment"># =&gt; 14</span></div></pre></td></tr></table></figure>
+<h2 id="List-Comprehension-Or-map"><a href="#List-Comprehension-Or-map" class="headerlink" title="List Comprehension Or map?"></a>List Comprehension Or <code>map</code>?</h2><p>List comprehension and generator expression are the pythonic way of processing collections, and the communiy encourages using list comprehension instead of <code>map</code>, etc. There’s a nice <a href="http://stackoverflow.com/a/6407222/1030720" target="_blank" rel="external">answer</a> on StackOverflow that addresses the following principle: use <code>map</code> only when you already have a function defined. Otherwise just stick to listcomps for it’s more widely accepted. Neverthelss, one should still pay attention to the laziness of various methods.</p>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>Processing collections is only one application of functional programming. This program paradigm can be applied to other phases of designing your systems. Further materials like <a href="http://deptinfo.unice.fr/~roy/sicp.pdf" target="_blank" rel="external">SICP</a>, <a href="https://www.manning.com/books/functional-programming-in-scala" target="_blank" rel="external">Functional Programming in Scala</a> are all very informative. Hope you enjoy.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://docs.python.org/3/howto/functional.html" target="_blank" rel="external">Functional Programming HOWTO</a></li>
+<li><a href="http://kachayev.github.io/talks/uapycon2012/" target="_blank" rel="external">Functional Programming with Python</a></li>
+<li><a href="https://docs.python.org/3/library/itertools.html#itertools-recipes" target="_blank" rel="external">Itertools Recipes</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;I develop Spark applications with Scala, and it has a very powerful &lt;a href=&quot;http://docs.scala-lang.org/overviews/collections/introduction&quot;&gt;collection system&lt;/a&gt;, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In JavaScript, there is a &lt;a href=&quot;https://lodash.com/&quot;&gt;Lodash&lt;/a&gt; library that provides powerful tools to process arrays and objects. When my primary work language changes to Python, I am wondering if it’s possible to manipulate collections in a FP way, and fortunately Python already provides syntax and tools for functional programming. Though list comprehension is the pythonic way to deal with collections, but the idea and concepts of FP is definitely worth learning.&lt;/p&gt;
+&lt;h2 id=&quot;Wordcount-Example&quot;&gt;&lt;a href=&quot;#Wordcount-Example&quot; class=&quot;headerlink&quot; title=&quot;Wordcount Example&quot;&gt;&lt;/a&gt;Wordcount Example&lt;/h2&gt;&lt;p&gt;Let’s first write a snippet to count the word occurences from a paragraph, in of course a functional way.&lt;/p&gt;
+&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;9&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;10&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;11&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;12&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;13&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;14&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;15&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;16&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; re&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; itertools&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;content = &lt;span class=&quot;string&quot;&gt;&quot;&quot;&quot;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;an apple orange the grape&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;banana an apple melon&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;an orange banana apple&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&quot;&quot;&quot;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;word_matches = re.finditer(&lt;span class=&quot;string&quot;&gt;r&#39;\S+&#39;&lt;/span&gt;, content)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;words = map(&lt;span class=&quot;keyword&quot;&gt;lambda&lt;/span&gt; m: m.group(&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;), word_matches)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;fruits = filter(&lt;span class=&quot;keyword&quot;&gt;lambda&lt;/span&gt; s: len(s) &amp;gt; &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;, words)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;grouped_fruits = itertools.groupby(sorted(fruits))&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;fruit_counts = map(&lt;span class=&quot;keyword&quot;&gt;lambda&lt;/span&gt; t: (t[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;], len(list(t[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;]))), grouped_fruits)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;print(list(fruit_counts))&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;Run this example and you’ll get a list of fruits, along with their counts:&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;[(&amp;apos;apple&amp;apos;, 3), (&amp;apos;banana&amp;apos;, 2), (&amp;apos;grape&amp;apos;, 1), (&amp;apos;melon&amp;apos;, 1), (&amp;apos;orange&amp;apos;, 2)]&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;This example includes most aspects of processing collections with FP style. For instance, &lt;code&gt;re.finditer&lt;/code&gt; returns an &lt;code&gt;iterator&lt;/code&gt; that is lazily evaluated; &lt;code&gt;map&lt;/code&gt; and &lt;code&gt;filter&lt;/code&gt; are used to do transformations; &lt;code&gt;itertools&lt;/code&gt; module provides various functions to cope with iterables; and last but not least, the &lt;code&gt;lambda&lt;/code&gt; expression, an easy way to define inline anonymous function. All of them will be described in the following sections.&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
+    
+    
+      <category term="python" scheme="http://shzhangji.com/tags/python/"/>
+    
+      <category term="fp" scheme="http://shzhangji.com/tags/fp/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Difference Between Lodash _.assign and _.assignIn</title>
     <link href="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/"/>
     <id>http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</id>
-    <published>2017-01-29T14:18:29.000Z</published>
-    <updated>2017-01-29T14:18:29.534Z</updated>
+    <published>2017-01-29T06:18:29.000Z</published>
+    <updated>2017-01-29T14:19:40.162Z</updated>
     
     <content type="html"><![CDATA[<p>In Lodash, both <code>_.assign</code> and <code>_.assignIn</code> are ways to copy source objects’ properties into target object. According the <a href="https://lodash.com/docs/" target="_blank" rel="external">documentation</a>, <code>_.assign</code> processes <strong>own enumerable string keyed properties</strong>, while <code>_.assignIn</code> processes both <strong>own and inherited source properties</strong>. There’re also other companion functions like <code>_.forOwn</code> and <code>_.forIn</code>, <code>_.has</code> and <code>_.hasIn</code>. So what’s the difference between them?</p>
 <p>In brief, the <code>In</code> in latter methods implies the way <code>for...in</code> loop behaves, which <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in" target="_blank" rel="external">iterates all enumerable properties of the object itself and those the object inherits from its constructor’s prototype</a>. JavaScript has an inheritance mechanism called prototype chain. When iterating an object’s properties with <code>for...in</code> or <code>_.forIn</code>, all properties appeared in the object and its prototype are processed, until the prototype resolves to <code>null</code>. Here’s the example code taken from Lodash’s doc:</p>
@@ -69,7 +139,7 @@
     <title>Python 2 to 3 Quick Guide</title>
     <link href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/"/>
     <id>http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</id>
-    <published>2017-01-08T12:26:54.000Z</published>
+    <published>2017-01-08T04:26:54.000Z</published>
     <updated>2017-01-08T12:26:54.422Z</updated>
     
     <content type="html"><![CDATA[<p>Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python 3 is <a href="http://py3readiness.org/" target="_blank" rel="external">totally ready</a>, and here’s a list of references for those (including me) who are adopting Python 3 with a 2.x background.</p>
@@ -206,7 +276,7 @@
     <title>开发人员必知的5种开源框架</title>
     <link href="http://shzhangji.com/blog/2016/03/13/top-5-frameworks/"/>
     <id>http://shzhangji.com/blog/2016/03/13/top-5-frameworks/</id>
-    <published>2016-03-13T16:25:00.000Z</published>
+    <published>2016-03-13T08:25:00.000Z</published>
     <updated>2016-12-04T10:25:33.929Z</updated>
     
     <content type="html"><![CDATA[<p>作者：<a href="https://opensource.com/business/15/12/top-5-frameworks" target="_blank" rel="external">John Esposito</a></p>
@@ -261,7 +331,7 @@
     <title>使用Spring AOP向领域模型注入依赖</title>
     <link href="http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/"/>
     <id>http://shzhangji.com/blog/2015/09/12/model-dependency-injection-with-spring-aop/</id>
-    <published>2015-09-12T22:03:00.000Z</published>
+    <published>2015-09-12T14:03:00.000Z</published>
     <updated>2016-12-04T10:25:33.929Z</updated>
     
     <content type="html"><![CDATA[<p>在<a href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/">贫血领域模型</a>这篇译文中，Martin阐述了这种“反模式”的症状和问题，并引用了领域驱动设计中的话来说明领域模型和分层设计之间的关系。对于Spring项目的开发人员来说，贫血领域模型十分常见：模型（或实体）仅仅包含对数据表的映射，通常是一组私有属性和公有getter/setter，所有的业务逻辑都写在服务层中，领域模型仅仅用来传递数据。为了编写真正的领域模型，我们需要将业务逻辑移至模型对象中，这就引出另一个问题：业务逻辑通常需要调用其他服务或模型，而使用<code>new</code>关键字或由JPA创建的对象是不受Spring托管的，也就无法进行依赖注入。解决这个问题的方法有很多，比较之后我选择使用面向切面编程来实现。</p>
@@ -331,7 +401,7 @@
     <title>贫血领域模型</title>
     <link href="http://shzhangji.com/blog/2015/09/05/anemic-domain-model/"/>
     <id>http://shzhangji.com/blog/2015/09/05/anemic-domain-model/</id>
-    <published>2015-09-05T19:02:00.000Z</published>
+    <published>2015-09-05T11:02:00.000Z</published>
     <updated>2016-12-04T10:25:33.929Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://www.martinfowler.com/bliki/AnemicDomainModel.html" target="_blank" rel="external">http://www.martinfowler.com/bliki/AnemicDomainModel.html</a></p>
@@ -373,7 +443,7 @@
     <title>View Spark Source in Eclipse</title>
     <link href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/"/>
     <id>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</id>
-    <published>2015-09-01T18:38:00.000Z</published>
+    <published>2015-09-01T10:38:00.000Z</published>
     <updated>2017-01-03T10:46:48.218Z</updated>
     
     <content type="html"><![CDATA[<p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/" target="_blank" rel="external">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/" target="_blank" rel="external">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
@@ -428,7 +498,7 @@
     <title>HotSpot JVM中的对象指针压缩</title>
     <link href="http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/"/>
     <id>http://shzhangji.com/blog/2015/06/25/compressed-oops-in-the-hotspot-jvm/</id>
-    <published>2015-06-25T17:41:00.000Z</published>
+    <published>2015-06-25T09:41:00.000Z</published>
     <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="https://wiki.openjdk.java.net/display/HotSpot/CompressedOops" target="_blank" rel="external">https://wiki.openjdk.java.net/display/HotSpot/CompressedOops</a></p>
@@ -530,7 +600,7 @@
     <title>Spark Streaming Logging Configuration</title>
     <link href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/"/>
     <id>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</id>
-    <published>2015-05-31T18:18:00.000Z</published>
+    <published>2015-05-31T10:18:00.000Z</published>
     <updated>2017-01-03T10:46:48.218Z</updated>
     
     <content type="html"><![CDATA[<p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
@@ -581,7 +651,7 @@
     <title>ElasticSearch Performance Tips</title>
     <link href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/"/>
     <id>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</id>
-    <published>2015-04-28T23:08:00.000Z</published>
+    <published>2015-04-28T15:08:00.000Z</published>
     <updated>2017-01-03T10:46:48.218Z</updated>
     
     <content type="html"><![CDATA[<p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
@@ -685,7 +755,7 @@
     <title>Apache HBase的适用场景</title>
     <link href="http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts/"/>
     <id>http://shzhangji.com/blog/2015/03/08/hbase-dos-and-donts/</id>
-    <published>2015-03-08T08:03:00.000Z</published>
+    <published>2015-03-08T00:03:00.000Z</published>
     <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/" target="_blank" rel="external">http://blog.cloudera.com/blog/2011/04/hbase-dos-and-donts/</a></p>
@@ -739,7 +809,7 @@
     <title>深入理解Reduce-side Join</title>
     <link href="http://shzhangji.com/blog/2015/01/13/understand-reduce-side-join/"/>
     <id>http://shzhangji.com/blog/2015/01/13/understand-reduce-side-join/</id>
-    <published>2015-01-13T14:20:00.000Z</published>
+    <published>2015-01-13T06:20:00.000Z</published>
     <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>在《<a href="http://www.amazon.com/MapReduce-Design-Patterns-Effective-Algorithms/dp/1449327176" target="_blank" rel="external">MapReduce Design Patterns</a>》一书中，作者给出了Reduce-side Join的实现方法，大致步骤如下：</p>
@@ -812,7 +882,7 @@
     <title>使用git rebase让历史变得清晰</title>
     <link href="http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/"/>
     <id>http://shzhangji.com/blog/2014/12/23/use-git-rebase-to-clarify-history/</id>
-    <published>2014-12-23T16:10:00.000Z</published>
+    <published>2014-12-23T08:10:00.000Z</published>
     <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>当多人协作开发一个分支时，历史记录通常如下方左图所示，比较凌乱。如果希望能像右图那样呈线性提交，就需要学习git rebase的用法。</p>
@@ -865,7 +935,7 @@
     <title>Spark快速入门</title>
     <link href="http://shzhangji.com/blog/2014/12/16/spark-quick-start/"/>
     <id>http://shzhangji.com/blog/2014/12/16/spark-quick-start/</id>
-    <published>2014-12-16T15:59:00.000Z</published>
+    <published>2014-12-16T07:59:00.000Z</published>
     <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p><img src="http://spark.apache.org/images/spark-logo.png" alt=""></p>
@@ -980,7 +1050,7 @@
     <title>离线环境下构建sbt项目</title>
     <link href="http://shzhangji.com/blog/2014/11/07/sbt-offline/"/>
     <id>http://shzhangji.com/blog/2014/11/07/sbt-offline/</id>
-    <published>2014-11-07T15:02:00.000Z</published>
+    <published>2014-11-07T07:02:00.000Z</published>
     <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>在公司网络中使用<a href="http://www.scala-sbt.org/" target="_blank" rel="external">sbt</a>、<a href="http://maven.apache.org/" target="_blank" rel="external">Maven</a>等项目构建工具时，我们通常会搭建一个公用的<a href="http://www.sonatype.org/nexus/" target="_blank" rel="external">Nexus</a>镜像服务，原因有以下几个：</p>
@@ -1036,7 +1106,7 @@
     <title>MySQL异常UTF-8字符的处理</title>
     <link href="http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/"/>
     <id>http://shzhangji.com/blog/2014/10/14/mysql-incorrent-utf8-value/</id>
-    <published>2014-10-14T13:16:00.000Z</published>
+    <published>2014-10-14T05:16:00.000Z</published>
     <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>ETL流程中，我们会将Hive中的数据导入MySQL——先用Hive命令行将数据保存为文本文件，然后用MySQL的LOAD DATA语句进行加载。最近有一张表在加载到MySQL时会报以下错误：</p>
@@ -1087,7 +1157,7 @@
     <title>在CDH 4.5上安装Shark 0.9</title>
     <link href="http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/"/>
     <id>http://shzhangji.com/blog/2014/07/05/deploy-shark-0.9-with-cdh-4.5/</id>
-    <published>2014-07-05T17:16:00.000Z</published>
+    <published>2014-07-05T09:16:00.000Z</published>
     <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p><a href="http://spark.apache.org" target="_blank" rel="external">Spark</a>是一个新兴的大数据计算平台，它的优势之一是内存型计算，因此对于需要多次迭代的算法尤为适用。同时，它又能够很好地融合到现有的<a href="http://hadoop.apache.org" target="_blank" rel="external">Hadoop</a>生态环境中，包括直接存取HDFS上的文件，以及运行于YARN之上。对于<a href="http://hive.apache.org" target="_blank" rel="external">Hive</a>，Spark也有相应的替代项目——<a href="http://shark.cs.berkeley.edu/" target="_blank" rel="external">Shark</a>，能做到 <strong>drop-in replacement</strong> ，直接构建在现有集群之上。本文就将简要阐述如何在CDH4.5上搭建Shark0.9集群。</p>
@@ -1204,7 +1274,7 @@
     <title>Use WebJars in Scalatra Project</title>
     <link href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/"/>
     <id>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</id>
-    <published>2014-05-27T17:44:00.000Z</published>
+    <published>2014-05-27T09:44:00.000Z</published>
     <updated>2017-01-03T10:46:48.218Z</updated>
     
     <content type="html"><![CDATA[<p>As I’m working with my first <a href="http://www.scalatra.org/" target="_blank" rel="external">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/" target="_blank" rel="external">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation" target="_blank" rel="external">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
@@ -1252,7 +1322,7 @@
     <title>Hive小文件问题的处理</title>
     <link href="http://shzhangji.com/blog/2014/04/07/hive-small-files/"/>
     <id>http://shzhangji.com/blog/2014/04/07/hive-small-files/</id>
-    <published>2014-04-07T17:09:00.000Z</published>
+    <published>2014-04-07T09:09:00.000Z</published>
     <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。</p>
@@ -1304,7 +1374,7 @@
     <title>Java反射机制</title>
     <link href="http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/"/>
     <id>http://shzhangji.com/blog/2014/01/25/java-reflection-tutorial/</id>
-    <published>2014-01-25T09:42:00.000Z</published>
+    <published>2014-01-25T01:42:00.000Z</published>
     <updated>2016-12-04T10:25:33.925Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="http://www.programcreek.com/2013/09/java-reflection-tutorial/" target="_blank" rel="external">http://www.programcreek.com/2013/09/java-reflection-tutorial/</a></p>
@@ -1383,64 +1453,6 @@
       <category term="Translation" scheme="http://shzhangji.com/categories/Translation/"/>
     
       <category term="Tutorial" scheme="http://shzhangji.com/categories/Translation/Tutorial/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>抽象泄漏定律</title>
-    <link href="http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions/"/>
-    <id>http://shzhangji.com/blog/2013/12/17/the-law-of-leaky-abstractions/</id>
-    <published>2013-12-17T13:05:00.000Z</published>
-    <updated>2016-12-04T10:25:33.925Z</updated>
-    
-    <content type="html"><![CDATA[<p>原文：<a href="http://www.joelonsoftware.com/articles/LeakyAbstractions.html" target="_blank" rel="external">http://www.joelonsoftware.com/articles/LeakyAbstractions.html</a></p>
-<p>TCP协议是互联网的基石，我们每天都需要依靠它来构建各类互联网应用。也正是在这一协议中，时刻发生着一件近乎神奇的事情。</p>
-<p>TCP是一种 <em>可靠的</em> 数据传输协议，也就是说，当你通过TCP协议在网络上传输一条消息时，它一定会到达目的地，而且不会失真或毁坏。</p>
-<p>我们可以使用TCP来做很多事情，从浏览网页信息到收发邮件。TCP的可靠性使得东非贪污受贿的新闻能够一字一句地传递到世界各地。真是太棒了！</p>
-<p>和TCP协议相比，IP协议也是一种传输协议，但它是 <em>不可靠的</em> 。没有人可以保证你的数据一定会到达目的地，或者在它到达前就已经被破坏了。如果你发送了一组消息，不要惊讶为何只有一半的消息到达，有些消息的顺序会不正确，甚至消息的内容被替换成了黑猩猩宝宝的图片，或是一堆无法阅读的垃圾数据，像极了台湾人的邮件标题。</p>
-<p>这就是TCP协议神奇的地方：它是构建在IP协议之上的。换句话说，TCP协议能够 <em>使用一个不可靠的工具来可靠地传输数据</em> 。</p>
-<a id="more"></a>
-<p>为了更好地说明这有多么神奇，让我们设想下面的场景。虽然有些荒诞，但本质上是相同的。</p>
-<p>假设我们用一辆辆汽车将百老汇的演员们运送到好莱坞，这是一条横跨美国的漫长线路。其中一些汽车出了交通事故，车上的演员在事故中死亡。有些演员则在车上酗酒嗑药，兴奋之余将自己的头发剃了，或是纹上了丑陋的纹身，这样一来就失去了他们原先的样貌，无法在好莱坞演出。更普遍的情况是，演员们没有按照出发的顺序到达目的地，因为他们走的都是不同的线路。现在再让我们设想有一个名为“好莱坞快线”的运输服务，在运送这些演员时能够保证三点：他们都能够到达；到达顺序和出发顺序一致；并且都完好无损。神奇的是，好莱坞快线除了用汽车来运输这些演员之外，没有任何其他的方法。所以它能做的就是检查每一个到达目的地的演员，看他们是否和原先的相貌一致。如果有所差别，它就立刻通知百老汇的办公室，派出该演员的双胞胎兄妹，重新发送过来。如果演员到达的顺序不同，好莱坞快线会负责重新排序。如果有一架UFO在飞往51区的途中不慎坠毁在内华达州，造成高速公路阻塞，这时所有打算从这条路经过的演员会绕道亚利桑那州。好莱坞快线不会告诉加利福尼亚州的导演路上发生了什么，只是这些演员到的比较迟而已。</p>
-<p>这大致上就是TCP协议的神奇之处，计算机科学家们通常会将其称作为“抽象”：将复杂的问题用简单的方式表现出来。事实上，很多计算机编程工作都是在进行抽象。字符串库做了什么？它能让我们觉得计算机可以像处理数字那样处理文字。文件系统是什么？它让硬盘不再是一组高速旋转的磁性盘块，而是一个有着目录层级结构、能够按字节存储字符信息的设备。</p>
-<p>我们继续说TCP。刚才我打了一个比方，有些人可能觉得那很疯狂。但是，当我说TCP协议可以保证消息一定能够到达，事实上并非如此。如果你的宠物蛇把网线给咬坏了，那即便是TCP协议也无法传输数据；如果你和网络管理员闹了矛盾，他将你的网口接到了一台负载很高的交换机上，那即便你的数据包可以传输，速度也会奇慢无比。</p>
-<p>这就是我所说的“抽象泄漏”。TCP协议试图提供一个完整的抽象，将底层不可靠的数据传输包装起来，但是，底层的传输有时也会发生问题，即便是TCP协议也无法解决，这时你会发现，它也不是万能的。TCP协议就是“抽象泄漏定律”的示例之一，其实，几乎所有的抽象都是泄漏的。这种泄漏有时很小，有时会很严重。下面再举一些例子：</p>
-<ul>
-<li><p>对于一个简单的操作，如循环遍历一个二维数组，当遍历的方式不同（横向或纵向），也会对性能造成很大影响，这主要取决于数组中数据的分布——按某个方向遍历时可能会产生更多的页缺失（page fault），而页缺失往往是非常消耗性能的。即使是汇编程序员，他们在编写代码时也会假设程序的内存空间是连续的，这是系统底层的虚拟内存机制提供的抽象，而这一机制在遇到页缺失时就会消耗更多时间。</p>
-</li>
-<li><p>SQL语言意图将过程式的数据库访问操作封装起来，你只需要告诉操作系统你想要的数据，系统会自动生成各个步骤并加以执行。但在有些情况下，某些SQL查询会比其逻辑等同的查询语句要慢得多。一个著名的示例是，对大多数SQL服务器，指定“WHERE a = b AND b = c AND a = c”要比单纯指定“WHERE a = b AND b = c”快的多，即便它们的结果集是一致的。在使用SQL时，我们不需要思考过程，只需关注定义。但有时，这种抽象会造成性能上的大幅下降，你需要去了解SQL语法分析器的工作原理，找出问题的原因，并想出应对措施，让自己的查询运行得更快。</p>
-</li>
-<li><p>即便有NFS、SMB这样的协议可以让你像在处理本地文件一样处理远程文件，如果网络传输很慢，或是完全中断了，程序员就需要手动处理这种情况。所以，这种“远程文件即本地文件”的抽象机制是存在<a href="http://www.joelonsoftware.com/articles/fog0000000041.html" target="_blank" rel="external">泄漏</a>的。这里举一个现实的例子：如果你将用户的home目录加载到NFS上（一次抽象），你的用户创建了.forward文件，用来转发他所有的电子邮件（二次抽象），当NFS服务器宕机，.forward文件会找不到，这样就无法转发邮件了，造成丢失。</p>
-</li>
-<li><p>C++的字符串处理类库相当于增加了一种基础数据类型：字符串，将<a href="http://www.joelonsoftware.com/articles/fog0000000319.html" target="_blank" rel="external">各种操作细节</a>封装起来，让程序员可以方便地使用它。几乎所有的C++字符串类都会重载+操作符，这样你就能用 <em>s + “bar”</em> 来拼接字符串了。但是，无论哪种类库都无法实现 <em>“foo” + “bar”</em> 这种语句，因为在C++中，字符串字面量（string literal）都是char *类型的。这就是一种泄漏。（有趣的是，C++语言的发展历程很大一部分是在争论字符串是否应该在语言层面支持。我个人并不太能理解这为何需要争论。）</p>
-</li>
-<li><p>当你在雨天开车，虽然你坐在车里，前窗有雨刷，车内有空调，这些措施将“天气”给抽象走了。但是，你还是要小心雨天的轮胎打滑，有时这雨下得太大，可见度很糟，所以你还是得慢行。也就是说，“天气”因素并没有被完全抽象走，它也是存在泄漏的。</p>
-</li>
-</ul>
-<p>抽象泄漏引发的麻烦之一是，它并没有完全简化我们的工作。当我指导别人学习C++时，我当然希望可以跳过char *和指针运算，直接讲解STL字符串类库的使用。但是，当某一天他写出了 <em>“foo” + “bar”</em> 这样的代码，并询问我为什么编译错误时，我还是需要告诉它char *的存在。或者说，当他需要调用一个Windows API，需要指定OUT LPTSTR参数，这时他就必须学习char *、指针、Unicode、wchar_t、TCHAR头文件等一系列知识，这些都是抽象泄漏。</p>
-<p>在指导COM编程时，我希望可以直接让大家如何使用Visual Studio的代码生成向导。但将来如果出现问题，学员面对这些生成的代码会不知所从，这时还是要回过头来学习IUnknown、CLSID、ProgIDS等等。天呐！</p>
-<p>在指导ASP.NET编程时，我希望可以直接告诉大家双击页面上的控件，在弹出的代码框中输入点击响应事件。的确，ASP.NET将处理点击的HTML代码抽象掉了，但问题在于，ASP.NET的设计者需要动用JS来模拟表单的提交，因为HTML中的&lt;a/&gt;标签是没有这一功能的。这样一来，如果终端用户将JS禁止了，这个程序将无法运行。初学者会不知所措，直至他了解ASP.NET的运作方式，了解它究竟将什么样的工作封装起来了，才能进一步排查。</p>
-<p>由于抽象定律的存在，每当有人说自己发现了一款新的代码生成工具，能够大大提高我们的编程效率时，你会听很多人说“先学习手工编写，再去用工具生成”。代码生成工具是一种抽象，同样也会泄漏，唯一的解决方法是学习它的实现原理，即它抽象了什么。所以说抽象只是用于提高我们的工作效率的，而不会节省我们的学习时间。</p>
-<p>这就形成了一个悖论：当我们拥有越来越高级的开发工具，越来越好的“抽象”，要成为一个高水平的程序员反而越来越困难了。</p>
-<p>我在微软实习的第一年，是为Macintosh编写字符串处理类库。很普通的一个任务：编写 <em>strcat</em> 函数，返回一个指针，指向新字符串的尾部。几行C语言代码就能实现了，这些都是从K&amp;R这本C语言编程书上学习到的。</p>
-<p>如今，我在CityDesk供职，需要使用Visual Basic、COM、ATL、C++、InnoSetup、Internet Explorer原理、正则表达式、DOM、HTML、CSS、XML等等，这些相对于古老的K&amp;R来说都是非常高级的工具，但是我仍然需要用到K&amp;R的相关知识，否则会困难重重。</p>
-<p>十年前，我们会想象未来能够出现各种新式的编程范型，简化我们的工作。的确，这些年我们创造的各类抽象使得开发复杂的大型软件变得比十五年前要简单得多，就像GUI和网络编程。现代的面向对象编程语言让我们的工作变得高效快速。但突然有一天，这种抽象泄漏出一个问题，解决它需要耗费两星期。如果你需要招录一个VB程序员，那不是一个好主意，因为当他碰到VB语言泄漏的问题时，他会变得寸步难行。</p>
-<p>抽象泄漏定律正在阻碍我们前进。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;原文：&lt;a href=&quot;http://www.joelonsoftware.com/articles/LeakyAbstractions.html&quot;&gt;http://www.joelonsoftware.com/articles/LeakyAbstractions.html&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;TCP协议是互联网的基石，我们每天都需要依靠它来构建各类互联网应用。也正是在这一协议中，时刻发生着一件近乎神奇的事情。&lt;/p&gt;
-&lt;p&gt;TCP是一种 &lt;em&gt;可靠的&lt;/em&gt; 数据传输协议，也就是说，当你通过TCP协议在网络上传输一条消息时，它一定会到达目的地，而且不会失真或毁坏。&lt;/p&gt;
-&lt;p&gt;我们可以使用TCP来做很多事情，从浏览网页信息到收发邮件。TCP的可靠性使得东非贪污受贿的新闻能够一字一句地传递到世界各地。真是太棒了！&lt;/p&gt;
-&lt;p&gt;和TCP协议相比，IP协议也是一种传输协议，但它是 &lt;em&gt;不可靠的&lt;/em&gt; 。没有人可以保证你的数据一定会到达目的地，或者在它到达前就已经被破坏了。如果你发送了一组消息，不要惊讶为何只有一半的消息到达，有些消息的顺序会不正确，甚至消息的内容被替换成了黑猩猩宝宝的图片，或是一堆无法阅读的垃圾数据，像极了台湾人的邮件标题。&lt;/p&gt;
-&lt;p&gt;这就是TCP协议神奇的地方：它是构建在IP协议之上的。换句话说，TCP协议能够 &lt;em&gt;使用一个不可靠的工具来可靠地传输数据&lt;/em&gt; 。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Translation" scheme="http://shzhangji.com/categories/Translation/"/>
     
     
   </entry>
