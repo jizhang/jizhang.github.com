@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="Ji ZHANG's Blog">
 <meta property="og:description" content="Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality">
 <meta property="og:image" content="http://shzhangji.com/images/elasticsearch/shards-head.png">
-<meta property="og:updated_time" content="2017-01-03T12:40:57.000Z">
+<meta property="og:updated_time" content="2017-03-09T05:48:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ElasticSearch Performance Tips">
 <meta name="twitter:description" content="Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality">
@@ -124,7 +124,7 @@ ga('send', 'pageview');
 <ol>
 <li>How many nodes do you have, now and future? If you’re sure you’ll only have 3 nodes, set number of shards to 2 and replicas to 1, so there’ll be 4 shards across 3 nodes. If you’ll add some servers in the future, you can set number of shards to 3, so when the cluster grows to 5 nodes, there’ll be 6 distributed shards.</li>
 <li>How big is your index? If it’s small, one shard with one replica will due.</li>
-<li>How is the read and write frequency, respectively? If it’s search heavy, setup more relicas. </li>
+<li>How is the read and write frequency, respectively? If it’s search heavy, setup more relicas.</li>
 </ol>
 <a id="more"></a>
 <h2 id="Tip-2-Tuning-Memory-Usage"><a href="#Tip-2-Tuning-Memory-Usage" class="headerlink" title="Tip 2 Tuning Memory Usage"></a>Tip 2 Tuning Memory Usage</h2><p>ElasticSearch and its backend <a href="http://lucene.apache.org/" target="_blank" rel="external">Lucene</a> are both Java application. There’re various memory tuning settings related to heap and native memory.</p>
@@ -152,9 +152,9 @@ ga('send', 'pageview');
 <h2 id="Tip-5-Use-Bulk-Operations"><a href="#Tip-5-Use-Bulk-Operations" class="headerlink" title="Tip 5 Use Bulk Operations"></a>Tip 5 Use Bulk Operations</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/bulk.html" target="_blank" rel="external">Bulk is cheaper</a></p>
 <ul>
 <li>Bulk Read<ul>
-<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html" target="_blank" rel="external">Multi Get</a> to retrieve multiple documents by a list of ids. </li>
+<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html" target="_blank" rel="external">Multi Get</a> to retrieve multiple documents by a list of ids.</li>
 <li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html" target="_blank" rel="external">Scroll</a> to search a large number of documents.</li>
-<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/msearch.html" target="_blank" rel="external">MultiSearch api</a> to run search requests in parallel. </li>
+<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/msearch.html" target="_blank" rel="external">MultiSearch api</a> to run search requests in parallel.</li>
 </ul>
 </li>
 <li>Bulk Write<ul>
@@ -187,12 +187,12 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cixigvc1b002q3czjwcfv64ie" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cj01z41i00008i4zjqmdkmmvj" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/english/">english</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li></ul>
 
     </footer>
   </div>
@@ -210,9 +210,9 @@ ga('send', 'pageview');
     </a>
   
   
-    <a href="/blog/2015/03/08/hbase-dos-and-donts/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/blog/2014/05/27/use-webjars-in-scalatra-project/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Apache HBase的适用场景</div>
+      <div class="article-nav-title">Use WebJars in Scalatra Project</div>
     </a>
   
 </nav>
@@ -234,7 +234,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/aosa/" style="font-size: 12.5px;">aosa</a> <a href="/tags/clojure/" style="font-size: 20px;">clojure</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/english/" style="font-size: 17.5px;">english</a> <a href="/tags/fp/" style="font-size: 12.5px;">fp</a> <a href="/tags/frontend/" style="font-size: 10px;">frontend</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hadoop/" style="font-size: 15px;">hadoop</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/javascript/" style="font-size: 12.5px;">javascript</a> <a href="/tags/lodash/" style="font-size: 10px;">lodash</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/noir/" style="font-size: 15px;">noir</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/perl/" style="font-size: 12.5px;">perl</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/scala/" style="font-size: 10px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 12.5px;">spark</a> <a href="/tags/storm/" style="font-size: 10px;">storm</a> <a href="/tags/translation/" style="font-size: 10px;">translation</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a>
+      <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/frontend/" style="font-size: 10px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/javascript/" style="font-size: 10px;">javascript</a> <a href="/tags/lodash/" style="font-size: 10px;">lodash</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/scala/" style="font-size: 10px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 20px;">spark</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a>
     </div>
   </div>
 
@@ -243,7 +243,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">April 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/06/">June 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/05/">May 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/02/">February 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/01/">January 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/11/">November 2012</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
     </div>
   </div>
 
@@ -268,11 +268,11 @@ ga('send', 'pageview');
           </li>
         
           <li>
-            <a href="/blog/2016/03/13/top-5-frameworks/">开发人员必知的5种开源框架</a>
+            <a href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
           </li>
         
           <li>
-            <a href="/blog/2015/09/12/model-dependency-injection-with-spring-aop/">使用Spring AOP向领域模型注入依赖</a>
+            <a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
           </li>
         
       </ul>

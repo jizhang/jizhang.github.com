@@ -11,7 +11,7 @@
 <meta property="og:url" content="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/index.html">
 <meta property="og:site_name" content="Ji ZHANG's Blog">
 <meta property="og:description" content="Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python">
-<meta property="og:updated_time" content="2017-01-13T01:00:25.000Z">
+<meta property="og:updated_time" content="2017-03-09T05:48:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python 2 to 3 Quick Guide">
 <meta name="twitter:description" content="Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python">
@@ -140,7 +140,7 @@ ga('send', 'pageview');
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">print</span>   <span class="comment"># Old: print a new line</span></div><div class="line">print() <span class="comment"># New</span></div><div class="line"></div><div class="line"><span class="keyword">print</span> <span class="string">'hello'</span>, <span class="string">'world'</span>,          <span class="comment"># Old: trailing comma suppresses new line</span></div><div class="line">print(<span class="string">'hello'</span>, <span class="string">'world'</span>, end=<span class="string">' '</span>) <span class="comment"># New: end defaults to '\n'</span></div><div class="line"></div><div class="line"><span class="keyword">print</span> &gt;&gt;sys.stderr, <span class="string">'error'</span>     <span class="comment"># Old: write to stderr</span></div><div class="line">print(<span class="string">'error'</span>, file=sys.stderr) <span class="comment"># New</span></div></pre></td></tr></table></figure>
 <p><code>print</code> function also provides <code>sep</code> and <code>flush</code> parameters:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">print(<span class="string">'hello'</span>, <span class="string">'world'</span>, sep=<span class="string">','</span>, flush=<span class="keyword">True</span>)</div><div class="line"></div><div class="line"><span class="comment"># Instead of:</span></div><div class="line"><span class="keyword">print</span> <span class="string">','</span>.join((<span class="string">'hello'</span>, <span class="string">'world'</span>))</div><div class="line">sys.stdout.flush()</div></pre></td></tr></table></figure>
-<h2 id="Less-Lists-More-Views"><a href="#Less-Lists-More-Views" class="headerlink" title="Less Lists More Views"></a>Less Lists More Views</h2><p>A lot of well-known methods now return iterators, or ‘views’,  instead of eager-evaluated lists. </p>
+<h2 id="Less-Lists-More-Views"><a href="#Less-Lists-More-Views" class="headerlink" title="Less Lists More Views"></a>Less Lists More Views</h2><p>A lot of well-known methods now return iterators, or ‘views’,  instead of eager-evaluated lists.</p>
 <ul>
 <li>Dictionary’s <code>keys</code>, <code>items</code>, and <code>values</code> methods, while removing <code>iterkeys</code>, <code>iteritems</code>, and <code>itervalues</code>. For example, when you need a sorted key list:</li>
 </ul>
@@ -170,7 +170,7 @@ ga('send', 'pageview');
 <p>Furthermore, Python 3.6 introduces literal string interpolation (<a href="https://www.python.org/dev/peps/pep-0498/" target="_blank" rel="external">PEP 498</a>).</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">name = <span class="string">'Jerry'</span></div><div class="line">print(f<span class="string">'Hello, &#123;name&#125;'</span>)</div></pre></td></tr></table></figure>
 <h2 id="Exception-Handling"><a href="#Exception-Handling" class="headerlink" title="Exception Handling"></a>Exception Handling</h2><p>Raise and catch exceptions in a more standard way:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Old</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">  <span class="keyword">raise</span> Exception, <span class="string">'message'</span></div><div class="line"><span class="keyword">except</span> Exception, e:</div><div class="line">  tb = sys.exc_info()[<span class="number">2</span>]</div><div class="line">  </div><div class="line"><span class="comment"># New</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">  <span class="keyword">raise</span> Exception(<span class="string">'message'</span>)</div><div class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">  tb = e.__traceback__</div></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Old</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">  <span class="keyword">raise</span> Exception, <span class="string">'message'</span></div><div class="line"><span class="keyword">except</span> Exception, e:</div><div class="line">  tb = sys.exc_info()[<span class="number">2</span>]</div><div class="line"></div><div class="line"><span class="comment"># New</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">  <span class="keyword">raise</span> Exception(<span class="string">'message'</span>)</div><div class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">  tb = e.__traceback__</div></pre></td></tr></table></figure>
 <h2 id="Global-Function-Changes"><a href="#Global-Function-Changes" class="headerlink" title="Global Function Changes"></a>Global Function Changes</h2><p>Some global functions are (re)moved to reduce duplication and language cruft.</p>
 <ul>
 <li><code>reduce</code> is removed, use <code>functools.reduce</code>, or explict <code>for</code> loop instead.</li>
@@ -207,12 +207,12 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cixv3ktv40000b0zjcwssonlr" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cj01z41ib000hi4zjbz95xjph" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/english/">english</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
 
     </footer>
   </div>
@@ -230,9 +230,9 @@ ga('send', 'pageview');
     </a>
   
   
-    <a href="/blog/2016/03/13/top-5-frameworks/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/blog/2015/09/01/view-spark-source-in-eclipse/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">开发人员必知的5种开源框架</div>
+      <div class="article-nav-title">View Spark Source in Eclipse</div>
     </a>
   
 </nav>
@@ -254,7 +254,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/aosa/" style="font-size: 12.5px;">aosa</a> <a href="/tags/clojure/" style="font-size: 20px;">clojure</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/english/" style="font-size: 17.5px;">english</a> <a href="/tags/fp/" style="font-size: 12.5px;">fp</a> <a href="/tags/frontend/" style="font-size: 10px;">frontend</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hadoop/" style="font-size: 15px;">hadoop</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/javascript/" style="font-size: 12.5px;">javascript</a> <a href="/tags/lodash/" style="font-size: 10px;">lodash</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/noir/" style="font-size: 15px;">noir</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/perl/" style="font-size: 12.5px;">perl</a> <a href="/tags/programming/" style="font-size: 10px;">programming</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/scala/" style="font-size: 10px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 12.5px;">spark</a> <a href="/tags/storm/" style="font-size: 10px;">storm</a> <a href="/tags/translation/" style="font-size: 10px;">translation</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a>
+      <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/frontend/" style="font-size: 10px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/javascript/" style="font-size: 10px;">javascript</a> <a href="/tags/lodash/" style="font-size: 10px;">lodash</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/scala/" style="font-size: 10px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 20px;">spark</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a>
     </div>
   </div>
 
@@ -263,7 +263,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">April 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/09/">September 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/06/">June 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/05/">May 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/02/">February 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/01/">January 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/12/">December 2012</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/11/">November 2012</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
     </div>
   </div>
 
@@ -288,11 +288,11 @@ ga('send', 'pageview');
           </li>
         
           <li>
-            <a href="/blog/2016/03/13/top-5-frameworks/">开发人员必知的5种开源框架</a>
+            <a href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
           </li>
         
           <li>
-            <a href="/blog/2015/09/12/model-dependency-injection-with-spring-aop/">使用Spring AOP向领域模型注入依赖</a>
+            <a href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
           </li>
         
       </ul>
