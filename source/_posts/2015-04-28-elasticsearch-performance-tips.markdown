@@ -5,7 +5,7 @@ title: "ElasticSearch Performance Tips"
 date: 2015-04-28 23:08
 categories: [Programming]
 comments: true
-tags: [elasticsearch, english]
+tags: [elasticsearch]
 ---
 
 Recently we're using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch's rich and out-of-the-box functionality, it doesn't take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here's a list of ElasticSearch performance tips that we learned from practice.
@@ -26,7 +26,7 @@ Since `number_of_shards` of an index cannot be changed after creation (while `nu
 
 1. How many nodes do you have, now and future? If you're sure you'll only have 3 nodes, set number of shards to 2 and replicas to 1, so there'll be 4 shards across 3 nodes. If you'll add some servers in the future, you can set number of shards to 3, so when the cluster grows to 5 nodes, there'll be 6 distributed shards.
 2. How big is your index? If it's small, one shard with one replica will due.
-3. How is the read and write frequency, respectively? If it's search heavy, setup more relicas. 
+3. How is the read and write frequency, respectively? If it's search heavy, setup more relicas.
 
 <!-- more -->
 
@@ -87,9 +87,9 @@ ElasticSearch is a full-featured search engine, but you should always tailor it 
 [Bulk is cheaper][5]
 
 * Bulk Read
-    * Use [Multi Get][6] to retrieve multiple documents by a list of ids. 
+    * Use [Multi Get][6] to retrieve multiple documents by a list of ids.
     * Use [Scroll][7] to search a large number of documents.
-    * Use [MultiSearch api][8] to run search requests in parallel. 
+    * Use [MultiSearch api][8] to run search requests in parallel.
 * Bulk Write
     * Use [Bulk API][9] to index, update, delete multiple documents.
     * Alter [index aliases][10] simultaneously.

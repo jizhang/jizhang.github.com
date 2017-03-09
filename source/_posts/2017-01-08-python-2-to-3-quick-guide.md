@@ -1,10 +1,7 @@
 ---
 title: Python 2 to 3 Quick Guide
-tags:
-  - python
-  - english
-categories:
-  - Programming
+tags: [python]
+categories: [Programming]
 date: 2017-01-08 12:26:54
 ---
 
@@ -71,7 +68,7 @@ sys.stdout.flush()
 
 ## Less Lists More Views
 
-A lot of well-known methods now return iterators, or 'views',  instead of eager-evaluated lists. 
+A lot of well-known methods now return iterators, or 'views',  instead of eager-evaluated lists.
 
 * Dictionary's `keys`, `items`, and `values` methods, while removing `iterkeys`, `iteritems`, and `itervalues`. For example, when you need a sorted key list:
 
@@ -168,7 +165,7 @@ try:
   raise Exception, 'message'
 except Exception, e:
   tb = sys.exc_info()[2]
-  
+
 # New
 try:
   raise Exception('message')

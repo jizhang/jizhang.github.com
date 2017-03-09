@@ -2,7 +2,7 @@
 title: Process Python Collections with Functional Programming
 tags:
   - python
-  - fp
+  - functional programming
 categories:
   - Programming
 date: 2017-03-04 22:32:17
@@ -55,13 +55,13 @@ Function is data. It can be assigned to a variable, pass as a parameter to anoth
 ```python
 def add(a, b):
     return a + b
-    
+
 add_two = add
 print(add_two(1, 2)) # => 3
-    
+
 def calculate(a, b, operation):
     return operation(a, b)
-        
+
 print(calculate(1, 2, add)) # => 3
 ```
 
@@ -72,7 +72,7 @@ def add_n(n):
     def add(a):
         return a + n
     return add
-                
+
 add_1 = add_n(1)
 print(add_1(1)) # => 2
 ```
@@ -118,7 +118,7 @@ def inc(a): # pure
 i = 0
 def count(a): # non-pure
     i = len(a)
-    
+
 def greet(name): # non-pure, change the console
     print('hi', name)
 ```
