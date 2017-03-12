@@ -17,6 +17,7 @@
         <% for (var i in theme.menu){ %>
           <a class="main-nav-link" href="<%- url_for(theme.menu[i]) %>"><%= i %></a>
         <% } %>
+        <a class="main-nav-link" href="http://shzhangji.com/cnblogs"><img src="<%- url_for('/images/cnblogs.png') %>"></a>
       </nav>
       <nav id="sub-nav">
         <% if (theme.rss){ %>
