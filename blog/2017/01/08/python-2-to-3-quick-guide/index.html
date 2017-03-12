@@ -11,7 +11,7 @@
 <meta property="og:url" content="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/index.html">
 <meta property="og:site_name" content="Ji ZHANG's Blog">
 <meta property="og:description" content="Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python">
-<meta property="og:updated_time" content="2017-03-09T05:48:53.000Z">
+<meta property="og:updated_time" content="2017-03-09T22:29:01.401Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python 2 to 3 Quick Guide">
 <meta name="twitter:description" content="Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python">
@@ -72,6 +72,7 @@ ga('send', 'pageview');
         
           <a class="main-nav-link" href="/archives">Archives</a>
         
+        <a class="main-nav-link" href="http://shzhangji.com/cnblogs"><img src="/images/cnblogs.png"></a>
       </nav>
       <nav id="sub-nav">
         
@@ -85,6 +86,7 @@ ga('send', 'pageview');
     </div>
   </div>
 </header>
+
       <div class="outer">
         <section id="main"><article id="post-python-2-to-3-quick-guide" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
@@ -168,7 +170,7 @@ ga('send', 'pageview');
 <h2 id="New-String-Formatting"><a href="#New-String-Formatting" class="headerlink" title="New String Formatting"></a>New String Formatting</h2><p>Python 3 introduces a new form of string formatting, and it’s also back-ported to Python 2.x. The old <code>%s</code> formatting is still available in 3.x, but the <a href="https://docs.python.org/3/library/string.html#format-string-syntax" target="_blank" rel="external">new format</a> seems more expressive and powerful.</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># by position</span></div><div class="line"><span class="string">'&#123;&#125;, &#123;&#125;, &#123;&#125;'</span>.format(<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>)    <span class="comment"># a, b, c</span></div><div class="line"><span class="string">'&#123;2&#125;, &#123;1&#125;, &#123;0&#125;'</span>.format(<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>) <span class="comment"># c, b, a</span></div><div class="line"></div><div class="line"><span class="comment"># by name</span></div><div class="line"><span class="string">'Hello, &#123;name&#125;'</span>.format(name=<span class="string">'Jerry'</span>) <span class="comment"># Hello, Jerry</span></div><div class="line"></div><div class="line"><span class="comment"># by attribute</span></div><div class="line">c = <span class="number">1</span> - <span class="number">2j</span></div><div class="line"><span class="string">'real: &#123;0.real&#125;'</span>.format(c) <span class="comment"># real: 1.0</span></div><div class="line"></div><div class="line"><span class="comment"># by index</span></div><div class="line"><span class="string">'X: &#123;0[0]&#125;, Y: &#123;0[1]&#125;'</span>.format((<span class="number">1</span>, <span class="number">2</span>)) <span class="comment"># X: 1, Y: 2</span></div><div class="line"></div><div class="line"><span class="comment"># format number</span></div><div class="line"><span class="string">'&#123;:.2f&#125;'</span>.format(<span class="number">1.2</span>)   <span class="comment"># 1.20</span></div><div class="line"><span class="string">'&#123;:.2%&#125;'</span>.format(<span class="number">0.012</span>) <span class="comment"># 1.20%</span></div><div class="line"><span class="string">'&#123;:,&#125;'</span>.format(<span class="number">1234567</span>) <span class="comment"># 1,234,567</span></div><div class="line"></div><div class="line"><span class="comment"># padding</span></div><div class="line"><span class="string">'&#123;:&gt;05&#125;'</span>.format(<span class="number">1</span>) <span class="comment"># 00001</span></div></pre></td></tr></table></figure>
 <p>Furthermore, Python 3.6 introduces literal string interpolation (<a href="https://www.python.org/dev/peps/pep-0498/" target="_blank" rel="external">PEP 498</a>).</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">name = <span class="string">'Jerry'</span></div><div class="line">print(f<span class="string">'Hello, &#123;name&#125;'</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">name = <span class="string">'Jerry'</span></div><div class="line">print(<span class="string">f'Hello, <span class="subst">&#123;name&#125;</span>'</span>)</div></pre></td></tr></table></figure>
 <h2 id="Exception-Handling"><a href="#Exception-Handling" class="headerlink" title="Exception Handling"></a>Exception Handling</h2><p>Raise and catch exceptions in a more standard way:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Old</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">  <span class="keyword">raise</span> Exception, <span class="string">'message'</span></div><div class="line"><span class="keyword">except</span> Exception, e:</div><div class="line">  tb = sys.exc_info()[<span class="number">2</span>]</div><div class="line"></div><div class="line"><span class="comment"># New</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">  <span class="keyword">raise</span> Exception(<span class="string">'message'</span>)</div><div class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">  tb = e.__traceback__</div></pre></td></tr></table></figure>
 <h2 id="Global-Function-Changes"><a href="#Global-Function-Changes" class="headerlink" title="Global Function Changes"></a>Global Function Changes</h2><p>Some global functions are (re)moved to reduce duplication and language cruft.</p>
@@ -207,7 +209,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cj01zlaqo000hsqzjvzpselyz" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cj05wzkda0006mom63i2m49m0" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#disqus_thread" class="article-comment-link">Comments</a>
       
