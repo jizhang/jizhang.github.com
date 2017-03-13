@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/</loc>
+    
+    <lastmod>2017-03-13T14:39:03.475Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://shzhangji.com/googlee297afcb6441ee00.html</loc>
     
     <lastmod>2017-03-09T22:29:01.409Z</lastmod>
