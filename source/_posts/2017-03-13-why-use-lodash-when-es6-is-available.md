@@ -39,7 +39,7 @@ To iterate over an object in ES6, there're several approaches:
 
 ```js
 for (let key in obj) { console.log(obj[key]) }
-for (let key in Object.keys(obj)) { console.log(obj[key]) }
+for (let key of Object.keys(obj)) { console.log(obj[key]) }
 Object.keys(obj).forEach((key) => { console.log(obj[key]) })
 ```
 
