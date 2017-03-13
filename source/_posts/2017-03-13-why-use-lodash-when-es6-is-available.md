@@ -1,8 +1,14 @@
 ---
 title: Why Use Lodash When ES6 Is Available
+tags:
+  - frontend
+  - javascript
+  - es6
+  - lodash
 categories: Programming
-tags: [frontend, javascript, es6, lodash]
+date: 2017-03-13 22:39:01
 ---
+
 
 [Lodash](https://lodash.com/) is a well-known JavaScript utility library that makes it easy to manipulate arrays and objects, as well as functions, strings, etc. I myself enjoys its functional way to process collections, especially chaining and lazy evaluation. But as [ECMAScript 2015 Standard][1] (ES6) becomes widely supported by major browsers, and [Babel](https://babeljs.io/), the JavaScript compiler that transforms ES6 codes to ES5, plays a major role in today's frontend development, it seems that most Lodash utilities can be replaced by ES6. But should we? In my opinion, Lodash will remain popular, for it still has lots of useful features that could improve the way of programming.
 
@@ -156,18 +162,11 @@ curriedAdd = a => b => a + b
 add1 = curriedAdd(1)
 ```
 
-From my point of view,
-
-## Function Composition
-
-curry
-partial
-operator
+For collection related operations, I prefer Lodash functions for they are more concise and can be chained; for functions that can be rewritten by arrow function, Lodash still seems more simple and clear. And according to some arguments in the [references](#References), the currying, [operators][3] and [fp style][4] from Lodash are far more useful in scenarios like function composition.
 
 ## Conclusion
 
-modularity
-language development
+Lodash adds great power to JavaScript language. One can write concise and efficient codes with minor efforts. Besides, Lodash is fully [modularized][5]. Though some of its functions will eventually deprecate, but I believe it'll still bring many benifits to developers, while pushing the development of JS language as well.
 
 ## References
 
@@ -177,3 +176,6 @@ language development
 
 [1]: http://www.ecma-international.org/ecma-262/6.0/
 [2]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
+[3]: https://lodash.com/docs/#add
+[4]: https://github.com/lodash/lodash/wiki/FP-Guide
+[5]: https://lodash.com/custom-builds
