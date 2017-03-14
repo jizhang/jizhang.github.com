@@ -11,7 +11,7 @@
 <meta property="og:url" content="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/index.html">
 <meta property="og:site_name" content="Ji ZHANG's Blog">
 <meta property="og:description" content="Lodash is a well-known JavaScript utility library that makes it easy to manipulate arrays and objects, as well as functions, strings, etc. I myself enjoys its functional way to process collections, es">
-<meta property="og:updated_time" content="2017-03-13T22:26:40.408Z">
+<meta property="og:updated_time" content="2017-03-14T01:40:57.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Why Use Lodash When ES6 Is Available">
 <meta name="twitter:description" content="Lodash is a well-known JavaScript utility library that makes it easy to manipulate arrays and objects, as well as functions, strings, etc. I myself enjoys its functional way to process collections, es">
@@ -95,7 +95,7 @@ ga('send', 'pageview');
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+    <a class="article-category-link" href="/categories/programming/">Programming</a>
   </div>
 
   </div>
@@ -122,7 +122,7 @@ ga('send', 'pageview');
 <h3 id="Iterate-over-Objects"><a href="#Iterate-over-Objects" class="headerlink" title="Iterate over Objects"></a>Iterate over Objects</h3><p>To iterate over an object in ES6, there’re several approaches:</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> obj) &#123; <span class="built_in">console</span>.log(obj[key]) &#125;</div><div class="line"><span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">of</span> <span class="built_in">Object</span>.keys(obj)) &#123; <span class="built_in">console</span>.log(obj[key]) &#125;</div><div class="line"><span class="built_in">Object</span>.keys(obj).forEach(<span class="function">(<span class="params">key</span>) =&gt;</span> &#123; <span class="built_in">console</span>.log(obj[key]) &#125;)</div></pre></td></tr></table></figure>
 <p>With Lodash, there’s a unified <code>_.forEach</code>, for both array and object:</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">_.forEach(<span class="function">(<span class="params">value, key</span>) =&gt;</span> &#123; <span class="built_in">console</span>.log(value) &#125;)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">_.forEach(obj, (value, key) =&gt; &#123; <span class="built_in">console</span>.log(value) &#125;)</div></pre></td></tr></table></figure>
 <p>Although ES6 does <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map" target="_blank" rel="external">provide</a> <code>forEach</code> for the newly added <code>Map</code> type, it takes some effort to first convert an object into a <code>Map</code>:</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// http://stackoverflow.com/a/36644532/1030720</span></div><div class="line"><span class="keyword">const</span> buildMap = <span class="function"><span class="params">o</span> =&gt;</span> <span class="built_in">Object</span>.keys(o).reduce(<span class="function">(<span class="params">m, k</span>) =&gt;</span> m.set(k, o[k]), <span class="keyword">new</span> <span class="built_in">Map</span>());</div></pre></td></tr></table></figure>
 <h3 id="Iteratee-Predicate-Shorthands"><a href="#Iteratee-Predicate-Shorthands" class="headerlink" title="Iteratee / Predicate Shorthands"></a>Iteratee / Predicate Shorthands</h3><p>To extract some property from an array of objects:</p>
@@ -146,7 +146,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="cj087tpyh000ln8m6yuhhh1ak" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="cj08vh2kn000glnzjke2seq5y" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/#disqus_thread" class="article-comment-link">Comments</a>
       
