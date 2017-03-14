@@ -61,7 +61,7 @@
     
     </summary>
     
-      <category term="Programming" scheme="http://shzhangji.com/categories/programming/"/>
+      <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
       <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
@@ -135,7 +135,7 @@
     
     </summary>
     
-      <category term="Programming" scheme="http://shzhangji.com/categories/programming/"/>
+      <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
       <category term="python" scheme="http://shzhangji.com/tags/python/"/>
@@ -183,7 +183,7 @@
     
     </summary>
     
-      <category term="Programming" scheme="http://shzhangji.com/categories/programming/"/>
+      <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
       <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
@@ -322,7 +322,7 @@
     
     </summary>
     
-      <category term="Programming" scheme="http://shzhangji.com/categories/programming/"/>
+      <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
       <category term="python" scheme="http://shzhangji.com/tags/python/"/>
@@ -375,7 +375,7 @@
     
     </summary>
     
-      <category term="Big Data" scheme="http://shzhangji.com/categories/big-data/"/>
+      <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
       <category term="spark" scheme="http://shzhangji.com/tags/spark/"/>
@@ -424,7 +424,7 @@
     
     </summary>
     
-      <category term="Big Data" scheme="http://shzhangji.com/categories/big-data/"/>
+      <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
       <category term="spark" scheme="http://shzhangji.com/tags/spark/"/>
@@ -526,7 +526,7 @@
     
     </summary>
     
-      <category term="Programming" scheme="http://shzhangji.com/categories/programming/"/>
+      <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
       <category term="elasticsearch" scheme="http://shzhangji.com/tags/elasticsearch/"/>
@@ -568,7 +568,7 @@
     
     </summary>
     
-      <category term="Programming" scheme="http://shzhangji.com/categories/programming/"/>
+      <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
       <category term="scala" scheme="http://shzhangji.com/tags/scala/"/>
@@ -657,9 +657,9 @@
     
     </summary>
     
-      <category term="Notes" scheme="http://shzhangji.com/categories/notes/"/>
+      <category term="Notes" scheme="http://shzhangji.com/categories/Notes/"/>
     
-      <category term="Big Data" scheme="http://shzhangji.com/categories/notes/big-data/"/>
+      <category term="Big Data" scheme="http://shzhangji.com/categories/Notes/Big-Data/"/>
     
     
   </entry>
@@ -705,7 +705,7 @@
     
     </summary>
     
-      <category term="Notes" scheme="http://shzhangji.com/categories/notes/"/>
+      <category term="Notes" scheme="http://shzhangji.com/categories/Notes/"/>
     
     
       <category term="clojure" scheme="http://shzhangji.com/tags/clojure/"/>
