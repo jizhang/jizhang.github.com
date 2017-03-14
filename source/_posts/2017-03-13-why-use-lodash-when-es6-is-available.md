@@ -46,7 +46,7 @@ Object.keys(obj).forEach((key) => { console.log(obj[key]) })
 With Lodash, there's a unified `_.forEach`, for both array and object:
 
 ```js
-_.forEach((value, key) => { console.log(value) })
+_.forEach(obj, (value, key) => { console.log(value) })
 ```
 
 Although ES6 does [provide][2] `forEach` for the newly added `Map` type, it takes some effort to first convert an object into a `Map`:
