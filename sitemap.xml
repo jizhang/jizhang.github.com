@@ -2,6 +2,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</loc>
+    
+    <lastmod>2017-03-24T02:34:37.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/</loc>
+    
+    <lastmod>2017-03-24T02:34:20.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</loc>
+    
+    <lastmod>2017-03-24T02:34:01.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/</loc>
     
     <lastmod>2017-03-14T01:40:57.000Z</lastmod>
@@ -12,20 +33,6 @@
     <loc>http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/</loc>
     
     <lastmod>2017-03-09T05:49:36.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</loc>
-    
-    <lastmod>2017-03-09T05:48:53.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</loc>
-    
-    <lastmod>2017-03-09T05:48:53.000Z</lastmod>
     
   </url>
   
@@ -44,6 +51,13 @@
   </url>
   
   <url>
+    <loc>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</loc>
+    
+    <lastmod>2017-03-09T05:48:53.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</loc>
     
     <lastmod>2017-03-09T05:48:53.000Z</lastmod>
@@ -54,20 +68,6 @@
     <loc>http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</loc>
     
     <lastmod>2017-02-16T07:35:30.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</loc>
-    
-    <lastmod>2017-01-03T12:40:57.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/</loc>
-    
-    <lastmod>2017-01-03T12:40:57.000Z</lastmod>
     
   </url>
   
