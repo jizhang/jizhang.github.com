@@ -3,7 +3,7 @@ layout: post
 title: "Manage Leiningen Project Configuration"
 date: 2013-04-30 16:16
 comments: true
-categories: Notes
+categories: Programming
 tags: [clojure]
 published: true
 ---
