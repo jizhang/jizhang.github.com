@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Build Interactive Report with Crossfilter and dc.js | Ji ZHANG&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on th">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Build Interactive Report with Crossfilter and dc.js">
+<meta property="og:url" content="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/index.html">
+<meta property="og:site_name" content="Ji ZHANG's Blog">
+<meta property="og:description" content="When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on th">
+<meta property="og:image" content="http://shzhangji.com/images/airline-ontime-performance.png">
+<meta property="og:updated_time" content="2017-06-18T08:38:01.031Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Build Interactive Report with Crossfilter and dc.js">
+<meta name="twitter:description" content="When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on th">
+<meta name="twitter:image" content="http://shzhangji.com/images/airline-ontime-performance.png">
+<meta name="twitter:creator" content="@zjerryj">
+<link rel="publisher" href="zhangji87@gmail.com">
+  
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="https://fonts.proxy.ustclug.org/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-37223379-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">If I rest, I rust.</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/categories/Big-Data">Big Data</a>
+        
+          <a class="main-nav-link" href="/categories/Programming">Programming</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+        <a class="main-nav-link" href="http://shzhangji.com/cnblogs"><img src="/images/cnblogs.png"></a>
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-build-interactive-report-with-crossfilter-and-dc-js" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" class="article-date">
+  <time datetime="2017-06-18T08:38:01.000Z" itemprop="datePublished">2017-06-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Build Interactive Report with Crossfilter and dc.js
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on the server side, and update the rendered charts. Or we can filter data on the client side, and let charts update themselves. With Crossfilter and dc.js, this work becomes simple and intuitive.</p>
+<h2 id="Airline-On-time-Performance"><a href="#Airline-On-time-Performance" class="headerlink" title="Airline On-time Performance"></a>Airline On-time Performance</h2><p>Here’s an example taken from Crossfilter’s official website. It’s a flight delay analysis report based on <a href="http://stat-computing.org/dataexpo/2009/" target="_blank" rel="external">ASA Data Expo</a> dataset. And this post will introduce how to use dc.js to build the report. A runnable JSFiddle can be found <a href="https://jsfiddle.net/zjerryj/gjao9sws/" target="_blank" rel="external">here</a>, though the dataset is reduced to 1,000 records.</p>
+<p><img src="/images/airline-ontime-performance.png" alt=""></p>
+<a id="more"></a>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p><a href="http://crossfilter.github.io/crossfilter/" target="_blank" rel="external">Crossfilter</a> is a JavaScript library to do multidimensional queries on large amount of data in the client’s browser. It can <strong>cross-filter</strong> between different group-by queries, so that query results will be connected and updated automatically. With the help of <a href="https://dc-js.github.io/dc.js/" target="_blank" rel="external">dc.js</a>, also a JavaScript library that provides charting capability, together we can develop high-performance, interactive reports.</p>
+<h2 id="Dataset-Dimension-and-Measure"><a href="#Dataset-Dimension-and-Measure" class="headerlink" title="Dataset, Dimension, and Measure"></a>Dataset, Dimension, and Measure</h2><p>There’re several concepts in Crossfilter, namely dataset, dimension, measure. If you come from a data warehouse or analytics background, these are similar to the terms in OLAP Cube.</p>
+<ul>
+<li>Dataset, or a list of records, is a two dimensional table that contains rows and columns.</li>
+<li>Dimension columns are used to do group-bys. They are either categorical, like dates, gender, or represents a range of values, like age range, etc.</li>
+<li>Measure columns are used to do aggregations, such as sum, standard deviation, so they are mostly numeric. Examples are income, number of children.</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> flights = d3.csv.parse(flightsCsv)</div><div class="line"><span class="keyword">let</span> flight = crossfilter(flights)</div><div class="line"><span class="keyword">let</span> hour = flight.dimension(<span class="function">(<span class="params">d</span>) =&gt;</span> d.date.getHours() + d.date.getMinutes() / <span class="number">60</span>)</div><div class="line"><span class="keyword">let</span> hours = hour.group(<span class="built_in">Math</span>.floor)</div></pre></td></tr></table></figure>
+<p>Here we create a crossfilter object from a parsed csv data. And we define a dimension that is derived from <code>date</code> column, hour of day represented by float values. Then we group by its integer part. To query the top 3 hours that contains most delays:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">hours.top(<span class="number">3</span>)</div><div class="line"><span class="comment">// output</span></div><div class="line">[</div><div class="line">  &#123; <span class="attr">key</span>: <span class="number">13</span>, <span class="attr">value</span>: <span class="number">72</span> &#125;,</div><div class="line">  &#123; <span class="attr">key</span>: <span class="number">20</span>, <span class="attr">value</span>: <span class="number">72</span> &#125;,</div><div class="line">  &#123; <span class="attr">key</span>:  <span class="number">8</span>, <span class="attr">value</span>: <span class="number">71</span> &#125;,</div><div class="line">]</div></pre></td></tr></table></figure>
+<h2 id="Visualization"><a href="#Visualization" class="headerlink" title="Visualization"></a>Visualization</h2><p>Now we can plot the hour of delays in a bar chart:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> hourChart = dc.barChart(<span class="string">'#hour-chart'</span>)</div><div class="line">hourChart</div><div class="line">  .width(<span class="number">350</span>)</div><div class="line">  .height(<span class="number">150</span>)</div><div class="line">  .dimension(hour)</div><div class="line">  .group(hours)</div><div class="line">  .x(d3.scale.linear()</div><div class="line">    .domain([<span class="number">0</span>, <span class="number">24</span>])</div><div class="line">    .rangeRound([<span class="number">0</span>, <span class="number">10</span> * <span class="number">24</span>]))</div><div class="line">  .controlsUseVisibility(<span class="literal">true</span>)</div></pre></td></tr></table></figure>
+<p>The corresponding HTML code:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"hour-chart"</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"title"</span>&gt;</span>Time of Day</div><div class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"reset"</span> <span class="attr">href</span>=<span class="string">"javascript:;"</span> <span class="attr">style</span>=<span class="string">"visibility: hidden;"</span>&gt;</span>reset<span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>We can see that dc.js is highly integrated with crossfilter. We simply pass the dimension objects and do some setup for chart axes. In this example, x axis is hours of the day, and y axis is the count of delayed flights.</p>
+<p>Note <code>class=&quot;reset&quot;</code> is used with <code>controlUseVisibility</code>, that provides a <code>reset</code> button. Try to drag on the chart to filter a range of data, and you’ll see how this button is used.</p>
+<h2 id="Cross-Filtering"><a href="#Cross-Filtering" class="headerlink" title="Cross Filtering"></a>Cross Filtering</h2><p>We can create other charts, such as a hitogram of arrival delay in minutes. You can find the source code in JSFiddle. When you do some filtering (drag and select), the other charts will be updated simultaneously. It is great when you want to explore the distribution of data combined with filtering conditions. Just declare the relationship, and dc.js will do the rest for you.</p>
+<p>There’re many other components like pie chart, table grid, or even customized HTML. But to master these tools, you also need some knowledge of d3.js.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="http://crossfilter.github.io/crossfilter/" target="_blank" rel="external">Crossfilter - Fast Multidimensional Filtering for Coordinated Views</a></li>
+<li><a href="https://dc-js.github.io/dc.js/" target="_blank" rel="external">dc.js - Dimensional Charting Javascript Library</a></li>
+<li><a href="http://blog.rusty.io/2012/09/17/crossfilter-tutorial/" target="_blank" rel="external">Crossfiler Tutorial</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cj42gn3n6000xpum637al296f" class="article-share-link">Share</a>
+      
+        <a href="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/crossfilter/">crossfilter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dc-js/">dc.js</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/blog/2017/03/13/why-use-lodash-when-es6-is-available/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Why Use Lodash When ES6 Is Available</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/analytics/" style="font-size: 10px;">analytics</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/frontend/" style="font-size: 20px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/javascript/" style="font-size: 20px;">javascript</a> <a href="/tags/lodash/" style="font-size: 20px;">lodash</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/scala/" style="font-size: 10px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 20px;">spark</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/">Build Interactive Report with Crossfilter and dc.js</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2017/03/13/why-use-lodash-when-es6-is-available/">Why Use Lodash When ES6 Is Available</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2017/03/04/process-python-collections-with-functional-programming/">Process Python Collections with Functional Programming</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2017/01/29/difference-between-lodash-assign-and-assignin/">Difference Between Lodash _.assign and _.assignIn</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2017/01/08/python-2-to-3-quick-guide/">Python 2 to 3 Quick Guide</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Ji ZHANG<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/categories/Big-Data" class="mobile-nav-link">Big Data</a>
+  
+    <a href="/categories/Programming" class="mobile-nav-link">Programming</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+  <a href="http://shzhangji.com/cnblogs" class="mobile-nav-link">中文</a>
+</nav>
+
+    
+<script>
+  var disqus_shortname = 'jizhang';
+  
+  var disqus_url = 'http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="https://ajax.proxy.ustclug.org/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

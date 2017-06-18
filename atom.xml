@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://shzhangji.com/"/>
-  <updated>2017-03-14T01:40:57.000Z</updated>
+  <updated>2017-06-18T08:38:01.031Z</updated>
   <id>http://shzhangji.com/</id>
   
   <author>
@@ -16,11 +16,66 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Build Interactive Report with Crossfilter and dc.js</title>
+    <link href="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/"/>
+    <id>http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/</id>
+    <published>2017-06-18T08:38:01.000Z</published>
+    <updated>2017-06-18T08:38:01.031Z</updated>
+    
+    <content type="html"><![CDATA[<p>When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on the server side, and update the rendered charts. Or we can filter data on the client side, and let charts update themselves. With Crossfilter and dc.js, this work becomes simple and intuitive.</p>
+<h2 id="Airline-On-time-Performance"><a href="#Airline-On-time-Performance" class="headerlink" title="Airline On-time Performance"></a>Airline On-time Performance</h2><p>Here’s an example taken from Crossfilter’s official website. It’s a flight delay analysis report based on <a href="http://stat-computing.org/dataexpo/2009/" target="_blank" rel="external">ASA Data Expo</a> dataset. And this post will introduce how to use dc.js to build the report. A runnable JSFiddle can be found <a href="https://jsfiddle.net/zjerryj/gjao9sws/" target="_blank" rel="external">here</a>, though the dataset is reduced to 1,000 records.</p>
+<p><img src="/images/airline-ontime-performance.png" alt=""></p>
+<a id="more"></a>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p><a href="http://crossfilter.github.io/crossfilter/" target="_blank" rel="external">Crossfilter</a> is a JavaScript library to do multidimensional queries on large amount of data in the client’s browser. It can <strong>cross-filter</strong> between different group-by queries, so that query results will be connected and updated automatically. With the help of <a href="https://dc-js.github.io/dc.js/" target="_blank" rel="external">dc.js</a>, also a JavaScript library that provides charting capability, together we can develop high-performance, interactive reports.</p>
+<h2 id="Dataset-Dimension-and-Measure"><a href="#Dataset-Dimension-and-Measure" class="headerlink" title="Dataset, Dimension, and Measure"></a>Dataset, Dimension, and Measure</h2><p>There’re several concepts in Crossfilter, namely dataset, dimension, measure. If you come from a data warehouse or analytics background, these are similar to the terms in OLAP Cube.</p>
+<ul>
+<li>Dataset, or a list of records, is a two dimensional table that contains rows and columns.</li>
+<li>Dimension columns are used to do group-bys. They are either categorical, like dates, gender, or represents a range of values, like age range, etc.</li>
+<li>Measure columns are used to do aggregations, such as sum, standard deviation, so they are mostly numeric. Examples are income, number of children.</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> flights = d3.csv.parse(flightsCsv)</div><div class="line"><span class="keyword">let</span> flight = crossfilter(flights)</div><div class="line"><span class="keyword">let</span> hour = flight.dimension(<span class="function">(<span class="params">d</span>) =&gt;</span> d.date.getHours() + d.date.getMinutes() / <span class="number">60</span>)</div><div class="line"><span class="keyword">let</span> hours = hour.group(<span class="built_in">Math</span>.floor)</div></pre></td></tr></table></figure>
+<p>Here we create a crossfilter object from a parsed csv data. And we define a dimension that is derived from <code>date</code> column, hour of day represented by float values. Then we group by its integer part. To query the top 3 hours that contains most delays:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">hours.top(<span class="number">3</span>)</div><div class="line"><span class="comment">// output</span></div><div class="line">[</div><div class="line">  &#123; <span class="attr">key</span>: <span class="number">13</span>, <span class="attr">value</span>: <span class="number">72</span> &#125;,</div><div class="line">  &#123; <span class="attr">key</span>: <span class="number">20</span>, <span class="attr">value</span>: <span class="number">72</span> &#125;,</div><div class="line">  &#123; <span class="attr">key</span>:  <span class="number">8</span>, <span class="attr">value</span>: <span class="number">71</span> &#125;,</div><div class="line">]</div></pre></td></tr></table></figure>
+<h2 id="Visualization"><a href="#Visualization" class="headerlink" title="Visualization"></a>Visualization</h2><p>Now we can plot the hour of delays in a bar chart:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> hourChart = dc.barChart(<span class="string">'#hour-chart'</span>)</div><div class="line">hourChart</div><div class="line">  .width(<span class="number">350</span>)</div><div class="line">  .height(<span class="number">150</span>)</div><div class="line">  .dimension(hour)</div><div class="line">  .group(hours)</div><div class="line">  .x(d3.scale.linear()</div><div class="line">    .domain([<span class="number">0</span>, <span class="number">24</span>])</div><div class="line">    .rangeRound([<span class="number">0</span>, <span class="number">10</span> * <span class="number">24</span>]))</div><div class="line">  .controlsUseVisibility(<span class="literal">true</span>)</div></pre></td></tr></table></figure>
+<p>The corresponding HTML code:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"hour-chart"</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"title"</span>&gt;</span>Time of Day</div><div class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"reset"</span> <span class="attr">href</span>=<span class="string">"javascript:;"</span> <span class="attr">style</span>=<span class="string">"visibility: hidden;"</span>&gt;</span>reset<span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>We can see that dc.js is highly integrated with crossfilter. We simply pass the dimension objects and do some setup for chart axes. In this example, x axis is hours of the day, and y axis is the count of delayed flights.</p>
+<p>Note <code>class=&quot;reset&quot;</code> is used with <code>controlUseVisibility</code>, that provides a <code>reset</code> button. Try to drag on the chart to filter a range of data, and you’ll see how this button is used.</p>
+<h2 id="Cross-Filtering"><a href="#Cross-Filtering" class="headerlink" title="Cross Filtering"></a>Cross Filtering</h2><p>We can create other charts, such as a hitogram of arrival delay in minutes. You can find the source code in JSFiddle. When you do some filtering (drag and select), the other charts will be updated simultaneously. It is great when you want to explore the distribution of data combined with filtering conditions. Just declare the relationship, and dc.js will do the rest for you.</p>
+<p>There’re many other components like pie chart, table grid, or even customized HTML. But to master these tools, you also need some knowledge of d3.js.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="http://crossfilter.github.io/crossfilter/" target="_blank" rel="external">Crossfilter - Fast Multidimensional Filtering for Coordinated Views</a></li>
+<li><a href="https://dc-js.github.io/dc.js/" target="_blank" rel="external">dc.js - Dimensional Charting Javascript Library</a></li>
+<li><a href="http://blog.rusty.io/2012/09/17/crossfilter-tutorial/" target="_blank" rel="external">Crossfiler Tutorial</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on the server side, and update the rendered charts. Or we can filter data on the client side, and let charts update themselves. With Crossfilter and dc.js, this work becomes simple and intuitive.&lt;/p&gt;
+&lt;h2 id=&quot;Airline-On-time-Performance&quot;&gt;&lt;a href=&quot;#Airline-On-time-Performance&quot; class=&quot;headerlink&quot; title=&quot;Airline On-time Performance&quot;&gt;&lt;/a&gt;Airline On-time Performance&lt;/h2&gt;&lt;p&gt;Here’s an example taken from Crossfilter’s official website. It’s a flight delay analysis report based on &lt;a href=&quot;http://stat-computing.org/dataexpo/2009/&quot;&gt;ASA Data Expo&lt;/a&gt; dataset. And this post will introduce how to use dc.js to build the report. A runnable JSFiddle can be found &lt;a href=&quot;https://jsfiddle.net/zjerryj/gjao9sws/&quot;&gt;here&lt;/a&gt;, though the dataset is reduced to 1,000 records.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/images/airline-ontime-performance.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
+    
+    
+      <category term="crossfilter" scheme="http://shzhangji.com/tags/crossfilter/"/>
+    
+      <category term="dc.js" scheme="http://shzhangji.com/tags/dc-js/"/>
+    
+      <category term="analytics" scheme="http://shzhangji.com/tags/analytics/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Why Use Lodash When ES6 Is Available</title>
     <link href="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/"/>
     <id>http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/</id>
     <published>2017-03-13T14:39:01.000Z</published>
-    <updated>2017-03-14T01:40:57.000Z</updated>
+    <updated>2017-03-19T04:59:58.120Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://lodash.com/" target="_blank" rel="external">Lodash</a> is a well-known JavaScript utility library that makes it easy to manipulate arrays and objects, as well as functions, strings, etc. I myself enjoys its functional way to process collections, especially chaining and lazy evaluation. But as <a href="http://www.ecma-international.org/ecma-262/6.0/" target="_blank" rel="external">ECMAScript 2015 Standard</a> (ES6) becomes widely supported by major browsers, and <a href="https://babeljs.io/" target="_blank" rel="external">Babel</a>, the JavaScript compiler that transforms ES6 codes to ES5, plays a major role in today’s frontend development, it seems that most Lodash utilities can be replaced by ES6. But should we? In my opinion, Lodash will remain popular, for it still has lots of useful features that could improve the way of programming.</p>
 <h2 id="map-and-Array-map-Are-Different"><a href="#map-and-Array-map-Are-Different" class="headerlink" title="_.map and Array#map Are Different"></a><code>_.map</code> and <code>Array#map</code> Are Different</h2><p><code>_.map</code>, <code>_.reduce</code>, <code>_.filter</code> and <code>_.forEach</code> are frequently used functions when processing collections, and ES6 provides direct support for them:</p>
@@ -64,13 +119,13 @@
       <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
-      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
+      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
     
       <category term="javascript" scheme="http://shzhangji.com/tags/javascript/"/>
     
-      <category term="es6" scheme="http://shzhangji.com/tags/es6/"/>
+      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
     
-      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
+      <category term="es6" scheme="http://shzhangji.com/tags/es6/"/>
     
   </entry>
   
@@ -79,7 +134,7 @@
     <link href="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/"/>
     <id>http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/</id>
     <published>2017-03-04T14:32:17.000Z</published>
-    <updated>2017-03-09T05:49:36.000Z</updated>
+    <updated>2017-03-09T22:29:01.407Z</updated>
     
     <content type="html"><![CDATA[<p>I develop Spark applications with Scala, and it has a very powerful <a href="http://docs.scala-lang.org/overviews/collections/introduction" target="_blank" rel="external">collection system</a>, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In JavaScript, there is a <a href="https://lodash.com/" target="_blank" rel="external">Lodash</a> library that provides powerful tools to process arrays and objects. When my primary work language changes to Python, I am wondering if it’s possible to manipulate collections in a FP way, and fortunately Python already provides syntax and tools for functional programming. Though list comprehension is the pythonic way to deal with collections, but the idea and concepts of FP is definitely worth learning.</p>
 <h2 id="Wordcount-Example"><a href="#Wordcount-Example" class="headerlink" title="Wordcount Example"></a>Wordcount Example</h2><p>Let’s first write a snippet to count the word occurences from a paragraph, in of course a functional way.</p>
@@ -149,7 +204,7 @@
     <link href="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/"/>
     <id>http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</id>
     <published>2017-01-29T06:18:29.000Z</published>
-    <updated>2017-02-16T07:35:30.000Z</updated>
+    <updated>2017-03-09T22:29:01.402Z</updated>
     
     <content type="html"><![CDATA[<p>In Lodash, both <code>_.assign</code> and <code>_.assignIn</code> are ways to copy source objects’ properties into target object. According the <a href="https://lodash.com/docs/" target="_blank" rel="external">documentation</a>, <code>_.assign</code> processes <strong>own enumerable string keyed properties</strong>, while <code>_.assignIn</code> processes both <strong>own and inherited source properties</strong>. There’re also other companion functions like <code>_.forOwn</code> and <code>_.forIn</code>, <code>_.has</code> and <code>_.hasIn</code>. So what’s the difference between them?</p>
 <p>In brief, the <code>In</code> in latter methods implies the way <code>for...in</code> loop behaves, which <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in" target="_blank" rel="external">iterates all enumerable properties of the object itself and those the object inherits from its constructor’s prototype</a>. JavaScript has an inheritance mechanism called prototype chain. When iterating an object’s properties with <code>for...in</code> or <code>_.forIn</code>, all properties appeared in the object and its prototype are processed, until the prototype resolves to <code>null</code>. Here’s the example code taken from Lodash’s doc:</p>
@@ -186,11 +241,11 @@
       <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
-      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
+      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
     
       <category term="javascript" scheme="http://shzhangji.com/tags/javascript/"/>
     
-      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
+      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
     
   </entry>
   
@@ -199,7 +254,7 @@
     <link href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/"/>
     <id>http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</id>
     <published>2017-01-08T04:26:54.000Z</published>
-    <updated>2017-03-09T05:48:53.000Z</updated>
+    <updated>2017-03-09T22:29:01.401Z</updated>
     
     <content type="html"><![CDATA[<p>Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python 3 is <a href="http://py3readiness.org/" target="_blank" rel="external">totally ready</a>, and here’s a list of references for those (including me) who are adopting Python 3 with a 2.x background.</p>
 <ol>
@@ -257,7 +312,7 @@
 <h2 id="New-String-Formatting"><a href="#New-String-Formatting" class="headerlink" title="New String Formatting"></a>New String Formatting</h2><p>Python 3 introduces a new form of string formatting, and it’s also back-ported to Python 2.x. The old <code>%s</code> formatting is still available in 3.x, but the <a href="https://docs.python.org/3/library/string.html#format-string-syntax" target="_blank" rel="external">new format</a> seems more expressive and powerful.</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># by position</span></div><div class="line"><span class="string">'&#123;&#125;, &#123;&#125;, &#123;&#125;'</span>.format(<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>)    <span class="comment"># a, b, c</span></div><div class="line"><span class="string">'&#123;2&#125;, &#123;1&#125;, &#123;0&#125;'</span>.format(<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>) <span class="comment"># c, b, a</span></div><div class="line"></div><div class="line"><span class="comment"># by name</span></div><div class="line"><span class="string">'Hello, &#123;name&#125;'</span>.format(name=<span class="string">'Jerry'</span>) <span class="comment"># Hello, Jerry</span></div><div class="line"></div><div class="line"><span class="comment"># by attribute</span></div><div class="line">c = <span class="number">1</span> - <span class="number">2j</span></div><div class="line"><span class="string">'real: &#123;0.real&#125;'</span>.format(c) <span class="comment"># real: 1.0</span></div><div class="line"></div><div class="line"><span class="comment"># by index</span></div><div class="line"><span class="string">'X: &#123;0[0]&#125;, Y: &#123;0[1]&#125;'</span>.format((<span class="number">1</span>, <span class="number">2</span>)) <span class="comment"># X: 1, Y: 2</span></div><div class="line"></div><div class="line"><span class="comment"># format number</span></div><div class="line"><span class="string">'&#123;:.2f&#125;'</span>.format(<span class="number">1.2</span>)   <span class="comment"># 1.20</span></div><div class="line"><span class="string">'&#123;:.2%&#125;'</span>.format(<span class="number">0.012</span>) <span class="comment"># 1.20%</span></div><div class="line"><span class="string">'&#123;:,&#125;'</span>.format(<span class="number">1234567</span>) <span class="comment"># 1,234,567</span></div><div class="line"></div><div class="line"><span class="comment"># padding</span></div><div class="line"><span class="string">'&#123;:&gt;05&#125;'</span>.format(<span class="number">1</span>) <span class="comment"># 00001</span></div></pre></td></tr></table></figure>
 <p>Furthermore, Python 3.6 introduces literal string interpolation (<a href="https://www.python.org/dev/peps/pep-0498/" target="_blank" rel="external">PEP 498</a>).</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">name = <span class="string">'Jerry'</span></div><div class="line">print(f<span class="string">'Hello, &#123;name&#125;'</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">name = <span class="string">'Jerry'</span></div><div class="line">print(<span class="string">f'Hello, <span class="subst">&#123;name&#125;</span>'</span>)</div></pre></td></tr></table></figure>
 <h2 id="Exception-Handling"><a href="#Exception-Handling" class="headerlink" title="Exception Handling"></a>Exception Handling</h2><p>Raise and catch exceptions in a more standard way:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Old</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">  <span class="keyword">raise</span> Exception, <span class="string">'message'</span></div><div class="line"><span class="keyword">except</span> Exception, e:</div><div class="line">  tb = sys.exc_info()[<span class="number">2</span>]</div><div class="line"></div><div class="line"><span class="comment"># New</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">  <span class="keyword">raise</span> Exception(<span class="string">'message'</span>)</div><div class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">  tb = e.__traceback__</div></pre></td></tr></table></figure>
 <h2 id="Global-Function-Changes"><a href="#Global-Function-Changes" class="headerlink" title="Global Function Changes"></a>Global Function Changes</h2><p>Some global functions are (re)moved to reduce duplication and language cruft.</p>
@@ -334,7 +389,7 @@
     <link href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/"/>
     <id>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</id>
     <published>2015-09-01T10:38:00.000Z</published>
-    <updated>2017-03-09T05:48:53.000Z</updated>
+    <updated>2017-03-09T22:29:01.400Z</updated>
     
     <content type="html"><![CDATA[<p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/" target="_blank" rel="external">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/" target="_blank" rel="external">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
 <h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/" target="_blank" rel="external">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
@@ -387,7 +442,7 @@
     <link href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/"/>
     <id>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</id>
     <published>2015-05-31T10:18:00.000Z</published>
-    <updated>2017-03-09T05:48:53.000Z</updated>
+    <updated>2017-03-09T22:29:01.398Z</updated>
     
     <content type="html"><![CDATA[<p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
 <h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
@@ -436,7 +491,7 @@
     <link href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/"/>
     <id>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</id>
     <published>2015-04-28T15:08:00.000Z</published>
-    <updated>2017-03-24T02:34:37.000Z</updated>
+    <updated>2017-03-27T12:53:32.401Z</updated>
     
     <content type="html"><![CDATA[<p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
 <h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard" target="_blank" rel="external">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing" target="_blank" rel="external">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
@@ -538,7 +593,7 @@
     <link href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/"/>
     <id>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</id>
     <published>2014-05-27T09:44:00.000Z</published>
-    <updated>2017-03-09T05:48:53.000Z</updated>
+    <updated>2017-03-09T22:29:01.396Z</updated>
     
     <content type="html"><![CDATA[<p>As I’m working with my first <a href="http://www.scalatra.org/" target="_blank" rel="external">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/" target="_blank" rel="external">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation" target="_blank" rel="external">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
 <h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/" target="_blank" rel="external">Dojo</a> for example.</p>
@@ -584,7 +639,7 @@
     <link href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/"/>
     <id>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</id>
     <published>2013-10-31T01:35:00.000Z</published>
-    <updated>2017-03-24T02:34:01.000Z</updated>
+    <updated>2017-03-27T12:53:32.397Z</updated>
     
     <content type="html"><![CDATA[<p>In DBMS world, it’s easy to generate a unique, auto-increment id, using MySQL’s <a href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html" target="_blank" rel="external">AUTO_INCREMENT attribute</a> on a primary key or MongoDB’s <a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/" target="_blank" rel="external">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it’ll take some steps.</p>
 <h2 id="Solution-A-Single-Reducer"><a href="#Solution-A-Single-Reducer" class="headerlink" title="Solution A: Single Reducer"></a>Solution A: Single Reducer</h2><p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
@@ -667,7 +722,7 @@
     <link href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/"/>
     <id>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/</id>
     <published>2013-04-30T08:16:00.000Z</published>
-    <updated>2017-03-24T02:34:20.000Z</updated>
+    <updated>2017-03-27T12:53:32.394Z</updated>
     
     <content type="html"><![CDATA[<p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># database.properties</div><div class="line">mydb.jdbcUrl=$&#123;mydb.jdbcUrl&#125;</div></pre></td></tr></table></figure>
