@@ -92,7 +92,7 @@ To simplify the situation, we assume to have the following inputs and outputs:
 
 ```text
  Input       Output
- 
+
 11:00 a     1 11:00 a
 12:00 b     2 11:01 aa
 13:00 c     3 11:02 aaa
@@ -200,7 +200,7 @@ For example, if the output folder is "/tmp/total-sort/", there'll be the followi
 
 ### Pass Start Ids to Mapper
 
-When the second mapper processes the inputs, we want them to know the initial id of its partition, which can be calculated from the "count-*" files we produce before. To pass this information, we can use the job's Configuration object.
+When the second mapper processes the inputs, we want them to know the initial id of its partition, which can be calculated from the `count-*` files we produce before. To pass this information, we can use the job's Configuration object.
 
 ```java
 // Read and calculate the start id from those row-count files.
@@ -230,7 +230,7 @@ for (FileStatus file : fs.listStatus(countPath)) {
 // Serialize the map and pass it to Configuration.
 job.getConfiguration().set("startIds", Base64.encodeBase64String(
         SerializationUtils.serialize((Serializable) startIds)));
-        
+
 // Recieve it in Mapper#setup
 public static class JobMapperB extends Mapper<NullWritable, Text, LongWritable, Text> {
 
