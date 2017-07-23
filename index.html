@@ -86,6 +86,62 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-learn-pandas-from-a-sql-perspective" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2017/07/23/learn-pandas-from-a-sql-perspective/" class="article-date">
+  <time datetime="2017-07-23T12:02:50.000Z" itemprop="datePublished">2017-07-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2017/07/23/learn-pandas-from-a-sql-perspective/">Learn Pandas from a SQL Perspective</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a href="http://pandas.pydata.org/">Pandas</a> is a widely used data processing tool for Python. Along with NumPy and Matplotlib, it provides in-memory high-performance data munging, analyzing, and visualization capabilities. Although Python is an easy-to-learn programming language, it still takes time to learn Pandas APIs and the idiomatic usages. For data engineer and analysts, SQL is the de-facto standard language of data queries. This article will provide examples of how some common SQL queries can be rewritten with Pandas.</p>
+<p>The installation and basic concepts of Pandas is not covered in this post. One can check out the offical documentation, or read the book <a href="https://www.amazon.com/Python-Data-Analysis-Wrangling-IPython/dp/1491957662/">Python for Data Analysis</a>. And I recommend using the <a href="https://www.continuum.io/downloads">Anaconda</a> Python distribution, with <a href="https://pythonhosted.org/spyder/">Spyder</a> IDE included. Before diving into the codes, please import Pandas and NumPy as follows:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div></pre></td></tr></table></figure>
+<h2 id="FROM-Load-Data-into-Memory"><a href="#FROM-Load-Data-into-Memory" class="headerlink" title="FROM - Load Data into Memory"></a><code>FROM</code> - Load Data into Memory</h2><p>First of all, let’s read some data into the workspace (memory). Pandas supports a variety of formats, one of them is CSV. Take the following flight delay dataset for example (<a href="/uploads/flights.csv">link</a>):</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">date,delay,distance,origin,destination</div><div class="line">02221605,3,358,BUR,SMF</div><div class="line">01022100,-5,239,HOU,DAL</div><div class="line">03210808,6,288,BWI,ALB</div></pre></td></tr></table></figure>
+<p>We can use <code>pd.read_csv</code> to load this file:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">df = pd.read_csv(<span class="string">'flights.csv'</span>, dtype=&#123;<span class="string">'date'</span>: str&#125;)</div><div class="line">df.head()</div></pre></td></tr></table></figure>
+<p>This statement will load <code>flights.csv</code> file into memory, use first line as column names, and try to figure out each column’s type. Since the <code>date</code> column is in <code>%m%d%H%M</code> format, we don’t want to lose the initial <code>0</code> in month, so we pass an explict <code>dtype</code> for it, indicating that this column should stay unparsed.</p>
+        
+          <p class="article-more-link">
+            <a href="/blog/2017/07/23/learn-pandas-from-a-sql-perspective/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/" data-id="cj5goch9l000voam6ywe56zxd" class="article-share-link">Share</a>
+      
+        <a href="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pandas/">pandas</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/">sql</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-log-tailer-with-websocket-and-python" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2017/07/15/log-tailer-with-websocket-and-python/" class="article-date">
@@ -123,7 +179,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cj557btlq000tyzjk66knx90l" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cj5goch9a000qoam6n9ksfmmz" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -174,7 +230,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cj557btlk000pyzjk687gb5qg" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cj5goch9e000toam6gyfa95u2" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -226,7 +282,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="cj557btlj000nyzjk8exy2i0l" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="cj5goch92000ooam619l9a3n0" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -280,7 +336,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cj557btlf000jyzjknw1qvn4j" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cj5goch8z000loam6tliwouht" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -331,7 +387,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" data-id="cj557btl9000cyzjk5f9bgw7w" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" data-id="cj5goch8s000eoam67ibw05yg" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -402,7 +458,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cj557btld000hyzjke8rvlshj" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cj5goch8p000coam6q57ycsmr" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -456,7 +512,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="cj557btlb000eyzjk6r4uch37" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="cj5goch8v000ioam6pe37rivn" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -508,7 +564,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="cj557btl40008yzjk02ox25jw" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="cj5goch8f0008oam6exm4fgsg" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -568,64 +624,12 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cj557btl30007yzjk16lyezjp" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cj5goch7k0002oam63u0awa8f" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-use-webjars-in-scalatra-project" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2014/05/27/use-webjars-in-scalatra-project/" class="article-date">
-  <time datetime="2014-05-27T09:44:00.000Z" itemprop="datePublished">2014-05-27</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Programming/">Programming</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Use WebJars in Scalatra Project</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>As I’m working with my first <a href="http://www.scalatra.org/">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
-<h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/">Dojo</a> for example.</p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">object</span> <span class="title">DwExplorerBuild</span> <span class="keyword">extends</span> <span class="title">Build</span> </span>&#123;</div><div class="line">  ...</div><div class="line">  <span class="keyword">lazy</span> <span class="keyword">val</span> project = <span class="type">Project</span> (</div><div class="line">    ...</div><div class="line">    settings = <span class="type">Defaults</span>.defaultSettings ++ <span class="type">ScalatraPlugin</span>.scalatraWithJRebel ++ scalateSettings ++ <span class="type">Seq</span>(</div><div class="line">      ...</div><div class="line">      libraryDependencies ++= <span class="type">Seq</span>(</div><div class="line">        ...</div><div class="line">        <span class="string">"org.webjars"</span> % <span class="string">"dojo"</span> % <span class="string">"1.9.3"</span></div><div class="line">      ),</div><div class="line">      ...</div><div class="line">    )</div><div class="line">  )</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>To view this dependency in Eclipse, you need to run <code>sbt eclipse</code> again. In the <em>Referenced Libraries</em> section, you can see a <code>dojo-1.9.3.jar</code>, and the library lies in <code>META-INF/resources/webjars/</code>.</p>
-        
-          <p class="article-more-link">
-            <a href="/blog/2014/05/27/use-webjars-in-scalatra-project/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="cj557btkt0006yzjky1ph6o08" class="article-share-link">Share</a>
-      
-        <a href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scala/">scala</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scalatra/">scalatra</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webjars/">webjars</a></li></ul>
 
     </footer>
   </div>
@@ -647,7 +651,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/analytics/" style="font-size: 10px;">analytics</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/frontend/" style="font-size: 15px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/javascript/" style="font-size: 15px;">javascript</a> <a href="/tags/lodash/" style="font-size: 15px;">lodash</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/scala/" style="font-size: 10px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/analytics/" style="font-size: 15px;">analytics</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/frontend/" style="font-size: 15px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/javascript/" style="font-size: 15px;">javascript</a> <a href="/tags/lodash/" style="font-size: 15px;">lodash</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/scala/" style="font-size: 10px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -669,6 +673,10 @@ ga('send', 'pageview');
       <ul>
         
           <li>
+            <a href="/blog/2017/07/23/learn-pandas-from-a-sql-perspective/">Learn Pandas from a SQL Perspective</a>
+          </li>
+        
+          <li>
             <a href="/blog/2017/07/15/log-tailer-with-websocket-and-python/">Log Tailer with WebSocket and Python</a>
           </li>
         
@@ -682,10 +690,6 @@ ga('send', 'pageview');
         
           <li>
             <a href="/blog/2017/03/04/process-python-collections-with-functional-programming/">Process Python Collections with Functional Programming</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2017/01/29/difference-between-lodash-assign-and-assignin/">Difference Between Lodash _.assign and _.assignIn</a>
           </li>
         
       </ul>
