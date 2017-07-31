@@ -89,18 +89,37 @@ For **receiving data**, it largely depends on the data source. For instance, rea
 
 When **transforming data** with Spark's RDD, we automatically get exactly-once semantics, for RDD is itself immutable, fault-tolerant and deterministically re-computable. As long as the source data is available, and there's no side effects during transformation, the result will always be the same.
 
-**Output operation** by default has at-least-once semantics. The `foreachRDD` function will execute more than once if there's worker failure, thus writing same data to external storage multiple times. There're two approaches to solve this issue, idempotent updates, and transactional updates. `saveAsTextFile` is a typical idempotent update; messages with unique keys can be written to database without duplication. Transactional updates usually require a unique identifier, generated from batch time, partition id, or offsets, and then write the result along with the identifier into external storage within a single transaction. And this is the method we use to achieve end-to-end exactly-once semantics.
+**Output operation** by default has at-least-once semantics. The `foreachRDD` function will execute more than once if there's worker failure, thus writing same data to external storage multiple times. There're two approaches to solve this issue, idempotent updates, and transactional updates. They are further discussed in the following sections.
 
-## Managing Kafka Offsets
+## Exactly-once with Idempotent Writes
 
-* idempotent - map only
-  * checkpoint
-  * Kafka commit
+If multiple writes produce the same data, then this output operation is idempotent. `saveAsTextFile` is a typical idempotent update; messages with unique keys can be written to database without duplication. This approach will give us the equivalent exactly-once semantics. Note though it's usually for map-only procedures, and it requires some setup on Kafka DStream.
+
+* Set `enable.auto.commit` to `false`. By default, Kafka DStream will commit the consumer offsets right after it receives the data. We want to postpone this action unitl the batch is fully processed.
+* Turn on Spark Streaming's checkpointing to store Kafka offsets. But if the application code changes, checkpointed data is not reusable. This leads to a second option:
+* Commit Kafka offsets after outputs. Kafka provides a `commitAsync` API, and the `HasOffsetRanges` class can be used to extract offsets from the initial RDD:
+
+```scala
+messages.foreachRDD { rdd =>
+  val offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
+  rdd.foreachPartition { iter =>
+    // output to database
+  }
+  messages.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)
+}
+```
+
+## Exactly-once with Transactional Writes
+
+Transactional updates usually require a unique identifier. One can generate from batch time, partition id, or offsets, and then write the result along with the identifier into external storage within a single transaction.
+
 * transactional - map & aggregation
   * with shuffle -> collect to driver
   * no shuffle or repartitino -> foreachPartition
 
-### a side note on transactional message delivery
+## Conclusion
+
+Exactly-once is a very strong semantics in stream processing, and will inevitably bring some overhead to your application and impact its throughput. So it's for you to decide whether it's necessary to spend such efforts. But surely knowing how to achieve it is a good chance of learning, and it's a great fun.
 
 ## References
 
