@@ -50,19 +50,19 @@ The complete code can be found on GitHub ([link][1]), so here only shows the maj
 // initialize database connection
 ConnectionPool.singleton("jdbc:mysql://localhost:3306/spark", "root", "")
 
-// create context
+// create Spark streaming context
 val conf = new SparkConf().setAppName("ExactlyOnce").setIfMissing("spark.master", "local[2]")
 val ssc = new StreamingContext(conf, Seconds(5))
 
-// create Kafka DStream
+// create Kafka DStream with Direct API
 val messages = KafkaUtils.createDirectStream[String, String](ssc,
    LocationStrategies.PreferConsistent,
    ConsumerStrategies.Subscribe[String, String](Seq("alog"), kafkaParams))
 
-// do transformation
 messages.foreachRDD { rdd =>
+  // do transformation
   val result = rdd.map(_.value)
-    .flatMap(parseLog) // parse log line into case class
+    .flatMap(parseLog) // utility function to parse log line into case class
     .filter(_.level == "ERROR")
     .map(log => log.time.truncatedTo(ChronoUnit.MINUTES) -> 1)
     .reduceByKey(_ + _)
@@ -81,23 +81,21 @@ messages.foreachRDD { rdd =>
 }
 ```
 
-## System Failures
-
-* Data receivers
-* Transformation
-* Storing output
-
 ## Stream Processing Semantics
 
-* At most once
-* At least once
-* Exactly once
+There're three semantics in stream processing, namely at-most-once, at-least-once, and exactly-once. In a typical Spark Streaming application, there're three processing phases: receive data, do transformation, and push outputs. Each phase takes different efforts to achieve different semantics.
+
+For **receiving data**, it largely depends on the data source. For instance, reading files from a fault-tolerant file system like HDFS, gives us exactly-once semantics. For upstream queues that support acknowledgement, e.g. RabbitMQ, we can combine it with Spark's write ahead logs to achieve at-least-once semantics. For unreliable receivers like `socketTextStream`, there might be data loss due to worker/driver failure and gives us undefined semantics. Kafka, on the other hand, is offset based, and its direct API can give us exactly-once semantics.
+
+When **transforming data** with Spark's RDD, we automatically get exactly-once semantics, for RDD is itself immutable, fault-tolerant and deterministically re-computable. As long as the source data is available, and there's no side effects during transformation, the result will always be the same.
+
+**Output operation** by default has at-least-once semantics. The `foreachRDD` function will execute more than once if there's worker failure, thus writing same data to external storage multiple times. There're two approaches to solve this issue, idempotent updates, and transactional updates. `saveAsTextFile` is a typical idempotent update; messages with unique keys can be written to database without duplication. Transactional updates usually require a unique identifier, generated from batch time, partition id, or offsets, and then write the result along with the identifier into external storage within a single transaction. And this is the method we use to achieve end-to-end exactly-once semantics.
 
 ## Managing Kafka Offsets
 
-* indempotent - map only
+* idempotent - map only
   * checkpoint
-  * kafka commit
+  * Kafka commit
 * transactional - map & aggregation
   * with shuffle -> collect to driver
   * no shuffle or repartitino -> foreachPartition
