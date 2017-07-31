@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://shzhangji.com/"/>
-  <updated>2017-07-23T12:02:50.661Z</updated>
+  <updated>2017-07-31T15:00:56.799Z</updated>
   <id>http://shzhangji.com/</id>
   
   <author>
@@ -14,6 +14,78 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>How to Achieve Exactly-Once Semantics in Spark Streaming</title>
+    <link href="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/"/>
+    <id>http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/</id>
+    <published>2017-07-31T14:56:07.000Z</published>
+    <updated>2017-07-31T15:00:56.799Z</updated>
+    
+    <content type="html"><![CDATA[<p>Exactly-once semantics is one of the advanced topics of stream processing. To process every message once and only once, in spite of system or network failure, not only the stream processing framework needs to provide such functionality, but also the message delivery system, the output data store, as well as how we implement the processing procedure, altogether can we ensure the exactly-once semantics. In this article, I’ll demonstrate how to use Spark Streaming, with Kafka as data source and MySQL the output storage, to achieve exactly-once stream processing.</p>
+<p><img src="http://spark.apache.org/docs/latest/img/streaming-arch.png" alt="Spark Streaming"></p>
+<h2 id="An-Introductory-Example"><a href="#An-Introductory-Example" class="headerlink" title="An Introductory Example"></a>An Introductory Example</h2><p>First let’s implement a simple yet complete stream processing application that receive access logs from Kafka, parse and count the errors, then write the errors per minute metric into MySQL database.</p>
+<p>Sample access logs:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">2017-07-30 14:09:08 ERROR some message</div><div class="line">2017-07-30 14:09:20 INFO  some message</div><div class="line">2017-07-30 14:10:50 ERROR some message</div></pre></td></tr></table></figure>
+<p>Output table, where <code>log_time</code> should be truncated to minutes:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">create</span> <span class="keyword">table</span> error_log (</div><div class="line">  log_time datetime primary <span class="keyword">key</span>,</div><div class="line">  log_count <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">default</span> <span class="number">0</span></div><div class="line">);</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>Scala projects are usually managed by <code>sbt</code> tool. Let’s add the following dependencies into <code>build.sbt</code> file. We’re using Spark 2.2 with Kafka 0.10. The choice of database library is ScalikeJDBC 3.0.</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">scalaVersion := <span class="string">"2.11.11"</span></div><div class="line"></div><div class="line">libraryDependencies ++= <span class="type">Seq</span>(</div><div class="line">  <span class="string">"org.apache.spark"</span> %% <span class="string">"spark-streaming"</span> % <span class="string">"2.2.0"</span> % <span class="string">"provided"</span>,</div><div class="line">  <span class="string">"org.apache.spark"</span> %% <span class="string">"spark-streaming-kafka-0-10"</span> % <span class="string">"2.2.0"</span>,</div><div class="line">  <span class="string">"org.scalikejdbc"</span> %% <span class="string">"scalikejdbc"</span> % <span class="string">"3.0.1"</span>,</div><div class="line">  <span class="string">"mysql"</span> % <span class="string">"mysql-connector-java"</span> % <span class="string">"5.1.43"</span></div><div class="line">)</div></pre></td></tr></table></figure>
+<p>The complete code can be found on GitHub (<a href="https://github.com/jizhang/spark-sandbox/blob/master/src/main/scala/ExactlyOnce.scala" target="_blank" rel="external">link</a>), so here only shows the major parts of the application:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">// initialize database connection</div><div class="line">ConnectionPool.singleton("jdbc:mysql://localhost:3306/spark", "root", "")</div><div class="line"></div><div class="line">// create Spark streaming context</div><div class="line">val conf = new SparkConf().setAppName("ExactlyOnce").setIfMissing("spark.master", "local[2]")</div><div class="line">val ssc = new StreamingContext(conf, Seconds(5))</div><div class="line"></div><div class="line">// create Kafka DStream with Direct API</div><div class="line">val messages = KafkaUtils.createDirectStream[String, String](ssc,</div><div class="line">   LocationStrategies.PreferConsistent,</div><div class="line">   ConsumerStrategies.Subscribe[String, String](Seq("alog"), kafkaParams))</div><div class="line"></div><div class="line">messages.foreachRDD &#123; rdd =&gt;</div><div class="line">  // do transformation</div><div class="line">  val result = rdd.map(_.value)</div><div class="line">    .flatMap(parseLog) // utility function to parse log line into case class</div><div class="line">    .filter(_.level == "ERROR")</div><div class="line">    .map(log =&gt; log.time.truncatedTo(ChronoUnit.MINUTES) -&gt; 1)</div><div class="line">    .reduceByKey(_ + _)</div><div class="line">    .collect()</div><div class="line"></div><div class="line">  // store result into database</div><div class="line">  DB.autoCommit &#123; implicit session =&gt;</div><div class="line">    result.foreach &#123; case (time, count) =&gt;</div><div class="line">      sql"""</div><div class="line">      insert into error_log (log_time, log_count)</div><div class="line">      value ($&#123;time&#125;, $&#123;count&#125;)</div><div class="line">      on duplicate key update log_count = log_count + values(log_count)</div><div class="line">      """.update.apply()</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="Stream-Processing-Semantics"><a href="#Stream-Processing-Semantics" class="headerlink" title="Stream Processing Semantics"></a>Stream Processing Semantics</h2><p>There’re three semantics in stream processing, namely at-most-once, at-least-once, and exactly-once. In a typical Spark Streaming application, there’re three processing phases: receive data, do transformation, and push outputs. Each phase takes different efforts to achieve different semantics.</p>
+<p>For <strong>receiving data</strong>, it largely depends on the data source. For instance, reading files from a fault-tolerant file system like HDFS, gives us exactly-once semantics. For upstream queues that support acknowledgement, e.g. RabbitMQ, we can combine it with Spark’s write ahead logs to achieve at-least-once semantics. For unreliable receivers like <code>socketTextStream</code>, there might be data loss due to worker/driver failure and gives us undefined semantics. Kafka, on the other hand, is offset based, and its direct API can give us exactly-once semantics.</p>
+<p>When <strong>transforming data</strong> with Spark’s RDD, we automatically get exactly-once semantics, for RDD is itself immutable, fault-tolerant and deterministically re-computable. As long as the source data is available, and there’s no side effects during transformation, the result will always be the same.</p>
+<p><strong>Output operation</strong> by default has at-least-once semantics. The <code>foreachRDD</code> function will execute more than once if there’s worker failure, thus writing same data to external storage multiple times. There’re two approaches to solve this issue, idempotent updates, and transactional updates. They are further discussed in the following sections.</p>
+<h2 id="Exactly-once-with-Idempotent-Writes"><a href="#Exactly-once-with-Idempotent-Writes" class="headerlink" title="Exactly-once with Idempotent Writes"></a>Exactly-once with Idempotent Writes</h2><p>If multiple writes produce the same data, then this output operation is idempotent. <code>saveAsTextFile</code> is a typical idempotent update; messages with unique keys can be written to database without duplication. This approach will give us the equivalent exactly-once semantics. Note though it’s usually for map-only procedures, and it requires some setup on Kafka DStream.</p>
+<ul>
+<li>Set <code>enable.auto.commit</code> to <code>false</code>. By default, Kafka DStream will commit the consumer offsets right after it receives the data. We want to postpone this action unitl the batch is fully processed.</li>
+<li>Turn on Spark Streaming’s checkpointing to store Kafka offsets. But if the application code changes, checkpointed data is not reusable. This leads to a second option:</li>
+<li>Commit Kafka offsets after outputs. Kafka provides a <code>commitAsync</code> API, and the <code>HasOffsetRanges</code> class can be used to extract offsets from the initial RDD:</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">messages.foreachRDD &#123; rdd =&gt;</div><div class="line">  <span class="keyword">val</span> offsetRanges = rdd.asInstanceOf[<span class="type">HasOffsetRanges</span>].offsetRanges</div><div class="line">  rdd.foreachPartition &#123; iter =&gt;</div><div class="line">    <span class="comment">// output to database</span></div><div class="line">  &#125;</div><div class="line">  messages.asInstanceOf[<span class="type">CanCommitOffsets</span>].commitAsync(offsetRanges)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="Exactly-once-with-Transactional-Writes"><a href="#Exactly-once-with-Transactional-Writes" class="headerlink" title="Exactly-once with Transactional Writes"></a>Exactly-once with Transactional Writes</h2><p>Transactional updates require a unique identifier. One can generate from batch time, partition id, or Kafka offsets, and then write the result along with the identifier into external storage within a single transaction. This atomic operation gives us exactly-once semantics, and can be applied to both map-only and aggregation procedures.</p>
+<p>Usually writing to database should happen in <code>foreachPartition</code>, i.e. in worker nodes. It is true for map-only procedure, because Kafka RDD’s partition is correspondent to Kafka partition, so we can extract each partition’s offset like this:</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">messages.foreachRDD &#123; rdd =&gt;</div><div class="line">  <span class="keyword">val</span> offsetRanges = rdd.asInstanceOf[<span class="type">HasOffsetRanges</span>].offsetRanges</div><div class="line">  rdd.foreachPartition &#123; iter =&gt;</div><div class="line">    <span class="keyword">val</span> offsetRange = offsetRanges(<span class="type">TaskContext</span>.get.partitionId)</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>But for shuffled operations like the error log count example, we need to first collect the result back into driver and then perform the transaction.</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">messages.foreachRDD &#123; rdd =&gt;</div><div class="line">  val offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges</div><div class="line">  val result = processLogs(rdd).collect() // parse log and count error</div><div class="line">  DB.localTx &#123; implicit session =&gt;</div><div class="line">    result.foreach &#123; case (time, count) =&gt;</div><div class="line">      // save to error_log table</div><div class="line">    &#125;</div><div class="line">    offsetRanges.foreach &#123; offsetRange =&gt;</div><div class="line">      val affectedRows = sql"""</div><div class="line">      update kafka_offset set offset = $&#123;offsetRange.untilOffset&#125;</div><div class="line">      where topic = $&#123;topic&#125; and `partition` = $&#123;offsetRange.partition&#125;</div><div class="line">      and offset = $&#123;offsetRange.fromOffset&#125;</div><div class="line">      """.update.apply()</div><div class="line"></div><div class="line">      if (affectedRows != 1) &#123;</div><div class="line">        throw new Exception("fail to update offset")</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>If the offsets fail to update, or there’s a duplicate offset range detected by <code>offset != $fromOffset</code>, the whole transaction will rollback, which guarantees the exactly-once semantics.</p>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>Exactly-once is a very strong semantics in stream processing, and will inevitably bring some overhead to your application and impact the throughput. It’s also not applicable to <a href="https://github.com/koeninger/kafka-exactly-once/blob/master/src/main/scala/example/Windowed.scala" target="_blank" rel="external">windowed</a> operations. So you need to decide whether it’s necessary to spend such efforts, or weaker semantics even with few data loss will suffice. But surely knowing how to achieve exactly-once is a good chance of learning, and it’s a great fun.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="http://blog.cloudera.com/blog/2015/03/exactly-once-spark-streaming-from-apache-kafka/" target="_blank" rel="external">http://blog.cloudera.com/blog/2015/03/exactly-once-spark-streaming-from-apache-kafka/</a></li>
+<li><a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html" target="_blank" rel="external">http://spark.apache.org/docs/latest/streaming-programming-guide.html</a></li>
+<li><a href="http://spark.apache.org/docs/latest/streaming-kafka-0-10-integration.html" target="_blank" rel="external">http://spark.apache.org/docs/latest/streaming-kafka-0-10-integration.html</a></li>
+<li><a href="http://kafka.apache.org/documentation.html#semantics" target="_blank" rel="external">http://kafka.apache.org/documentation.html#semantics</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Exactly-once semantics is one of the advanced topics of stream processing. To process every message once and only once, in spite of system or network failure, not only the stream processing framework needs to provide such functionality, but also the message delivery system, the output data store, as well as how we implement the processing procedure, altogether can we ensure the exactly-once semantics. In this article, I’ll demonstrate how to use Spark Streaming, with Kafka as data source and MySQL the output storage, to achieve exactly-once stream processing.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://spark.apache.org/docs/latest/img/streaming-arch.png&quot; alt=&quot;Spark Streaming&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;An-Introductory-Example&quot;&gt;&lt;a href=&quot;#An-Introductory-Example&quot; class=&quot;headerlink&quot; title=&quot;An Introductory Example&quot;&gt;&lt;/a&gt;An Introductory Example&lt;/h2&gt;&lt;p&gt;First let’s implement a simple yet complete stream processing application that receive access logs from Kafka, parse and count the errors, then write the errors per minute metric into MySQL database.&lt;/p&gt;
+&lt;p&gt;Sample access logs:&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;2017-07-30 14:09:08 ERROR some message&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-07-30 14:09:20 INFO  some message&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-07-30 14:10:50 ERROR some message&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;Output table, where &lt;code&gt;log_time&lt;/code&gt; should be truncated to minutes:&lt;/p&gt;
+&lt;figure class=&quot;highlight sql&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;create&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;table&lt;/span&gt; error_log (&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  log_time datetime primary &lt;span class=&quot;keyword&quot;&gt;key&lt;/span&gt;,&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  log_count &lt;span class=&quot;built_in&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;null&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;);&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+      <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
+    
+    
+      <category term="spark" scheme="http://shzhangji.com/tags/spark/"/>
+    
+      <category term="scala" scheme="http://shzhangji.com/tags/scala/"/>
+    
+      <category term="spark streaming" scheme="http://shzhangji.com/tags/spark-streaming/"/>
+    
+      <category term="kafka" scheme="http://shzhangji.com/tags/kafka/"/>
+    
+      <category term="stream processing" scheme="http://shzhangji.com/tags/stream-processing/"/>
+    
+  </entry>
   
   <entry>
     <title>Learn Pandas from a SQL Perspective</title>
@@ -270,13 +342,13 @@
       <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
-      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
+      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
     
       <category term="javascript" scheme="http://shzhangji.com/tags/javascript/"/>
     
-      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
-    
       <category term="es6" scheme="http://shzhangji.com/tags/es6/"/>
+    
+      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
     
   </entry>
   
@@ -392,11 +464,11 @@
       <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
-      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
+      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
     
       <category term="javascript" scheme="http://shzhangji.com/tags/javascript/"/>
     
-      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
+      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
     
   </entry>
   

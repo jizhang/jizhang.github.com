@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/</loc>
+    
+    <lastmod>2017-07-31T15:00:56.799Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/</loc>
     
     <lastmod>2017-07-23T12:02:50.661Z</lastmod>
