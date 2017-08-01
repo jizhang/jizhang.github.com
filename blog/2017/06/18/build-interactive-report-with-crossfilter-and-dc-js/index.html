@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="Ji ZHANG's Blog">
 <meta property="og:description" content="When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on th">
 <meta property="og:image" content="http://shzhangji.com/images/airline-ontime-performance.png">
-<meta property="og:updated_time" content="2017-06-18T08:38:01.031Z">
+<meta property="og:updated_time" content="2017-06-19T01:06:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Build Interactive Report with Crossfilter and dc.js">
 <meta name="twitter:description" content="When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on th">
@@ -25,8 +25,6 @@
   
     <link rel="icon" href="/favicon.png">
   
-  
-    <link href="https://fonts.proxy.ustclug.org/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
   
   <link rel="stylesheet" href="/css/style.css">
   
@@ -44,7 +42,7 @@ ga('send', 'pageview');
 <!-- End Google Analytics -->
 
 
-</head>
+<link rel="stylesheet" href="/css/prism-cb.css" type="text/css"></head>
 
 <body>
   <div id="container">
@@ -127,13 +125,39 @@ ga('send', 'pageview');
 <li>Dimension columns are used to do group-bys. They are either categorical, like dates, gender, or represents a range of values, like age range, etc.</li>
 <li>Measure columns are used to do aggregations, such as sum, standard deviation, so they are mostly numeric. Examples are income, number of children.</li>
 </ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> flights = d3.csv.parse(flightsCsv)</div><div class="line"><span class="keyword">let</span> flight = crossfilter(flights)</div><div class="line"><span class="keyword">let</span> hour = flight.dimension(<span class="function">(<span class="params">d</span>) =&gt;</span> d.date.getHours() + d.date.getMinutes() / <span class="number">60</span>)</div><div class="line"><span class="keyword">let</span> hours = hour.group(<span class="built_in">Math</span>.floor)</div></pre></td></tr></table></figure>
+<pre class=" language-js"><code class="language-js"><span class="token keyword">let</span> flights <span class="token operator">=</span> d3<span class="token punctuation">.</span>csv<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>flightsCsv<span class="token punctuation">)</span>
+<span class="token keyword">let</span> flight <span class="token operator">=</span> <span class="token function">crossfilter</span><span class="token punctuation">(</span>flights<span class="token punctuation">)</span>
+<span class="token keyword">let</span> hour <span class="token operator">=</span> flight<span class="token punctuation">.</span><span class="token function">dimension</span><span class="token punctuation">(</span><span class="token punctuation">(</span>d<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">></span> d<span class="token punctuation">.</span>date<span class="token punctuation">.</span><span class="token function">getHours</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> d<span class="token punctuation">.</span>date<span class="token punctuation">.</span><span class="token function">getMinutes</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">60</span><span class="token punctuation">)</span>
+<span class="token keyword">let</span> hours <span class="token operator">=</span> hour<span class="token punctuation">.</span><span class="token function">group</span><span class="token punctuation">(</span>Math<span class="token punctuation">.</span>floor<span class="token punctuation">)</span>
+</code></pre>
 <p>Here we create a crossfilter object from a parsed csv data. And we define a dimension that is derived from <code>date</code> column, hour of day represented by float values. Then we group by its integer part. To query the top 3 hours that contains most delays:</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">hours.top(<span class="number">3</span>)</div><div class="line"><span class="comment">// output</span></div><div class="line">[</div><div class="line">  &#123; <span class="attr">key</span>: <span class="number">13</span>, <span class="attr">value</span>: <span class="number">72</span> &#125;,</div><div class="line">  &#123; <span class="attr">key</span>: <span class="number">20</span>, <span class="attr">value</span>: <span class="number">72</span> &#125;,</div><div class="line">  &#123; <span class="attr">key</span>:  <span class="number">8</span>, <span class="attr">value</span>: <span class="number">71</span> &#125;,</div><div class="line">]</div></pre></td></tr></table></figure>
+<pre class=" language-js"><code class="language-js">hours<span class="token punctuation">.</span><span class="token function">top</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true">// output</span>
+<span class="token punctuation">[</span>
+  <span class="token punctuation">{</span> key<span class="token punctuation">:</span> <span class="token number">13</span><span class="token punctuation">,</span> value<span class="token punctuation">:</span> <span class="token number">72</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> key<span class="token punctuation">:</span> <span class="token number">20</span><span class="token punctuation">,</span> value<span class="token punctuation">:</span> <span class="token number">72</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> key<span class="token punctuation">:</span>  <span class="token number">8</span><span class="token punctuation">,</span> value<span class="token punctuation">:</span> <span class="token number">71</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span>
+</code></pre>
 <h2 id="Visualization"><a href="#Visualization" class="headerlink" title="Visualization"></a>Visualization</h2><p>Now we can plot the hour of delays in a bar chart:</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> hourChart = dc.barChart(<span class="string">'#hour-chart'</span>)</div><div class="line">hourChart</div><div class="line">  .width(<span class="number">350</span>)</div><div class="line">  .height(<span class="number">150</span>)</div><div class="line">  .dimension(hour)</div><div class="line">  .group(hours)</div><div class="line">  .x(d3.scale.linear()</div><div class="line">    .domain([<span class="number">0</span>, <span class="number">24</span>])</div><div class="line">    .rangeRound([<span class="number">0</span>, <span class="number">10</span> * <span class="number">24</span>]))</div><div class="line">  .controlsUseVisibility(<span class="literal">true</span>)</div></pre></td></tr></table></figure>
+<pre class=" language-js"><code class="language-js"><span class="token keyword">let</span> hourChart <span class="token operator">=</span> dc<span class="token punctuation">.</span><span class="token function">barChart</span><span class="token punctuation">(</span><span class="token string">'#hour-chart'</span><span class="token punctuation">)</span>
+hourChart
+  <span class="token punctuation">.</span><span class="token function">width</span><span class="token punctuation">(</span><span class="token number">350</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">height</span><span class="token punctuation">(</span><span class="token number">150</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">dimension</span><span class="token punctuation">(</span>hour<span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">group</span><span class="token punctuation">(</span>hours<span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">x</span><span class="token punctuation">(</span>d3<span class="token punctuation">.</span>scale<span class="token punctuation">.</span><span class="token function">linear</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">domain</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">24</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">rangeRound</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">10</span> <span class="token operator">*</span> <span class="token number">24</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">controlsUseVisibility</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span>
+</code></pre>
 <p>The corresponding HTML code:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"hour-chart"</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"title"</span>&gt;</span>Time of Day</div><div class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"reset"</span> <span class="attr">href</span>=<span class="string">"javascript:;"</span> <span class="attr">style</span>=<span class="string">"visibility: hidden;"</span>&gt;</span>reset<span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div></pre></td></tr></table></figure>
+<pre class=" language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>hour-chart<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>title<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>Time of Day
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>reset<span class="token punctuation">"</span></span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>javascript:;<span class="token punctuation">"</span></span><span class="token style-attr language-css"><span class="token attr-name"> <span class="token attr-name">style</span></span><span class="token punctuation">="</span><span class="token attr-value"><span class="token property">visibility</span><span class="token punctuation">:</span> hidden<span class="token punctuation">;</span></span><span class="token punctuation">"</span></span><span class="token punctuation">></span></span>reset<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+</code></pre>
 <p>We can see that dc.js is highly integrated with crossfilter. We simply pass the dimension objects and do some setup for chart axes. In this example, x axis is hours of the day, and y axis is the count of delayed flights.</p>
 <p>Note <code>class=&quot;reset&quot;</code> is used with <code>controlUseVisibility</code>, that provides a <code>reset</code> button. Try to drag on the chart to filter a range of data, and you’ll see how this button is used.</p>
 <h2 id="Cross-Filtering"><a href="#Cross-Filtering" class="headerlink" title="Cross Filtering"></a>Cross Filtering</h2><p>We can create other charts, such as a hitogram of arrival delay in minutes. You can find the source code in JSFiddle. When you do some filtering (drag and select), the other charts will be updated simultaneously. It is great when you want to explore the distribution of data combined with filtering conditions. Just declare the relationship, and dc.js will do the rest for you.</p>
@@ -147,7 +171,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cj5sa24td000tmpm65s7gl6z0" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cj5t7sspm000p5ezjpx7rt20k" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/#disqus_thread" class="article-comment-link">Comments</a>
       

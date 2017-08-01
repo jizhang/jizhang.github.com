@@ -6,18 +6,18 @@
   <title>Manage Leiningen Project Configuration | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="In Maven projects, we tend to use .properties files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:
-12# d">
+# dat">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Manage Leiningen Project Configuration">
 <meta property="og:url" content="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/index.html">
 <meta property="og:site_name" content="Ji ZHANG's Blog">
 <meta property="og:description" content="In Maven projects, we tend to use .properties files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:
-12# d">
-<meta property="og:updated_time" content="2017-03-27T12:53:32.394Z">
+# dat">
+<meta property="og:updated_time" content="2017-03-24T02:34:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Manage Leiningen Project Configuration">
 <meta name="twitter:description" content="In Maven projects, we tend to use .properties files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:
-12# d">
+# dat">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -26,8 +26,6 @@
   
     <link rel="icon" href="/favicon.png">
   
-  
-    <link href="https://fonts.proxy.ustclug.org/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
   
   <link rel="stylesheet" href="/css/style.css">
   
@@ -45,7 +43,7 @@ ga('send', 'pageview');
 <!-- End Google Analytics -->
 
 
-</head>
+<link rel="stylesheet" href="/css/prism-cb.css" type="text/css"></head>
 
 <body>
   <div id="container">
@@ -118,20 +116,68 @@ ga('send', 'pageview');
     <div class="article-entry" itemprop="articleBody">
       
         <p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># database.properties</div><div class="line">mydb.jdbcUrl=$&#123;mydb.jdbcUrl&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">&lt;!-- pom.xml --&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">profiles</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">profile</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">id</span>&gt;</span>development<span class="tag">&lt;/<span class="name">id</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">activation</span>&gt;</span><span class="tag">&lt;<span class="name">activeByDefault</span>&gt;</span>true<span class="tag">&lt;/<span class="name">activeByDefault</span>&gt;</span><span class="tag">&lt;/<span class="name">activation</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">properties</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">mydb.jdbcUrl</span>&gt;</span>jdbc:mysql://127.0.0.1:3306/mydb<span class="tag">&lt;/<span class="name">mydb.jdbcUrl</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">profile</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">profile</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">id</span>&gt;</span>production<span class="tag">&lt;/<span class="name">id</span>&gt;</span></div><div class="line">        <span class="comment">&lt;!-- This profile could be moved to ~/.m2/settings.xml to increase security. --&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">properties</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">mydb.jdbcUrl</span>&gt;</span>jdbc:mysql://10.0.2.15:3306/mydb<span class="tag">&lt;/<span class="name">mydb.jdbcUrl</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">profile</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">profiles</span>&gt;</span></div></pre></td></tr></table></figure>
+<pre class=" language-text"><code class="language-text"># database.properties
+mydb.jdbcUrl=${mydb.jdbcUrl}
+</code></pre>
+<pre class=" language-xml"><code class="language-xml"><span class="token comment" spellcheck="true">&lt;!-- pom.xml --></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>profiles</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>profile</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>id</span><span class="token punctuation">></span></span>development<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>id</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>activation</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>activeByDefault</span><span class="token punctuation">></span></span>true<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>activeByDefault</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>activation</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>properties</span><span class="token punctuation">></span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mydb.jdbcUrl</span><span class="token punctuation">></span></span>jdbc:mysql://127.0.0.1:3306/mydb<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>mydb.jdbcUrl</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>properties</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>profile</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>profile</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>id</span><span class="token punctuation">></span></span>production<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>id</span><span class="token punctuation">></span></span>
+        <span class="token comment" spellcheck="true">&lt;!-- This profile could be moved to ~/.m2/settings.xml to increase security. --></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>properties</span><span class="token punctuation">></span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mydb.jdbcUrl</span><span class="token punctuation">></span></span>jdbc:mysql://10.0.2.15:3306/mydb<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>mydb.jdbcUrl</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>properties</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>profile</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>profiles</span><span class="token punctuation">></span></span>
+</code></pre>
 <p>As for Leiningen projects, there’s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
 <a id="more"></a>
 <h2 id="Read-Configuration-from-clj-Files"><a href="#Read-Configuration-from-clj-Files" class="headerlink" title="Read Configuration from .clj Files"></a>Read Configuration from <code>.clj</code> Files</h2><p>Instead of using <code>.properties</code>, we’ll use <code>.clj</code> files directly, since it’s more expressive and Clojure makes it very easy to utilize them. </p>
-<figure class="highlight clojure"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">(<span class="name"><span class="builtin-name">defn</span></span> read-config [section]</div><div class="line">  (<span class="name"><span class="builtin-name">let</span></span> [read (<span class="name"><span class="builtin-name">fn</span></span> [res-path]</div><div class="line">               (<span class="name"><span class="builtin-name">if-let</span></span> [res (<span class="name">clojure.java.io/resource</span> res-path)]</div><div class="line">                 (<span class="name">read-string</span> (<span class="name"><span class="builtin-name">slurp</span></span> res))</div><div class="line">                 &#123;&#125;))</div><div class="line">        default-name (<span class="name"><span class="builtin-name">str</span></span> (<span class="name"><span class="builtin-name">name</span></span> section) <span class="string">".clj"</span>)</div><div class="line">        default (<span class="name"><span class="builtin-name">read</span></span> default-name)</div><div class="line">        override (<span class="name"><span class="builtin-name">read</span></span> (<span class="name"><span class="builtin-name">str</span></span> <span class="string">"override/"</span> default-name))]</div><div class="line">    (<span class="name"><span class="builtin-name">merge</span></span> default override)))</div></pre></td></tr></table></figure>
+<pre class=" language-clojure"><code class="language-clojure">(defn read-config [section]
+  (let [read (fn [res-path]
+               (if-let [res (clojure.java.io/resource res-path)]
+                 (read-string (slurp res))
+                 {}))
+        default-name (str (name section) ".clj")
+        default (read default-name)
+        override (read (str "override/" default-name))]
+    (merge default override)))
+</code></pre>
 <p>This function assumes the following directory layout:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">test-project/</div><div class="line">├── README.md</div><div class="line">├── project.clj</div><div class="line">├── resources</div><div class="line">│   ├── database.clj</div><div class="line">│   └── override</div><div class="line">│       └── database.clj</div><div class="line">└── src</div><div class="line">    └── test_project</div><div class="line">        └── core.clj</div></pre></td></tr></table></figure>
+<pre class=" language-text"><code class="language-text">test-project/
+├── README.md
+├── project.clj
+├── resources
+│   ├── database.clj
+│   └── override
+│       └── database.clj
+└── src
+    └── test_project
+        └── core.clj
+</code></pre>
 <p>And the <code>database.clj</code>s are like:</p>
-<figure class="highlight clojure"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">; resources/database.clj</span></div><div class="line">&#123;<span class="symbol">:charset</span> <span class="string">"utf-8"</span></div><div class="line"> <span class="symbol">:mydb</span> &#123;<span class="symbol">:host</span> <span class="string">"127.0.0.1"</span>&#125;&#125;</div><div class="line"></div><div class="line"><span class="comment">; resources/override/database.clj</span></div><div class="line">&#123;<span class="symbol">:mydb</span> &#123;<span class="symbol">:host</span> <span class="string">"10.0.2.15"</span>&#125;&#125;</div></pre></td></tr></table></figure>
+<pre class=" language-clojure"><code class="language-clojure">; resources/database.clj
+{:charset "utf-8"
+ :mydb {:host "127.0.0.1"}}
+
+; resources/override/database.clj
+{:mydb {:host "10.0.2.15"}}
+</code></pre>
 <p>The <code>.clj</code> files simply contains a <code>map</code> object, and we use <code>read-string</code> facility to parse the map. Since the latter map is merged into the former one, we can include some default settings without worrying about whether they’ll be available.</p>
 <h2 id="Places-to-Put-‘Outter-Configuration’"><a href="#Places-to-Put-‘Outter-Configuration’" class="headerlink" title="Places to Put ‘Outter Configuration’"></a>Places to Put ‘Outter Configuration’</h2><p>Here I use the word ‘outter’, which means those configs are related to environments, and will override the default settings. In this section, I’ll introduce some typical places to put these outter configs and how to use them.</p>
 <h3 id="A-‘resources-override-‘-Directory"><a href="#A-‘resources-override-‘-Directory" class="headerlink" title="A ‘resources/override/‘ Directory"></a>A ‘resources/override/‘ Directory</h3><p>First of all, this directory should be removed from version control, such as <code>.gitignore</code>:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">/.project</div><div class="line">/.settings</div><div class="line"></div><div class="line">/resources/override</div></pre></td></tr></table></figure>
+<pre class=" language-text"><code class="language-text">/.project
+/.settings
+
+/resources/override
+</code></pre>
 <p>And then, developers can put production or local configuration files in this directory.</p>
 <p>In production, there’s typically a ‘compiling server’, which can be used to store production configs. After compiling, the Jar file will include the proper configs and are ready to be deployed.</p>
 <h3 id="A-Dedicated-Directory-on-Every-Server"><a href="#A-Dedicated-Directory-on-Every-Server" class="headerlink" title="A Dedicated Directory on Every Server"></a>A Dedicated Directory on Every Server</h3><p>We could simply replace the <code>override</code> directory with an absolute path, such as <code>/home/www/config</code>. The pros are that we don’t need to recompile the jar files when config changes, and some of the configs could be shared between different projects. </p>
@@ -139,12 +185,25 @@ ga('send', 'pageview');
 <p>Another thing I want to mention in this approach is that, I suggest using an environment variable to indicate the path to config directory, not hard-coded in application. As a matter of fact, you could even place all configs into env vars, as suggested by <a href="http://www.12factor.net/config" target="_blank" rel="external">12-factor apps</a>.</p>
 <h3 id="A-Central-Configuration-Server"><a href="#A-Central-Configuration-Server" class="headerlink" title="A Central Configuration Server"></a>A Central Configuration Server</h3><p>As for really big corporations, a central configuration server is necessary. One popular option is to use ZooKeeper. Or your companies have some service-discovery mechanism. These are really advanced topics, and I’ll leave them to the readers.</p>
 <h2 id="Manage-Configs-in-Application"><a href="#Manage-Configs-in-Application" class="headerlink" title="Manage Configs in Application"></a>Manage Configs in Application</h2><p>Lastly, I’ll share a snippet that’ll manage the configs, it’s actually quite easy:</p>
-<figure class="highlight clojure"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">(<span class="name"><span class="builtin-name">def</span></span> ^<span class="symbol">:private</span> config (<span class="name"><span class="builtin-name">atom</span></span> &#123;&#125;))</div><div class="line"></div><div class="line">(<span class="name"><span class="builtin-name">defn</span></span> get-config</div><div class="line"></div><div class="line">  ([section]</div><div class="line">    (<span class="name"><span class="builtin-name">if-let</span></span> [config-section (<span class="name"><span class="builtin-name">get</span></span> @config section)]</div><div class="line">      config-section</div><div class="line">      (<span class="name"><span class="builtin-name">let</span></span> [config-section (<span class="name">read-config</span> section)]</div><div class="line">        (<span class="name"><span class="builtin-name">swap!</span></span> config assoc section config-section)</div><div class="line">        config-section)))</div><div class="line"></div><div class="line">  ([section item]</div><div class="line">    (<span class="name"><span class="builtin-name">get</span></span> (<span class="name">get-config</span> section) item)))</div></pre></td></tr></table></figure>
+<pre class=" language-clojure"><code class="language-clojure">(def ^:private config (atom {}))
+
+(defn get-config
+
+  ([section]
+    (if-let [config-section (get @config section)]
+      config-section
+      (let [config-section (read-config section)]
+        (swap! config assoc section config-section)
+        config-section)))
+
+  ([section item]
+    (get (get-config section) item)))
+</code></pre>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="cj5sa24qr0002mpm6xitahh0g" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="cj5t7ssos00025ezjm15l70ap" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/#disqus_thread" class="article-comment-link">Comments</a>
       

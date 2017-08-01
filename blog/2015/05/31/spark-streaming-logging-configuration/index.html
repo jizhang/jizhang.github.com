@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="Ji ZHANG's Blog">
 <meta property="og:description" content="Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with th">
 <meta property="og:image" content="http://shzhangji.com/images/spark/yarn-logs.png">
-<meta property="og:updated_time" content="2017-03-09T22:29:01.398Z">
+<meta property="og:updated_time" content="2017-03-09T05:48:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spark Streaming Logging Configuration">
 <meta name="twitter:description" content="Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with th">
@@ -25,8 +25,6 @@
   
     <link rel="icon" href="/favicon.png">
   
-  
-    <link href="https://fonts.proxy.ustclug.org/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
   
   <link rel="stylesheet" href="/css/style.css">
   
@@ -44,7 +42,7 @@ ga('send', 'pageview');
 <!-- End Google Analytics -->
 
 
-</head>
+<link rel="stylesheet" href="/css/prism-cb.css" type="text/css"></head>
 
 <body>
   <div id="container">
@@ -118,7 +116,21 @@ ga('send', 'pageview');
       
         <p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
 <h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">log4j.rootLogger=INFO, rolling</div><div class="line"></div><div class="line">log4j.appender.rolling=org.apache.log4j.RollingFileAppender</div><div class="line">log4j.appender.rolling.layout=org.apache.log4j.PatternLayout</div><div class="line">log4j.appender.rolling.layout.conversionPattern=[%d] %p %m (%c)%n</div><div class="line">log4j.appender.rolling.maxFileSize=50MB</div><div class="line">log4j.appender.rolling.maxBackupIndex=5</div><div class="line">log4j.appender.rolling.file=/var/log/spark/$&#123;dm.logging.name&#125;.log</div><div class="line">log4j.appender.rolling.encoding=UTF-8</div><div class="line"></div><div class="line">log4j.logger.org.apache.spark=WARN</div><div class="line">log4j.logger.org.eclipse.jetty=WARN</div><div class="line"></div><div class="line">log4j.logger.com.anjuke.dm=$&#123;dm.logging.level&#125;</div></pre></td></tr></table></figure>
+<pre class=" language-properties"><code class="language-properties"><span class="token attr-name">log4j.rootLogger</span><span class="token punctuation">=</span><span class="token attr-value">INFO, rolling</span>
+
+<span class="token attr-name">log4j.appender.rolling</span><span class="token punctuation">=</span><span class="token attr-value">org.apache.log4j.RollingFileAppender</span>
+<span class="token attr-name">log4j.appender.rolling.layout</span><span class="token punctuation">=</span><span class="token attr-value">org.apache.log4j.PatternLayout</span>
+<span class="token attr-name">log4j.appender.rolling.layout.conversionPattern</span><span class="token punctuation">=</span><span class="token attr-value">[%d] %p %m (%c)%n</span>
+<span class="token attr-name">log4j.appender.rolling.maxFileSize</span><span class="token punctuation">=</span><span class="token attr-value">50MB</span>
+<span class="token attr-name">log4j.appender.rolling.maxBackupIndex</span><span class="token punctuation">=</span><span class="token attr-value">5</span>
+<span class="token attr-name">log4j.appender.rolling.file</span><span class="token punctuation">=</span><span class="token attr-value">/var/log/spark/${dm.logging.name}.log</span>
+<span class="token attr-name">log4j.appender.rolling.encoding</span><span class="token punctuation">=</span><span class="token attr-value">UTF-8</span>
+
+<span class="token attr-name">log4j.logger.org.apache.spark</span><span class="token punctuation">=</span><span class="token attr-value">WARN</span>
+<span class="token attr-name">log4j.logger.org.eclipse.jetty</span><span class="token punctuation">=</span><span class="token attr-value">WARN</span>
+
+<span class="token attr-name">log4j.logger.com.anjuke.dm</span><span class="token punctuation">=</span><span class="token attr-value">${dm.logging.level}</span>
+</code></pre>
 <p>This means log4j will roll the log file by 50MB and keep only 5 recent files. These files are saved in <code>/var/log/spark</code> directory, with filename picked from system property <code>dm.logging.name</code>. We also set the logging level of our package <code>com.anjuke.dm</code> according to <code>dm.logging.level</code> property. Another thing to mention is that we set <code>org.apache.spark</code> to level <code>WARN</code>, so as to ignore verbose logs from spark.</p>
 <a id="more"></a>
 <h2 id="Standalone-Mode"><a href="#Standalone-Mode" class="headerlink" title="Standalone Mode"></a>Standalone Mode</h2><p>In standalone mode, Spark Streaming driver is running on the machine where you submit the job, and each Spark worker node will run an executor for this job. So you need to setup log4j for both driver and executor.</p>
@@ -130,21 +142,31 @@ ga('send', 'pageview');
 <li>Create driver’s and executor’s log4j configuration files, and distribute the executor’s to all worker nodes.</li>
 <li>Use the above two files in <code>spark-submit</code> command:</li>
 </ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">spark-submit</div><div class="line">  --master spark://127.0.0.1:7077</div><div class="line">  --driver-java-options &quot;-Dlog4j.configuration=file:/path/to/log4j-driver.properties -Ddm.logging.level=DEBUG&quot;</div><div class="line">  --conf &quot;spark.executor.extraJavaOptions=-Dlog4j.configuration=file:/path/to/log4j-executor.properties -Ddm.logging.name=myapp -Ddm.logging.level=DEBUG&quot;</div><div class="line">  ...</div></pre></td></tr></table></figure>
-<h2 id="Spark-on-YARN"><a href="#Spark-on-YARN" class="headerlink" title="Spark on YARN"></a>Spark on YARN</h2><p><a href="http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/index.html" target="_blank" rel="external">YARN</a> is a <strong>resource manager</strong> introduced by Hadoop2. Now we can run differenct computational frameworks on the same cluster, like MapReduce, Spark, Storm, etc. The basic unit of YARN is called container, which represents a certain amount of resource (currently memory and virtual CPU cores). Every container has its working directory, and all related files such as application command (jars) and log files are stored in this directory.</p>
+<pre><code>spark-submit
+  --master spark://127.0.0.1:7077
+  --driver-java-options &quot;-Dlog4j.configuration=file:/path/to/log4j-driver.properties -Ddm.logging.level=DEBUG&quot;
+  --conf &quot;spark.executor.extraJavaOptions=-Dlog4j.configuration=file:/path/to/log4j-executor.properties -Ddm.logging.name=myapp -Ddm.logging.level=DEBUG&quot;
+  ...
+</code></pre><h2 id="Spark-on-YARN"><a href="#Spark-on-YARN" class="headerlink" title="Spark on YARN"></a>Spark on YARN</h2><p><a href="http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/index.html" target="_blank" rel="external">YARN</a> is a <strong>resource manager</strong> introduced by Hadoop2. Now we can run differenct computational frameworks on the same cluster, like MapReduce, Spark, Storm, etc. The basic unit of YARN is called container, which represents a certain amount of resource (currently memory and virtual CPU cores). Every container has its working directory, and all related files such as application command (jars) and log files are stored in this directory.</p>
 <p>When running Spark on YARN, there is a system property <code>spark.yarn.app.container.log.dir</code> indicating the container’s log directory. We only need to replace one line of the above log4j config:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">log4j.appender.rolling.file=$&#123;spark.yarn.app.container.log.dir&#125;/spark.log</div></pre></td></tr></table></figure>
+<pre class=" language-properties"><code class="language-properties"><span class="token attr-name">log4j.appender.rolling.file</span><span class="token punctuation">=</span><span class="token attr-value">${spark.yarn.app.container.log.dir}/spark.log</span>
+</code></pre>
 <p>And these log files can be viewed on YARN’s web UI:</p>
 <p><img src="/images/spark/yarn-logs.png" alt=""></p>
 <p>The <code>spark-submit</code> command is as following:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">spark-submit</div><div class="line">  --master yarn-cluster</div><div class="line">  --files /path/to/log4j-spark.properties</div><div class="line">  --conf &quot;spark.driver.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties&quot;</div><div class="line">  --conf &quot;spark.executor.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties&quot;</div><div class="line">  ...</div></pre></td></tr></table></figure>
-<p>As you can see, both driver and executor use the same configuration file. That is because in <code>yarn-cluster</code> mode, driver is also run as a container in YARN. In fact, the <code>spark-submit</code> command will just quit after job submission.</p>
+<pre><code>spark-submit
+  --master yarn-cluster
+  --files /path/to/log4j-spark.properties
+  --conf &quot;spark.driver.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties&quot;
+  --conf &quot;spark.executor.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties&quot;
+  ...
+</code></pre><p>As you can see, both driver and executor use the same configuration file. That is because in <code>yarn-cluster</code> mode, driver is also run as a container in YARN. In fact, the <code>spark-submit</code> command will just quit after job submission.</p>
 <p>If YARN’s <a href="http://zh.hortonworks.com/blog/simplifying-user-logs-management-and-access-in-yarn/" target="_blank" rel="external">log aggregation</a> is enabled, application logs will be saved in HDFS after the job is done. One can use <code>yarn logs</code> command to view the files or browse directly into HDFS directory indicated by <code>yarn.nodemanager.log-dirs</code>.</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="cj5sa24rh0006mpm65vev2kwp" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="cj5t7ssp400085ezjp7a7f6uz" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/#disqus_thread" class="article-comment-link">Comments</a>
       

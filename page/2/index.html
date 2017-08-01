@@ -20,8 +20,6 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link href="https://fonts.proxy.ustclug.org/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
   <link rel="stylesheet" href="/css/style.css">
   
 <!-- Google Analytics -->
@@ -38,7 +36,7 @@ ga('send', 'pageview');
 <!-- End Google Analytics -->
 
 
-</head>
+<link rel="stylesheet" href="/css/prism-cb.css" type="text/css"></head>
 
 <body>
   <div id="container">
@@ -132,7 +130,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cj5sa24rk0007mpm6jfgblgvj" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cj5t7ssp300075ezjhe64hkw4" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -174,7 +172,21 @@ ga('send', 'pageview');
       
         <p>As I’m working with my first <a href="http://www.scalatra.org/">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
 <h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/">Dojo</a> for example.</p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">object</span> <span class="title">DwExplorerBuild</span> <span class="keyword">extends</span> <span class="title">Build</span> </span>&#123;</div><div class="line">  ...</div><div class="line">  <span class="keyword">lazy</span> <span class="keyword">val</span> project = <span class="type">Project</span> (</div><div class="line">    ...</div><div class="line">    settings = <span class="type">Defaults</span>.defaultSettings ++ <span class="type">ScalatraPlugin</span>.scalatraWithJRebel ++ scalateSettings ++ <span class="type">Seq</span>(</div><div class="line">      ...</div><div class="line">      libraryDependencies ++= <span class="type">Seq</span>(</div><div class="line">        ...</div><div class="line">        <span class="string">"org.webjars"</span> % <span class="string">"dojo"</span> % <span class="string">"1.9.3"</span></div><div class="line">      ),</div><div class="line">      ...</div><div class="line">    )</div><div class="line">  )</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="scala">object DwExplorerBuild extends Build {
+  ...
+  lazy val project = Project (
+    ...
+    settings = Defaults.defaultSettings ++ ScalatraPlugin.scalatraWithJRebel ++ scalateSettings ++ Seq(
+      ...
+      libraryDependencies ++= Seq(
+        ...
+        &quot;org.webjars&quot; % &quot;dojo&quot; % &quot;1.9.3&quot;
+      ),
+      ...
+    )
+  )
+}
+</code></pre>
 <p>To view this dependency in Eclipse, you need to run <code>sbt eclipse</code> again. In the <em>Referenced Libraries</em> section, you can see a <code>dojo-1.9.3.jar</code>, and the library lies in <code>META-INF/resources/webjars/</code>.</p>
         
           <p class="article-more-link">
@@ -184,7 +196,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="cj5sa24rr0008mpm68ayvd7yw" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="cj5t7ssp200065ezjxw2hkcl1" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -226,7 +238,8 @@ ga('send', 'pageview');
       
         <p>In DBMS world, it’s easy to generate a unique, auto-increment id, using MySQL’s <a href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html">AUTO_INCREMENT attribute</a> on a primary key or MongoDB’s <a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it’ll take some steps.</p>
 <h2 id="Solution-A-Single-Reducer"><a href="#Solution-A-Single-Reducer" class="headerlink" title="Solution A: Single Reducer"></a>Solution A: Single Reducer</h2><p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">job.setNumReduceTasks(<span class="number">1</span>);</div></pre></td></tr></table></figure>
+<pre><code class="java">job.setNumReduceTasks(1);
+</code></pre>
 <p>And also obvious, there are several demerits:</p>
 <ol>
 <li>All mappers output will be copied to one task tracker.</li>
@@ -242,7 +255,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="cj5sa24r70003mpm6vb6igv6m" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="cj5t7ssoy00035ezj3fyv4a2k" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -281,8 +294,27 @@ ga('send', 'pageview');
     <div class="article-entry" itemprop="articleBody">
       
         <p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># database.properties</div><div class="line">mydb.jdbcUrl=$&#123;mydb.jdbcUrl&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">&lt;!-- pom.xml --&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">profiles</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">profile</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">id</span>&gt;</span>development<span class="tag">&lt;/<span class="name">id</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">activation</span>&gt;</span><span class="tag">&lt;<span class="name">activeByDefault</span>&gt;</span>true<span class="tag">&lt;/<span class="name">activeByDefault</span>&gt;</span><span class="tag">&lt;/<span class="name">activation</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">properties</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">mydb.jdbcUrl</span>&gt;</span>jdbc:mysql://127.0.0.1:3306/mydb<span class="tag">&lt;/<span class="name">mydb.jdbcUrl</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">profile</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">profile</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">id</span>&gt;</span>production<span class="tag">&lt;/<span class="name">id</span>&gt;</span></div><div class="line">        <span class="comment">&lt;!-- This profile could be moved to ~/.m2/settings.xml to increase security. --&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">properties</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">mydb.jdbcUrl</span>&gt;</span>jdbc:mysql://10.0.2.15:3306/mydb<span class="tag">&lt;/<span class="name">mydb.jdbcUrl</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">profile</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">profiles</span>&gt;</span></div></pre></td></tr></table></figure>
+<pre><code class="text"># database.properties
+mydb.jdbcUrl=${mydb.jdbcUrl}
+</code></pre>
+<pre><code class="xml">&lt;!-- pom.xml --&gt;
+&lt;profiles&gt;
+    &lt;profile&gt;
+        &lt;id&gt;development&lt;/id&gt;
+        &lt;activation&gt;&lt;activeByDefault&gt;true&lt;/activeByDefault&gt;&lt;/activation&gt;
+        &lt;properties&gt;
+            &lt;mydb.jdbcUrl&gt;jdbc:mysql://127.0.0.1:3306/mydb&lt;/mydb.jdbcUrl&gt;
+        &lt;/properties&gt;
+    &lt;/profile&gt;
+    &lt;profile&gt;
+        &lt;id&gt;production&lt;/id&gt;
+        &lt;!-- This profile could be moved to ~/.m2/settings.xml to increase security. --&gt;
+        &lt;properties&gt;
+            &lt;mydb.jdbcUrl&gt;jdbc:mysql://10.0.2.15:3306/mydb&lt;/mydb.jdbcUrl&gt;
+        &lt;/properties&gt;
+    &lt;/profile&gt;
+&lt;/profiles&gt;
+</code></pre>
 <p>As for Leiningen projects, there’s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
         
           <p class="article-more-link">
@@ -292,7 +324,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="cj5sa24qr0002mpm6xitahh0g" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="cj5t7ssos00025ezjm15l70ap" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/#disqus_thread" class="article-comment-link">Comments</a>
       

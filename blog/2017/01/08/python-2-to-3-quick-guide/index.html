@@ -11,7 +11,7 @@
 <meta property="og:url" content="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/index.html">
 <meta property="og:site_name" content="Ji ZHANG's Blog">
 <meta property="og:description" content="Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python">
-<meta property="og:updated_time" content="2017-03-09T22:29:01.401Z">
+<meta property="og:updated_time" content="2017-03-09T05:48:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python 2 to 3 Quick Guide">
 <meta name="twitter:description" content="Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python">
@@ -23,8 +23,6 @@
   
     <link rel="icon" href="/favicon.png">
   
-  
-    <link href="https://fonts.proxy.ustclug.org/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
   
   <link rel="stylesheet" href="/css/style.css">
   
@@ -42,7 +40,7 @@ ga('send', 'pageview');
 <!-- End Google Analytics -->
 
 
-</head>
+<link rel="stylesheet" href="/css/prism-cb.css" type="text/css"></head>
 
 <body>
   <div id="container">
@@ -131,7 +129,14 @@ ga('send', 'pageview');
 <ul>
 <li>Conversion between <code>str</code> and <code>bytes</code>:</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># str to bytes</span></div><div class="line"><span class="string">'str'</span>.encode(<span class="string">'UTF-8'</span>)</div><div class="line">bytes(<span class="string">'str'</span>, encoding=<span class="string">'UTF-8'</span>)</div><div class="line"></div><div class="line"><span class="comment"># bytes to str</span></div><div class="line"><span class="string">b'bytes'</span>.decode(<span class="string">'UTF-8'</span>)</div><div class="line">str(<span class="string">b'bytes'</span>, encoding=<span class="string">'UTF-8'</span>)</div></pre></td></tr></table></figure>
+<pre class=" language-python"><code class="language-python"><span class="token comment" spellcheck="true"># str to bytes</span>
+<span class="token string">'str'</span><span class="token punctuation">.</span>encode<span class="token punctuation">(</span><span class="token string">'UTF-8'</span><span class="token punctuation">)</span>
+bytes<span class="token punctuation">(</span><span class="token string">'str'</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">'UTF-8'</span><span class="token punctuation">)</span>
+
+<span class="token comment" spellcheck="true"># bytes to str</span>
+b<span class="token string">'bytes'</span><span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token string">'UTF-8'</span><span class="token punctuation">)</span>
+str<span class="token punctuation">(</span>b<span class="token string">'bytes'</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">'UTF-8'</span><span class="token punctuation">)</span>
+</code></pre>
 <ul>
 <li><code>basestring</code> is removed, use <code>str</code> as type: <code>isinstance(s, str)</code></li>
 <li><code>bytes</code> is immutable, the corresponding mutable version is <code>bytearray</code>.</li>
@@ -139,25 +144,48 @@ ga('send', 'pageview');
 </ul>
 <a id="more"></a>
 <h2 id="print-Becomes-a-Function"><a href="#print-Becomes-a-Function" class="headerlink" title="print Becomes a Function"></a><code>print</code> Becomes a Function</h2><p>In Python 2, <code>print</code> is a statement, and now it’s used as a function:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">print</span>   <span class="comment"># Old: print a new line</span></div><div class="line">print() <span class="comment"># New</span></div><div class="line"></div><div class="line"><span class="keyword">print</span> <span class="string">'hello'</span>, <span class="string">'world'</span>,          <span class="comment"># Old: trailing comma suppresses new line</span></div><div class="line">print(<span class="string">'hello'</span>, <span class="string">'world'</span>, end=<span class="string">' '</span>) <span class="comment"># New: end defaults to '\n'</span></div><div class="line"></div><div class="line"><span class="keyword">print</span> &gt;&gt;sys.stderr, <span class="string">'error'</span>     <span class="comment"># Old: write to stderr</span></div><div class="line">print(<span class="string">'error'</span>, file=sys.stderr) <span class="comment"># New</span></div></pre></td></tr></table></figure>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">print</span>   <span class="token comment" spellcheck="true"># Old: print a new line</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># New</span>
+
+<span class="token keyword">print</span> <span class="token string">'hello'</span><span class="token punctuation">,</span> <span class="token string">'world'</span><span class="token punctuation">,</span>          <span class="token comment" spellcheck="true"># Old: trailing comma suppresses new line</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'hello'</span><span class="token punctuation">,</span> <span class="token string">'world'</span><span class="token punctuation">,</span> end<span class="token operator">=</span><span class="token string">' '</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># New: end defaults to '\n'</span>
+
+<span class="token keyword">print</span> <span class="token operator">>></span>sys<span class="token punctuation">.</span>stderr<span class="token punctuation">,</span> <span class="token string">'error'</span>     <span class="token comment" spellcheck="true"># Old: write to stderr</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'error'</span><span class="token punctuation">,</span> file<span class="token operator">=</span>sys<span class="token punctuation">.</span>stderr<span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># New</span>
+</code></pre>
 <p><code>print</code> function also provides <code>sep</code> and <code>flush</code> parameters:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">print(<span class="string">'hello'</span>, <span class="string">'world'</span>, sep=<span class="string">','</span>, flush=<span class="keyword">True</span>)</div><div class="line"></div><div class="line"><span class="comment"># Instead of:</span></div><div class="line"><span class="keyword">print</span> <span class="string">','</span>.join((<span class="string">'hello'</span>, <span class="string">'world'</span>))</div><div class="line">sys.stdout.flush()</div></pre></td></tr></table></figure>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'hello'</span><span class="token punctuation">,</span> <span class="token string">'world'</span><span class="token punctuation">,</span> sep<span class="token operator">=</span><span class="token string">','</span><span class="token punctuation">,</span> flush<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+
+<span class="token comment" spellcheck="true"># Instead of:</span>
+<span class="token keyword">print</span> <span class="token string">','</span><span class="token punctuation">.</span>join<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token string">'hello'</span><span class="token punctuation">,</span> <span class="token string">'world'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+sys<span class="token punctuation">.</span>stdout<span class="token punctuation">.</span>flush<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
 <h2 id="Less-Lists-More-Views"><a href="#Less-Lists-More-Views" class="headerlink" title="Less Lists More Views"></a>Less Lists More Views</h2><p>A lot of well-known methods now return iterators, or ‘views’,  instead of eager-evaluated lists.</p>
 <ul>
 <li>Dictionary’s <code>keys</code>, <code>items</code>, and <code>values</code> methods, while removing <code>iterkeys</code>, <code>iteritems</code>, and <code>itervalues</code>. For example, when you need a sorted key list:</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">k = d.keys(); k.sort() <span class="comment"># Old</span></div><div class="line">k = sorted(d.keys())   <span class="comment"># New</span></div></pre></td></tr></table></figure>
+<pre class=" language-python"><code class="language-python">k <span class="token operator">=</span> d<span class="token punctuation">.</span>keys<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> k<span class="token punctuation">.</span>sort<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># Old</span>
+k <span class="token operator">=</span> sorted<span class="token punctuation">(</span>d<span class="token punctuation">.</span>keys<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>   <span class="token comment" spellcheck="true"># New</span>
+</code></pre>
 <ul>
 <li><code>map</code>, <code>filter</code>, and <code>zip</code>, while removing <code>imap</code> methods in <code>itertools</code> module. To get a concrete list, use list comprehension or the <code>list</code> global function:</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[x * <span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]]</div><div class="line">list(map(<span class="keyword">lambda</span> x: x * <span class="number">2</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]))</div></pre></td></tr></table></figure>
+<pre class=" language-python"><code class="language-python"><span class="token punctuation">[</span>x <span class="token operator">*</span> <span class="token number">2</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+list<span class="token punctuation">(</span>map<span class="token punctuation">(</span><span class="token keyword">lambda</span> x<span class="token punctuation">:</span> x <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
 <ul>
 <li><code>range</code> is now equivalent to <code>xrange</code> in Python 2, the later is removed.</li>
 <li>For iterators, the <code>next</code> method is renamed to <code>__next__</code>, and there’s a global <code>next</code> function, which accepts an iterator and calls its <code>__next__</code> method.</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iter([<span class="number">1</span>]).next()     <span class="comment"># Old</span></div><div class="line">iter([<span class="number">1</span>]).__next__() <span class="comment"># New</span></div><div class="line">next(iter([<span class="number">1</span>]))      <span class="comment"># New</span></div></pre></td></tr></table></figure>
-<h2 id="Integer-Division-Returns-Float"><a href="#Integer-Division-Returns-Float" class="headerlink" title="Integer Division Returns Float"></a>Integer Division Returns Float</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">print 1 / 2   # Old: prints 0</div><div class="line">print 1 / 2.0 # Old: prints 0.5</div><div class="line">print(1 / 2)  # New: prints 0.5</div><div class="line">print(1 // 2) # New: prints 0</div></pre></td></tr></table></figure>
-<ul>
+<pre class=" language-python"><code class="language-python">iter<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>next<span class="token punctuation">(</span><span class="token punctuation">)</span>     <span class="token comment" spellcheck="true"># Old</span>
+iter<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__next__<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># New</span>
+next<span class="token punctuation">(</span>iter<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>      <span class="token comment" spellcheck="true"># New</span>
+</code></pre>
+<h2 id="Integer-Division-Returns-Float"><a href="#Integer-Division-Returns-Float" class="headerlink" title="Integer Division Returns Float"></a>Integer Division Returns Float</h2><pre><code>print 1 / 2   # Old: prints 0
+print 1 / 2.0 # Old: prints 0.5
+print(1 / 2)  # New: prints 0.5
+print(1 // 2) # New: prints 0
+</code></pre><ul>
 <li>There’s no difference between <code>long</code> and <code>int</code> now, use <code>int</code> only.</li>
 <li>Octal literals are represented as <code>0o755</code>, instead of <code>0755</code>.</li>
 </ul>
@@ -166,13 +194,51 @@ ga('send', 'pageview');
 <li><code>==</code> and <code>!=</code> remains the same.</li>
 <li><code>cmp</code> parameter in <code>sort</code> is removed. Use <code>key</code> to extract a comparison key from each element.</li>
 </ul>
-<h2 id="Set-Literal-Support"><a href="#Set-Literal-Support" class="headerlink" title="Set Literal Support"></a>Set Literal Support</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">s = set([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]) <span class="comment"># Old, also valid in Python 3</span></div><div class="line">s = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;      <span class="comment"># New</span></div><div class="line">s = set()          <span class="comment"># Empty set</span></div><div class="line">d = &#123;&#125;             <span class="comment"># Empty dict</span></div></pre></td></tr></table></figure>
+<h2 id="Set-Literal-Support"><a href="#Set-Literal-Support" class="headerlink" title="Set Literal Support"></a>Set Literal Support</h2><pre class=" language-python"><code class="language-python">s <span class="token operator">=</span> set<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># Old, also valid in Python 3</span>
+s <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">}</span>      <span class="token comment" spellcheck="true"># New</span>
+s <span class="token operator">=</span> set<span class="token punctuation">(</span><span class="token punctuation">)</span>          <span class="token comment" spellcheck="true"># Empty set</span>
+d <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>             <span class="token comment" spellcheck="true"># Empty dict</span>
+</code></pre>
 <h2 id="New-String-Formatting"><a href="#New-String-Formatting" class="headerlink" title="New String Formatting"></a>New String Formatting</h2><p>Python 3 introduces a new form of string formatting, and it’s also back-ported to Python 2.x. The old <code>%s</code> formatting is still available in 3.x, but the <a href="https://docs.python.org/3/library/string.html#format-string-syntax" target="_blank" rel="external">new format</a> seems more expressive and powerful.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># by position</span></div><div class="line"><span class="string">'&#123;&#125;, &#123;&#125;, &#123;&#125;'</span>.format(<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>)    <span class="comment"># a, b, c</span></div><div class="line"><span class="string">'&#123;2&#125;, &#123;1&#125;, &#123;0&#125;'</span>.format(<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>) <span class="comment"># c, b, a</span></div><div class="line"></div><div class="line"><span class="comment"># by name</span></div><div class="line"><span class="string">'Hello, &#123;name&#125;'</span>.format(name=<span class="string">'Jerry'</span>) <span class="comment"># Hello, Jerry</span></div><div class="line"></div><div class="line"><span class="comment"># by attribute</span></div><div class="line">c = <span class="number">1</span> - <span class="number">2j</span></div><div class="line"><span class="string">'real: &#123;0.real&#125;'</span>.format(c) <span class="comment"># real: 1.0</span></div><div class="line"></div><div class="line"><span class="comment"># by index</span></div><div class="line"><span class="string">'X: &#123;0[0]&#125;, Y: &#123;0[1]&#125;'</span>.format((<span class="number">1</span>, <span class="number">2</span>)) <span class="comment"># X: 1, Y: 2</span></div><div class="line"></div><div class="line"><span class="comment"># format number</span></div><div class="line"><span class="string">'&#123;:.2f&#125;'</span>.format(<span class="number">1.2</span>)   <span class="comment"># 1.20</span></div><div class="line"><span class="string">'&#123;:.2%&#125;'</span>.format(<span class="number">0.012</span>) <span class="comment"># 1.20%</span></div><div class="line"><span class="string">'&#123;:,&#125;'</span>.format(<span class="number">1234567</span>) <span class="comment"># 1,234,567</span></div><div class="line"></div><div class="line"><span class="comment"># padding</span></div><div class="line"><span class="string">'&#123;:&gt;05&#125;'</span>.format(<span class="number">1</span>) <span class="comment"># 00001</span></div></pre></td></tr></table></figure>
+<pre class=" language-python"><code class="language-python"><span class="token comment" spellcheck="true"># by position</span>
+<span class="token string">'{}, {}, {}'</span><span class="token punctuation">.</span>format<span class="token punctuation">(</span><span class="token string">'a'</span><span class="token punctuation">,</span> <span class="token string">'b'</span><span class="token punctuation">,</span> <span class="token string">'c'</span><span class="token punctuation">)</span>    <span class="token comment" spellcheck="true"># a, b, c</span>
+<span class="token string">'{2}, {1}, {0}'</span><span class="token punctuation">.</span>format<span class="token punctuation">(</span><span class="token string">'a'</span><span class="token punctuation">,</span> <span class="token string">'b'</span><span class="token punctuation">,</span> <span class="token string">'c'</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># c, b, a</span>
+
+<span class="token comment" spellcheck="true"># by name</span>
+<span class="token string">'Hello, {name}'</span><span class="token punctuation">.</span>format<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">'Jerry'</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># Hello, Jerry</span>
+
+<span class="token comment" spellcheck="true"># by attribute</span>
+c <span class="token operator">=</span> <span class="token number">1</span> <span class="token operator">-</span> <span class="token number">2j</span>
+<span class="token string">'real: {0.real}'</span><span class="token punctuation">.</span>format<span class="token punctuation">(</span>c<span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># real: 1.0</span>
+
+<span class="token comment" spellcheck="true"># by index</span>
+<span class="token string">'X: {0[0]}, Y: {0[1]}'</span><span class="token punctuation">.</span>format<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># X: 1, Y: 2</span>
+
+<span class="token comment" spellcheck="true"># format number</span>
+<span class="token string">'{:.2f}'</span><span class="token punctuation">.</span>format<span class="token punctuation">(</span><span class="token number">1.2</span><span class="token punctuation">)</span>   <span class="token comment" spellcheck="true"># 1.20</span>
+<span class="token string">'{:.2%}'</span><span class="token punctuation">.</span>format<span class="token punctuation">(</span><span class="token number">0.012</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># 1.20%</span>
+<span class="token string">'{:,}'</span><span class="token punctuation">.</span>format<span class="token punctuation">(</span><span class="token number">1234567</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># 1,234,567</span>
+
+<span class="token comment" spellcheck="true"># padding</span>
+<span class="token string">'{:>05}'</span><span class="token punctuation">.</span>format<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># 00001</span>
+</code></pre>
 <p>Furthermore, Python 3.6 introduces literal string interpolation (<a href="https://www.python.org/dev/peps/pep-0498/" target="_blank" rel="external">PEP 498</a>).</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">name = <span class="string">'Jerry'</span></div><div class="line">print(<span class="string">f'Hello, <span class="subst">&#123;name&#125;</span>'</span>)</div></pre></td></tr></table></figure>
+<pre class=" language-python"><code class="language-python">name <span class="token operator">=</span> <span class="token string">'Jerry'</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">'Hello, {name}'</span><span class="token punctuation">)</span>
+</code></pre>
 <h2 id="Exception-Handling"><a href="#Exception-Handling" class="headerlink" title="Exception Handling"></a>Exception Handling</h2><p>Raise and catch exceptions in a more standard way:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Old</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">  <span class="keyword">raise</span> Exception, <span class="string">'message'</span></div><div class="line"><span class="keyword">except</span> Exception, e:</div><div class="line">  tb = sys.exc_info()[<span class="number">2</span>]</div><div class="line"></div><div class="line"><span class="comment"># New</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">  <span class="keyword">raise</span> Exception(<span class="string">'message'</span>)</div><div class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">  tb = e.__traceback__</div></pre></td></tr></table></figure>
+<pre class=" language-python"><code class="language-python"><span class="token comment" spellcheck="true"># Old</span>
+<span class="token keyword">try</span><span class="token punctuation">:</span>
+  <span class="token keyword">raise</span> Exception<span class="token punctuation">,</span> <span class="token string">'message'</span>
+<span class="token keyword">except</span> Exception<span class="token punctuation">,</span> e<span class="token punctuation">:</span>
+  tb <span class="token operator">=</span> sys<span class="token punctuation">.</span>exc_info<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span>
+
+<span class="token comment" spellcheck="true"># New</span>
+<span class="token keyword">try</span><span class="token punctuation">:</span>
+  <span class="token keyword">raise</span> Exception<span class="token punctuation">(</span><span class="token string">'message'</span><span class="token punctuation">)</span>
+<span class="token keyword">except</span> Exception <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+  tb <span class="token operator">=</span> e<span class="token punctuation">.</span>__traceback__
+</code></pre>
 <h2 id="Global-Function-Changes"><a href="#Global-Function-Changes" class="headerlink" title="Global Function Changes"></a>Global Function Changes</h2><p>Some global functions are (re)moved to reduce duplication and language cruft.</p>
 <ul>
 <li><code>reduce</code> is removed, use <code>functools.reduce</code>, or explict <code>for</code> loop instead.</li>
@@ -184,7 +250,12 @@ ga('send', 'pageview');
 <h2 id="Renaming-Modules-and-Relative-Import"><a href="#Renaming-Modules-and-Relative-Import" class="headerlink" title="Renaming Modules and Relative Import"></a>Renaming Modules and Relative Import</h2><ul>
 <li>Different URL modules are unified into <code>urllib</code> module, e.g.</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> urllib.request <span class="keyword">import</span> urlopen, Request</div><div class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> urlencode</div><div class="line">req = Request(<span class="string">'http://shzhangji.com?'</span> + urlencode(&#123;<span class="string">'t'</span>: <span class="number">1</span>&#125;)</div><div class="line"><span class="keyword">with</span> urlopen(req) <span class="keyword">as</span> f:</div><div class="line">  print(f.read())</div></pre></td></tr></table></figure>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">from</span> urllib<span class="token punctuation">.</span>request <span class="token keyword">import</span> urlopen<span class="token punctuation">,</span> Request
+<span class="token keyword">from</span> urllib<span class="token punctuation">.</span>parse <span class="token keyword">import</span> urlencode
+req <span class="token operator">=</span> Request<span class="token punctuation">(</span><span class="token string">'http://shzhangji.com?'</span> <span class="token operator">+</span> urlencode<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">'t'</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token keyword">with</span> urlopen<span class="token punctuation">(</span>req<span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+  <span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
 <ul>
 <li>Some modules are renamed according to <a href="https://www.python.org/dev/peps/pep-0008" target="_blank" rel="external">PEP 8</a>, such as:<ul>
 <li>ConfigParser -&gt; configparser</li>
@@ -199,7 +270,9 @@ ga('send', 'pageview');
 </li>
 <li>All <code>import</code> forms are interpreted as absolute imports, unless started with <code>.</code>:</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> . <span class="keyword">import</span> somemod</div><div class="line"><span class="keyword">from</span> .somemod <span class="keyword">import</span> moremod</div></pre></td></tr></table></figure>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">from</span> <span class="token punctuation">.</span> <span class="token keyword">import</span> somemod
+<span class="token keyword">from</span> <span class="token punctuation">.</span>somemod <span class="token keyword">import</span> moremod
+</code></pre>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
 <li><a href="https://docs.python.org/3/whatsnew/3.0.html" target="_blank" rel="external">What’s New In Python 3.0</a></li>
 <li><a href="http://www.diveintopython3.net/porting-code-to-python-3-with-2to3.html" target="_blank" rel="external">Porting Code to Python 3 with 2to3</a></li>
@@ -209,7 +282,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cj5sa24sz000qmpm6x8gpa99g" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cj5t7sspe000h5ezjq3jj0ei1" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#disqus_thread" class="article-comment-link">Comments</a>
       
