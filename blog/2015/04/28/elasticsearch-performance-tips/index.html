@@ -6,11 +6,13 @@
   <title>ElasticSearch Performance Tips | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality">
+<meta name="keywords" content="elasticsearch">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ElasticSearch Performance Tips">
 <meta property="og:url" content="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/index.html">
-<meta property="og:site_name" content="Ji ZHANG's Blog">
+<meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
 <meta property="og:description" content="Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality">
+<meta property="og:locale" content="default">
 <meta property="og:image" content="http://shzhangji.com/images/elasticsearch/shards-head.png">
 <meta property="og:updated_time" content="2017-03-24T02:34:37.000Z">
 <meta name="twitter:card" content="summary">
@@ -25,6 +27,8 @@
   
     <link rel="icon" href="/favicon.png">
   
+  
+    <link href="https://fonts.proxy.ustclug.org/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
   
   <link rel="stylesheet" href="/css/style.css">
   
@@ -42,7 +46,7 @@ ga('send', 'pageview');
 <!-- End Google Analytics -->
 
 
-<link rel="stylesheet" href="/css/prism-cb.css" type="text/css"></head>
+</head>
 
 <body>
   <div id="container">
@@ -81,7 +85,7 @@ ga('send', 'pageview');
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -138,11 +142,8 @@ ga('send', 'pageview');
 <h3 id="Increase-mmap-Counts"><a href="#Increase-mmap-Counts" class="headerlink" title="Increase mmap Counts"></a>Increase <code>mmap</code> Counts</h3><p>ElasticSearch uses memory mapped files, and the default <code>mmap</code> counts is low. Add <code>vm.max_map_count=262144</code> to <code>/etc/sysctl.conf</code>, run <code>sysctl -p /etc/sysctl.conf</code> as root, and then restart ElasticSearch.</p>
 <h2 id="Tip-3-Setup-a-Cluster-with-Unicast"><a href="#Tip-3-Setup-a-Cluster-with-Unicast" class="headerlink" title="Tip 3 Setup a Cluster with Unicast"></a>Tip 3 Setup a Cluster with Unicast</h2><p>ElasticSearch has two options to form a cluster, multicast and unicast. The former is suitable when you have a large group of servers and a well configured network. But we found unicast more concise and less error-prone.</p>
 <p>Here’s an example of using unicast:</p>
-<pre><code>node.name: &quot;NODE-1&quot;
-discovery.zen.ping.multicast.enabled: false
-discovery.zen.ping.unicast.hosts: [&quot;node-1.example.com&quot;, &quot;node-2.example.com&quot;, &quot;node-3.example.com&quot;]
-discovery.zen.minimum_master_nodes: 2
-</code></pre><p>The <code>discovery.zen.minimum_master_nodes</code> setting is a way to prevent split-brain symptom, i.e. more than one node thinks itself the master of the cluster. And for this setting to work, you should have an odd number of nodes, and set this config to <code>ceil(num_of_nodes / 2)</code>. In the above cluster, you can lose at most one node. It’s much like a quorum in <a href="http://zookeeper.apache.org" target="_blank" rel="external">Zookeeper</a>.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">node.name: &quot;NODE-1&quot;</div><div class="line">discovery.zen.ping.multicast.enabled: false</div><div class="line">discovery.zen.ping.unicast.hosts: [&quot;node-1.example.com&quot;, &quot;node-2.example.com&quot;, &quot;node-3.example.com&quot;]</div><div class="line">discovery.zen.minimum_master_nodes: 2</div></pre></td></tr></table></figure>
+<p>The <code>discovery.zen.minimum_master_nodes</code> setting is a way to prevent split-brain symptom, i.e. more than one node thinks itself the master of the cluster. And for this setting to work, you should have an odd number of nodes, and set this config to <code>ceil(num_of_nodes / 2)</code>. In the above cluster, you can lose at most one node. It’s much like a quorum in <a href="http://zookeeper.apache.org" target="_blank" rel="external">Zookeeper</a>.</p>
 <h2 id="Tip-4-Disable-Unnecessary-Features"><a href="#Tip-4-Disable-Unnecessary-Features" class="headerlink" title="Tip 4 Disable Unnecessary Features"></a>Tip 4 Disable Unnecessary Features</h2><p>ElasticSearch is a full-featured search engine, but you should always tailor it to your own needs. Here’s a brief list:</p>
 <ul>
 <li>Use corrent index type. There’re <code>index</code>, <code>not_analyzed</code>, and <code>no</code>. If you don’t need to search the field, set it to <code>no</code>; if you only search for full match, use <code>not_analyzed</code>.</li>
@@ -178,13 +179,7 @@ discovery.zen.minimum_master_nodes: 2
 <li>File descriptors: system default is too small for ES, set it to 64K will be OK. If <code>ulimit -n 64000</code> does not work, you need to add <code>&lt;user&gt; hard nofile 64000</code> to <code>/etc/security/limits.conf</code>, just like the <code>memlock</code> setting mentioned above.</li>
 <li>When using ES client library, it will create a lot of worker threads according to the number of processors. Sometimes it’s not necessary. This behaviour can be changed by setting <code>processors</code> to a lower value like 2:</li>
 </ul>
-<pre class=" language-scala"><code class="language-scala"><span class="token keyword">val</span> settings <span class="token operator">=</span> ImmutableSettings<span class="token punctuation">.</span>settingsBuilder<span class="token punctuation">(</span><span class="token punctuation">)</span>
-    <span class="token punctuation">.</span>put<span class="token punctuation">(</span><span class="token string">"cluster.name"</span><span class="token punctuation">,</span> <span class="token string">"elasticsearch"</span><span class="token punctuation">)</span>
-    <span class="token punctuation">.</span>put<span class="token punctuation">(</span><span class="token string">"processors"</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span>
-    <span class="token punctuation">.</span>build<span class="token punctuation">(</span><span class="token punctuation">)</span>
-<span class="token keyword">val</span> uri <span class="token operator">=</span> ElasticsearchClientUri<span class="token punctuation">(</span><span class="token string">"elasticsearch://127.0.0.1:9300"</span><span class="token punctuation">)</span>
-ElasticClient<span class="token punctuation">.</span>remote<span class="token punctuation">(</span>settings<span class="token punctuation">,</span> uri<span class="token punctuation">)</span>
-</code></pre>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">val</span> settings = <span class="type">ImmutableSettings</span>.settingsBuilder()</div><div class="line">    .put(<span class="string">"cluster.name"</span>, <span class="string">"elasticsearch"</span>)</div><div class="line">    .put(<span class="string">"processors"</span>, <span class="number">2</span>)</div><div class="line">    .build()</div><div class="line"><span class="keyword">val</span> uri = <span class="type">ElasticsearchClientUri</span>(<span class="string">"elasticsearch://127.0.0.1:9300"</span>)</div><div class="line"><span class="type">ElasticClient</span>.remote(settings, uri)</div></pre></td></tr></table></figure>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
 <li><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html" target="_blank" rel="external">https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html</a></li>
 <li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html" target="_blank" rel="external">https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html</a></li>
@@ -196,7 +191,7 @@ ElasticClient<span class="token punctuation">.</span>remote<span class="token pu
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cj5t7ssp300075ezjhe64hkw4" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cj5t8b2re0006ftzj8hsdbesi" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/#disqus_thread" class="article-comment-link">Comments</a>
       

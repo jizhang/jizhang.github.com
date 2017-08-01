@@ -6,11 +6,12 @@
   <title>Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
-<meta property="og:title" content="Ji ZHANG's Blog">
+<meta property="og:title" content="Ji ZHANG&#39;s Blog">
 <meta property="og:url" content="http://shzhangji.com/index.html">
-<meta property="og:site_name" content="Ji ZHANG's Blog">
+<meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
+<meta property="og:locale" content="default">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Ji ZHANG's Blog">
+<meta name="twitter:title" content="Ji ZHANG&#39;s Blog">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -19,6 +20,8 @@
   
     <link rel="icon" href="/favicon.png">
   
+  
+    <link href="https://fonts.proxy.ustclug.org/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
   
   <link rel="stylesheet" href="/css/style.css">
   
@@ -36,7 +39,7 @@ ga('send', 'pageview');
 <!-- End Google Analytics -->
 
 
-<link rel="stylesheet" href="/css/prism-cb.css" type="text/css"></head>
+</head>
 
 <body>
   <div id="container">
@@ -75,7 +78,7 @@ ga('send', 'pageview');
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -114,16 +117,9 @@ ga('send', 'pageview');
 <p><img src="http://spark.apache.org/docs/latest/img/streaming-arch.png" alt="Spark Streaming"></p>
 <h2 id="An-Introductory-Example"><a href="#An-Introductory-Example" class="headerlink" title="An Introductory Example"></a>An Introductory Example</h2><p>First let’s implement a simple yet complete stream processing application that receive access logs from Kafka, parse and count the errors, then write the errors per minute metric into MySQL database.</p>
 <p>Sample access logs:</p>
-<pre><code class="text">2017-07-30 14:09:08 ERROR some message
-2017-07-30 14:09:20 INFO  some message
-2017-07-30 14:10:50 ERROR some message
-</code></pre>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">2017-07-30 14:09:08 ERROR some message</div><div class="line">2017-07-30 14:09:20 INFO  some message</div><div class="line">2017-07-30 14:10:50 ERROR some message</div></pre></td></tr></table></figure>
 <p>Output table, where <code>log_time</code> should be truncated to minutes:</p>
-<pre><code class="sql">create table error_log (
-  log_time datetime primary key,
-  log_count int not null default 0
-);
-</code></pre>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">create</span> <span class="keyword">table</span> error_log (</div><div class="line">  log_time datetime primary <span class="keyword">key</span>,</div><div class="line">  log_count <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">default</span> <span class="number">0</span></div><div class="line">);</div></pre></td></tr></table></figure>
         
           <p class="article-more-link">
             <a href="/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/#more">Read More</a>
@@ -132,7 +128,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/" data-id="cj5t7sspt000z5ezj0ywu4ad0" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/" data-id="cj5t8b2s5000yftzjlmfoltdl" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -172,21 +168,13 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><a href="http://pandas.pydata.org/">Pandas</a> is a widely used data processing tool for Python. Along with NumPy and Matplotlib, it provides in-memory high-performance data munging, analyzing, and visualization capabilities. Although Python is an easy-to-learn programming language, it still takes time to learn Pandas APIs and the idiomatic usages. For data engineer and analysts, SQL is the de-facto standard language of data queries. This article will provide examples of how some common SQL queries can be rewritten with Pandas.</p>
-<p>The installation and basic concepts of Pandas is not covered in this post. One can check out the offical documentation, or read the book <a href="https://www.amazon.com/Python-Data-Analysis-Wrangling-IPython/dp/1491957662/">Python for Data Analysis</a>. And I recommend using the <a href="https://www.continuum.io/downloads">Anaconda</a> Python distribution, with <a href="https://pythonhosted.org/spyder/">Spyder</a> IDE included. Before diving into the codes, please import Pandas and NumPy as follows:</p>
-<pre><code class="python">import pandas as pd
-import numpy as np
-</code></pre>
+        <p><a href="http://pandas.pydata.org/" target="_blank" rel="external">Pandas</a> is a widely used data processing tool for Python. Along with NumPy and Matplotlib, it provides in-memory high-performance data munging, analyzing, and visualization capabilities. Although Python is an easy-to-learn programming language, it still takes time to learn Pandas APIs and the idiomatic usages. For data engineer and analysts, SQL is the de-facto standard language of data queries. This article will provide examples of how some common SQL queries can be rewritten with Pandas.</p>
+<p>The installation and basic concepts of Pandas is not covered in this post. One can check out the offical documentation, or read the book <a href="https://www.amazon.com/Python-Data-Analysis-Wrangling-IPython/dp/1491957662/" target="_blank" rel="external">Python for Data Analysis</a>. And I recommend using the <a href="https://www.continuum.io/downloads" target="_blank" rel="external">Anaconda</a> Python distribution, with <a href="https://pythonhosted.org/spyder/" target="_blank" rel="external">Spyder</a> IDE included. Before diving into the codes, please import Pandas and NumPy as follows:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div></pre></td></tr></table></figure>
 <h2 id="FROM-Load-Data-into-Memory"><a href="#FROM-Load-Data-into-Memory" class="headerlink" title="FROM - Load Data into Memory"></a><code>FROM</code> - Load Data into Memory</h2><p>First of all, let’s read some data into the workspace (memory). Pandas supports a variety of formats, one of them is CSV. Take the following flight delay dataset for example (<a href="/uploads/flights.csv">link</a>):</p>
-<pre><code class="csv">date,delay,distance,origin,destination
-02221605,3,358,BUR,SMF
-01022100,-5,239,HOU,DAL
-03210808,6,288,BWI,ALB
-</code></pre>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">date,delay,distance,origin,destination</div><div class="line">02221605,3,358,BUR,SMF</div><div class="line">01022100,-5,239,HOU,DAL</div><div class="line">03210808,6,288,BWI,ALB</div></pre></td></tr></table></figure>
 <p>We can use <code>pd.read_csv</code> to load this file:</p>
-<pre><code class="python">df = pd.read_csv(&#39;flights.csv&#39;, dtype={&#39;date&#39;: str})
-df.head()
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">df = pd.read_csv(<span class="string">'flights.csv'</span>, dtype=&#123;<span class="string">'date'</span>: str&#125;)</div><div class="line">df.head()</div></pre></td></tr></table></figure>
 <p>This statement will load <code>flights.csv</code> file into memory, use first line as column names, and try to figure out each column’s type. Since the <code>date</code> column is in <code>%m%d%H%M</code> format, we don’t want to lose the initial <code>0</code> in month, so we pass an explict <code>dtype</code> for it, indicating that this column should stay unparsed.</p>
         
           <p class="article-more-link">
@@ -196,7 +184,7 @@ df.head()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/" data-id="cj5t7sspr000w5ezjxnfszhuj" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/" data-id="cj5t8b2s0000uftzj0k84hgp3" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -236,7 +224,7 @@ df.head()
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and <code>tail -f</code>, it would be nice if we can tail a log file in the browser. With WebSocket, this can be done easily. In this article, I’ll walk you through a simple <strong>logviewer</strong> (<a href="http://github.com/jizhang/logviewer">source</a>) utility that is written in Python.</p>
+        <p>Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and <code>tail -f</code>, it would be nice if we can tail a log file in the browser. With WebSocket, this can be done easily. In this article, I’ll walk you through a simple <strong>logviewer</strong> (<a href="http://github.com/jizhang/logviewer" target="_blank" rel="external">source</a>) utility that is written in Python.</p>
 <p><img src="/images/logviewer-websocket.png" alt="Logviewer with WebSocket"></p>
 <h2 id="WebSocket-Intro"><a href="#WebSocket-Intro" class="headerlink" title="WebSocket Intro"></a>WebSocket Intro</h2><p>WebSocket is standard protocol over TCP, that provides full-duplex communication between client and server side, usually a browser and a web server. Before WebSocket, when we want to keep an alive browser-server connection, we choose from long polling, forever frame or Comet techniques. Now that WebSocket is widely supported by major browsers, we can use it to implement web chatroom, games, realtime dashboard, etc. Besides, WebSocket connection can be established by an HTTP upgrade request, and communicate over 80 port, so as to bring minimum impact on existing network facility.</p>
         
@@ -247,7 +235,7 @@ df.head()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cj5t7sspp000t5ezj23gmgtfq" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cj5t8b2s3000wftzjytho7g3s" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -288,7 +276,7 @@ df.head()
     <div class="article-entry" itemprop="articleBody">
       
         <p>When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on the server side, and update the rendered charts. Or we can filter data on the client side, and let charts update themselves. With Crossfilter and dc.js, this work becomes simple and intuitive.</p>
-<h2 id="Airline-On-time-Performance"><a href="#Airline-On-time-Performance" class="headerlink" title="Airline On-time Performance"></a>Airline On-time Performance</h2><p>Here’s an example taken from Crossfilter’s official website. It’s a flight delay analysis report based on <a href="http://stat-computing.org/dataexpo/2009/">ASA Data Expo</a> dataset. And this post will introduce how to use dc.js to build the report. A runnable JSFiddle can be found <a href="https://jsfiddle.net/zjerryj/gjao9sws/">here</a>, though the dataset is reduced to 1,000 records.</p>
+<h2 id="Airline-On-time-Performance"><a href="#Airline-On-time-Performance" class="headerlink" title="Airline On-time Performance"></a>Airline On-time Performance</h2><p>Here’s an example taken from Crossfilter’s official website. It’s a flight delay analysis report based on <a href="http://stat-computing.org/dataexpo/2009/" target="_blank" rel="external">ASA Data Expo</a> dataset. And this post will introduce how to use dc.js to build the report. A runnable JSFiddle can be found <a href="https://jsfiddle.net/zjerryj/gjao9sws/" target="_blank" rel="external">here</a>, though the dataset is reduced to 1,000 records.</p>
 <p><img src="/images/airline-ontime-performance.png" alt=""></p>
         
           <p class="article-more-link">
@@ -298,7 +286,7 @@ df.head()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cj5t7sspm000p5ezjpx7rt20k" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cj5t8b2rw000pftzj5stu0x80" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -338,19 +326,9 @@ df.head()
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><a href="https://lodash.com/">Lodash</a> is a well-known JavaScript utility library that makes it easy to manipulate arrays and objects, as well as functions, strings, etc. I myself enjoys its functional way to process collections, especially chaining and lazy evaluation. But as <a href="http://www.ecma-international.org/ecma-262/6.0/">ECMAScript 2015 Standard</a> (ES6) becomes widely supported by major browsers, and <a href="https://babeljs.io/">Babel</a>, the JavaScript compiler that transforms ES6 codes to ES5, plays a major role in today’s frontend development, it seems that most Lodash utilities can be replaced by ES6. But should we? In my opinion, Lodash will remain popular, for it still has lots of useful features that could improve the way of programming.</p>
+        <p><a href="https://lodash.com/" target="_blank" rel="external">Lodash</a> is a well-known JavaScript utility library that makes it easy to manipulate arrays and objects, as well as functions, strings, etc. I myself enjoys its functional way to process collections, especially chaining and lazy evaluation. But as <a href="http://www.ecma-international.org/ecma-262/6.0/" target="_blank" rel="external">ECMAScript 2015 Standard</a> (ES6) becomes widely supported by major browsers, and <a href="https://babeljs.io/" target="_blank" rel="external">Babel</a>, the JavaScript compiler that transforms ES6 codes to ES5, plays a major role in today’s frontend development, it seems that most Lodash utilities can be replaced by ES6. But should we? In my opinion, Lodash will remain popular, for it still has lots of useful features that could improve the way of programming.</p>
 <h2 id="map-and-Array-map-Are-Different"><a href="#map-and-Array-map-Are-Different" class="headerlink" title="_.map and Array#map Are Different"></a><code>_.map</code> and <code>Array#map</code> Are Different</h2><p><code>_.map</code>, <code>_.reduce</code>, <code>_.filter</code> and <code>_.forEach</code> are frequently used functions when processing collections, and ES6 provides direct support for them:</p>
-<pre><code class="js">_.map([1, 2, 3], (i) =&gt; i + 1)
-_.reduce([1, 2, 3], (sum, i) =&gt; sum + i, 0)
-_.filter([1, 2, 3], (i) =&gt; i &gt; 1)
-_.forEach([1, 2, 3], (i) =&gt; { console.log(i) })
-
-// becomes
-[1, 2, 3].map((i) =&gt; i + 1)
-[1, 2, 3].reduce((sum, i) =&gt; sum + i, 0)
-[1, 2, 3].filter((i) =&gt; i &gt; 1)
-[1, 2, 3].forEach((i) =&gt; { console.log(i) })
-</code></pre>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">_.map([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], (i) =&gt; i + <span class="number">1</span>)</div><div class="line">_.reduce([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], (sum, i) =&gt; sum + i, <span class="number">0</span>)</div><div class="line">_.filter([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], (i) =&gt; i &gt; <span class="number">1</span>)</div><div class="line">_.forEach([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], (i) =&gt; &#123; <span class="built_in">console</span>.log(i) &#125;)</div><div class="line"></div><div class="line"><span class="comment">// becomes</span></div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>].map(<span class="function">(<span class="params">i</span>) =&gt;</span> i + <span class="number">1</span>)</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>].reduce(<span class="function">(<span class="params">sum, i</span>) =&gt;</span> sum + i, <span class="number">0</span>)</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>].filter(<span class="function">(<span class="params">i</span>) =&gt;</span> i &gt; <span class="number">1</span>)</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>].forEach(<span class="function">(<span class="params">i</span>) =&gt;</span> &#123; <span class="built_in">console</span>.log(i) &#125;)</div></pre></td></tr></table></figure>
 <p>But Lodash’s <code>_.map</code> is more powerful, in that it works on objects, has iteratee / predicate shorthands, lazy evaluation, guards against null parameter, and has better performance.</p>
         
           <p class="article-more-link">
@@ -360,7 +338,7 @@ _.forEach([1, 2, 3], (i) =&gt; { console.log(i) })
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="cj5t7sspk000n5ezj0y7e1wh4" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="cj5t8b2ry000rftzjbwu54653" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -400,28 +378,11 @@ _.forEach([1, 2, 3], (i) =&gt; { console.log(i) })
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>I develop Spark applications with Scala, and it has a very powerful <a href="http://docs.scala-lang.org/overviews/collections/introduction">collection system</a>, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In JavaScript, there is a <a href="https://lodash.com/">Lodash</a> library that provides powerful tools to process arrays and objects. When my primary work language changes to Python, I am wondering if it’s possible to manipulate collections in a FP way, and fortunately Python already provides syntax and tools for functional programming. Though list comprehension is the pythonic way to deal with collections, but the idea and concepts of FP is definitely worth learning.</p>
+        <p>I develop Spark applications with Scala, and it has a very powerful <a href="http://docs.scala-lang.org/overviews/collections/introduction" target="_blank" rel="external">collection system</a>, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In JavaScript, there is a <a href="https://lodash.com/" target="_blank" rel="external">Lodash</a> library that provides powerful tools to process arrays and objects. When my primary work language changes to Python, I am wondering if it’s possible to manipulate collections in a FP way, and fortunately Python already provides syntax and tools for functional programming. Though list comprehension is the pythonic way to deal with collections, but the idea and concepts of FP is definitely worth learning.</p>
 <h2 id="Wordcount-Example"><a href="#Wordcount-Example" class="headerlink" title="Wordcount Example"></a>Wordcount Example</h2><p>Let’s first write a snippet to count the word occurences from a paragraph, in of course a functional way.</p>
-<pre><code class="python">import re
-import itertools
-
-
-content = &quot;&quot;&quot;
-an apple orange the grape
-banana an apple melon
-an orange banana apple
-&quot;&quot;&quot;
-
-word_matches = re.finditer(r&#39;\S+&#39;, content)
-words = map(lambda m: m.group(0), word_matches)
-fruits = filter(lambda s: len(s) &gt; 3, words)
-grouped_fruits = itertools.groupby(sorted(fruits))
-fruit_counts = map(lambda t: (t[0], len(list(t[1]))), grouped_fruits)
-print(list(fruit_counts))
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> re</div><div class="line"><span class="keyword">import</span> itertools</div><div class="line"></div><div class="line"></div><div class="line">content = <span class="string">"""</span></div><div class="line"><span class="string">an apple orange the grape</span></div><div class="line"><span class="string">banana an apple melon</span></div><div class="line"><span class="string">an orange banana apple</span></div><div class="line"><span class="string">"""</span></div><div class="line"></div><div class="line">word_matches = re.finditer(<span class="string">r'\S+'</span>, content)</div><div class="line">words = map(<span class="keyword">lambda</span> m: m.group(<span class="number">0</span>), word_matches)</div><div class="line">fruits = filter(<span class="keyword">lambda</span> s: len(s) &gt; <span class="number">3</span>, words)</div><div class="line">grouped_fruits = itertools.groupby(sorted(fruits))</div><div class="line">fruit_counts = map(<span class="keyword">lambda</span> t: (t[<span class="number">0</span>], len(list(t[<span class="number">1</span>]))), grouped_fruits)</div><div class="line">print(list(fruit_counts))</div></pre></td></tr></table></figure>
 <p>Run this example and you’ll get a list of fruits, along with their counts:</p>
-<pre><code class="text">[(&#39;apple&#39;, 3), (&#39;banana&#39;, 2), (&#39;grape&#39;, 1), (&#39;melon&#39;, 1), (&#39;orange&#39;, 2)]
-</code></pre>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[(&apos;apple&apos;, 3), (&apos;banana&apos;, 2), (&apos;grape&apos;, 1), (&apos;melon&apos;, 1), (&apos;orange&apos;, 2)]</div></pre></td></tr></table></figure>
 <p>This example includes most aspects of processing collections with FP style. For instance, <code>re.finditer</code> returns an <code>iterator</code> that is lazily evaluated; <code>map</code> and <code>filter</code> are used to do transformations; <code>itertools</code> module provides various functions to cope with iterables; and last but not least, the <code>lambda</code> expression, an easy way to define inline anonymous function. All of them will be described in the following sections.</p>
         
           <p class="article-more-link">
@@ -431,7 +392,7 @@ print(list(fruit_counts))
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cj5t7sspg000j5ezjf1fbqwo9" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cj5t8b2rs000lftzj7txefmnp" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -471,15 +432,9 @@ print(list(fruit_counts))
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>In Lodash, both <code>_.assign</code> and <code>_.assignIn</code> are ways to copy source objects’ properties into target object. According the <a href="https://lodash.com/docs/">documentation</a>, <code>_.assign</code> processes <strong>own enumerable string keyed properties</strong>, while <code>_.assignIn</code> processes both <strong>own and inherited source properties</strong>. There’re also other companion functions like <code>_.forOwn</code> and <code>_.forIn</code>, <code>_.has</code> and <code>_.hasIn</code>. So what’s the difference between them?</p>
-<p>In brief, the <code>In</code> in latter methods implies the way <code>for...in</code> loop behaves, which <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in">iterates all enumerable properties of the object itself and those the object inherits from its constructor’s prototype</a>. JavaScript has an inheritance mechanism called prototype chain. When iterating an object’s properties with <code>for...in</code> or <code>_.forIn</code>, all properties appeared in the object and its prototype are processed, until the prototype resolves to <code>null</code>. Here’s the example code taken from Lodash’s doc:</p>
-<pre><code class="javascript">function Foo() { this.a = 1; }
-Foo.prototype.b = 2;
-function Bar() { this.c = 3; }
-Bar.prototype.d = 4;
-_.assign({a: 0}, new Foo, new Bar); // =&gt; {a: 1, c: 3}
-_.assignIn({a: 0}, new Foo, new Bar); // =&gt; {a:1, b:2, c:3, d:4}
-</code></pre>
+        <p>In Lodash, both <code>_.assign</code> and <code>_.assignIn</code> are ways to copy source objects’ properties into target object. According the <a href="https://lodash.com/docs/" target="_blank" rel="external">documentation</a>, <code>_.assign</code> processes <strong>own enumerable string keyed properties</strong>, while <code>_.assignIn</code> processes both <strong>own and inherited source properties</strong>. There’re also other companion functions like <code>_.forOwn</code> and <code>_.forIn</code>, <code>_.has</code> and <code>_.hasIn</code>. So what’s the difference between them?</p>
+<p>In brief, the <code>In</code> in latter methods implies the way <code>for...in</code> loop behaves, which <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in" target="_blank" rel="external">iterates all enumerable properties of the object itself and those the object inherits from its constructor’s prototype</a>. JavaScript has an inheritance mechanism called prototype chain. When iterating an object’s properties with <code>for...in</code> or <code>_.forIn</code>, all properties appeared in the object and its prototype are processed, until the prototype resolves to <code>null</code>. Here’s the example code taken from Lodash’s doc:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">Foo</span>(<span class="params"></span>) </span>&#123; <span class="keyword">this</span>.a = <span class="number">1</span>; &#125;</div><div class="line">Foo.prototype.b = <span class="number">2</span>;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">Bar</span>(<span class="params"></span>) </span>&#123; <span class="keyword">this</span>.c = <span class="number">3</span>; &#125;</div><div class="line">Bar.prototype.d = <span class="number">4</span>;</div><div class="line">_.assign(&#123;<span class="attr">a</span>: <span class="number">0</span>&#125;, <span class="keyword">new</span> Foo, <span class="keyword">new</span> Bar); <span class="comment">// =&gt; &#123;a: 1, c: 3&#125;</span></div><div class="line">_.assignIn(&#123;<span class="attr">a</span>: <span class="number">0</span>&#125;, <span class="keyword">new</span> Foo, <span class="keyword">new</span> Bar); <span class="comment">// =&gt; &#123;a:1, b:2, c:3, d:4&#125;</span></div></pre></td></tr></table></figure>
         
           <p class="article-more-link">
             <a href="/blog/2017/01/29/difference-between-lodash-assign-and-assignin/#more">Read More</a>
@@ -488,7 +443,7 @@ _.assignIn({a: 0}, new Foo, new Bar); // =&gt; {a:1, b:2, c:3, d:4}
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" data-id="cj5t7sspa000e5ezj72k6sojj" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" data-id="cj5t8b2rq000iftzjmktmpyd2" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -528,7 +483,7 @@ _.assignIn({a: 0}, new Foo, new Bar); // =&gt; {a:1, b:2, c:3, d:4}
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python 3 is <a href="http://py3readiness.org/">totally ready</a>, and here’s a list of references for those (including me) who are adopting Python 3 with a 2.x background.</p>
+        <p>Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python 3 is <a href="http://py3readiness.org/" target="_blank" rel="external">totally ready</a>, and here’s a list of references for those (including me) who are adopting Python 3 with a 2.x background.</p>
 <ol>
 <li>All Strings Are Unicode</li>
 <li><code>print</code> Becomes a Function</li>
@@ -545,14 +500,7 @@ _.assignIn({a: 0}, new Foo, new Bar); // =&gt; {a:1, b:2, c:3, d:4}
 <ul>
 <li>Conversion between <code>str</code> and <code>bytes</code>:</li>
 </ul>
-<pre><code class="python"># str to bytes
-&#39;str&#39;.encode(&#39;UTF-8&#39;)
-bytes(&#39;str&#39;, encoding=&#39;UTF-8&#39;)
-
-# bytes to str
-b&#39;bytes&#39;.decode(&#39;UTF-8&#39;)
-str(b&#39;bytes&#39;, encoding=&#39;UTF-8&#39;)
-</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># str to bytes</span></div><div class="line"><span class="string">'str'</span>.encode(<span class="string">'UTF-8'</span>)</div><div class="line">bytes(<span class="string">'str'</span>, encoding=<span class="string">'UTF-8'</span>)</div><div class="line"></div><div class="line"><span class="comment"># bytes to str</span></div><div class="line"><span class="string">b'bytes'</span>.decode(<span class="string">'UTF-8'</span>)</div><div class="line">str(<span class="string">b'bytes'</span>, encoding=<span class="string">'UTF-8'</span>)</div></pre></td></tr></table></figure>
 <ul>
 <li><code>basestring</code> is removed, use <code>str</code> as type: <code>isinstance(s, str)</code></li>
 <li><code>bytes</code> is immutable, the corresponding mutable version is <code>bytearray</code>.</li>
@@ -566,7 +514,7 @@ str(b&#39;bytes&#39;, encoding=&#39;UTF-8&#39;)
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cj5t7sspe000h5ezjq3jj0ei1" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cj5t8b2rn000eftzj63b4o13o" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -606,13 +554,12 @@ str(b&#39;bytes&#39;, encoding=&#39;UTF-8&#39;)
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
-<h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
+        <p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/" target="_blank" rel="external">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/" target="_blank" rel="external">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
+<h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/" target="_blank" rel="external">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
 <p><img src="/images/scala-ide.png" alt=""></p>
-<p>Then go to Scala IDE’s <a href="http://scala-ide.org/download/current.html">official site</a> and install the plugin through update site or zip archive.</p>
-<h2 id="Generate-Project-File-with-Maven"><a href="#Generate-Project-File-with-Maven" class="headerlink" title="Generate Project File with Maven"></a>Generate Project File with Maven</h2><p>Spark is mainly built with Maven, so make sure you have Maven installed on your box, and download the latest Spark source code from <a href="http://spark.apache.org/downloads.html">here</a>, unarchive it, and execute the following command:</p>
-<pre><code class="bash">$ mvn -am -pl core dependency:resolve eclipse:eclipse
-</code></pre>
+<p>Then go to Scala IDE’s <a href="http://scala-ide.org/download/current.html" target="_blank" rel="external">official site</a> and install the plugin through update site or zip archive.</p>
+<h2 id="Generate-Project-File-with-Maven"><a href="#Generate-Project-File-with-Maven" class="headerlink" title="Generate Project File with Maven"></a>Generate Project File with Maven</h2><p>Spark is mainly built with Maven, so make sure you have Maven installed on your box, and download the latest Spark source code from <a href="http://spark.apache.org/downloads.html" target="_blank" rel="external">here</a>, unarchive it, and execute the following command:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mvn -am -pl core dependency:resolve eclipse:eclipse</div></pre></td></tr></table></figure>
         
           <p class="article-more-link">
             <a href="/blog/2015/09/01/view-spark-source-in-eclipse/#more">Read More</a>
@@ -621,7 +568,7 @@ str(b&#39;bytes&#39;, encoding=&#39;UTF-8&#39;)
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="cj5t7ssp9000c5ezj0manzpxx" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="cj5t8b2rm000cftzjo26mec30" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -663,21 +610,7 @@ str(b&#39;bytes&#39;, encoding=&#39;UTF-8&#39;)
       
         <p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
 <h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
-<pre><code class="properties">log4j.rootLogger=INFO, rolling
-
-log4j.appender.rolling=org.apache.log4j.RollingFileAppender
-log4j.appender.rolling.layout=org.apache.log4j.PatternLayout
-log4j.appender.rolling.layout.conversionPattern=[%d] %p %m (%c)%n
-log4j.appender.rolling.maxFileSize=50MB
-log4j.appender.rolling.maxBackupIndex=5
-log4j.appender.rolling.file=/var/log/spark/${dm.logging.name}.log
-log4j.appender.rolling.encoding=UTF-8
-
-log4j.logger.org.apache.spark=WARN
-log4j.logger.org.eclipse.jetty=WARN
-
-log4j.logger.com.anjuke.dm=${dm.logging.level}
-</code></pre>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">log4j.rootLogger=INFO, rolling</div><div class="line"></div><div class="line">log4j.appender.rolling=org.apache.log4j.RollingFileAppender</div><div class="line">log4j.appender.rolling.layout=org.apache.log4j.PatternLayout</div><div class="line">log4j.appender.rolling.layout.conversionPattern=[%d] %p %m (%c)%n</div><div class="line">log4j.appender.rolling.maxFileSize=50MB</div><div class="line">log4j.appender.rolling.maxBackupIndex=5</div><div class="line">log4j.appender.rolling.file=/var/log/spark/$&#123;dm.logging.name&#125;.log</div><div class="line">log4j.appender.rolling.encoding=UTF-8</div><div class="line"></div><div class="line">log4j.logger.org.apache.spark=WARN</div><div class="line">log4j.logger.org.eclipse.jetty=WARN</div><div class="line"></div><div class="line">log4j.logger.com.anjuke.dm=$&#123;dm.logging.level&#125;</div></pre></td></tr></table></figure>
 <p>This means log4j will roll the log file by 50MB and keep only 5 recent files. These files are saved in <code>/var/log/spark</code> directory, with filename picked from system property <code>dm.logging.name</code>. We also set the logging level of our package <code>com.anjuke.dm</code> according to <code>dm.logging.level</code> property. Another thing to mention is that we set <code>org.apache.spark</code> to level <code>WARN</code>, so as to ignore verbose logs from spark.</p>
         
           <p class="article-more-link">
@@ -687,7 +620,7 @@ log4j.logger.com.anjuke.dm=${dm.logging.level}
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="cj5t7ssp400085ezjp7a7f6uz" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="cj5t8b2rh0008ftzjtgy2rv4j" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/#disqus_thread" class="article-comment-link">Comments</a>
       
