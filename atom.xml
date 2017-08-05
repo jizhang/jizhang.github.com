@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://shzhangji.com/"/>
-  <updated>2017-08-01T00:56:50.000Z</updated>
+  <updated>2017-08-05T07:10:47.271Z</updated>
   <id>http://shzhangji.com/</id>
   
   <author>
@@ -16,11 +16,75 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>How to Extract Event Time in Apache Flume</title>
+    <link href="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/"/>
+    <id>http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/</id>
+    <published>2017-08-05T07:10:47.000Z</published>
+    <updated>2017-08-05T07:10:47.271Z</updated>
+    
+    <content type="html"><![CDATA[<p>Extracting data from upstream message queues is a common task in ETL. In a Hadoop based data warehouse, we usually use Flume to import event logs from Kafka into HDFS, and then run MapReduce jobs agaist it, or create Hive external tables partitioned by time. One of the keys of this process is to extract the event time from the logs, since real-time data can have time lags, or your system is temporarily offline and need to perform a catch-up. Flume provides various facilities to help us do this job easily.</p>
+<p><img src="/images/flume.png" alt="Apache Flume"></p>
+<h2 id="HDFS-Sink-and-Timestamp-Header"><a href="#HDFS-Sink-and-Timestamp-Header" class="headerlink" title="HDFS Sink and Timestamp Header"></a>HDFS Sink and Timestamp Header</h2><p>Here is a simple HDFS Sink config:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">a1.sinks = k1</div><div class="line">a1.sinks.k1.type = hdfs</div><div class="line">a1.sinks.k1.hdfs.path = /user/flume/ds_alog/dt=%Y%m%d</div></pre></td></tr></table></figure>
+<p><code>%Y%m%d</code> is the placeholders supported by this sink. It will use the milliseconds in <code>timestamp</code> header to replace them. Also, HDFS Sink provides <code>hdfs.useLocalTimeStamp</code> option so that it’ll use the local time to replace these placeholders, but this is not what we intend.</p>
+<p>Another sink we could use is the Hive Sink, which directly communicates with Hive metastore and loads data into HDFS as Hive table. It supports both delimited text and JSON serializers, and also requires a <code>timestamp</code> header. But we don’t choose it for the following reasons:</p>
+<ul>
+<li>It doesn’t support regular expression serializer, so we cannot extract columns from arbitrary data format like access logs;</li>
+<li>The columns to be extracted are defined in Hive metastore. Say the upstream events add some new keys in JSON, they will be dropped until Hive table definition is updated. As in data warehouse, it’s better to preserve the original source data for a period of time.</li>
+</ul>
+<a id="more"></a>
+<h2 id="Regex-Extractor-Interceptor"><a href="#Regex-Extractor-Interceptor" class="headerlink" title="Regex Extractor Interceptor"></a>Regex Extractor Interceptor</h2><p>Flume has a mechanism called Interceptor, i.e. some optionally chained operations appended to Source, so as to perform various yet primitive transformation. For instance, the <code>TimestampInterceptor</code> is to add current local timestamp to the event header. In this section, I’ll demonstrate how to extract event time from access logs and JSON serialized logs with the help of interceptors.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">0.123 [2017-06-27 09:08:00] GET /</div><div class="line">0.234 [2017-06-27 09:08:01] GET /</div></pre></td></tr></table></figure>
+<p><a href="http://flume.apache.org/FlumeUserGuide.html#regex-extractor-interceptor" target="_blank" rel="external"><code>RegexExtractorInterceptor</code></a> can be used to extract values based on regular expressions. Here’s the config:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">a1.sources.r1.interceptors = i1</div><div class="line">a1.sources.r1.interceptors.i1.type = regex_extractor</div><div class="line">a1.sources.r1.interceptors.i1.regex = \\[(.*?)\\]</div><div class="line">a1.sources.r1.interceptors.i1.serializers = s1</div><div class="line">a1.sources.r1.interceptors.i1.serializers.s1.type = org.apache.flume.interceptor.RegexExtractorInterceptorMillisSerializer</div><div class="line">a1.sources.r1.interceptors.i1.serializers.s1.name = timestamp</div><div class="line">a1.sources.r1.interceptors.i1.serializers.s1.pattern = yyyy-MM-dd HH:mm:ss</div></pre></td></tr></table></figure>
+<p>It searches the string with pattern <code>\[(.*?)\]</code>, capture the first sub-pattern as <code>s1</code>, then parse it as a datetime string, and finally store it into headers with the name <code>timestamp</code>.</p>
+<h3 id="Search-And-Replace-Interceptor"><a href="#Search-And-Replace-Interceptor" class="headerlink" title="Search And Replace Interceptor"></a>Search And Replace Interceptor</h3><p>For JSON strings:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123;<span class="attr">"actionTime"</span>:<span class="number">1498525680.023</span>,<span class="attr">"actionType"</span>:<span class="string">"pv"</span>&#125;</div><div class="line">&#123;<span class="attr">"actionTime"</span>:<span class="number">1498525681.349</span>,<span class="attr">"actionType"</span>:<span class="string">"pv"</span>&#125;</div></pre></td></tr></table></figure>
+<p>We can also extract <code>actionTime</code> with a regular expression, but note that HDFS Sink requires the timestamp in milliseconds, so we have to first convert the timestamp with <code>SearchAndReplaceInterceptor</code>.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">a1.sources.r1.interceptors = i1 i2</div><div class="line">a1.sources.r1.interceptors.i1.type = search_replace</div><div class="line">a1.sources.r1.interceptors.i1.searchPattern = \&quot;actionTime\&quot;:(\\d+)\\.(\\d+)</div><div class="line">a1.sources.r1.interceptors.i1.replaceString = \&quot;actionTime\&quot;:$1$2</div><div class="line">a1.sources.r1.interceptors.i2.type = regex_extractor</div><div class="line">a1.sources.r1.interceptors.i2.regex = \&quot;actionTime\&quot;:(\\d+)</div><div class="line">a1.sources.r1.interceptors.i2.serializers = s1</div><div class="line">a1.sources.r1.interceptors.i2.serializers.s1.name = timestamp</div></pre></td></tr></table></figure>
+<p>There’re two chained interceptors, first one replaces <code>1498525680.023</code> with <code>1498525680023</code> and second extracts <code>actionTime</code> right into headers.</p>
+<h3 id="Custom-Interceptor"><a href="#Custom-Interceptor" class="headerlink" title="Custom Interceptor"></a>Custom Interceptor</h3><p>It’s also possible to write your own interceptor, thus do the extraction and conversion in one step. Your interceptor should implements <code>org.apache.flume.interceptor.Interceptor</code> and then do the job in <code>intercept</code> method. The source code and unit test can be found on GitHub (<a href="https://github.com/jizhang/java-sandbox/blob/blog-flume/src/main/java/com/shzhangji/javasandbox/flume/ActionTimeInterceptor.java" target="_blank" rel="external">link</a>). Please add <code>flume-ng-core</code> to your project dependencies.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ActionTimeInterceptor</span> <span class="keyword">implements</span> <span class="title">Interceptor</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> ObjectMapper mapper = <span class="keyword">new</span> ObjectMapper();</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Event <span class="title">intercept</span><span class="params">(Event event)</span> </span>&#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            JsonNode node = mapper.readTree(<span class="keyword">new</span> ByteArrayInputStream(event.getBody()));</div><div class="line">            <span class="keyword">long</span> timestamp = (<span class="keyword">long</span>) (node.get(<span class="string">"actionTime"</span>).getDoubleValue() * <span class="number">1000</span>);</div><div class="line">            event.getHeaders().put(<span class="string">"timestamp"</span>, Long.toString(timestamp));</div><div class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">            <span class="comment">// no-op</span></div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> event;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="Use-Kafka-Channel-Directly"><a href="#Use-Kafka-Channel-Directly" class="headerlink" title="Use Kafka Channel Directly"></a>Use Kafka Channel Directly</h2><p>When the upstream is Kafka, and you have control of the message format, you can further eliminate the Source and directly pass data from Kafka to HDFS. The trick is to write messages in <code>AvroFlumeEvent</code> format, so that <a href="http://flume.apache.org/FlumeUserGuide.html#kafka-channel" target="_blank" rel="external">Kafka Channel</a> can deserialize them and use the <code>timestamp</code> header within. Otherwise, Kafka channel will parse messages as plain text with no headers, and HDFS sink will complain missing <code>timestamp</code>.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// construct an AvroFlumeEvent, this class can be found in flume-ng-sdk artifact</span></div><div class="line">Map&lt;CharSequence, CharSequence&gt; headers = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line">headers.put(<span class="string">"timestamp"</span>, <span class="string">"1498525680023"</span>);</div><div class="line">String body = <span class="string">"some message"</span>;</div><div class="line">AvroFlumeEvent event = <span class="keyword">new</span> AvroFlumeEvent(headers, ByteBuffer.wrap(body.getBytes()));</div><div class="line"></div><div class="line"><span class="comment">// serialize event with Avro encoder</span></div><div class="line">ByteArrayOutputStream out = <span class="keyword">new</span> ByteArrayOutputStream();</div><div class="line">BinaryEncoder encoder = EncoderFactory.get().directBinaryEncoder(out, <span class="keyword">null</span>);</div><div class="line">SpecificDatumWriter&lt;AvroFlumeEvent&gt; writer = <span class="keyword">new</span> SpecificDatumWriter&lt;&gt;(AvroFlumeEvent.class);</div><div class="line">writer.write(event, encoder);</div><div class="line">encoder.flush();</div><div class="line"></div><div class="line"><span class="comment">// send bytes to Kafka</span></div><div class="line">producer.send(<span class="keyword">new</span> ProducerRecord&lt;String, <span class="keyword">byte</span>[]&gt;(<span class="string">"alog"</span>, out.toByteArray()));</div></pre></td></tr></table></figure>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="http://flume.apache.org/FlumeUserGuide.html" target="_blank" rel="external">http://flume.apache.org/FlumeUserGuide.html</a></li>
+<li><a href="https://github.com/apache/flume" target="_blank" rel="external">https://github.com/apache/flume</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Extracting data from upstream message queues is a common task in ETL. In a Hadoop based data warehouse, we usually use Flume to import event logs from Kafka into HDFS, and then run MapReduce jobs agaist it, or create Hive external tables partitioned by time. One of the keys of this process is to extract the event time from the logs, since real-time data can have time lags, or your system is temporarily offline and need to perform a catch-up. Flume provides various facilities to help us do this job easily.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/images/flume.png&quot; alt=&quot;Apache Flume&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;HDFS-Sink-and-Timestamp-Header&quot;&gt;&lt;a href=&quot;#HDFS-Sink-and-Timestamp-Header&quot; class=&quot;headerlink&quot; title=&quot;HDFS Sink and Timestamp Header&quot;&gt;&lt;/a&gt;HDFS Sink and Timestamp Header&lt;/h2&gt;&lt;p&gt;Here is a simple HDFS Sink config:&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;a1.sinks = k1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;a1.sinks.k1.type = hdfs&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;a1.sinks.k1.hdfs.path = /user/flume/ds_alog/dt=%Y%m%d&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&lt;code&gt;%Y%m%d&lt;/code&gt; is the placeholders supported by this sink. It will use the milliseconds in &lt;code&gt;timestamp&lt;/code&gt; header to replace them. Also, HDFS Sink provides &lt;code&gt;hdfs.useLocalTimeStamp&lt;/code&gt; option so that it’ll use the local time to replace these placeholders, but this is not what we intend.&lt;/p&gt;
+&lt;p&gt;Another sink we could use is the Hive Sink, which directly communicates with Hive metastore and loads data into HDFS as Hive table. It supports both delimited text and JSON serializers, and also requires a &lt;code&gt;timestamp&lt;/code&gt; header. But we don’t choose it for the following reasons:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It doesn’t support regular expression serializer, so we cannot extract columns from arbitrary data format like access logs;&lt;/li&gt;
+&lt;li&gt;The columns to be extracted are defined in Hive metastore. Say the upstream events add some new keys in JSON, they will be dropped until Hive table definition is updated. As in data warehouse, it’s better to preserve the original source data for a period of time.&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
+    
+    
+      <category term="flume" scheme="http://shzhangji.com/tags/flume/"/>
+    
+      <category term="etl" scheme="http://shzhangji.com/tags/etl/"/>
+    
+      <category term="java" scheme="http://shzhangji.com/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
     <title>How to Achieve Exactly-Once Semantics in Spark Streaming</title>
     <link href="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/"/>
     <id>http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/</id>
     <published>2017-07-31T14:56:07.000Z</published>
-    <updated>2017-08-01T00:56:50.000Z</updated>
+    <updated>2017-07-31T15:00:56.799Z</updated>
     
     <content type="html"><![CDATA[<p>Exactly-once semantics is one of the advanced topics of stream processing. To process every message once and only once, in spite of system or network failure, not only the stream processing framework needs to provide such functionality, but also the message delivery system, the output data store, as well as how we implement the processing procedure, altogether can we ensure the exactly-once semantics. In this article, I’ll demonstrate how to use Spark Streaming, with Kafka as data source and MySQL the output storage, to achieve exactly-once stream processing.</p>
 <p><img src="http://spark.apache.org/docs/latest/img/streaming-arch.png" alt="Spark Streaming"></p>
@@ -75,9 +139,9 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
-      <category term="scala" scheme="http://shzhangji.com/tags/scala/"/>
-    
       <category term="spark" scheme="http://shzhangji.com/tags/spark/"/>
+    
+      <category term="scala" scheme="http://shzhangji.com/tags/scala/"/>
     
       <category term="spark streaming" scheme="http://shzhangji.com/tags/spark-streaming/"/>
     
@@ -92,7 +156,7 @@
     <link href="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/"/>
     <id>http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/</id>
     <published>2017-07-23T12:02:50.000Z</published>
-    <updated>2017-07-26T01:21:10.000Z</updated>
+    <updated>2017-07-23T12:02:50.661Z</updated>
     
     <content type="html"><![CDATA[<p><a href="http://pandas.pydata.org/" target="_blank" rel="external">Pandas</a> is a widely used data processing tool for Python. Along with NumPy and Matplotlib, it provides in-memory high-performance data munging, analyzing, and visualization capabilities. Although Python is an easy-to-learn programming language, it still takes time to learn Pandas APIs and the idiomatic usages. For data engineer and analysts, SQL is the de-facto standard language of data queries. This article will provide examples of how some common SQL queries can be rewritten with Pandas.</p>
 <p>The installation and basic concepts of Pandas is not covered in this post. One can check out the offical documentation, or read the book <a href="https://www.amazon.com/Python-Data-Analysis-Wrangling-IPython/dp/1491957662/" target="_blank" rel="external">Python for Data Analysis</a>. And I recommend using the <a href="https://www.continuum.io/downloads" target="_blank" rel="external">Anaconda</a> Python distribution, with <a href="https://pythonhosted.org/spyder/" target="_blank" rel="external">Spyder</a> IDE included. Before diving into the codes, please import Pandas and NumPy as follows:</p>
@@ -178,7 +242,7 @@
     <link href="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/"/>
     <id>http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/</id>
     <published>2017-07-15T11:21:03.000Z</published>
-    <updated>2017-07-15T11:22:17.000Z</updated>
+    <updated>2017-07-16T04:05:29.216Z</updated>
     
     <content type="html"><![CDATA[<p>Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and <code>tail -f</code>, it would be nice if we can tail a log file in the browser. With WebSocket, this can be done easily. In this article, I’ll walk you through a simple <strong>logviewer</strong> (<a href="http://github.com/jizhang/logviewer" target="_blank" rel="external">source</a>) utility that is written in Python.</p>
 <p><img src="/images/logviewer-websocket.png" alt="Logviewer with WebSocket"></p>
@@ -243,7 +307,7 @@
     <link href="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/"/>
     <id>http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/</id>
     <published>2017-06-18T08:38:01.000Z</published>
-    <updated>2017-06-19T01:06:20.000Z</updated>
+    <updated>2017-06-18T08:38:01.031Z</updated>
     
     <content type="html"><![CDATA[<p>When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on the server side, and update the rendered charts. Or we can filter data on the client side, and let charts update themselves. With Crossfilter and dc.js, this work becomes simple and intuitive.</p>
 <h2 id="Airline-On-time-Performance"><a href="#Airline-On-time-Performance" class="headerlink" title="Airline On-time Performance"></a>Airline On-time Performance</h2><p>Here’s an example taken from Crossfilter’s official website. It’s a flight delay analysis report based on <a href="http://stat-computing.org/dataexpo/2009/" target="_blank" rel="external">ASA Data Expo</a> dataset. And this post will introduce how to use dc.js to build the report. A runnable JSFiddle can be found <a href="https://jsfiddle.net/zjerryj/gjao9sws/" target="_blank" rel="external">here</a>, though the dataset is reduced to 1,000 records.</p>
@@ -298,7 +362,7 @@
     <link href="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/"/>
     <id>http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/</id>
     <published>2017-03-13T14:39:01.000Z</published>
-    <updated>2017-03-14T01:40:57.000Z</updated>
+    <updated>2017-03-19T04:59:58.120Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://lodash.com/" target="_blank" rel="external">Lodash</a> is a well-known JavaScript utility library that makes it easy to manipulate arrays and objects, as well as functions, strings, etc. I myself enjoys its functional way to process collections, especially chaining and lazy evaluation. But as <a href="http://www.ecma-international.org/ecma-262/6.0/" target="_blank" rel="external">ECMAScript 2015 Standard</a> (ES6) becomes widely supported by major browsers, and <a href="https://babeljs.io/" target="_blank" rel="external">Babel</a>, the JavaScript compiler that transforms ES6 codes to ES5, plays a major role in today’s frontend development, it seems that most Lodash utilities can be replaced by ES6. But should we? In my opinion, Lodash will remain popular, for it still has lots of useful features that could improve the way of programming.</p>
 <h2 id="map-and-Array-map-Are-Different"><a href="#map-and-Array-map-Are-Different" class="headerlink" title="_.map and Array#map Are Different"></a><code>_.map</code> and <code>Array#map</code> Are Different</h2><p><code>_.map</code>, <code>_.reduce</code>, <code>_.filter</code> and <code>_.forEach</code> are frequently used functions when processing collections, and ES6 provides direct support for them:</p>
@@ -342,13 +406,13 @@
       <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
-      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
+      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
     
       <category term="javascript" scheme="http://shzhangji.com/tags/javascript/"/>
     
-      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
-    
       <category term="es6" scheme="http://shzhangji.com/tags/es6/"/>
+    
+      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
     
   </entry>
   
@@ -357,7 +421,7 @@
     <link href="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/"/>
     <id>http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/</id>
     <published>2017-03-04T14:32:17.000Z</published>
-    <updated>2017-03-09T05:49:36.000Z</updated>
+    <updated>2017-03-09T22:29:01.407Z</updated>
     
     <content type="html"><![CDATA[<p>I develop Spark applications with Scala, and it has a very powerful <a href="http://docs.scala-lang.org/overviews/collections/introduction" target="_blank" rel="external">collection system</a>, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In JavaScript, there is a <a href="https://lodash.com/" target="_blank" rel="external">Lodash</a> library that provides powerful tools to process arrays and objects. When my primary work language changes to Python, I am wondering if it’s possible to manipulate collections in a FP way, and fortunately Python already provides syntax and tools for functional programming. Though list comprehension is the pythonic way to deal with collections, but the idea and concepts of FP is definitely worth learning.</p>
 <h2 id="Wordcount-Example"><a href="#Wordcount-Example" class="headerlink" title="Wordcount Example"></a>Wordcount Example</h2><p>Let’s first write a snippet to count the word occurences from a paragraph, in of course a functional way.</p>
@@ -427,7 +491,7 @@
     <link href="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/"/>
     <id>http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</id>
     <published>2017-01-29T06:18:29.000Z</published>
-    <updated>2017-02-16T07:35:30.000Z</updated>
+    <updated>2017-03-09T22:29:01.402Z</updated>
     
     <content type="html"><![CDATA[<p>In Lodash, both <code>_.assign</code> and <code>_.assignIn</code> are ways to copy source objects’ properties into target object. According the <a href="https://lodash.com/docs/" target="_blank" rel="external">documentation</a>, <code>_.assign</code> processes <strong>own enumerable string keyed properties</strong>, while <code>_.assignIn</code> processes both <strong>own and inherited source properties</strong>. There’re also other companion functions like <code>_.forOwn</code> and <code>_.forIn</code>, <code>_.has</code> and <code>_.hasIn</code>. So what’s the difference between them?</p>
 <p>In brief, the <code>In</code> in latter methods implies the way <code>for...in</code> loop behaves, which <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in" target="_blank" rel="external">iterates all enumerable properties of the object itself and those the object inherits from its constructor’s prototype</a>. JavaScript has an inheritance mechanism called prototype chain. When iterating an object’s properties with <code>for...in</code> or <code>_.forIn</code>, all properties appeared in the object and its prototype are processed, until the prototype resolves to <code>null</code>. Here’s the example code taken from Lodash’s doc:</p>
@@ -464,11 +528,11 @@
       <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
-      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
+      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
     
       <category term="javascript" scheme="http://shzhangji.com/tags/javascript/"/>
     
-      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
+      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
     
   </entry>
   
@@ -477,7 +541,7 @@
     <link href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/"/>
     <id>http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</id>
     <published>2017-01-08T04:26:54.000Z</published>
-    <updated>2017-03-09T05:48:53.000Z</updated>
+    <updated>2017-03-09T22:29:01.401Z</updated>
     
     <content type="html"><![CDATA[<p>Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python 3 is <a href="http://py3readiness.org/" target="_blank" rel="external">totally ready</a>, and here’s a list of references for those (including me) who are adopting Python 3 with a 2.x background.</p>
 <ol>
@@ -612,7 +676,7 @@
     <link href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/"/>
     <id>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</id>
     <published>2015-09-01T10:38:00.000Z</published>
-    <updated>2017-03-09T05:48:53.000Z</updated>
+    <updated>2017-03-09T22:29:01.400Z</updated>
     
     <content type="html"><![CDATA[<p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/" target="_blank" rel="external">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/" target="_blank" rel="external">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
 <h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/" target="_blank" rel="external">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
@@ -665,7 +729,7 @@
     <link href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/"/>
     <id>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</id>
     <published>2015-05-31T10:18:00.000Z</published>
-    <updated>2017-03-09T05:48:53.000Z</updated>
+    <updated>2017-03-09T22:29:01.398Z</updated>
     
     <content type="html"><![CDATA[<p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
 <h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
@@ -714,7 +778,7 @@
     <link href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/"/>
     <id>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</id>
     <published>2015-04-28T15:08:00.000Z</published>
-    <updated>2017-03-24T02:34:37.000Z</updated>
+    <updated>2017-03-27T12:53:32.401Z</updated>
     
     <content type="html"><![CDATA[<p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
 <h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard" target="_blank" rel="external">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing" target="_blank" rel="external">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
@@ -816,7 +880,7 @@
     <link href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/"/>
     <id>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</id>
     <published>2014-05-27T09:44:00.000Z</published>
-    <updated>2017-03-09T05:48:53.000Z</updated>
+    <updated>2017-03-09T22:29:01.396Z</updated>
     
     <content type="html"><![CDATA[<p>As I’m working with my first <a href="http://www.scalatra.org/" target="_blank" rel="external">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/" target="_blank" rel="external">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation" target="_blank" rel="external">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
 <h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/" target="_blank" rel="external">Dojo</a> for example.</p>
@@ -862,7 +926,7 @@
     <link href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/"/>
     <id>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</id>
     <published>2013-10-31T01:35:00.000Z</published>
-    <updated>2017-07-15T10:58:31.000Z</updated>
+    <updated>2017-07-16T04:05:29.215Z</updated>
     
     <content type="html"><![CDATA[<p>In DBMS world, it’s easy to generate a unique, auto-increment id, using MySQL’s <a href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html" target="_blank" rel="external">AUTO_INCREMENT attribute</a> on a primary key or MongoDB’s <a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/" target="_blank" rel="external">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it’ll take some steps.</p>
 <h2 id="Solution-A-Single-Reducer"><a href="#Solution-A-Single-Reducer" class="headerlink" title="Solution A: Single Reducer"></a>Solution A: Single Reducer</h2><p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
@@ -945,7 +1009,7 @@
     <link href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/"/>
     <id>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/</id>
     <published>2013-04-30T08:16:00.000Z</published>
-    <updated>2017-03-24T02:34:20.000Z</updated>
+    <updated>2017-03-27T12:53:32.394Z</updated>
     
     <content type="html"><![CDATA[<p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># database.properties</div><div class="line">mydb.jdbcUrl=$&#123;mydb.jdbcUrl&#125;</div></pre></td></tr></table></figure>
