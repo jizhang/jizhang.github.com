@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://shzhangji.com/"/>
-  <updated>2017-08-07T05:36:23.000Z</updated>
+  <updated>2017-08-12T11:15:09.141Z</updated>
   <id>http://shzhangji.com/</id>
   
   <author>
@@ -16,11 +16,92 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Extract Data from MySQL with Binlog and Canal</title>
+    <link href="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/"/>
+    <id>http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/</id>
+    <published>2017-08-12T11:15:09.000Z</published>
+    <updated>2017-08-12T11:15:09.141Z</updated>
+    
+    <content type="html"><![CDATA[<p>Data extraction is the very first step of an ETL process. We need to load data from external data stores like RDMBS or logging file system, and then we can do cleaning, transformation and summary. In modern website stack, MySQL is the most widely used database, and it’s common to extract data from different instances and load into a central MySQL database, or directly into Hive. There’re several query-based techniques that we can use to do the extraction, including the popular open source software <a href="http://sqoop.apache.org/" target="_blank" rel="external">Sqoop</a>, but they are not meant for real-time data ingestion. Binlog, on the other hand, is a real-time data stream that is used to do replication between master and slave instances. With the help of Alibaba’s open sourced <a href="https://github.com/alibaba/canal" target="_blank" rel="external">Canal</a> project, we can easily utilize the binlog facility to do data extraction from MySQL database to various destinations.</p>
+<p><img src="/images/canal.png" alt="Canal"></p>
+<h2 id="Canal-Components"><a href="#Canal-Components" class="headerlink" title="Canal Components"></a>Canal Components</h2><p>In brief, Canal simulates itself to be a MySQL slave and dump binlog from master, parse it, and send to downstream sinks. Canal consists of two major components, namely Canal server and Canal client. A Canal server can connect to multiple MySQL instances, and maintains an event queue for each instance. Canal clients can then subscribe to theses queues and receive data changes. The following is a quick start guide to get Canal going.</p>
+<a id="more"></a>
+<h3 id="Configure-MySQL-Master"><a href="#Configure-MySQL-Master" class="headerlink" title="Configure MySQL Master"></a>Configure MySQL Master</h3><p>MySQL binlog is not enabled by default. Locate your <code>my.cnf</code> file and make these changes:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">server-id = 1</div><div class="line">log_bin = /path/to/mysql-bin.log</div><div class="line">binlog_format = ROW</div></pre></td></tr></table></figure>
+<p>Note that <code>binlog_format</code> must be <code>ROW</code>, becuase in <code>STATEMENT</code> or <code>MIXED</code> mode, only SQL statements will be logged and transferred (to save log size), but what we need is full data of the changed rows.</p>
+<p>Slave connects to master via an dedicated account, which must have the global <code>REPLICATION</code> priviledges. We can use the <code>GRANT</code> statement to create the account:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span>, <span class="keyword">REPLICATION</span> <span class="keyword">SLAVE</span>, <span class="keyword">REPLICATION</span> <span class="keyword">CLIENT</span></div><div class="line"><span class="keyword">ON</span> *.* <span class="keyword">TO</span> <span class="string">'canal'</span>@<span class="string">'%'</span> <span class="keyword">IDENTIFIED</span> <span class="keyword">BY</span> <span class="string">'canal'</span>;</div></pre></td></tr></table></figure>
+<h3 id="Startup-Canal-Server"><a href="#Startup-Canal-Server" class="headerlink" title="Startup Canal Server"></a>Startup Canal Server</h3><p>Download Canal server from its GitHub Releases page (<a href="https://github.com/alibaba/canal/releases" target="_blank" rel="external">link</a>). The config files reside in <code>conf</code> directory. A typical layout is:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">canal.deployer/conf/canal.properties</div><div class="line">canal.deployer/conf/instanceA/instance.properties</div><div class="line">canal.deployer/conf/instanceB/instance.properties</div></pre></td></tr></table></figure>
+<p>In <code>conf/canal.properties</code> there’s the main configuration. <code>canal.port</code> for example defines which port Canal server is listening. <code>instanceA/instance.properties</code> defines the MySQL instance that Canal server will draw binlog from. Important settings are:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"># slaveId cannot collide with the server-id in my.cnf</div><div class="line">canal.instance.mysql.slaveId = 1234</div><div class="line">canal.instance.master.address = 127.0.0.1:3306</div><div class="line">canal.instance.dbUsername = canal</div><div class="line">canal.instance.dbPassword = canal</div><div class="line">canal.instance.connectionCharset = UTF-8</div><div class="line"># process all tables from all databases</div><div class="line">canal.instance.filter.regex = .*\\..*</div></pre></td></tr></table></figure>
+<p>Start the server by <code>sh bin/startup.sh</code>, and you’ll see the following output in <code>logs/example/example.log</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Loading properties file from class path resource [canal.properties]</div><div class="line">Loading properties file from class path resource [example/instance.properties]</div><div class="line">start CannalInstance for 1-example</div><div class="line">[destination = example , address = /127.0.0.1:3306 , EventParser] prepare to find start position just show master status</div></pre></td></tr></table></figure>
+<h3 id="Write-Canal-Client"><a href="#Write-Canal-Client" class="headerlink" title="Write Canal Client"></a>Write Canal Client</h3><p>To consume update events from Canal server, we can create a Canal client in our application, specify the instance and tables we’re interested in, and start polling.</p>
+<p>First, add <code>com.alibaba.otter:canal.client</code> dependency to your <code>pom.xml</code>, and construct a Canal client:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">CanalConnector connector = CanalConnectors.newSingleConnector(</div><div class="line">        <span class="keyword">new</span> InetSocketAddress(<span class="string">"127.0.0.1"</span>, <span class="number">11111</span>), <span class="string">"example"</span>, <span class="string">""</span>, <span class="string">""</span>);</div><div class="line"></div><div class="line">connector.connect();</div><div class="line">connector.subscribe(<span class="string">".*\\..*"</span>);</div><div class="line"></div><div class="line"><span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</div><div class="line">    Message message = connector.getWithoutAck(<span class="number">100</span>);</div><div class="line">    <span class="keyword">long</span> batchId = message.getId();</div><div class="line">    <span class="keyword">if</span> (batchId == -<span class="number">1</span> || message.getEntries().isEmpty()) &#123;</div><div class="line">        Thread.sleep(<span class="number">3000</span>);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        printEntries(message.getEntries());</div><div class="line">        connector.ack(batchId);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>The code is quite similar to consuming from a message queue. The update events are sent in batches, and you can acknowledge every batch after being properly processed.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// printEntries</span></div><div class="line">RowChange rowChange = RowChange.parseFrom(entry.getStoreValue());</div><div class="line"><span class="keyword">for</span> (RowData rowData : rowChange.getRowDatasList()) &#123;</div><div class="line">    <span class="keyword">if</span> (rowChange.getEventType() == EventType.INSERT) &#123;</div><div class="line">      printColumns(rowData.getAfterCollumnList());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Every <code>Entry</code> in a message represents a set of row changes with the same event type, e.g. INSERT, UPDATE, or DELETE. For each row, we can get the column data like this:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// printColumns</span></div><div class="line">String line = columns.stream()</div><div class="line">        .map(column -&gt; column.getName() + <span class="string">"="</span> + column.getValue())</div><div class="line">        .collect(Collectors.joining(<span class="string">","</span>));</div><div class="line">System.out.println(line);</div></pre></td></tr></table></figure>
+<p>Full example can be found on GitHub (<a href="https://github.com/jizhang/java-sandbox/blob/blog-canal/src/main/java/com/shzhangji/javasandbox/canal/SimpleClient.java" target="_blank" rel="external">link</a>).</p>
+<h2 id="Load-into-Data-Warehouse"><a href="#Load-into-Data-Warehouse" class="headerlink" title="Load into Data Warehouse"></a>Load into Data Warehouse</h2><h3 id="RDBMS-with-Batch-Insert"><a href="#RDBMS-with-Batch-Insert" class="headerlink" title="RDBMS with Batch Insert"></a>RDBMS with Batch Insert</h3><p>For DB based data warehouse, we can directly use the <code>REPLACE</code> statement and let the database deduplicates rows by primary key. One concern is the instertion performance, so it’s often necessary to cache the data for a while and do a batch insertion, like:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">REPLACE</span> <span class="keyword">INTO</span> <span class="string">`user`</span> (<span class="string">`id`</span>, <span class="string">`name`</span>, <span class="string">`age`</span>, <span class="string">`updated`</span>) <span class="keyword">VALUES</span></div><div class="line">(<span class="number">1</span>, <span class="string">'Jerry'</span>, <span class="number">30</span>, <span class="string">'2017-08-12 16:00:00'</span>),</div><div class="line">(<span class="number">2</span>, <span class="string">'Mary'</span>, <span class="number">28</span>, <span class="string">'2017-08-12 17:00:00'</span>),</div><div class="line">(<span class="number">3</span>, <span class="string">'Tom'</span>, <span class="number">36</span>, <span class="string">'2017-08-12 18:00:00'</span>);</div></pre></td></tr></table></figure>
+<p>Another approach is to write the extracted data into a delimited text file, then execute a <code>LOAD DATA</code> statement. These files can also be used to import data into Hive. But for both approaches, make sure you escape the string columns properly, so as to avoid insertion errors.</p>
+<h3 id="Hive-based-Warehouse"><a href="#Hive-based-Warehouse" class="headerlink" title="Hive-based Warehouse"></a>Hive-based Warehouse</h3><p>Hive tables are stored on HDFS, which is an append-only file system, so it takes efforts to update data in a previously loaded table. One can use a JOIN-based approach, Hive transaction, or switch to HBase.</p>
+<p>Data can be categorized into base and delta. For example, yesterday’s <code>user</code> table is the base, while today’s updated rows are the delta. Using a <code>FULL OUTER JOIN</code> we can generate the latest snapshot:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span></div><div class="line">  <span class="keyword">COALESCE</span>(b.<span class="string">`id`</span>, a.<span class="string">`id`</span>) <span class="keyword">AS</span> <span class="string">`id`</span></div><div class="line">  ,<span class="keyword">COALESCE</span>(b.<span class="string">`name`</span>, a.<span class="string">`name`</span>) <span class="keyword">AS</span> <span class="string">`name`</span></div><div class="line">  ,<span class="keyword">COALESCE</span>(b.<span class="string">`age`</span>, a.<span class="string">`age`</span>) <span class="keyword">AS</span> <span class="string">`age`</span></div><div class="line">  ,<span class="keyword">COALESCE</span>(b.<span class="string">`updated`</span>, a.<span class="string">`updated`</span>) <span class="keyword">AS</span> <span class="string">`updated`</span></div><div class="line"><span class="keyword">FROM</span> dw_stage.<span class="string">`user`</span> a</div><div class="line"><span class="keyword">FULL</span> <span class="keyword">OUTER</span> <span class="keyword">JOIN</span> (</div><div class="line">  <span class="comment">-- deduplicate by selecting the latest record</span></div><div class="line">  <span class="keyword">SELECT</span> <span class="string">`id`</span>, <span class="string">`name`</span>, <span class="string">`age`</span>, <span class="string">`updated`</span></div><div class="line">  <span class="keyword">FROM</span> (</div><div class="line">    <span class="keyword">SELECT</span> *, ROW_NUMBER() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="string">`id`</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="string">`updated`</span> <span class="keyword">DESC</span>) <span class="keyword">AS</span> <span class="string">`n`</span></div><div class="line">    <span class="keyword">FROM</span> dw_stage.<span class="string">`user_delta`</span></div><div class="line">  ) b</div><div class="line">  <span class="keyword">WHERE</span> <span class="string">`n`</span> = <span class="number">1</span></div><div class="line">) b</div><div class="line"><span class="keyword">ON</span> a.<span class="string">`id`</span> = b.<span class="string">`id`</span>;</div></pre></td></tr></table></figure>
+<p>Hive 0.13 introduces transaction and ACID table, 0.14 brings us the <code>INSERT</code>, <code>UPDATE</code> and <code>DELETE</code> statements, and Hive 2.0.0 provides a new <a href="https://cwiki.apache.org/confluence/display/Hive/HCatalog+Streaming+Mutation+API" target="_blank" rel="external">Streaming Mutation API</a> that can be used to submit insert/update/delete transactions to Hive tables programmatically. Currently, ACID tables must use ORC file format, and be bucketed by primiary key. Hive will store the mutative operations in delta files. When reading from this table, <code>OrcInputFormat</code> will figure out which record is the latest. The official sample code can be found in the test suite (<a href="https://github.com/apache/hive/blob/master/hcatalog/streaming/src/test/org/apache/hive/hcatalog/streaming/mutate/ExampleUseCase.java" target="_blank" rel="external">link</a>).</p>
+<p>And the final approach is to use HBase, which is a key-value store built on HDFS, making it perfect for data updates. Its table can also be used by MapReduce jobs, or you can create an external Hive table that points directly to HBase. More information can be found on the <a href="http://hbase.apache.org/" target="_blank" rel="external">official website</a>.</p>
+<h2 id="Initialize-Target-Table"><a href="#Initialize-Target-Table" class="headerlink" title="Initialize Target Table"></a>Initialize Target Table</h2><p>Data extraction is usually on-demand, so there may be already historical data in the source table. One obvious approach is dumping the full table manually and load into destination. Or we can reuse the Canal facility, notify the client to query data from source and do the updates.</p>
+<p>First, we create a helper table in the source database:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`retl_buffer`</span> (</div><div class="line">  <span class="keyword">id</span> <span class="built_in">BIGINT</span> AUTO_INCREMENT PRIMARY <span class="keyword">KEY</span></div><div class="line">  ,table_name <span class="built_in">VARCHAR</span>(<span class="number">255</span>)</div><div class="line">  ,pk_value <span class="built_in">VARCHAR</span>(<span class="number">255</span>)</div><div class="line">);</div></pre></td></tr></table></figure>
+<p>To reload all records in <code>user</code> table:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`retl_buffer`</span> (<span class="string">`table_name`</span>, <span class="string">`pk_value`</span>)</div><div class="line"><span class="keyword">SELECT</span> <span class="string">'user'</span>, <span class="string">`id`</span> <span class="keyword">FROM</span> <span class="string">`user`</span>;</div></pre></td></tr></table></figure>
+<p>When Canal client receives the <code>RowChange</code> of <code>retl_buffer</code> table, it can extract the table name and primary key value from the record, query the source database, and write to the destination.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (<span class="string">"retl_buffer"</span>.equals(entry.getHeader().getTableName())) &#123;</div><div class="line">    String tableName = rowData.getAfterColumns(<span class="number">1</span>).getValue();</div><div class="line">    String pkValue = rowData.getAfterColumns(<span class="number">2</span>).getValue();</div><div class="line">    System.out.println(<span class="string">"SELECT * FROM "</span> + tableName + <span class="string">" WHERE id = "</span> + pkValue);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>This approach is included in another Alibaba’s project <a href="https://github.com/alibaba/otter/wiki/Manager%E9%85%8D%E7%BD%AE%E4%BB%8B%E7%BB%8D#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E8%87%AA-%E7%94%B1-%E9%97%A8" target="_blank" rel="external">Otter</a>.</p>
+<h2 id="Canal-High-Availability"><a href="#Canal-High-Availability" class="headerlink" title="Canal High Availability"></a>Canal High Availability</h2><ul>
+<li>Canal instances can be supplied with a standby MySQL source, typically in a Master-Master HA scenario. Make sure you turn on the <code>log_slave_updates</code> option in both MySQL instances. Canal uses a dedicated heartbeat check, i.e. update a row periodically to check if current source is alive.</li>
+<li>Canal server itself also supports HA. You’ll need a Zookeeper quorum to enable this feature. Clients will get the current server location from Zookeeper, and the server will record the last binlog offset that has been consumed.</li>
+</ul>
+<p>For more information, please checkout the <a href="https://github.com/alibaba/canal/wiki/AdminGuide" target="_blank" rel="external">AdminGuide</a>.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://github.com/alibaba/canal/wiki" target="_blank" rel="external">https://github.com/alibaba/canal/wiki</a> (in Chinese)</li>
+<li><a href="https://github.com/alibaba/otter/wiki" target="_blank" rel="external">https://github.com/alibaba/otter/wiki</a> (in Chinese)</li>
+<li><a href="https://www.phdata.io/4-strategies-for-updating-hive-tables/" target="_blank" rel="external">https://www.phdata.io/4-strategies-for-updating-hive-tables/</a></li>
+<li><a href="https://hortonworks.com/blog/four-step-strategy-incremental-updates-hive/" target="_blank" rel="external">https://hortonworks.com/blog/four-step-strategy-incremental-updates-hive/</a></li>
+<li><a href="https://cwiki.apache.org/confluence/display/Hive/Hive+Transactions" target="_blank" rel="external">https://cwiki.apache.org/confluence/display/Hive/Hive+Transactions</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Data extraction is the very first step of an ETL process. We need to load data from external data stores like RDMBS or logging file system, and then we can do cleaning, transformation and summary. In modern website stack, MySQL is the most widely used database, and it’s common to extract data from different instances and load into a central MySQL database, or directly into Hive. There’re several query-based techniques that we can use to do the extraction, including the popular open source software &lt;a href=&quot;http://sqoop.apache.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Sqoop&lt;/a&gt;, but they are not meant for real-time data ingestion. Binlog, on the other hand, is a real-time data stream that is used to do replication between master and slave instances. With the help of Alibaba’s open sourced &lt;a href=&quot;https://github.com/alibaba/canal&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Canal&lt;/a&gt; project, we can easily utilize the binlog facility to do data extraction from MySQL database to various destinations.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/images/canal.png&quot; alt=&quot;Canal&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;Canal-Components&quot;&gt;&lt;a href=&quot;#Canal-Components&quot; class=&quot;headerlink&quot; title=&quot;Canal Components&quot;&gt;&lt;/a&gt;Canal Components&lt;/h2&gt;&lt;p&gt;In brief, Canal simulates itself to be a MySQL slave and dump binlog from master, parse it, and send to downstream sinks. Canal consists of two major components, namely Canal server and Canal client. A Canal server can connect to multiple MySQL instances, and maintains an event queue for each instance. Canal clients can then subscribe to theses queues and receive data changes. The following is a quick start guide to get Canal going.&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
+    
+    
+      <category term="etl" scheme="http://shzhangji.com/tags/etl/"/>
+    
+      <category term="java" scheme="http://shzhangji.com/tags/java/"/>
+    
+      <category term="mysql" scheme="http://shzhangji.com/tags/mysql/"/>
+    
+      <category term="canal" scheme="http://shzhangji.com/tags/canal/"/>
+    
+  </entry>
+  
+  <entry>
     <title>How to Extract Event Time in Apache Flume</title>
     <link href="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/"/>
     <id>http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/</id>
     <published>2017-08-05T07:10:47.000Z</published>
-    <updated>2017-08-07T05:36:23.000Z</updated>
+    <updated>2017-08-05T07:10:47.271Z</updated>
     
     <content type="html"><![CDATA[<p>Extracting data from upstream message queues is a common task in ETL. In a Hadoop based data warehouse, we usually use Flume to import event logs from Kafka into HDFS, and then run MapReduce jobs agaist it, or create Hive external tables partitioned by time. One of the keys of this process is to extract the event time from the logs, since real-time data can have time lags, or your system is temporarily offline and need to perform a catch-up. Flume provides various facilities to help us do this job easily.</p>
 <p><img src="/images/flume.png" alt="Apache Flume"></p>
@@ -84,7 +165,7 @@
     <link href="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/"/>
     <id>http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/</id>
     <published>2017-07-31T14:56:07.000Z</published>
-    <updated>2017-08-01T00:56:50.000Z</updated>
+    <updated>2017-07-31T15:00:56.799Z</updated>
     
     <content type="html"><![CDATA[<p>Exactly-once semantics is one of the advanced topics of stream processing. To process every message once and only once, in spite of system or network failure, not only the stream processing framework needs to provide such functionality, but also the message delivery system, the output data store, as well as how we implement the processing procedure, altogether can we ensure the exactly-once semantics. In this article, I’ll demonstrate how to use Spark Streaming, with Kafka as data source and MySQL the output storage, to achieve exactly-once stream processing.</p>
 <p><img src="http://spark.apache.org/docs/latest/img/streaming-arch.png" alt="Spark Streaming"></p>
@@ -156,7 +237,7 @@
     <link href="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/"/>
     <id>http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/</id>
     <published>2017-07-23T12:02:50.000Z</published>
-    <updated>2017-07-26T01:21:10.000Z</updated>
+    <updated>2017-07-23T12:02:50.661Z</updated>
     
     <content type="html"><![CDATA[<p><a href="http://pandas.pydata.org/" target="_blank" rel="external">Pandas</a> is a widely used data processing tool for Python. Along with NumPy and Matplotlib, it provides in-memory high-performance data munging, analyzing, and visualization capabilities. Although Python is an easy-to-learn programming language, it still takes time to learn Pandas APIs and the idiomatic usages. For data engineer and analysts, SQL is the de-facto standard language of data queries. This article will provide examples of how some common SQL queries can be rewritten with Pandas.</p>
 <p>The installation and basic concepts of Pandas is not covered in this post. One can check out the offical documentation, or read the book <a href="https://www.amazon.com/Python-Data-Analysis-Wrangling-IPython/dp/1491957662/" target="_blank" rel="external">Python for Data Analysis</a>. And I recommend using the <a href="https://www.continuum.io/downloads" target="_blank" rel="external">Anaconda</a> Python distribution, with <a href="https://pythonhosted.org/spyder/" target="_blank" rel="external">Spyder</a> IDE included. Before diving into the codes, please import Pandas and NumPy as follows:</p>
@@ -229,11 +310,11 @@
     
       <category term="python" scheme="http://shzhangji.com/tags/python/"/>
     
-      <category term="analytics" scheme="http://shzhangji.com/tags/analytics/"/>
-    
       <category term="pandas" scheme="http://shzhangji.com/tags/pandas/"/>
     
       <category term="sql" scheme="http://shzhangji.com/tags/sql/"/>
+    
+      <category term="analytics" scheme="http://shzhangji.com/tags/analytics/"/>
     
   </entry>
   
@@ -242,7 +323,7 @@
     <link href="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/"/>
     <id>http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/</id>
     <published>2017-07-15T11:21:03.000Z</published>
-    <updated>2017-07-15T11:22:17.000Z</updated>
+    <updated>2017-07-16T04:05:29.216Z</updated>
     
     <content type="html"><![CDATA[<p>Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and <code>tail -f</code>, it would be nice if we can tail a log file in the browser. With WebSocket, this can be done easily. In this article, I’ll walk you through a simple <strong>logviewer</strong> (<a href="http://github.com/jizhang/logviewer" target="_blank" rel="external">source</a>) utility that is written in Python.</p>
 <p><img src="/images/logviewer-websocket.png" alt="Logviewer with WebSocket"></p>
@@ -307,7 +388,7 @@
     <link href="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/"/>
     <id>http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/</id>
     <published>2017-06-18T08:38:01.000Z</published>
-    <updated>2017-06-19T01:06:20.000Z</updated>
+    <updated>2017-06-18T08:38:01.031Z</updated>
     
     <content type="html"><![CDATA[<p>When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on the server side, and update the rendered charts. Or we can filter data on the client side, and let charts update themselves. With Crossfilter and dc.js, this work becomes simple and intuitive.</p>
 <h2 id="Airline-On-time-Performance"><a href="#Airline-On-time-Performance" class="headerlink" title="Airline On-time Performance"></a>Airline On-time Performance</h2><p>Here’s an example taken from Crossfilter’s official website. It’s a flight delay analysis report based on <a href="http://stat-computing.org/dataexpo/2009/" target="_blank" rel="external">ASA Data Expo</a> dataset. And this post will introduce how to use dc.js to build the report. A runnable JSFiddle can be found <a href="https://jsfiddle.net/zjerryj/gjao9sws/" target="_blank" rel="external">here</a>, though the dataset is reduced to 1,000 records.</p>
@@ -349,11 +430,11 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
+      <category term="analytics" scheme="http://shzhangji.com/tags/analytics/"/>
+    
       <category term="crossfilter" scheme="http://shzhangji.com/tags/crossfilter/"/>
     
       <category term="dc.js" scheme="http://shzhangji.com/tags/dc-js/"/>
-    
-      <category term="analytics" scheme="http://shzhangji.com/tags/analytics/"/>
     
   </entry>
   
@@ -362,7 +443,7 @@
     <link href="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/"/>
     <id>http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/</id>
     <published>2017-03-13T14:39:01.000Z</published>
-    <updated>2017-03-14T01:40:57.000Z</updated>
+    <updated>2017-03-19T04:59:58.120Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://lodash.com/" target="_blank" rel="external">Lodash</a> is a well-known JavaScript utility library that makes it easy to manipulate arrays and objects, as well as functions, strings, etc. I myself enjoys its functional way to process collections, especially chaining and lazy evaluation. But as <a href="http://www.ecma-international.org/ecma-262/6.0/" target="_blank" rel="external">ECMAScript 2015 Standard</a> (ES6) becomes widely supported by major browsers, and <a href="https://babeljs.io/" target="_blank" rel="external">Babel</a>, the JavaScript compiler that transforms ES6 codes to ES5, plays a major role in today’s frontend development, it seems that most Lodash utilities can be replaced by ES6. But should we? In my opinion, Lodash will remain popular, for it still has lots of useful features that could improve the way of programming.</p>
 <h2 id="map-and-Array-map-Are-Different"><a href="#map-and-Array-map-Are-Different" class="headerlink" title="_.map and Array#map Are Different"></a><code>_.map</code> and <code>Array#map</code> Are Different</h2><p><code>_.map</code>, <code>_.reduce</code>, <code>_.filter</code> and <code>_.forEach</code> are frequently used functions when processing collections, and ES6 provides direct support for them:</p>
@@ -406,13 +487,13 @@
       <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
-      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
+      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
     
       <category term="javascript" scheme="http://shzhangji.com/tags/javascript/"/>
     
-      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
-    
       <category term="es6" scheme="http://shzhangji.com/tags/es6/"/>
+    
+      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
     
   </entry>
   
@@ -421,7 +502,7 @@
     <link href="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/"/>
     <id>http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/</id>
     <published>2017-03-04T14:32:17.000Z</published>
-    <updated>2017-03-09T05:49:36.000Z</updated>
+    <updated>2017-03-09T22:29:01.407Z</updated>
     
     <content type="html"><![CDATA[<p>I develop Spark applications with Scala, and it has a very powerful <a href="http://docs.scala-lang.org/overviews/collections/introduction" target="_blank" rel="external">collection system</a>, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In JavaScript, there is a <a href="https://lodash.com/" target="_blank" rel="external">Lodash</a> library that provides powerful tools to process arrays and objects. When my primary work language changes to Python, I am wondering if it’s possible to manipulate collections in a FP way, and fortunately Python already provides syntax and tools for functional programming. Though list comprehension is the pythonic way to deal with collections, but the idea and concepts of FP is definitely worth learning.</p>
 <h2 id="Wordcount-Example"><a href="#Wordcount-Example" class="headerlink" title="Wordcount Example"></a>Wordcount Example</h2><p>Let’s first write a snippet to count the word occurences from a paragraph, in of course a functional way.</p>
@@ -491,7 +572,7 @@
     <link href="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/"/>
     <id>http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</id>
     <published>2017-01-29T06:18:29.000Z</published>
-    <updated>2017-02-16T07:35:30.000Z</updated>
+    <updated>2017-03-09T22:29:01.402Z</updated>
     
     <content type="html"><![CDATA[<p>In Lodash, both <code>_.assign</code> and <code>_.assignIn</code> are ways to copy source objects’ properties into target object. According the <a href="https://lodash.com/docs/" target="_blank" rel="external">documentation</a>, <code>_.assign</code> processes <strong>own enumerable string keyed properties</strong>, while <code>_.assignIn</code> processes both <strong>own and inherited source properties</strong>. There’re also other companion functions like <code>_.forOwn</code> and <code>_.forIn</code>, <code>_.has</code> and <code>_.hasIn</code>. So what’s the difference between them?</p>
 <p>In brief, the <code>In</code> in latter methods implies the way <code>for...in</code> loop behaves, which <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in" target="_blank" rel="external">iterates all enumerable properties of the object itself and those the object inherits from its constructor’s prototype</a>. JavaScript has an inheritance mechanism called prototype chain. When iterating an object’s properties with <code>for...in</code> or <code>_.forIn</code>, all properties appeared in the object and its prototype are processed, until the prototype resolves to <code>null</code>. Here’s the example code taken from Lodash’s doc:</p>
@@ -528,11 +609,11 @@
       <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
-      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
+      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
     
       <category term="javascript" scheme="http://shzhangji.com/tags/javascript/"/>
     
-      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
+      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
     
   </entry>
   
@@ -541,7 +622,7 @@
     <link href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/"/>
     <id>http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</id>
     <published>2017-01-08T04:26:54.000Z</published>
-    <updated>2017-03-09T05:48:53.000Z</updated>
+    <updated>2017-03-09T22:29:01.401Z</updated>
     
     <content type="html"><![CDATA[<p>Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python 3 is <a href="http://py3readiness.org/" target="_blank" rel="external">totally ready</a>, and here’s a list of references for those (including me) who are adopting Python 3 with a 2.x background.</p>
 <ol>
@@ -676,7 +757,7 @@
     <link href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/"/>
     <id>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</id>
     <published>2015-09-01T10:38:00.000Z</published>
-    <updated>2017-03-09T05:48:53.000Z</updated>
+    <updated>2017-03-09T22:29:01.400Z</updated>
     
     <content type="html"><![CDATA[<p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/" target="_blank" rel="external">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/" target="_blank" rel="external">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
 <h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/" target="_blank" rel="external">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
@@ -729,7 +810,7 @@
     <link href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/"/>
     <id>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</id>
     <published>2015-05-31T10:18:00.000Z</published>
-    <updated>2017-03-09T05:48:53.000Z</updated>
+    <updated>2017-03-09T22:29:01.398Z</updated>
     
     <content type="html"><![CDATA[<p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
 <h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
@@ -778,7 +859,7 @@
     <link href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/"/>
     <id>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</id>
     <published>2015-04-28T15:08:00.000Z</published>
-    <updated>2017-03-24T02:34:37.000Z</updated>
+    <updated>2017-03-27T12:53:32.401Z</updated>
     
     <content type="html"><![CDATA[<p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
 <h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard" target="_blank" rel="external">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing" target="_blank" rel="external">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
@@ -880,7 +961,7 @@
     <link href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/"/>
     <id>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</id>
     <published>2014-05-27T09:44:00.000Z</published>
-    <updated>2017-03-09T05:48:53.000Z</updated>
+    <updated>2017-03-09T22:29:01.396Z</updated>
     
     <content type="html"><![CDATA[<p>As I’m working with my first <a href="http://www.scalatra.org/" target="_blank" rel="external">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/" target="_blank" rel="external">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation" target="_blank" rel="external">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
 <h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/" target="_blank" rel="external">Dojo</a> for example.</p>
@@ -926,7 +1007,7 @@
     <link href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/"/>
     <id>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</id>
     <published>2013-10-31T01:35:00.000Z</published>
-    <updated>2017-07-15T10:58:31.000Z</updated>
+    <updated>2017-07-16T04:05:29.215Z</updated>
     
     <content type="html"><![CDATA[<p>In DBMS world, it’s easy to generate a unique, auto-increment id, using MySQL’s <a href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html" target="_blank" rel="external">AUTO_INCREMENT attribute</a> on a primary key or MongoDB’s <a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/" target="_blank" rel="external">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it’ll take some steps.</p>
 <h2 id="Solution-A-Single-Reducer"><a href="#Solution-A-Single-Reducer" class="headerlink" title="Solution A: Single Reducer"></a>Solution A: Single Reducer</h2><p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
@@ -1009,7 +1090,7 @@
     <link href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/"/>
     <id>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/</id>
     <published>2013-04-30T08:16:00.000Z</published>
-    <updated>2017-03-24T02:34:20.000Z</updated>
+    <updated>2017-03-27T12:53:32.394Z</updated>
     
     <content type="html"><![CDATA[<p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># database.properties</div><div class="line">mydb.jdbcUrl=$&#123;mydb.jdbcUrl&#125;</div></pre></td></tr></table></figure>
