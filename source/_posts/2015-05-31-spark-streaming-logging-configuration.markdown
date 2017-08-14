@@ -27,10 +27,10 @@ log4j.appender.rolling.encoding=UTF-8
 log4j.logger.org.apache.spark=WARN
 log4j.logger.org.eclipse.jetty=WARN
 
-log4j.logger.com.anjuke.dm=${dm.logging.level}
+log4j.logger.com.shzhangji.dm=${dm.logging.level}
 ```
 
-This means log4j will roll the log file by 50MB and keep only 5 recent files. These files are saved in `/var/log/spark` directory, with filename picked from system property `dm.logging.name`. We also set the logging level of our package `com.anjuke.dm` according to `dm.logging.level` property. Another thing to mention is that we set `org.apache.spark` to level `WARN`, so as to ignore verbose logs from spark.
+This means log4j will roll the log file by 50MB and keep only 5 recent files. These files are saved in `/var/log/spark` directory, with filename picked from system property `dm.logging.name`. We also set the logging level of our package `com.shzhangji.dm` according to `dm.logging.level` property. Another thing to mention is that we set `org.apache.spark` to level `WARN`, so as to ignore verbose logs from spark.
 
 <!-- more -->
 
