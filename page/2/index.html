@@ -127,7 +127,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="cj697g5no000cpcm6iu0nf6g6" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="cj6bn48ok000d6kzjehn3ci9f" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -169,8 +169,8 @@ ga('send', 'pageview');
       
         <p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
 <h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">log4j.rootLogger=INFO, rolling</div><div class="line"></div><div class="line">log4j.appender.rolling=org.apache.log4j.RollingFileAppender</div><div class="line">log4j.appender.rolling.layout=org.apache.log4j.PatternLayout</div><div class="line">log4j.appender.rolling.layout.conversionPattern=[%d] %p %m (%c)%n</div><div class="line">log4j.appender.rolling.maxFileSize=50MB</div><div class="line">log4j.appender.rolling.maxBackupIndex=5</div><div class="line">log4j.appender.rolling.file=/var/log/spark/$&#123;dm.logging.name&#125;.log</div><div class="line">log4j.appender.rolling.encoding=UTF-8</div><div class="line"></div><div class="line">log4j.logger.org.apache.spark=WARN</div><div class="line">log4j.logger.org.eclipse.jetty=WARN</div><div class="line"></div><div class="line">log4j.logger.com.anjuke.dm=$&#123;dm.logging.level&#125;</div></pre></td></tr></table></figure>
-<p>This means log4j will roll the log file by 50MB and keep only 5 recent files. These files are saved in <code>/var/log/spark</code> directory, with filename picked from system property <code>dm.logging.name</code>. We also set the logging level of our package <code>com.anjuke.dm</code> according to <code>dm.logging.level</code> property. Another thing to mention is that we set <code>org.apache.spark</code> to level <code>WARN</code>, so as to ignore verbose logs from spark.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">log4j.rootLogger=INFO, rolling</div><div class="line"></div><div class="line">log4j.appender.rolling=org.apache.log4j.RollingFileAppender</div><div class="line">log4j.appender.rolling.layout=org.apache.log4j.PatternLayout</div><div class="line">log4j.appender.rolling.layout.conversionPattern=[%d] %p %m (%c)%n</div><div class="line">log4j.appender.rolling.maxFileSize=50MB</div><div class="line">log4j.appender.rolling.maxBackupIndex=5</div><div class="line">log4j.appender.rolling.file=/var/log/spark/$&#123;dm.logging.name&#125;.log</div><div class="line">log4j.appender.rolling.encoding=UTF-8</div><div class="line"></div><div class="line">log4j.logger.org.apache.spark=WARN</div><div class="line">log4j.logger.org.eclipse.jetty=WARN</div><div class="line"></div><div class="line">log4j.logger.com.shzhangji.dm=$&#123;dm.logging.level&#125;</div></pre></td></tr></table></figure>
+<p>This means log4j will roll the log file by 50MB and keep only 5 recent files. These files are saved in <code>/var/log/spark</code> directory, with filename picked from system property <code>dm.logging.name</code>. We also set the logging level of our package <code>com.shzhangji.dm</code> according to <code>dm.logging.level</code> property. Another thing to mention is that we set <code>org.apache.spark</code> to level <code>WARN</code>, so as to ignore verbose logs from spark.</p>
         
           <p class="article-more-link">
             <a href="/blog/2015/05/31/spark-streaming-logging-configuration/#more">Read More</a>
@@ -179,7 +179,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="cj697g5nt000epcm6u7g8ozbj" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="cj6bn48oi000b6kzjdr8gdheg" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -239,7 +239,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cj697g5nd0008pcm6reb1n9sm" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cj6bn48ob00076kzjsk2torr3" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -291,7 +291,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="cj697g5mv0003pcm6b3qre4f6" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="cj6bn48oe00086kzjp7ovj10t" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -349,7 +349,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="cj697g5n30006pcm63lgt4xbe" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="cj6bn48oa00066kzjudztjtq9" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -399,7 +399,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="cj697g5me0002pcm6edv5pxe5" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="cj6bn48o400036kzj9zdgn756" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/#disqus_thread" class="article-comment-link">Comments</a>
       
