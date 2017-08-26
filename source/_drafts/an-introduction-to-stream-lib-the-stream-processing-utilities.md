@@ -48,9 +48,9 @@ System.out.println(filter.isPresent("bing.com")); // false
 
 The contruction process of a bloom filter is faily simple:
 
-1. Create a bit array of `n` bits. In Java, we can use the [`BitSet`][6] class.
-2. Apply `k` number of hash functions to the incoming value, and set the corresponding bits to true.
-3. When testing a membership, apply those hash functions and get the bits' values:
+* Create a bit array of `n` bits. In Java, we can use the [`BitSet`][6] class.
+* Apply `k` number of hash functions to the incoming value, and set the corresponding bits to true.
+* When testing a membership, apply those hash functions and get the bits' values:
   * If every bit hits, the value might be in the set, with a False Positive Probability (FPP);
   * If not all bits hit, the value is definitely not in the set.
 
@@ -60,13 +60,15 @@ Again, those hash functions need to be uniformly distributed, and pairwise indep
 
 ![Count Min Sketch](/images/stream-lib/count-min-sketch.png)
 
+[Source][https://stackoverflow.com/a/35356116/1030720]
+
 [`CountMinSketch`][9] is a "sketching" algorithm that uses minimal space to track frequencies of incoming events. We can for example find out the top K tweets streaming out of Twitter, or count the most visited pages of a website. The "sketch" can be used to estimate these frequencies, with some loss of accuracy, of course.
 
 The following snippet shows how to use `stream-lib` to get the top three animals in the `List`:
 
 ```java
 List<String> animals;
-IFrequency freq = new CountMinSketch(10, 10, 0);
+IFrequency freq = new CountMinSketch(10, 5, 0);
 Map<String, Long> top = Collections.emptyMap();
 for (String animal : animals) {
     freq.add(animal, 1);
@@ -86,7 +88,11 @@ The data structure of count-min sketch is similar to bloom filter, instead of on
 
 The estimation error is `ε = e / w` while probability of bad estimate is `δ = 1 / e ^ d`. So we can increase `w` and / or decrease `d` to improve the results. Original paper can be found in this [link][8].
 
-## Histogram and Quantile with `TDigest`
+## Histogram and Quantile with `T-Digest`
+
+![T-Digest](/images/stream-lib/t-digest.png)
+
+[Source][https://dataorigami.net/blogs/napkin-folding/19055451-percentile-and-quantile-estimation-of-big-data-the-t-digest]
 
 * use case: median, 95% percentile
 * algorithm:
@@ -97,7 +103,7 @@ The estimation error is `ε = e / w` while probability of bad estimate is `δ = 
 * parallel friendly - merge and become more accurate
 
 https://github.com/tdunning/t-digest
-https://dataorigami.net/blogs/napkin-folding/19055451-percentile-and-quantile-estimation-of-big-data-the-t-digest
+
 paper: https://raw.githubusercontent.com/tdunning/t-digest/master/docs/t-digest-paper/histo.pdf
 
 ## References
@@ -114,4 +120,4 @@ paper: https://raw.githubusercontent.com/tdunning/t-digest/master/docs/t-digest-
 [6]: https://docs.oracle.com/javase/8/docs/api/java/util/BitSet.html
 [7]: https://en.wikipedia.org/wiki/Pairwise_independence
 [8]: https://web.archive.org/web/20060907232042/http://www.eecs.harvard.edu/~michaelm/CS222/countmin.pdf
-[9]: https://stackoverflow.com/a/35356116/1030720
+[9]: https://en.wikipedia.org/wiki/Count%E2%80%93min_sketch
