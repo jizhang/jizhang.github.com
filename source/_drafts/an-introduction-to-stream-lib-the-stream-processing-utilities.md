@@ -4,30 +4,33 @@ tags: [stream processing, java, algorithm]
 categories: [Big Data]
 ---
 
-<!-- more -->
+When processing a large amount of data, certain operations will cost a lot of time and space, such as counting the distinct values, or figuring out the 95th percentile of a sequence of numbers. But sometimes the accuracy is not that important. Maybe you just want a brief summary of the dataset, or it's a monitoring system, where limited error rate is tolerable. There're plenty of such algorithms that can trade accuracy with huge saves of time-space. What's more, most of the data structures can be merged, making it possible to use in stream processing applications. [`stream-lib`][1] is a collection of these algorithms. They are Java implementations based on academical research and papers. This artile will give a brief introduction to this utility library.
 
 ## Count Cardinality with `HyperLogLog`
 
-```java
+Unique visitors (UV) is the major metric of websites. We usually generate UUIDs for each user and track them by HTTP Cookie, or roughly use the IP address. We can use a `HashSet` to count the exact value of UV, but that takes a lot of memory. With `HyperLogLog`, an algorithm for the count-distinct problem, we are able to [estimate cardinalities of > 10^9 with a typical accuracy of 2%, using 1.5 kB of memory][2].
 
+```xml
+<dependency>
+    <groupId>com.clearspring.analytics</groupId>
+    <artifactId>stream</artifactId>
+    <version>2.9.5</version>
+</dependency>
 ```
 
-* use case: uv
-* cardinalities of > 10^9, error rate 2%, 1.5KB memory
-* algorithm
-  * maximum number of leading zeros n, number of distinct values 2^n
-  * hash function to obtain uniformly distributed random numbers
-  * solve variance - split into subsets and combine by harmonic mean
-* process
-  * use first *b* bits to decide which register to modify
-  * compute leading zeros in the remaining bits, and update register if it's greater
-  * harmonic mean of all registers
-* hll++
-  * 64 bit hash function to remove alpha correction
-  * small cardinality, empirical bias correction
-  * sparse grows to dense
+```java
+ICardinality card = new HyperLogLog(10);
+for (int i : new int[] { 1, 2, 3, 2, 4, 3 }) {
+    card.offer(i);
+}
+System.out.println(card.cardinality()); // output: 4
+```
 
-https://en.wikipedia.org/wiki/HyperLogLog#HLL.2B.2B
+<!-- more -->
+
+`HyperLogLog` estimates cardinality by counting the leading zeros of each member's binary value. If the maximum count is *n*, the cardinality is *2^n*. There're some key points in this algorithm. First, members needs to be uniformly distributed, which we can use a hash function to achieve. `stream-lib` uses [MurmurHash][3], a simple, fast, and well distributed hash function, that is used in lots of hash-based lookup algorithms. Second, to decrease the variance of the result, set members are splitted into subsets, and the final result is the harmonic mean of all subsets' cardinality. The integer argument that we passed to `HyperLogLog` constructor is the number of bits that it'll use to split subsets, and the accuracy can be derived from this formula: `1.04/sqrt(2^log2m)`.
+
+`HyperLogLog` is an extension of `LogLog` algorithm, and the `HyperLogLogPlus` makes some more improvements. For instance, it uses a 64 bit hash function to remove the correction factor that adjusts hash collision; for small cardinality, it applies an empirical bias correction; and it also supports growing from a sparse data strucutre of registers (holding subsets) to a dense one. These algorithms are all included in `stream-lib`
 
 ## Test Membership with `BloomFilter`
 
@@ -101,7 +104,10 @@ paper: https://raw.githubusercontent.com/tdunning/t-digest/master/docs/t-digest-
 
 ## References
 
-* https://github.com/addthis/stream-lib
 * https://www.javadoc.io/doc/com.clearspring.analytics/stream/2.9.5
 * http://www.addthis.com/blog/2011/03/29/new-open-source-stream-summarizing-java-library/
 * https://www.mapr.com/blog/some-important-streaming-algorithms-you-should-know-about
+
+[1]: https://github.com/addthis/stream-lib
+[2]: https://en.wikipedia.org/wiki/HyperLogLog
+[3]: https://en.wikipedia.org/wiki/MurmurHash
