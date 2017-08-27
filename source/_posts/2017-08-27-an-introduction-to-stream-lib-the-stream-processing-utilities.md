@@ -92,7 +92,7 @@ System.out.println(top); // {rabbit=25, bird=45, spider=35}
 
 The data structure of count-min sketch is similar to bloom filter, instead of one bit array of `w` bits, it uses `d` number of them, so as to form a `d x w` matrix. When a value comes, it applies `d` number of hash functions, and update the corresponding bit in the matrix. These hash functions need only to be [pairwise independent][7], so `stream-lib` uses a simple yet fast `(a*x+b) mod p` formula. When doing *point query*, calculate the hash values, and the smallest value is the frequency.
 
-The estimation error is `ε = e / w` while probability of bad estimate is `δ = 1 / e ^ d`. So we can increase `w` and / or decrease `d` to improve the results. Original paper can be found in this [link][8].
+The estimation error is `ε = e / w` while probability of bad estimate is `δ = 1 / e ^ d`. So we can increase `w` and / or `d` to improve the results. Original paper can be found in this [link][8].
 
 ## Histogram and Quantile with `T-Digest`
 
