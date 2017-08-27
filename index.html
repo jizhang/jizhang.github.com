@@ -87,6 +87,58 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-an-introduction-to-stream-lib-the-stream-processing-utilities" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/" class="article-date">
+  <time datetime="2017-08-27T02:57:24.000Z" itemprop="datePublished">2017-08-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/">An Introduction to stream-lib The Stream Processing Utilities</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>When processing a large amount of data, certain operations will cost a lot of time and space, such as counting the distinct values, or figuring out the 95th percentile of a sequence of numbers. But sometimes the accuracy is not that important. Maybe you just want a brief summary of the dataset, or it’s a monitoring system, where limited error rate is tolerable. There’re plenty of such algorithms that can trade accuracy with huge saves of time-space. What’s more, most of the data structures can be merged, making it possible to use in stream processing applications. <a href="https://github.com/addthis/stream-lib" target="_blank" rel="external"><code>stream-lib</code></a> is a collection of these algorithms. They are Java implementations based on academical research and papers. This artile will give a brief introduction to this utility library.</p>
+<h2 id="Count-Cardinality-with-HyperLogLog"><a href="#Count-Cardinality-with-HyperLogLog" class="headerlink" title="Count Cardinality with HyperLogLog"></a>Count Cardinality with <code>HyperLogLog</code></h2><p>Unique visitors (UV) is the major metric of websites. We usually generate UUIDs for each user and track them by HTTP Cookie, or roughly use the IP address. We can use a <code>HashSet</code> to count the exact value of UV, but that takes a lot of memory. With <code>HyperLogLog</code>, an algorithm for the count-distinct problem, we are able to <a href="https://en.wikipedia.org/wiki/HyperLogLog" target="_blank" rel="external">estimate cardinalities of &gt; 10^9 with a typical accuracy of 2%, using 1.5 kB of memory</a>.</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.clearspring.analytics<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>stream<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">ICardinality card = <span class="keyword">new</span> HyperLogLog(<span class="number">10</span>);</div><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i : <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">3</span> &#125;) &#123;</div><div class="line">    card.offer(i);</div><div class="line">&#125;</div><div class="line">System.out.println(card.cardinality()); <span class="comment">// 4</span></div></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/" data-id="cj6u59um00017n8m60o1gfac3" class="article-share-link">Share</a>
+      
+        <a href="http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/algorithm/">algorithm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/stream-processing/">stream processing</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-extract-data-from-mysql-with-binlog-and-canal" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/" class="article-date">
@@ -124,7 +176,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/" data-id="cj6bn48p7001b6kzjiwlwfaqy" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/" data-id="cj6u59ulv0015n8m6z54hejd9" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -182,7 +234,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/" data-id="cj6bn48p500176kzj8g0qnedg" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/" data-id="cj6u59uli000yn8m6y7x8ess4" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -237,7 +289,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/" data-id="cj6bn48p400146kzjc835cwef" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/" data-id="cj6u59uks000rn8m6n3kx3wfo" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -293,7 +345,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/" data-id="cj6bn48p300106kzjow83vh3f" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/" data-id="cj6u59ulo0011n8m6r21r11d5" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -344,7 +396,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cj6bn48p1000w6kzjjg13rfis" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cj6u59uke000on8m6uojdfjuv" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -395,7 +447,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cj6bn48oz000t6kzjgi2sxgph" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cj6u59ujv000jn8m6gb7957z0" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -447,7 +499,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="cj6bn48ou000p6kzjynh6zo41" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="cj6u59uk3000ln8m67auppqaj" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -501,7 +553,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cj6bn48os000n6kzj7v8xa9ig" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cj6u59ulf000vn8m69rf00ded" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -552,83 +604,12 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" data-id="cj6bn48oo000j6kzjepo5e61w" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" data-id="cj6u59ujj000dn8m6i7qpp5jr" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lodash/">lodash</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-python-2-to-3-quick-guide" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2017/01/08/python-2-to-3-quick-guide/" class="article-date">
-  <time datetime="2017-01-08T04:26:54.000Z" itemprop="datePublished">2017-01-08</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Programming/">Programming</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2017/01/08/python-2-to-3-quick-guide/">Python 2 to 3 Quick Guide</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python 3 is <a href="http://py3readiness.org/" target="_blank" rel="external">totally ready</a>, and here’s a list of references for those (including me) who are adopting Python 3 with a 2.x background.</p>
-<ol>
-<li>All Strings Are Unicode</li>
-<li><code>print</code> Becomes a Function</li>
-<li>Less Lists More Views</li>
-<li>Integer Division Returns Float</li>
-<li>Comparison Operators Raises <code>TypeError</code></li>
-<li>Set Literal Support</li>
-<li>New String Formatting</li>
-<li>Exception Handling</li>
-<li>Global Function Changes</li>
-<li>Renaming Modules and Relative Import</li>
-</ol>
-<h2 id="All-Strings-Are-Unicode"><a href="#All-Strings-Are-Unicode" class="headerlink" title="All Strings Are Unicode"></a>All Strings Are Unicode</h2><p>When dealing with non-ASCII encodings in Python 2, there’re <code>str</code>, <code>unicode</code>, <code>u&#39;...&#39;</code>, <code>s.encode()</code>, etc. In Python 3, there’re only <strong>text</strong> and <strong>binary data</strong>. The former is <code>str</code>, strings that are always represented in Unicode; the later is <code>bytes</code>, which is just a sequence of byte numbers.</p>
-<ul>
-<li>Conversion between <code>str</code> and <code>bytes</code>:</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># str to bytes</span></div><div class="line"><span class="string">'str'</span>.encode(<span class="string">'UTF-8'</span>)</div><div class="line">bytes(<span class="string">'str'</span>, encoding=<span class="string">'UTF-8'</span>)</div><div class="line"></div><div class="line"><span class="comment"># bytes to str</span></div><div class="line"><span class="string">b'bytes'</span>.decode(<span class="string">'UTF-8'</span>)</div><div class="line">str(<span class="string">b'bytes'</span>, encoding=<span class="string">'UTF-8'</span>)</div></pre></td></tr></table></figure>
-<ul>
-<li><code>basestring</code> is removed, use <code>str</code> as type: <code>isinstance(s, str)</code></li>
-<li><code>bytes</code> is immutable, the corresponding mutable version is <code>bytearray</code>.</li>
-<li>The default source file encoding is UTF-8 now.</li>
-</ul>
-        
-          <p class="article-more-link">
-            <a href="/blog/2017/01/08/python-2-to-3-quick-guide/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cj6bn48om000h6kzj14snxkm0" class="article-share-link">Share</a>
-      
-        <a href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
 
     </footer>
   </div>
@@ -650,7 +631,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/analytics/" style="font-size: 13.33px;">analytics</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flume/" style="font-size: 10px;">flume</a> <a href="/tags/frontend/" style="font-size: 13.33px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/java/" style="font-size: 13.33px;">java</a> <a href="/tags/javascript/" style="font-size: 13.33px;">javascript</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/lodash/" style="font-size: 13.33px;">lodash</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/scala/" style="font-size: 13.33px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 16.67px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 10px;">stream processing</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 13.33px;">analytics</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flume/" style="font-size: 10px;">flume</a> <a href="/tags/frontend/" style="font-size: 13.33px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/javascript/" style="font-size: 13.33px;">javascript</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/lodash/" style="font-size: 13.33px;">lodash</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/scala/" style="font-size: 13.33px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 16.67px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -672,6 +653,10 @@ ga('send', 'pageview');
       <ul>
         
           <li>
+            <a href="/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/">An Introduction to stream-lib The Stream Processing Utilities</a>
+          </li>
+        
+          <li>
             <a href="/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/">Extract Data from MySQL with Binlog and Canal</a>
           </li>
         
@@ -685,10 +670,6 @@ ga('send', 'pageview');
         
           <li>
             <a href="/blog/2017/07/23/learn-pandas-from-a-sql-perspective/">Learn Pandas from a SQL Perspective</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2017/07/15/log-tailer-with-websocket-and-python/">Log Tailer with WebSocket and Python</a>
           </li>
         
       </ul>
