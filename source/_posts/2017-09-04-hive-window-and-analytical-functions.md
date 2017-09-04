@@ -1,8 +1,14 @@
 ---
 title: Hive Window and Analytical Functions
-categories: [Big Data]
-tags: [hive, analytics, sql]
+tags:
+  - hive
+  - analytics
+  - sql
+categories:
+  - Big Data
+date: 2017-09-04 21:55:23
 ---
+
 
 SQL is one of the major tools of data analysis. It provides filtering, transforming and aggregation functionalities, and we can use it to process big volume of data with the help of Hive and Hadoop. However, legacy SQL does not support operations like grouped ranking and moving average, because the `GROUP BY` clause can only produce one aggregation result for each group, but not for each row. Fortunately, with the new SQL standard coming, we can use the `WINDOW` clause to compute aggregations on a set of rows and return the result for each row.
 
@@ -37,7 +43,7 @@ SQL window query introduces three concepts, namely window partition, window fram
 
 `PARTITION` clause divides result set into **window partitions** by one or more columns, and the rows whithin can be optionally sorted by one or more columns. If there's not `PARTITION BY`, the entrie result set is treated as a single partition; if there's not `ORDER BY`, window frames cannot be defined, and all rows within the partition constitudes a single frame.
 
-**Window frame** selects rows from partition for window function to work on. There're two ways of defining frame in Hive, `ROWS` AND `RANGE`. For both types, we defines the upper bound and lower bound. For instance, `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` selects rows from the beginning of the partition to the current row; `SUM(close) RANGE BETWEEN 100 PRECEIDING AND 200 FOLLOWING` selects rows by the *distance* from the current row's value. Say current `close` is `200`, and this frame will includes rows whose `close` values range from `100` to `400`, within the partition. All possible combinations of frame definitions are listed as follows, and the default definition is `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`.
+**Window frame** selects rows from partition for window function to work on. There're two ways of defining frame in Hive, `ROWS` AND `RANGE`. For both types, we define the upper bound and lower bound. For instance, `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` selects rows from the beginning of the partition to the current row; `SUM(close) RANGE BETWEEN 100 PRECEIDING AND 200 FOLLOWING` selects rows by the *distance* from the current row's value. Say current `close` is `200`, and this frame will includes rows whose `close` values range from `100` to `400`, within the partition. All possible combinations of frame definitions are listed as follows, and the default definition is `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`.
 
 ```text
 (ROWS | RANGE) BETWEEN (UNBOUNDED | [num]) PRECEDING AND ([num] PRECEDING | CURRENT ROW | (UNBOUNDED | [num]) FOLLOWING)
@@ -152,15 +158,21 @@ WINDOW x AS (PARTITION BY ipaddress ORDER BY ts);
 
 ## Implementation Detail
 
-Partitioned Table Function
+Briefly speaking, window query consists of two steps: divide records into partitions, and evaluate window functions on each of them. The partitioning process is intuitive in map-reduce paradigm, since Hadoop will take care of the shuffling and sorting. However, ordinary UDAF can only return one row for each group, but in window query, there need to be a *table in, table out* contract. So the community introduced Partitioned Table Function (PTF) into Hive.
+
+PTF, as the name suggests, works on partitions, and inputs / outputs a set of table rows. The following sequence diagram lists the major classes of PTF mechanism. `PTFOperator` reads data from sorted source and create input partitions; `WindowTableFunction` manages window frames, invokes window functions (UDAF), and writes the results to output partitions.
+
+![PTF Sequence Diagram](/images/hive-window/window-sequence.png)
+
+The HIVE-896 ticket ([link][2]) contains discussions on introducing analytical window functions into Hive, and this slide ([link][3]), authored by one of the committers, explains how they implemented and merged PTF into Hive.
 
 ## References
 
 * https://cwiki.apache.org/confluence/display/Hive/LanguageManual+WindowingAndAnalytics
+* https://github.com/hbutani/SQLWindowing
+* https://content.pivotal.io/blog/time-series-analysis-1-introduction-to-window-functions
 * https://databricks.com/blog/2015/07/15/introducing-window-functions-in-spark-sql.html
 
-* https://www.slideshare.net/Hadoop_Summit/analytical-queries-with-hive
-* https://github.com/hbutani/SQLWindowing/blob/hive-rt/docs/foldIntoHive/PTFWindowingInHive.pdf
-* https://issues.apache.org/jira/browse/HIVE-896
-
 [1]: https://en.wikibooks.org/wiki/Structured_Query_Language/Window_functions
+[2]: https://issues.apache.org/jira/browse/HIVE-896
+[3]: https://www.slideshare.net/Hadoop_Summit/analytical-queries-with-hive
