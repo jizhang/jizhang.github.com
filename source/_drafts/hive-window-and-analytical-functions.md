@@ -56,7 +56,7 @@ All **window functions** compute results on the current frame. Hive supports the
 
 ### Top K
 
-First let's simulate some data of employee incomes in Hive:
+First, let's create some test data of employee incomes in Hive:
 
 ```sql
 CREATE t_employee (
@@ -157,9 +157,10 @@ Partitioned Table Function
 ## References
 
 * https://cwiki.apache.org/confluence/display/Hive/LanguageManual+WindowingAndAnalytics
-* https://issues.apache.org/jira/secure/attachment/12575830/WindowingSpecification.pdf
-* https://www.slideshare.net/Hadoop_Summit/analytical-queries-with-hive
-* https://en.wikibooks.org/wiki/Structured_Query_Language/Window_functions
 * https://databricks.com/blog/2015/07/15/introducing-window-functions-in-spark-sql.html
+
+* https://www.slideshare.net/Hadoop_Summit/analytical-queries-with-hive
+* https://github.com/hbutani/SQLWindowing/blob/hive-rt/docs/foldIntoHive/PTFWindowingInHive.pdf
+* https://issues.apache.org/jira/browse/HIVE-896
 
 [1]: https://en.wikibooks.org/wiki/Structured_Query_Language/Window_functions
