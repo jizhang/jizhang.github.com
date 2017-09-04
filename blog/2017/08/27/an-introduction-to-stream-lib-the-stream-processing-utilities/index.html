@@ -16,7 +16,7 @@
 <meta property="og:image" content="http://shzhangji.com/images/stream-lib/bloom-filter.jpg">
 <meta property="og:image" content="http://shzhangji.com/images/stream-lib/count-min-sketch.png">
 <meta property="og:image" content="http://shzhangji.com/images/stream-lib/t-digest.png">
-<meta property="og:updated_time" content="2017-08-27T02:59:46.852Z">
+<meta property="og:updated_time" content="2017-09-04T13:26:37.453Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="An Introduction to stream-lib The Stream Processing Utilities">
 <meta name="twitter:description" content="When processing a large amount of data, certain operations will cost a lot of time and space, such as counting the distinct values, or figuring out the 95th percentile of a sequence of numbers. But so">
@@ -148,7 +148,7 @@ ga('send', 'pageview');
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">List&lt;String&gt; animals;</div><div class="line">IFrequency freq = <span class="keyword">new</span> CountMinSketch(<span class="number">10</span>, <span class="number">5</span>, <span class="number">0</span>);</div><div class="line">Map&lt;String, Long&gt; top = Collections.emptyMap();</div><div class="line"><span class="keyword">for</span> (String animal : animals) &#123;</div><div class="line">    freq.add(animal, <span class="number">1</span>);</div><div class="line">    top = Stream.concat(top.keySet().stream(), Stream.of(animal)).distinct()</div><div class="line">              .map(a -&gt; <span class="keyword">new</span> SimpleEntry&lt;String, Long&gt;(a, freq.estimateCount(a)))</div><div class="line">              .sorted(Comparator.comparing(SimpleEntry&lt;String, Long&gt;::getValue).reversed())</div><div class="line">              .limit(<span class="number">3</span>)</div><div class="line">              .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));</div><div class="line">&#125;</div><div class="line"></div><div class="line">System.out.println(top); <span class="comment">// &#123;rabbit=25, bird=45, spider=35&#125;</span></div></pre></td></tr></table></figure>
 <p><code>CountMinSketch#estimateCount</code> is a <em>point query</em> that asks for the count of an event. Since the “sketch” cannot remeber the exact events, we need to store them else where.</p>
 <p>The data structure of count-min sketch is similar to bloom filter, instead of one bit array of <code>w</code> bits, it uses <code>d</code> number of them, so as to form a <code>d x w</code> matrix. When a value comes, it applies <code>d</code> number of hash functions, and update the corresponding bit in the matrix. These hash functions need only to be <a href="https://en.wikipedia.org/wiki/Pairwise_independence" target="_blank" rel="external">pairwise independent</a>, so <code>stream-lib</code> uses a simple yet fast <code>(a*x+b) mod p</code> formula. When doing <em>point query</em>, calculate the hash values, and the smallest value is the frequency.</p>
-<p>The estimation error is <code>ε = e / w</code> while probability of bad estimate is <code>δ = 1 / e ^ d</code>. So we can increase <code>w</code> and / or decrease <code>d</code> to improve the results. Original paper can be found in this <a href="https://web.archive.org/web/20060907232042/http://www.eecs.harvard.edu/~michaelm/CS222/countmin.pdf" target="_blank" rel="external">link</a>.</p>
+<p>The estimation error is <code>ε = e / w</code> while probability of bad estimate is <code>δ = 1 / e ^ d</code>. So we can increase <code>w</code> and / or <code>d</code> to improve the results. Original paper can be found in this <a href="https://web.archive.org/web/20060907232042/http://www.eecs.harvard.edu/~michaelm/CS222/countmin.pdf" target="_blank" rel="external">link</a>.</p>
 <h2 id="Histogram-and-Quantile-with-T-Digest"><a href="#Histogram-and-Quantile-with-T-Digest" class="headerlink" title="Histogram and Quantile with T-Digest"></a>Histogram and Quantile with <code>T-Digest</code></h2><p><img src="/images/stream-lib/t-digest.png" alt="T-Digest"></p>
 <p><a href="https://dataorigami.net/blogs/napkin-folding/19055451-percentile-and-quantile-estimation-of-big-data-the-t-digest" target="_blank" rel="external">Source</a></p>
 <p>Median, 95th percentile are common use cases in descriptive statistics. Median for instance is less influenced by outliers than mean, but the calculation is not simple. One needs to track all data, sort them, and then get the final result. With <code>T-Digest</code>, we can agian generate a summarized distribution of the dataset and estimate the quantiles.</p>
@@ -164,7 +164,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/" data-id="cj6u59um00017n8m60o1gfac3" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/" data-id="cj768arrb000xrnm6maato8kr" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -176,6 +176,15 @@ ga('send', 'pageview');
   
     
 <nav id="article-nav">
+  
+    <a href="/blog/2017/09/04/hive-window-and-analytical-functions/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Hive Window and Analytical Functions
+        
+      </div>
+    </a>
   
   
     <a href="/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/" id="article-nav-older" class="article-nav-link-wrap">
@@ -202,7 +211,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 13.33px;">analytics</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flume/" style="font-size: 10px;">flume</a> <a href="/tags/frontend/" style="font-size: 13.33px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/javascript/" style="font-size: 13.33px;">javascript</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/lodash/" style="font-size: 13.33px;">lodash</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/scala/" style="font-size: 13.33px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 16.67px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 16.67px;">analytics</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flume/" style="font-size: 10px;">flume</a> <a href="/tags/frontend/" style="font-size: 13.33px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/javascript/" style="font-size: 13.33px;">javascript</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/lodash/" style="font-size: 13.33px;">lodash</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/scala/" style="font-size: 13.33px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 16.67px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/sql/" style="font-size: 13.33px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -211,7 +220,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
     </div>
   </div>
 
@@ -222,6 +231,10 @@ ga('send', 'pageview');
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/blog/2017/09/04/hive-window-and-analytical-functions/">Hive Window and Analytical Functions</a>
+          </li>
         
           <li>
             <a href="/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/">An Introduction to stream-lib The Stream Processing Utilities</a>
@@ -237,10 +250,6 @@ ga('send', 'pageview');
         
           <li>
             <a href="/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/">How to Achieve Exactly-Once Semantics in Spark Streaming</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2017/07/23/learn-pandas-from-a-sql-perspective/">Learn Pandas from a SQL Perspective</a>
           </li>
         
       </ul>

@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://shzhangji.com/"/>
-  <updated>2017-08-27T02:59:46.852Z</updated>
+  <updated>2017-09-04T14:02:11.447Z</updated>
   <id>http://shzhangji.com/</id>
   
   <author>
@@ -16,11 +16,86 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Hive Window and Analytical Functions</title>
+    <link href="http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/"/>
+    <id>http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/</id>
+    <published>2017-09-04T13:55:23.000Z</published>
+    <updated>2017-09-04T14:02:11.447Z</updated>
+    
+    <content type="html"><![CDATA[<p>SQL is one of the major tools of data analysis. It provides filtering, transforming and aggregation functionalities, and we can use it to process big volume of data with the help of Hive and Hadoop. However, legacy SQL does not support operations like grouped ranking and moving average, because the <code>GROUP BY</code> clause can only produce one aggregation result for each group, but not for each row. Fortunately, with the new SQL standard coming, we can use the <code>WINDOW</code> clause to compute aggregations on a set of rows and return the result for each row.</p>
+<p><img src="/images/hive-window/window-stock.png" alt="Moving Average"></p>
+<p>For instance, if we want to calculate the two-day moving average for each stock, we can write the following query:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span></div><div class="line">  <span class="string">`date`</span>, <span class="string">`stock`</span>, <span class="string">`close`</span></div><div class="line">  ,<span class="keyword">AVG</span>(<span class="string">`close`</span>) <span class="keyword">OVER</span> <span class="string">`w`</span> <span class="keyword">AS</span> <span class="string">`mavg`</span></div><div class="line"><span class="keyword">FROM</span> <span class="string">`t_stock`</span></div><div class="line">WINDOW <span class="string">`w`</span> <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="string">`stock`</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="string">`date`</span></div><div class="line">               <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> <span class="number">1</span> <span class="keyword">PRECEDING</span> <span class="keyword">AND</span> <span class="keyword">CURRENT</span> <span class="keyword">ROW</span>)</div></pre></td></tr></table></figure>
+<p><code>OVER</code>, <code>WINDOW</code> and <code>ROWS BETWEEN AND</code> are all newly added SQL keywords to support windowing operations. In this query, <code>PARTITION BY</code> and <code>ORDER BY</code> works like <code>GROUP BY</code> and <code>ORDER BY</code> after the <code>WHERE</code> caluse, except it doesn’t collapse the rows, but only divides them into non-overlapping partitions to work on. <code>ROWS BETWEEN AND</code> here constructs a <strong>window frame</strong>. In this case, each frame contains the previous row and current row. We’ll discuss more on frames later. Finally, <code>AVG</code> is a window function that computes results on each frame. Note that <code>WINDOW</code> clause can also be directly appended to window function:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> <span class="keyword">AVG</span>(<span class="string">`close`</span>) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="string">`stock`</span>) <span class="keyword">AS</span> <span class="string">`mavg`</span> <span class="keyword">FROM</span> <span class="string">`t_stock`</span>;</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="Window-Query-Concepts"><a href="#Window-Query-Concepts" class="headerlink" title="Window Query Concepts"></a>Window Query Concepts</h2><p><img src="/images/hive-window/concepts.png" alt="Concepts"></p>
+<p><a href="https://en.wikibooks.org/wiki/Structured_Query_Language/Window_functions" target="_blank" rel="external">Source</a></p>
+<p>SQL window query introduces three concepts, namely window partition, window frame and window function.</p>
+<p><code>PARTITION</code> clause divides result set into <strong>window partitions</strong> by one or more columns, and the rows whithin can be optionally sorted by one or more columns. If there’s not <code>PARTITION BY</code>, the entrie result set is treated as a single partition; if there’s not <code>ORDER BY</code>, window frames cannot be defined, and all rows within the partition constitudes a single frame.</p>
+<p><strong>Window frame</strong> selects rows from partition for window function to work on. There’re two ways of defining frame in Hive, <code>ROWS</code> AND <code>RANGE</code>. For both types, we define the upper bound and lower bound. For instance, <code>ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code> selects rows from the beginning of the partition to the current row; <code>SUM(close) RANGE BETWEEN 100 PRECEIDING AND 200 FOLLOWING</code> selects rows by the <em>distance</em> from the current row’s value. Say current <code>close</code> is <code>200</code>, and this frame will includes rows whose <code>close</code> values range from <code>100</code> to <code>400</code>, within the partition. All possible combinations of frame definitions are listed as follows, and the default definition is <code>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code>.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">(ROWS | RANGE) BETWEEN (UNBOUNDED | [num]) PRECEDING AND ([num] PRECEDING | CURRENT ROW | (UNBOUNDED | [num]) FOLLOWING)</div><div class="line">(ROWS | RANGE) BETWEEN CURRENT ROW AND (CURRENT ROW | (UNBOUNDED | [num]) FOLLOWING)</div><div class="line">(ROWS | RANGE) BETWEEN [num] FOLLOWING AND (UNBOUNDED | [num]) FOLLOWING</div></pre></td></tr></table></figure>
+<p>All <strong>window functions</strong> compute results on the current frame. Hive supports the following functions:</p>
+<ul>
+<li><code>FIRST_VALUE(col)</code>, <code>LAST_VALUE(col)</code> returns the column value of first / last row within the frame;</li>
+<li><code>LEAD(col, n)</code>, <code>LAG(col, n)</code> returns the column value of n-th row before / after current row;</li>
+<li><code>RANK()</code>, <code>ROW_NUMBER()</code> assigns a sequence of the current row within the frame. The difference is <code>RANK()</code> will contain duplicate if there’re identical values.</li>
+<li><code>COUNT()</code>, <code>SUM(col)</code>, <code>MIN(col)</code> works as usual.</li>
+</ul>
+<h2 id="Hive-Query-Examples"><a href="#Hive-Query-Examples" class="headerlink" title="Hive Query Examples"></a>Hive Query Examples</h2><h3 id="Top-K"><a href="#Top-K" class="headerlink" title="Top K"></a>Top K</h3><p>First, let’s create some test data of employee incomes in Hive:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> t_employee (</div><div class="line">  <span class="keyword">id</span> <span class="built_in">INT</span></div><div class="line">  ,emp_name <span class="built_in">VARCHAR</span>(<span class="number">20</span>)</div><div class="line">  ,dep_name <span class="built_in">VARCHAR</span>(<span class="number">20</span>)</div><div class="line">  ,salary <span class="built_in">DECIMAL</span>(<span class="number">7</span>, <span class="number">2</span>)</div><div class="line">  ,age <span class="built_in">DECIMAL</span>(<span class="number">3</span>, <span class="number">0</span>)</div><div class="line">);</div><div class="line"></div><div class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_employee <span class="keyword">VALUES</span></div><div class="line">( <span class="number">1</span>,  <span class="string">'Matthew'</span>, <span class="string">'Management'</span>,  <span class="number">4500</span>, <span class="number">55</span>),</div><div class="line">( <span class="number">2</span>,  <span class="string">'Olivia'</span>,  <span class="string">'Management'</span>,  <span class="number">4400</span>, <span class="number">61</span>),</div><div class="line">( <span class="number">3</span>,  <span class="string">'Grace'</span>,   <span class="string">'Management'</span>,  <span class="number">4000</span>, <span class="number">42</span>),</div><div class="line">( <span class="number">4</span>,  <span class="string">'Jim'</span>,     <span class="string">'Production'</span>,  <span class="number">3700</span>, <span class="number">35</span>),</div><div class="line">( <span class="number">5</span>,  <span class="string">'Alice'</span>,   <span class="string">'Production'</span>,  <span class="number">3500</span>, <span class="number">24</span>),</div><div class="line">( <span class="number">6</span>,  <span class="string">'Michael'</span>, <span class="string">'Production'</span>,  <span class="number">3600</span>, <span class="number">28</span>),</div><div class="line">( <span class="number">7</span>,  <span class="string">'Tom'</span>,     <span class="string">'Production'</span>,  <span class="number">3800</span>, <span class="number">35</span>),</div><div class="line">( <span class="number">8</span>,  <span class="string">'Kevin'</span>,   <span class="string">'Production'</span>,  <span class="number">4000</span>, <span class="number">52</span>),</div><div class="line">( <span class="number">9</span>,  <span class="string">'Elvis'</span>,   <span class="string">'Service'</span>,     <span class="number">4100</span>, <span class="number">40</span>),</div><div class="line">(<span class="number">10</span>,  <span class="string">'Sophia'</span>,  <span class="string">'Sales'</span>,       <span class="number">4300</span>, <span class="number">36</span>),</div><div class="line">(<span class="number">11</span>,  <span class="string">'Samantha'</span>,<span class="string">'Sales'</span>,       <span class="number">4100</span>, <span class="number">38</span>);</div></pre></td></tr></table></figure>
+<p>We can use the <code>RANK()</code> function to find out who earns the most within each department:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> dep_name, emp_name, salary</div><div class="line"><span class="keyword">FROM</span> (</div><div class="line">  <span class="keyword">SELECT</span></div><div class="line">    dep_name, emp_name, salary</div><div class="line">    ,<span class="keyword">RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> dep_name <span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">AS</span> rnk</div><div class="line">  <span class="keyword">FROM</span> t_employee</div><div class="line">) a</div><div class="line"><span class="keyword">where</span> rnk = <span class="number">1</span>;</div></pre></td></tr></table></figure>
+<p>Normally when there’s duplicates, <code>RANK()</code> returns the same value for each row and <em>skip</em> the next sequence number. Use <code>DENSE_RANK()</code> if you want consecutive ranks.</p>
+<h3 id="Cumulative-Distribution"><a href="#Cumulative-Distribution" class="headerlink" title="Cumulative Distribution"></a>Cumulative Distribution</h3><p>We can calculate the cumulative distribution of salaries among all departments. For example, salary <code>4000</code>‘s cumulative distribution is <code>0.55</code>, which means 55% people’s salaries are less or equal to <code>4000</code>. To calculate this, we first count the frequencies of every salary, and do a cumulative summing:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span></div><div class="line">  salary</div><div class="line">  ,<span class="keyword">SUM</span>(cnt) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary)</div><div class="line">  / <span class="keyword">SUM</span>(cnt) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> <span class="keyword">UNBOUNDED</span> <span class="keyword">PRECEDING</span></div><div class="line">                   <span class="keyword">AND</span> <span class="keyword">UNBOUNDED</span> <span class="keyword">FOLLOWING</span>)</div><div class="line"><span class="keyword">FROM</span> (</div><div class="line">  <span class="keyword">SELECT</span> salary, <span class="keyword">count</span>(*) <span class="keyword">AS</span> cnt</div><div class="line">  <span class="keyword">FROM</span> t_employee</div><div class="line">  <span class="keyword">GROUP</span> <span class="keyword">BY</span> salary</div><div class="line">) a;</div></pre></td></tr></table></figure>
+<p>This can also be done with Hive’s <code>CUME_DIST()</code> window function. There’s another <code>PERCENT_RANK()</code> function, which computes the rank of the salary as percentage.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span></div><div class="line">  salary</div><div class="line">  ,<span class="keyword">CUME_DIST</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary) <span class="keyword">AS</span> pct_cum</div><div class="line">  ,<span class="keyword">PERCENT_RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary) <span class="keyword">AS</span> pct_rank</div><div class="line"><span class="keyword">FROM</span> t_employee;</div></pre></td></tr></table></figure>
+<p><img src="/images/hive-window/employee-pct.png" alt="Cumulative Distribution"></p>
+<h3 id="Clickstream-Sessionization"><a href="#Clickstream-Sessionization" class="headerlink" title="Clickstream Sessionization"></a>Clickstream Sessionization</h3><p>We can divide click events into different sessions by setting a <em>timeout</em>, in this case 30 minutes, and assign an id to each session:</p>
+<p><img src="/images/hive-window/clickstream.png" alt="Click Stream"></p>
+<p>First, in subquery <code>b</code>, we use the <code>LAG(col)</code> function to calculate the time difference between current row and previous row, and if it’s more than 30 minutes, a new session is marked. Then we do a cumulative sum of the <code>new_session</code> field so that each session will get an incremental sequence.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span></div><div class="line">  ipaddress, clicktime</div><div class="line">  ,<span class="keyword">SUM</span>(<span class="keyword">IF</span>(new_session, <span class="number">1</span>, <span class="number">0</span>)) <span class="keyword">OVER</span> x + <span class="number">1</span> <span class="keyword">AS</span> sessionid</div><div class="line"><span class="keyword">FROM</span> (</div><div class="line">  <span class="keyword">SELECT</span></div><div class="line">    ipaddress, clicktime, ts</div><div class="line">    ,ts - LAG(ts) <span class="keyword">OVER</span> w &gt; <span class="number">1800</span> <span class="keyword">AS</span> new_session</div><div class="line">  <span class="keyword">FROM</span> (</div><div class="line">    <span class="keyword">SELECT</span> *, <span class="keyword">UNIX_TIMESTAMP</span>(clicktime) <span class="keyword">AS</span> ts</div><div class="line">    <span class="keyword">FROM</span> t_clickstream</div><div class="line">  ) a</div><div class="line">  WINDOW w <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> ipaddress <span class="keyword">ORDER</span> <span class="keyword">BY</span> ts)</div><div class="line">) b</div><div class="line">WINDOW x <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> ipaddress <span class="keyword">ORDER</span> <span class="keyword">BY</span> ts);</div></pre></td></tr></table></figure>
+<h2 id="Implementation-Detail"><a href="#Implementation-Detail" class="headerlink" title="Implementation Detail"></a>Implementation Detail</h2><p>Briefly speaking, window query consists of two steps: divide records into partitions, and evaluate window functions on each of them. The partitioning process is intuitive in map-reduce paradigm, since Hadoop will take care of the shuffling and sorting. However, ordinary UDAF can only return one row for each group, but in window query, there need to be a <em>table in, table out</em> contract. So the community introduced Partitioned Table Function (PTF) into Hive.</p>
+<p>PTF, as the name suggests, works on partitions, and inputs / outputs a set of table rows. The following sequence diagram lists the major classes of PTF mechanism. <code>PTFOperator</code> reads data from sorted source and create input partitions; <code>WindowTableFunction</code> manages window frames, invokes window functions (UDAF), and writes the results to output partitions.</p>
+<p><img src="/images/hive-window/window-sequence.png" alt="PTF Sequence Diagram"></p>
+<p>The HIVE-896 ticket (<a href="https://issues.apache.org/jira/browse/HIVE-896" target="_blank" rel="external">link</a>) contains discussions on introducing analytical window functions into Hive, and this slide (<a href="https://www.slideshare.net/Hadoop_Summit/analytical-queries-with-hive" target="_blank" rel="external">link</a>), authored by one of the committers, explains how they implemented and merged PTF into Hive.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+WindowingAndAnalytics" target="_blank" rel="external">https://cwiki.apache.org/confluence/display/Hive/LanguageManual+WindowingAndAnalytics</a></li>
+<li><a href="https://github.com/hbutani/SQLWindowing" target="_blank" rel="external">https://github.com/hbutani/SQLWindowing</a></li>
+<li><a href="https://content.pivotal.io/blog/time-series-analysis-1-introduction-to-window-functions" target="_blank" rel="external">https://content.pivotal.io/blog/time-series-analysis-1-introduction-to-window-functions</a></li>
+<li><a href="https://databricks.com/blog/2015/07/15/introducing-window-functions-in-spark-sql.html" target="_blank" rel="external">https://databricks.com/blog/2015/07/15/introducing-window-functions-in-spark-sql.html</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;SQL is one of the major tools of data analysis. It provides filtering, transforming and aggregation functionalities, and we can use it to process big volume of data with the help of Hive and Hadoop. However, legacy SQL does not support operations like grouped ranking and moving average, because the &lt;code&gt;GROUP BY&lt;/code&gt; clause can only produce one aggregation result for each group, but not for each row. Fortunately, with the new SQL standard coming, we can use the &lt;code&gt;WINDOW&lt;/code&gt; clause to compute aggregations on a set of rows and return the result for each row.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/images/hive-window/window-stock.png&quot; alt=&quot;Moving Average&quot;&gt;&lt;/p&gt;
+&lt;p&gt;For instance, if we want to calculate the two-day moving average for each stock, we can write the following query:&lt;/p&gt;
+&lt;figure class=&quot;highlight sql&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;SELECT&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  &lt;span class=&quot;string&quot;&gt;`date`&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;`stock`&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;`close`&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  ,&lt;span class=&quot;keyword&quot;&gt;AVG&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;`close`&lt;/span&gt;) &lt;span class=&quot;keyword&quot;&gt;OVER&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`w`&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`mavg`&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`t_stock`&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;WINDOW &lt;span class=&quot;string&quot;&gt;`w`&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;AS&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;PARTITION&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`stock`&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;ORDER&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`date`&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;               &lt;span class=&quot;keyword&quot;&gt;ROWS&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;BETWEEN&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;PRECEDING&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;CURRENT&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;ROW&lt;/span&gt;)&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&lt;code&gt;OVER&lt;/code&gt;, &lt;code&gt;WINDOW&lt;/code&gt; and &lt;code&gt;ROWS BETWEEN AND&lt;/code&gt; are all newly added SQL keywords to support windowing operations. In this query, &lt;code&gt;PARTITION BY&lt;/code&gt; and &lt;code&gt;ORDER BY&lt;/code&gt; works like &lt;code&gt;GROUP BY&lt;/code&gt; and &lt;code&gt;ORDER BY&lt;/code&gt; after the &lt;code&gt;WHERE&lt;/code&gt; caluse, except it doesn’t collapse the rows, but only divides them into non-overlapping partitions to work on. &lt;code&gt;ROWS BETWEEN AND&lt;/code&gt; here constructs a &lt;strong&gt;window frame&lt;/strong&gt;. In this case, each frame contains the previous row and current row. We’ll discuss more on frames later. Finally, &lt;code&gt;AVG&lt;/code&gt; is a window function that computes results on each frame. Note that &lt;code&gt;WINDOW&lt;/code&gt; clause can also be directly appended to window function:&lt;/p&gt;
+&lt;figure class=&quot;highlight sql&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;AVG&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;`close`&lt;/span&gt;) &lt;span class=&quot;keyword&quot;&gt;OVER&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;PARTITION&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`stock`&lt;/span&gt;) &lt;span class=&quot;keyword&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`mavg`&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`t_stock`&lt;/span&gt;;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+      <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
+    
+    
+      <category term="analytics" scheme="http://shzhangji.com/tags/analytics/"/>
+    
+      <category term="sql" scheme="http://shzhangji.com/tags/sql/"/>
+    
+      <category term="hive" scheme="http://shzhangji.com/tags/hive/"/>
+    
+  </entry>
+  
+  <entry>
     <title>An Introduction to stream-lib The Stream Processing Utilities</title>
     <link href="http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/"/>
     <id>http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/</id>
     <published>2017-08-27T02:57:24.000Z</published>
-    <updated>2017-08-27T02:59:46.852Z</updated>
+    <updated>2017-09-04T13:26:37.453Z</updated>
     
     <content type="html"><![CDATA[<p>When processing a large amount of data, certain operations will cost a lot of time and space, such as counting the distinct values, or figuring out the 95th percentile of a sequence of numbers. But sometimes the accuracy is not that important. Maybe you just want a brief summary of the dataset, or it’s a monitoring system, where limited error rate is tolerable. There’re plenty of such algorithms that can trade accuracy with huge saves of time-space. What’s more, most of the data structures can be merged, making it possible to use in stream processing applications. <a href="https://github.com/addthis/stream-lib" target="_blank" rel="external"><code>stream-lib</code></a> is a collection of these algorithms. They are Java implementations based on academical research and papers. This artile will give a brief introduction to this utility library.</p>
 <h2 id="Count-Cardinality-with-HyperLogLog"><a href="#Count-Cardinality-with-HyperLogLog" class="headerlink" title="Count Cardinality with HyperLogLog"></a>Count Cardinality with <code>HyperLogLog</code></h2><p>Unique visitors (UV) is the major metric of websites. We usually generate UUIDs for each user and track them by HTTP Cookie, or roughly use the IP address. We can use a <code>HashSet</code> to count the exact value of UV, but that takes a lot of memory. With <code>HyperLogLog</code>, an algorithm for the count-distinct problem, we are able to <a href="https://en.wikipedia.org/wiki/HyperLogLog" target="_blank" rel="external">estimate cardinalities of &gt; 10^9 with a typical accuracy of 2%, using 1.5 kB of memory</a>.</p>
@@ -50,7 +125,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">List&lt;String&gt; animals;</div><div class="line">IFrequency freq = <span class="keyword">new</span> CountMinSketch(<span class="number">10</span>, <span class="number">5</span>, <span class="number">0</span>);</div><div class="line">Map&lt;String, Long&gt; top = Collections.emptyMap();</div><div class="line"><span class="keyword">for</span> (String animal : animals) &#123;</div><div class="line">    freq.add(animal, <span class="number">1</span>);</div><div class="line">    top = Stream.concat(top.keySet().stream(), Stream.of(animal)).distinct()</div><div class="line">              .map(a -&gt; <span class="keyword">new</span> SimpleEntry&lt;String, Long&gt;(a, freq.estimateCount(a)))</div><div class="line">              .sorted(Comparator.comparing(SimpleEntry&lt;String, Long&gt;::getValue).reversed())</div><div class="line">              .limit(<span class="number">3</span>)</div><div class="line">              .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));</div><div class="line">&#125;</div><div class="line"></div><div class="line">System.out.println(top); <span class="comment">// &#123;rabbit=25, bird=45, spider=35&#125;</span></div></pre></td></tr></table></figure>
 <p><code>CountMinSketch#estimateCount</code> is a <em>point query</em> that asks for the count of an event. Since the “sketch” cannot remeber the exact events, we need to store them else where.</p>
 <p>The data structure of count-min sketch is similar to bloom filter, instead of one bit array of <code>w</code> bits, it uses <code>d</code> number of them, so as to form a <code>d x w</code> matrix. When a value comes, it applies <code>d</code> number of hash functions, and update the corresponding bit in the matrix. These hash functions need only to be <a href="https://en.wikipedia.org/wiki/Pairwise_independence" target="_blank" rel="external">pairwise independent</a>, so <code>stream-lib</code> uses a simple yet fast <code>(a*x+b) mod p</code> formula. When doing <em>point query</em>, calculate the hash values, and the smallest value is the frequency.</p>
-<p>The estimation error is <code>ε = e / w</code> while probability of bad estimate is <code>δ = 1 / e ^ d</code>. So we can increase <code>w</code> and / or decrease <code>d</code> to improve the results. Original paper can be found in this <a href="https://web.archive.org/web/20060907232042/http://www.eecs.harvard.edu/~michaelm/CS222/countmin.pdf" target="_blank" rel="external">link</a>.</p>
+<p>The estimation error is <code>ε = e / w</code> while probability of bad estimate is <code>δ = 1 / e ^ d</code>. So we can increase <code>w</code> and / or <code>d</code> to improve the results. Original paper can be found in this <a href="https://web.archive.org/web/20060907232042/http://www.eecs.harvard.edu/~michaelm/CS222/countmin.pdf" target="_blank" rel="external">link</a>.</p>
 <h2 id="Histogram-and-Quantile-with-T-Digest"><a href="#Histogram-and-Quantile-with-T-Digest" class="headerlink" title="Histogram and Quantile with T-Digest"></a>Histogram and Quantile with <code>T-Digest</code></h2><p><img src="/images/stream-lib/t-digest.png" alt="T-Digest"></p>
 <p><a href="https://dataorigami.net/blogs/napkin-folding/19055451-percentile-and-quantile-estimation-of-big-data-the-t-digest" target="_blank" rel="external">Source</a></p>
 <p>Median, 95th percentile are common use cases in descriptive statistics. Median for instance is less influenced by outliers than mean, but the calculation is not simple. One needs to track all data, sort them, and then get the final result. With <code>T-Digest</code>, we can agian generate a summarized distribution of the dataset and estimate the quantiles.</p>
@@ -89,7 +164,7 @@
     <link href="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/"/>
     <id>http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/</id>
     <published>2017-08-12T11:15:09.000Z</published>
-    <updated>2017-08-26T09:08:37.524Z</updated>
+    <updated>2017-09-04T13:26:37.446Z</updated>
     
     <content type="html"><![CDATA[<p>Data extraction is the very first step of an ETL process. We need to load data from external data stores like RDMBS or logging file system, and then we can do cleaning, transformation and summary. In modern website stack, MySQL is the most widely used database, and it’s common to extract data from different instances and load into a central MySQL database, or directly into Hive. There’re several query-based techniques that we can use to do the extraction, including the popular open source software <a href="http://sqoop.apache.org/" target="_blank" rel="external">Sqoop</a>, but they are not meant for real-time data ingestion. Binlog, on the other hand, is a real-time data stream that is used to do replication between master and slave instances. With the help of Alibaba’s open sourced <a href="https://github.com/alibaba/canal" target="_blank" rel="external">Canal</a> project, we can easily utilize the binlog facility to do data extraction from MySQL database to various destinations.</p>
 <p><img src="/images/canal.png" alt="Canal"></p>
@@ -155,9 +230,9 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
-      <category term="etl" scheme="http://shzhangji.com/tags/etl/"/>
-    
       <category term="java" scheme="http://shzhangji.com/tags/java/"/>
+    
+      <category term="etl" scheme="http://shzhangji.com/tags/etl/"/>
     
       <category term="mysql" scheme="http://shzhangji.com/tags/mysql/"/>
     
@@ -170,7 +245,7 @@
     <link href="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/"/>
     <id>http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/</id>
     <published>2017-08-05T07:10:47.000Z</published>
-    <updated>2017-08-26T09:08:37.516Z</updated>
+    <updated>2017-09-04T13:26:37.439Z</updated>
     
     <content type="html"><![CDATA[<p>Extracting data from upstream message queues is a common task in ETL. In a Hadoop based data warehouse, we usually use Flume to import event logs from Kafka into HDFS, and then run MapReduce jobs agaist it, or create Hive external tables partitioned by time. One of the keys of this process is to extract the event time from the logs, since real-time data can have time lags, or your system is temporarily offline and need to perform a catch-up. Flume provides various facilities to help us do this job easily.</p>
 <p><img src="/images/flume.png" alt="Apache Flume"></p>
@@ -221,11 +296,11 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
+      <category term="java" scheme="http://shzhangji.com/tags/java/"/>
+    
       <category term="flume" scheme="http://shzhangji.com/tags/flume/"/>
     
       <category term="etl" scheme="http://shzhangji.com/tags/etl/"/>
-    
-      <category term="java" scheme="http://shzhangji.com/tags/java/"/>
     
   </entry>
   
@@ -234,7 +309,7 @@
     <link href="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/"/>
     <id>http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/</id>
     <published>2017-07-31T14:56:07.000Z</published>
-    <updated>2017-08-26T09:08:37.507Z</updated>
+    <updated>2017-09-04T13:26:37.431Z</updated>
     
     <content type="html"><![CDATA[<p>Exactly-once semantics is one of the advanced topics of stream processing. To process every message once and only once, in spite of system or network failure, not only the stream processing framework needs to provide such functionality, but also the message delivery system, the output data store, as well as how we implement the processing procedure, altogether can we ensure the exactly-once semantics. In this article, I’ll demonstrate how to use Spark Streaming, with Kafka as data source and MySQL the output storage, to achieve exactly-once stream processing.</p>
 <p><img src="http://spark.apache.org/docs/latest/img/streaming-arch.png" alt="Spark Streaming"></p>
@@ -289,9 +364,9 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
-      <category term="scala" scheme="http://shzhangji.com/tags/scala/"/>
-    
       <category term="spark" scheme="http://shzhangji.com/tags/spark/"/>
+    
+      <category term="scala" scheme="http://shzhangji.com/tags/scala/"/>
     
       <category term="spark streaming" scheme="http://shzhangji.com/tags/spark-streaming/"/>
     
@@ -306,7 +381,7 @@
     <link href="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/"/>
     <id>http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/</id>
     <published>2017-07-23T12:02:50.000Z</published>
-    <updated>2017-08-26T09:08:37.489Z</updated>
+    <updated>2017-09-04T13:26:37.415Z</updated>
     
     <content type="html"><![CDATA[<p><a href="http://pandas.pydata.org/" target="_blank" rel="external">Pandas</a> is a widely used data processing tool for Python. Along with NumPy and Matplotlib, it provides in-memory high-performance data munging, analyzing, and visualization capabilities. Although Python is an easy-to-learn programming language, it still takes time to learn Pandas APIs and the idiomatic usages. For data engineer and analysts, SQL is the de-facto standard language of data queries. This article will provide examples of how some common SQL queries can be rewritten with Pandas.</p>
 <p>The installation and basic concepts of Pandas is not covered in this post. One can check out the offical documentation, or read the book <a href="https://www.amazon.com/Python-Data-Analysis-Wrangling-IPython/dp/1491957662/" target="_blank" rel="external">Python for Data Analysis</a>. And I recommend using the <a href="https://www.continuum.io/downloads" target="_blank" rel="external">Anaconda</a> Python distribution, with <a href="https://pythonhosted.org/spyder/" target="_blank" rel="external">Spyder</a> IDE included. Before diving into the codes, please import Pandas and NumPy as follows:</p>
@@ -392,7 +467,7 @@
     <link href="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/"/>
     <id>http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/</id>
     <published>2017-07-15T11:21:03.000Z</published>
-    <updated>2017-08-26T09:08:37.480Z</updated>
+    <updated>2017-09-04T13:26:37.408Z</updated>
     
     <content type="html"><![CDATA[<p>Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and <code>tail -f</code>, it would be nice if we can tail a log file in the browser. With WebSocket, this can be done easily. In this article, I’ll walk you through a simple <strong>logviewer</strong> (<a href="http://github.com/jizhang/logviewer" target="_blank" rel="external">source</a>) utility that is written in Python.</p>
 <p><img src="/images/logviewer-websocket.png" alt="Logviewer with WebSocket"></p>
@@ -457,7 +532,7 @@
     <link href="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/"/>
     <id>http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/</id>
     <published>2017-06-18T08:38:01.000Z</published>
-    <updated>2017-08-26T09:08:37.466Z</updated>
+    <updated>2017-09-04T13:26:37.394Z</updated>
     
     <content type="html"><![CDATA[<p>When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on the server side, and update the rendered charts. Or we can filter data on the client side, and let charts update themselves. With Crossfilter and dc.js, this work becomes simple and intuitive.</p>
 <h2 id="Airline-On-time-Performance"><a href="#Airline-On-time-Performance" class="headerlink" title="Airline On-time Performance"></a>Airline On-time Performance</h2><p>Here’s an example taken from Crossfilter’s official website. It’s a flight delay analysis report based on <a href="http://stat-computing.org/dataexpo/2009/" target="_blank" rel="external">ASA Data Expo</a> dataset. And this post will introduce how to use dc.js to build the report. A runnable JSFiddle can be found <a href="https://jsfiddle.net/zjerryj/gjao9sws/" target="_blank" rel="external">here</a>, though the dataset is reduced to 1,000 records.</p>
@@ -512,7 +587,7 @@
     <link href="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/"/>
     <id>http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/</id>
     <published>2017-03-13T14:39:01.000Z</published>
-    <updated>2017-08-26T09:08:37.438Z</updated>
+    <updated>2017-09-04T13:26:37.389Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://lodash.com/" target="_blank" rel="external">Lodash</a> is a well-known JavaScript utility library that makes it easy to manipulate arrays and objects, as well as functions, strings, etc. I myself enjoys its functional way to process collections, especially chaining and lazy evaluation. But as <a href="http://www.ecma-international.org/ecma-262/6.0/" target="_blank" rel="external">ECMAScript 2015 Standard</a> (ES6) becomes widely supported by major browsers, and <a href="https://babeljs.io/" target="_blank" rel="external">Babel</a>, the JavaScript compiler that transforms ES6 codes to ES5, plays a major role in today’s frontend development, it seems that most Lodash utilities can be replaced by ES6. But should we? In my opinion, Lodash will remain popular, for it still has lots of useful features that could improve the way of programming.</p>
 <h2 id="map-and-Array-map-Are-Different"><a href="#map-and-Array-map-Are-Different" class="headerlink" title="_.map and Array#map Are Different"></a><code>_.map</code> and <code>Array#map</code> Are Different</h2><p><code>_.map</code>, <code>_.reduce</code>, <code>_.filter</code> and <code>_.forEach</code> are frequently used functions when processing collections, and ES6 provides direct support for them:</p>
@@ -571,7 +646,7 @@
     <link href="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/"/>
     <id>http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/</id>
     <published>2017-03-04T14:32:17.000Z</published>
-    <updated>2017-08-26T09:08:37.428Z</updated>
+    <updated>2017-09-04T13:26:37.385Z</updated>
     
     <content type="html"><![CDATA[<p>I develop Spark applications with Scala, and it has a very powerful <a href="http://docs.scala-lang.org/overviews/collections/introduction" target="_blank" rel="external">collection system</a>, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In JavaScript, there is a <a href="https://lodash.com/" target="_blank" rel="external">Lodash</a> library that provides powerful tools to process arrays and objects. When my primary work language changes to Python, I am wondering if it’s possible to manipulate collections in a FP way, and fortunately Python already provides syntax and tools for functional programming. Though list comprehension is the pythonic way to deal with collections, but the idea and concepts of FP is definitely worth learning.</p>
 <h2 id="Wordcount-Example"><a href="#Wordcount-Example" class="headerlink" title="Wordcount Example"></a>Wordcount Example</h2><p>Let’s first write a snippet to count the word occurences from a paragraph, in of course a functional way.</p>
@@ -641,7 +716,7 @@
     <link href="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/"/>
     <id>http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</id>
     <published>2017-01-29T06:18:29.000Z</published>
-    <updated>2017-08-26T09:08:37.418Z</updated>
+    <updated>2017-09-04T13:26:37.376Z</updated>
     
     <content type="html"><![CDATA[<p>In Lodash, both <code>_.assign</code> and <code>_.assignIn</code> are ways to copy source objects’ properties into target object. According the <a href="https://lodash.com/docs/" target="_blank" rel="external">documentation</a>, <code>_.assign</code> processes <strong>own enumerable string keyed properties</strong>, while <code>_.assignIn</code> processes both <strong>own and inherited source properties</strong>. There’re also other companion functions like <code>_.forOwn</code> and <code>_.forIn</code>, <code>_.has</code> and <code>_.hasIn</code>. So what’s the difference between them?</p>
 <p>In brief, the <code>In</code> in latter methods implies the way <code>for...in</code> loop behaves, which <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in" target="_blank" rel="external">iterates all enumerable properties of the object itself and those the object inherits from its constructor’s prototype</a>. JavaScript has an inheritance mechanism called prototype chain. When iterating an object’s properties with <code>for...in</code> or <code>_.forIn</code>, all properties appeared in the object and its prototype are processed, until the prototype resolves to <code>null</code>. Here’s the example code taken from Lodash’s doc:</p>
@@ -691,7 +766,7 @@
     <link href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/"/>
     <id>http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</id>
     <published>2017-01-08T04:26:54.000Z</published>
-    <updated>2017-08-26T09:08:37.413Z</updated>
+    <updated>2017-09-04T13:26:37.373Z</updated>
     
     <content type="html"><![CDATA[<p>Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python 3 is <a href="http://py3readiness.org/" target="_blank" rel="external">totally ready</a>, and here’s a list of references for those (including me) who are adopting Python 3 with a 2.x background.</p>
 <ol>
@@ -826,7 +901,7 @@
     <link href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/"/>
     <id>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</id>
     <published>2015-09-01T10:38:00.000Z</published>
-    <updated>2017-08-26T09:08:37.410Z</updated>
+    <updated>2017-09-04T13:26:37.371Z</updated>
     
     <content type="html"><![CDATA[<p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/" target="_blank" rel="external">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/" target="_blank" rel="external">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
 <h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/" target="_blank" rel="external">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
@@ -879,7 +954,7 @@
     <link href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/"/>
     <id>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</id>
     <published>2015-05-31T10:18:00.000Z</published>
-    <updated>2017-08-26T09:08:37.404Z</updated>
+    <updated>2017-09-04T13:26:37.368Z</updated>
     
     <content type="html"><![CDATA[<p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
 <h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
@@ -928,7 +1003,7 @@
     <link href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/"/>
     <id>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</id>
     <published>2015-04-28T15:08:00.000Z</published>
-    <updated>2017-08-26T09:08:37.395Z</updated>
+    <updated>2017-09-04T13:26:37.365Z</updated>
     
     <content type="html"><![CDATA[<p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
 <h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard" target="_blank" rel="external">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing" target="_blank" rel="external">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
@@ -1030,7 +1105,7 @@
     <link href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/"/>
     <id>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</id>
     <published>2014-05-27T09:44:00.000Z</published>
-    <updated>2017-08-26T09:08:37.390Z</updated>
+    <updated>2017-09-04T13:26:37.361Z</updated>
     
     <content type="html"><![CDATA[<p>As I’m working with my first <a href="http://www.scalatra.org/" target="_blank" rel="external">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/" target="_blank" rel="external">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation" target="_blank" rel="external">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
 <h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/" target="_blank" rel="external">Dojo</a> for example.</p>
@@ -1076,7 +1151,7 @@
     <link href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/"/>
     <id>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</id>
     <published>2013-10-31T01:35:00.000Z</published>
-    <updated>2017-08-26T09:08:37.383Z</updated>
+    <updated>2017-09-04T13:26:37.359Z</updated>
     
     <content type="html"><![CDATA[<p>In DBMS world, it’s easy to generate a unique, auto-increment id, using MySQL’s <a href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html" target="_blank" rel="external">AUTO_INCREMENT attribute</a> on a primary key or MongoDB’s <a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/" target="_blank" rel="external">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it’ll take some steps.</p>
 <h2 id="Solution-A-Single-Reducer"><a href="#Solution-A-Single-Reducer" class="headerlink" title="Solution A: Single Reducer"></a>Solution A: Single Reducer</h2><p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
@@ -1159,7 +1234,7 @@
     <link href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/"/>
     <id>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/</id>
     <published>2013-04-30T08:16:00.000Z</published>
-    <updated>2017-08-26T09:08:37.375Z</updated>
+    <updated>2017-09-04T13:26:37.355Z</updated>
     
     <content type="html"><![CDATA[<p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># database.properties</div><div class="line">mydb.jdbcUrl=$&#123;mydb.jdbcUrl&#125;</div></pre></td></tr></table></figure>
