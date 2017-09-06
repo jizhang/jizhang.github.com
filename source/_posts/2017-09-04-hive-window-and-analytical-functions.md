@@ -25,7 +25,7 @@ WINDOW `w` AS (PARTITION BY `stock` ORDER BY `date`
                ROWS BETWEEN 1 PRECEDING AND CURRENT ROW)
 ```
 
-`OVER`, `WINDOW` and `ROWS BETWEEN AND` are all newly added SQL keywords to support windowing operations. In this query, `PARTITION BY` and `ORDER BY` works like `GROUP BY` and `ORDER BY` after the `WHERE` caluse, except it doesn't collapse the rows, but only divides them into non-overlapping partitions to work on. `ROWS BETWEEN AND` here constructs a **window frame**. In this case, each frame contains the previous row and current row. We'll discuss more on frames later. Finally, `AVG` is a window function that computes results on each frame. Note that `WINDOW` clause can also be directly appended to window function:
+`OVER`, `WINDOW` and `ROWS BETWEEN AND` are all newly added SQL keywords to support windowing operations. In this query, `PARTITION BY` and `ORDER BY` works like `GROUP BY` and `ORDER BY` after the `WHERE` clause, except it doesn't collapse the rows, but only divides them into non-overlapping partitions to work on. `ROWS BETWEEN AND` here constructs a **window frame**. In this case, each frame contains the previous row and current row. We'll discuss more on frames later. Finally, `AVG` is a window function that computes results on each frame. Note that `WINDOW` clause can also be directly appended to window function:
 
 ```sql
 SELECT AVG(`close`) OVER (PARTITION BY `stock`) AS `mavg` FROM `t_stock`;
@@ -41,9 +41,9 @@ SELECT AVG(`close`) OVER (PARTITION BY `stock`) AS `mavg` FROM `t_stock`;
 
 SQL window query introduces three concepts, namely window partition, window frame and window function.
 
-`PARTITION` clause divides result set into **window partitions** by one or more columns, and the rows whithin can be optionally sorted by one or more columns. If there's not `PARTITION BY`, the entrie result set is treated as a single partition; if there's not `ORDER BY`, window frames cannot be defined, and all rows within the partition constitudes a single frame.
+`PARTITION` clause divides result set into **window partitions** by one or more columns, and the rows within can be optionally sorted by one or more columns. If there's not `PARTITION BY`, the entire result set is treated as a single partition; if there's not `ORDER BY`, window frames cannot be defined, and all rows within the partition constitutes a single frame.
 
-**Window frame** selects rows from partition for window function to work on. There're two ways of defining frame in Hive, `ROWS` AND `RANGE`. For both types, we define the upper bound and lower bound. For instance, `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` selects rows from the beginning of the partition to the current row; `SUM(close) RANGE BETWEEN 100 PRECEIDING AND 200 FOLLOWING` selects rows by the *distance* from the current row's value. Say current `close` is `200`, and this frame will includes rows whose `close` values range from `100` to `400`, within the partition. All possible combinations of frame definitions are listed as follows, and the default definition is `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`.
+**Window frame** selects rows from partition for window function to work on. There're two ways of defining frame in Hive, `ROWS` AND `RANGE`. For both types, we define the upper bound and lower bound. For instance, `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` selects rows from the beginning of the partition to the current row; `SUM(close) RANGE BETWEEN 100 PRECEDING AND 200 FOLLOWING` selects rows by the *distance* from the current row's value. Say current `close` is `200`, and this frame will includes rows whose `close` values range from `100` to `400`, within the partition. All possible combinations of frame definitions are listed as follows, and the default definition is `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`.
 
 ```text
 (ROWS | RANGE) BETWEEN (UNBOUNDED | [num]) PRECEDING AND ([num] PRECEDING | CURRENT ROW | (UNBOUNDED | [num]) FOLLOWING)
@@ -65,13 +65,8 @@ All **window functions** compute results on the current frame. Hive supports the
 First, let's create some test data of employee incomes in Hive:
 
 ```sql
-CREATE t_employee (
-  id INT
-  ,emp_name VARCHAR(20)
-  ,dep_name VARCHAR(20)
-  ,salary DECIMAL(7, 2)
-  ,age DECIMAL(3, 0)
-);
+CREATE TABLE t_employee (id INT, emp_name VARCHAR(20), dep_name VARCHAR(20),
+salary DECIMAL(7, 2), age DECIMAL(3, 0));
 
 INSERT INTO t_employee VALUES
 ( 1,  'Matthew', 'Management',  4500, 55),
@@ -97,7 +92,7 @@ FROM (
     ,RANK() OVER (PARTITION BY dep_name ORDER BY salary DESC) AS rnk
   FROM t_employee
 ) a
-where rnk = 1;
+WHERE rnk = 1;
 ```
 
 Normally when there's duplicates, `RANK()` returns the same value for each row and *skip* the next sequence number. Use `DENSE_RANK()` if you want consecutive ranks.
