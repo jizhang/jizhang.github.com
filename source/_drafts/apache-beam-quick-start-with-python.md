@@ -40,7 +40,7 @@ with beam.Pipeline(options=PipelineOptions()) as p:
     counts | 'Print' >> beam.ParDo(lambda (w, c): print('%s: %s' % (w, c)))
 ```
 
-Run the script, you'll get:
+Run the script, you'll get the counts of difference words:
 
 ```
 (venv) $ python wordcount.py
@@ -55,7 +55,7 @@ There're three fundamental concepts in Apache Beam, namely Pipeline, PCollection
 * **PCollection** is the data structure to which we apply various operations, like parse, convert, or aggregate. You can think of it as Spark `RDD`.
 * And **Transform** is where your main logic goes. Each transform will take a PCollection in and produce a new PCollection. Beam provides many built-in Transforms, and we'll cover them later.
 
-`Pipeline` and `PipelineOptions` are used to construct a pipeline. Use the `with` statement so that context manager will invoke `Pipeline.run` and `wait_until_finish` automatically.
+As in this example, `Pipeline` and `PipelineOptions` are used to construct a pipeline. Use the `with` statement so that context manager will invoke `Pipeline.run` and `wait_until_finish` automatically.
 
 ```
 [Output PCollection] = [Input PCollection] | [Label] >> [Transform]
@@ -71,10 +71,58 @@ There're three fundamental concepts in Apache Beam, namely Pipeline, PCollection
 
 ## Input and Output
 
+Currently, Beam's Python SDK has very limited supports for IO. This table ([source][7]) gives an overview of the available built-in transforms:
+
+| Language | File-based | Messaging | Database |
+| --- | --- | --- | --- |
+| Java | HDFS<br>TextIO<br>XML | AMQP<br>Kafka<br>JMS | Hive<br>Solr<br>JDBC |
+| Python | textio<br>avroio<br>tfrecordio | - | Google Big Query<br>Google Cloud Datastore |
+
+The following snippet demonstrates the usage of `textio`:
+
+```python
+lines = p | 'Read' >> beam.io.ReadFromText('/path/to/input-*.csv')
+lines | 'Write' >> beam.io.WriteToText('/path/to/output', file_name_suffix='.csv')
+```
+
+`textio` is able to read multiple input files by using wildcard or you can flatten PCollections created from difference sources. The outputs are also split into several files due to pipeline's parallel processing nature.
+
 ## Transforms
+
+There're basic transforms and higher-level built-ins. In general, we prefer to use the later so that we can focus on the application logic.
+
+| Transform | Meaning |
+| --- | --- |
+| Create ||
+| Filter ||
+| Map ||
+| FlatMap ||
+| Flatten ||
+| Partition ||
+| GroupByKey ||
+
+CoGroupByKey
+RemoveDuplicates
+
+| CombinePerKey ||
+| CombineGlobally ||
+| CombineValues ||
+
+* combiners
+  * Count
+  * Mean
+  * Sample
+  * Top
+  * ToDict
+  * ToList
+
+ParDo, DoFn, PTransform
 
 ## Windowing
 
+## Pipeline Runner
+
+https://beam.apache.org/documentation/runners/capability-matrix/
 
 * install
   * python 2 with ssl (httpsconnection not found)
@@ -111,3 +159,4 @@ There're three fundamental concepts in Apache Beam, namely Pipeline, PCollection
 [4]: https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101
 [5]: https://github.com/pyenv/pyenv
 [6]: https://www.python.org/downloads/source/
+[7]: https://beam.apache.org/documentation/io/built-in/
