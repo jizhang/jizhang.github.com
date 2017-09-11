@@ -12,11 +12,11 @@ tags: [apache beam, python, mapreduce, stream processing]
 
 Apache Beam Python SDK requires Python 2.7.x. You can use [pyenv][5] to manage different Python versions, or compile from [source][6] (make sure you have SSL installed). And then you can install Beam SDK from PyPI, better in a virtual environment:
 
-```bash
+```
 $ virtualenv venv --distribute
 $ source venv/bin/activate
 (venv) $ pip install apache-beam
-````
+```
 
 <!-- more -->
 
@@ -29,7 +29,7 @@ from __future__ import print_function
 import apache_beam as beam
 from apache_beam.options.pipeline_options import PipelineOptions
 with beam.Pipeline(options=PipelineOptions()) as p:
-    lines = p | 'Create' >> beam.Create(['cat dog', 'snake cat', 'fox dog'])
+    lines = p | 'Create' >> beam.Create(['cat dog', 'snake cat', 'dog'])
     counts = (
         lines
         | 'Split' >> (beam.FlatMap(lambda x: x.split(' '))
@@ -40,9 +40,38 @@ with beam.Pipeline(options=PipelineOptions()) as p:
     counts | 'Print' >> beam.ParDo(lambda (w, c): print('%s: %s' % (w, c)))
 ```
 
+Run the script, you'll get:
+
+```
+(venv) $ python wordcount.py
+cat: 2
+snake: 1
+dog: 2
+```
+
+There're three fundamental concepts in Apache Beam, namely Pipeline, PCollection, and Transform.
+
+* **Pipeline** holds the DAG (Directed Acyclic Graph) of data and process tasks. It's analogous to MapReduce `Job` and Storm `Topology`.
+* **PCollection** is the data structure to which we apply various operations, like parse, convert, or aggregate. You can think of it as Spark `RDD`.
+* And **Transform** is where your main logic goes. Each transform will take a PCollection in and produce a new PCollection. Beam provides many built-in Transforms, and we'll cover them later.
+
+`Pipeline` and `PipelineOptions` are used to construct a pipeline. Use the `with` statement so that context manager will invoke `Pipeline.run` and `wait_until_finish` automatically.
+
+```
+[Output PCollection] = [Input PCollection] | [Label] >> [Transform]
+```
+
+`|` is the operator to apply transforms, and each transform can be optionally supplied with a unique label. Transforms can be chained, and we can compose arbitrary shapes of transforms, and at runtime they'll be represented as DAG.
+
+`beam.Create` is a transform that creates PCollection from memory data, mainly for testing. Beam has built-in sources and sinks to read and write bounded or unbounded data, and it's possible to implement our own.
+
+`beam.Map` is a *one-to-one* transform, and in this example we convert a word string to a `(word, 1)` tuple. `beam.FlatMap` is a combination of `Map` and `Flatten`, i.e. we split each line into an array of words, and then flatten these sequences into a single one.
+
+`CombineByKey` works on two-element tuples. It groups the tuples by the first element (the key), and apply the provided function to the list of second elements (values). Finally, we use `beam.ParDo` to print out the counts. This is a rather basic transform, and we'll discuss it in the following section.
+
 ## Input and Output
 
-## Transformation
+## Transforms
 
 ## Windowing
 
