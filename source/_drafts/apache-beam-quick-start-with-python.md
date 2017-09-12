@@ -176,6 +176,22 @@ class Count(object):
       return pcoll | core.CombineGlobally(CountCombineFn())
 ```
 
+More built-in transforms are listed below:
+
+| Transform | Meaning |
+| --- | --- |
+| Count.Globally() ||
+| Count.PerKey() ||
+| Count.PerElement() ||
+| Mean.Globally() ||
+| Mean.PerKey() ||
+| Top.Of(n, reverse) | Top.Largest(n), Top.Smallest(n) |
+| Top.PerKey(n, reverse) | Top.LargestPerKey(n), Top.SmallestPerKey(n) |
+| Sample.FixedSizeGlobally(n) ||
+| Sample.FixedSizePerKey(n) ||
+| ToList() ||
+| ToDict() ||
+
 ## Windowing
 
 ## Pipeline Runner
