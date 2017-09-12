@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/</loc>
+    
+    <lastmod>2017-09-12T13:16:37.895Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/</loc>
     
-    <lastmod>2017-09-04T14:02:11.447Z</lastmod>
+    <lastmod>2017-09-09T05:37:01.289Z</lastmod>
     
   </url>
   

@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://shzhangji.com/"/>
-  <updated>2017-09-04T14:02:11.447Z</updated>
+  <updated>2017-09-12T13:16:37.895Z</updated>
   <id>http://shzhangji.com/</id>
   
   <author>
@@ -16,24 +16,242 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Apache Beam Quick Start with Python</title>
+    <link href="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/"/>
+    <id>http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/</id>
+    <published>2017-09-12T13:08:25.000Z</published>
+    <updated>2017-09-12T13:16:37.895Z</updated>
+    
+    <content type="html"><![CDATA[<p><a href="https://beam.apache.org/get-started/beam-overview/" target="_blank" rel="external">Apache Beam</a> is a big data processing standard created by Google in 2016. It provides unified DSL to process both batch and stream data, and can be executed on popular platforms like Spark, Flink, and of course Google’s commercial product Dataflow. Beam’s model is based on previous works known as <a href="https://web.archive.org/web/20160923141630/https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/35650.pdf" target="_blank" rel="external">FlumeJava</a> and <a href="https://web.archive.org/web/20160201091359/http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/41378.pdf" target="_blank" rel="external">Millwheel</a>, and addresses solutions for data processing tasks like ETL, analysis, and <a href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101" target="_blank" rel="external">stream processing</a>. Currently it provides SDK in two languages, Java and Python. This article will introduce how to use Python to write Beam applications.</p>
+<p><img src="/images/beam/arch.jpg" alt="Apache Beam Pipeline"></p>
+<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><p>Apache Beam Python SDK requires Python 2.7.x. You can use <a href="https://github.com/pyenv/pyenv" target="_blank" rel="external">pyenv</a> to manage different Python versions, or compile from <a href="https://www.python.org/downloads/source/" target="_blank" rel="external">source</a> (make sure you have SSL installed). And then you can install Beam SDK from PyPI, better in a virtual environment:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ virtualenv venv --distribute</div><div class="line">$ source venv/bin/activate</div><div class="line">(venv) $ pip install apache-beam</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="Wordcount-Example"><a href="#Wordcount-Example" class="headerlink" title="Wordcount Example"></a>Wordcount Example</h2><p>Wordcount is the de-facto “Hello World” in big data field, so let’s take a look at how it’s done with Beam:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</div><div class="line"><span class="keyword">import</span> apache_beam <span class="keyword">as</span> beam</div><div class="line"><span class="keyword">from</span> apache_beam.options.pipeline_options <span class="keyword">import</span> PipelineOptions</div><div class="line"><span class="keyword">with</span> beam.Pipeline(options=PipelineOptions()) <span class="keyword">as</span> p:</div><div class="line">    lines = p | <span class="string">'Create'</span> &gt;&gt; beam.Create([<span class="string">'cat dog'</span>, <span class="string">'snake cat'</span>, <span class="string">'dog'</span>])</div><div class="line">    counts = (</div><div class="line">        lines</div><div class="line">        | <span class="string">'Split'</span> &gt;&gt; (beam.FlatMap(<span class="keyword">lambda</span> x: x.split(<span class="string">' '</span>))</div><div class="line">                      .with_output_types(unicode))</div><div class="line">        | <span class="string">'PairWithOne'</span> &gt;&gt; beam.Map(<span class="keyword">lambda</span> x: (x, <span class="number">1</span>))</div><div class="line">        | <span class="string">'GroupAndSum'</span> &gt;&gt; beam.CombinePerKey(sum)</div><div class="line">    )</div><div class="line">    counts | <span class="string">'Print'</span> &gt;&gt; beam.ParDo(<span class="keyword">lambda</span> (w, c): print(<span class="string">'%s: %s'</span> % (w, c)))</div></pre></td></tr></table></figure>
+<p>Run the script, you’ll get the counts of difference words:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">(venv) $ python wordcount.py</div><div class="line">cat: 2</div><div class="line">snake: 1</div><div class="line">dog: 2</div></pre></td></tr></table></figure>
+<p>There’re three fundamental concepts in Apache Beam, namely Pipeline, PCollection, and Transform.</p>
+<ul>
+<li><strong>Pipeline</strong> holds the DAG (Directed Acyclic Graph) of data and process tasks. It’s analogous to MapReduce <code>Job</code> and Storm <code>Topology</code>.</li>
+<li><strong>PCollection</strong> is the data structure to which we apply various operations, like parse, convert, or aggregate. You can think of it as Spark <code>RDD</code>.</li>
+<li>And <strong>Transform</strong> is where your main logic goes. Each transform will take a PCollection in and produce a new PCollection. Beam provides many built-in Transforms, and we’ll cover them later.</li>
+</ul>
+<p>As in this example, <code>Pipeline</code> and <code>PipelineOptions</code> are used to construct a pipeline. Use the <code>with</code> statement so that context manager will invoke <code>Pipeline.run</code> and <code>wait_until_finish</code> automatically.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[Output PCollection] = [Input PCollection] | [Label] &gt;&gt; [Transform]</div></pre></td></tr></table></figure>
+<p><code>|</code> is the operator to apply transforms, and each transform can be optionally supplied with a unique label. Transforms can be chained, and we can compose arbitrary shapes of transforms, and at runtime they’ll be represented as DAG.</p>
+<p><code>beam.Create</code> is a transform that creates PCollection from memory data, mainly for testing. Beam has built-in sources and sinks to read and write bounded or unbounded data, and it’s possible to implement our own.</p>
+<p><code>beam.Map</code> is a <em>one-to-one</em> transform, and in this example we convert a word string to a <code>(word, 1)</code> tuple. <code>beam.FlatMap</code> is a combination of <code>Map</code> and <code>Flatten</code>, i.e. we split each line into an array of words, and then flatten these sequences into a single one.</p>
+<p><code>CombinePerKey</code> works on two-element tuples. It groups the tuples by the first element (the key), and apply the provided function to the list of second elements (values). Finally, we use <code>beam.ParDo</code> to print out the counts. This is a rather basic transform, and we’ll discuss it in the following section.</p>
+<h2 id="Input-and-Output"><a href="#Input-and-Output" class="headerlink" title="Input and Output"></a>Input and Output</h2><p>Currently, Beam’s Python SDK has very limited supports for IO. This table (<a href="https://beam.apache.org/documentation/io/built-in/" target="_blank" rel="external">source</a>) gives an overview of the available built-in transforms:</p>
+<table>
+<thead>
+<tr>
+<th>Language</th>
+<th>File-based</th>
+<th>Messaging</th>
+<th>Database</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Java</td>
+<td>HDFS<br>TextIO<br>XML</td>
+<td>AMQP<br>Kafka<br>JMS</td>
+<td>Hive<br>Solr<br>JDBC</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>textio<br>avroio<br>tfrecordio</td>
+<td>-</td>
+<td>Google Big Query<br>Google Cloud Datastore</td>
+</tr>
+</tbody>
+</table>
+<p>The following snippet demonstrates the usage of <code>textio</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lines = p | <span class="string">'Read'</span> &gt;&gt; beam.io.ReadFromText(<span class="string">'/path/to/input-*.csv'</span>)</div><div class="line">lines | <span class="string">'Write'</span> &gt;&gt; beam.io.WriteToText(<span class="string">'/path/to/output'</span>, file_name_suffix=<span class="string">'.csv'</span>)</div></pre></td></tr></table></figure>
+<p><code>textio</code> is able to read multiple input files by using wildcard or you can flatten PCollections created from difference sources. The outputs are also split into several files due to pipeline’s parallel processing nature.</p>
+<h2 id="Transforms"><a href="#Transforms" class="headerlink" title="Transforms"></a>Transforms</h2><p>There’re basic transforms and higher-level built-ins. In general, we prefer to use the later so that we can focus on the application logic. The following table lists some commonly used higher-level transforms:</p>
+<table>
+<thead>
+<tr>
+<th>Transform</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Create(value)</td>
+<td>Creates a PCollection from an iterable.</td>
+</tr>
+<tr>
+<td>Filter(fn)</td>
+<td>Use callable <code>fn</code> to filter out elements.</td>
+</tr>
+<tr>
+<td>Map(fn)</td>
+<td>Use callable <code>fn</code> to do a one-to-one transformation.</td>
+</tr>
+<tr>
+<td>FlatMap(fn)</td>
+<td>Similar to <code>Map</code>, but <code>fn</code> needs to return an iterable of zero or more elements, and these iterables will be flattened into one PCollection.</td>
+</tr>
+<tr>
+<td>Flatten()</td>
+<td>Merge several PCollections into a single one.</td>
+</tr>
+<tr>
+<td>Partition(fn)</td>
+<td>Split a PCollection into several partitions. <code>fn</code> is a <code>PartitionFn</code> or a callable that accepts two arguments - <code>element</code>, <code>num_partitions</code>.</td>
+</tr>
+<tr>
+<td>GroupByKey()</td>
+<td>Works on a PCollection of key/value pairs (two-element tuples), groups by common key, and returns <code>(key, iter&lt;value&gt;)</code> pairs.</td>
+</tr>
+<tr>
+<td>CoGroupByKey()</td>
+<td>Groups results across several PCollections by key. e.g. input <code>(k, v)</code> and <code>(k, w)</code>, output <code>(k, (iter&lt;v&gt;, iter&lt;w&gt;))</code>.</td>
+</tr>
+<tr>
+<td>RemoveDuplicates()</td>
+<td>Get distint values in PCollection.</td>
+</tr>
+<tr>
+<td>CombinePerKey(fn)</td>
+<td>Similar to <code>GroupByKey</code>, but combines the values by a <code>CombineFn</code> or a callable that takes an iterable, such as <code>sum</code>, <code>max</code>.</td>
+</tr>
+<tr>
+<td>CombineGlobally(fn)</td>
+<td>Reduces a PCollection to a single value by applying <code>fn</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Callable-DoFn-and-ParDo"><a href="#Callable-DoFn-and-ParDo" class="headerlink" title="Callable, DoFn, and ParDo"></a>Callable, DoFn, and ParDo</h3><p>Most transforms accepts a callable as argument. In Python, <a href="https://docs.python.org/2/library/functions.html#callable" target="_blank" rel="external">callable</a> can be a function, method, lambda expression, or class instance that has <code>__call__</code> method. Under the hood, Beam will wrap the callable as a <code>DoFn</code>, and all these transforms will invoke <code>ParDo</code>, the lower-level transform, with the <code>DoFn</code>.</p>
+<p>Let’s replace the expression <code>lambda x: x.split(&#39; &#39;)</code> with a <code>DoFn</code> class:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">SplitFn</span><span class="params">(beam.DoFn)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">process</span><span class="params">(self, element)</span>:</span></div><div class="line">        <span class="keyword">return</span> element.split(<span class="string">' '</span>)</div><div class="line"></div><div class="line">lines | beam.ParDo(SplitFn())</div></pre></td></tr></table></figure>
+<p>The <code>ParDo</code> transform works like <code>FlatMap</code>, except that it only accepts <code>DoFn</code>. In addition to <code>return</code>, we can <code>yield</code> element from <code>process</code> method:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">SplitAndPairWithOneFn</span><span class="params">(beam.DoFn)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">process</span><span class="params">(self, element)</span>:</span></div><div class="line">        <span class="keyword">for</span> word <span class="keyword">in</span> element.split(<span class="string">' '</span>):</div><div class="line">            <span class="keyword">yield</span> (word, <span class="number">1</span>)</div></pre></td></tr></table></figure>
+<h3 id="Combiner-Functions"><a href="#Combiner-Functions" class="headerlink" title="Combiner Functions"></a>Combiner Functions</h3><p>Combiner functions, or <code>CombineFn</code>, are used to reduce a collection of elements into a single value. You can either perform on the entire PCollection (<code>CombineGlobally</code>), or combine the values for each key (<code>CombinePerKey</code>). Beam is capable of wrapping callables into <code>CombinFn</code>. The callable should take an iterable and returns a single value. Since Beam distributes computation to multiple nodes, the combiner function will be invoked multiple times to get partial results, so they ought to be <a href="https://en.wikipedia.org/wiki/Commutative_property" target="_blank" rel="external">commutative</a> and <a href="https://en.wikipedia.org/wiki/Associative_property" target="_blank" rel="external">associative</a>. <code>sum</code>, <code>min</code>, <code>max</code> are good examples.</p>
+<p>Beam provides some built-in combiners like count, mean, top. Take count for instance, the following two lines are equivalent, they return the total count of lines.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lines | beam.combiners.Count.Globally()</div><div class="line">lines | beam.CombineGlobally(beam.combiners.CountCombineFn())</div></pre></td></tr></table></figure>
+<p>Other combiners can be found in Beam Python SDK Documentation (<a href="https://beam.apache.org/documentation/sdks/pydoc/2.1.0/apache_beam.transforms.html#module-apache_beam.transforms.combiners" target="_blank" rel="external">link</a>). For more complex combiners, we need to subclass the <code>CombinFn</code> and implement four methods. Take the built-in <code>Mean</code> for an example:</p>
+<p><a href="https://github.com/apache/beam/blob/v2.1.0/sdks/python/apache_beam/transforms/combiners.py#L75" target="_blank" rel="external"><code>apache_beam/transforms/combiners.py</code></a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MeanCombineFn</span><span class="params">(core.CombineFn)</span>:</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">create_accumulator</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="string">"""Create a "local" accumulator to track sum and count."""</span></div><div class="line">    <span class="keyword">return</span> (<span class="number">0</span>, <span class="number">0</span>)</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">add_input</span><span class="params">(self, <span class="params">(sum_, count)</span>, element)</span>:</span></div><div class="line">    <span class="string">"""Process the incoming value."""</span></div><div class="line">    <span class="keyword">return</span> sum_ + element, count + <span class="number">1</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">merge_accumulators</span><span class="params">(self, accumulators)</span>:</span></div><div class="line">    <span class="string">"""Merge several accumulators into a single one."""</span></div><div class="line">    sums, counts = zip(*accumulators)</div><div class="line">    <span class="keyword">return</span> sum(sums), sum(counts)</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">extract_output</span><span class="params">(self, <span class="params">(sum_, count)</span>)</span>:</span></div><div class="line">    <span class="string">"""Compute the mean average."""</span></div><div class="line">    <span class="keyword">if</span> count == <span class="number">0</span>:</div><div class="line">      <span class="keyword">return</span> float(<span class="string">'NaN'</span>)</div><div class="line">    <span class="keyword">return</span> sum_ / float(count)</div></pre></td></tr></table></figure>
+<h3 id="Composite-Transform"><a href="#Composite-Transform" class="headerlink" title="Composite Transform"></a>Composite Transform</h3><p>Take a look at the <a href="https://github.com/apache/beam/blob/v2.1.0/sdks/python/apache_beam/transforms/combiners.py#L101" target="_blank" rel="external">source code</a> of <code>beam.combiners.Count.Globally</code> we used before. It subclasses <code>PTransform</code> and applies some transforms to the PCollection. This forms a sub-graph of DAG, and we call it composite transform. Composite transforms are used to gather relative codes into logical modules, making them easy to understand and maintain.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Count</span><span class="params">(object)</span>:</span></div><div class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Globally</span><span class="params">(ptransform.PTransform)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">expand</span><span class="params">(self, pcoll)</span>:</span></div><div class="line">      <span class="keyword">return</span> pcoll | core.CombineGlobally(CountCombineFn())</div></pre></td></tr></table></figure>
+<p>More built-in transforms are listed below:</p>
+<table>
+<thead>
+<tr>
+<th>Transform</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Count.Globally()</td>
+<td>Count the total number of elements.</td>
+</tr>
+<tr>
+<td>Count.PerKey()</td>
+<td>Count number elements of each unique key.</td>
+</tr>
+<tr>
+<td>Count.PerElement()</td>
+<td>Count the occurrences of each element.</td>
+</tr>
+<tr>
+<td>Mean.Globally()</td>
+<td>Compute the average of all elements.</td>
+</tr>
+<tr>
+<td>Mean.PerKey()</td>
+<td>Compute the averages for each key.</td>
+</tr>
+<tr>
+<td>Top.Of(n, reverse)</td>
+<td>Get the top <code>n</code> elements from the PCollection. See also Top.Largest(n), Top.Smallest(n).</td>
+</tr>
+<tr>
+<td>Top.PerKey(n, reverse)</td>
+<td>Get top <code>n</code> elements for each key. See also Top.LargestPerKey(n), Top.SmallestPerKey(n)</td>
+</tr>
+<tr>
+<td>Sample.FixedSizeGlobally(n)</td>
+<td>Get a sample of <code>n</code> elements.</td>
+</tr>
+<tr>
+<td>Sample.FixedSizePerKey(n)</td>
+<td>Get samples from each key.</td>
+</tr>
+<tr>
+<td>ToList()</td>
+<td>Combine to a single list.</td>
+</tr>
+<tr>
+<td>ToDict()</td>
+<td>Combine to a single dict. Works on 2-element tuples.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Windowing"><a href="#Windowing" class="headerlink" title="Windowing"></a>Windowing</h2><p>When processing event data, such as access log or click stream, there’s an <em>event time</em> property attached to every item, and it’s common to perform aggregation on a per-time-window basis. With Beam, we can define different kinds of windows to divide event data into groups. Windowing can be used in both bounded and unbounded data source. Since current Python SDK only supports bounded source, the following example will work on an offline access log file, but the process can be applied to unbounded source as is.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">64.242.88.10 - - [07/Mar/2004:16:05:49 -0800] &quot;GET /edit HTTP/1.1&quot; 401 12846</div><div class="line">64.242.88.10 - - [07/Mar/2004:16:06:51 -0800] &quot;GET /rdiff HTTP/1.1&quot; 200 4523</div><div class="line">64.242.88.10 - - [07/Mar/2004:16:10:02 -0800] &quot;GET /hsdivision HTTP/1.1&quot; 200 6291</div><div class="line">64.242.88.10 - - [07/Mar/2004:16:11:58 -0800] &quot;GET /view HTTP/1.1&quot; 200 7352</div><div class="line">64.242.88.10 - - [07/Mar/2004:16:20:55 -0800] &quot;GET /view HTTP/1.1&quot; 200 5253</div></pre></td></tr></table></figure>
+<p><code>logmining.py</code>, full source code can be found on GitHub (<a href="https://github.com/jizhang/hello-beam/blob/master/logmining.py" target="_blank" rel="external">link</a>).</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">lines = p | <span class="string">'Create'</span> &gt;&gt; beam.io.ReadFromText(<span class="string">'access.log'</span>)</div><div class="line">windowed_counts = (</div><div class="line">    lines</div><div class="line">    | <span class="string">'Timestamp'</span> &gt;&gt; beam.Map(<span class="keyword">lambda</span> x: beam.window.TimestampedValue(</div><div class="line">                              x, extract_timestamp(x)))</div><div class="line">    | <span class="string">'Window'</span> &gt;&gt; beam.WindowInto(beam.window.SlidingWindows(<span class="number">600</span>, <span class="number">300</span>))</div><div class="line">    | <span class="string">'Count'</span> &gt;&gt; (beam.CombineGlobally(beam.combiners.CountCombineFn())</div><div class="line">                  .without_defaults())</div><div class="line">)</div><div class="line">windowed_counts =  windowed_counts | beam.ParDo(PrintWindowFn())</div></pre></td></tr></table></figure>
+<p>First of all, we need to add a timestamp to each record. <code>extract_timestamp</code> is a custom function to parse <code>[07/Mar/2004:16:05:49 -0800]</code> as a unix timestamp. <code>TimestampedValue</code> links this timestamp to the record. Then we define a sliding window with the size <em>10 minutes</em> and period <em>5 minutes</em>, which means the first window is <code>[00:00, 00:10)</code>, second window is <code>[00:05, 00:15)</code>, and so forth. All windows have a <em>10 minutes</em> duration, and adjacent windows have a <em>5 minutes</em> shift. Sliding window is different from fixed window, in that the same elements could appear in different windows. The combiner function is a simple count, so the pipeline result of the first five logs will be:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[2004-03-08T00:00:00Z, 2004-03-08T00:10:00Z) @ 2</div><div class="line">[2004-03-08T00:05:00Z, 2004-03-08T00:15:00Z) @ 4</div><div class="line">[2004-03-08T00:10:00Z, 2004-03-08T00:20:00Z) @ 2</div><div class="line">[2004-03-08T00:15:00Z, 2004-03-08T00:25:00Z) @ 1</div><div class="line">[2004-03-08T00:20:00Z, 2004-03-08T00:30:00Z) @ 1</div></pre></td></tr></table></figure>
+<p>In stream processing for unbounded source, event data will arrive in different order, so we need to deal with late data with Beam’s watermark and trigger facility. This is a rather advanced topic, and the Python SDK has not yet implemented this feature. If you’re interested, please refer to Stream <a href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101" target="_blank" rel="external">101</a> and <a href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-102" target="_blank" rel="external">102</a> articles.</p>
+<h2 id="Pipeline-Runner"><a href="#Pipeline-Runner" class="headerlink" title="Pipeline Runner"></a>Pipeline Runner</h2><p>As metioned above, Apache Beam is just a standard that provides SDK and APIs. It’s the pipeline runner that is reponsible to execute the workflow graph. The following matrix lists all available runners and their capabilities compared to Beam Model.</p>
+<p><img src="/images/beam/matrix.png" alt="Beam Capability Matrix"></p>
+<p><a href="https://beam.apache.org/documentation/runners/capability-matrix/" target="_blank" rel="external">Source</a></p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://beam.apache.org/documentation/programming-guide/" target="_blank" rel="external">https://beam.apache.org/documentation/programming-guide/</a></li>
+<li><a href="https://beam.apache.org/documentation/sdks/pydoc/2.1.0/" target="_blank" rel="external">https://beam.apache.org/documentation/sdks/pydoc/2.1.0/</a></li>
+<li><a href="https://sookocheff.com/post/dataflow/get-to-know-dataflow/" target="_blank" rel="external">https://sookocheff.com/post/dataflow/get-to-know-dataflow/</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;a href=&quot;https://beam.apache.org/get-started/beam-overview/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Apache Beam&lt;/a&gt; is a big data processing standard created by Google in 2016. It provides unified DSL to process both batch and stream data, and can be executed on popular platforms like Spark, Flink, and of course Google’s commercial product Dataflow. Beam’s model is based on previous works known as &lt;a href=&quot;https://web.archive.org/web/20160923141630/https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/35650.pdf&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;FlumeJava&lt;/a&gt; and &lt;a href=&quot;https://web.archive.org/web/20160201091359/http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/41378.pdf&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Millwheel&lt;/a&gt;, and addresses solutions for data processing tasks like ETL, analysis, and &lt;a href=&quot;https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;stream processing&lt;/a&gt;. Currently it provides SDK in two languages, Java and Python. This article will introduce how to use Python to write Beam applications.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/images/beam/arch.jpg&quot; alt=&quot;Apache Beam Pipeline&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;Installation&quot;&gt;&lt;a href=&quot;#Installation&quot; class=&quot;headerlink&quot; title=&quot;Installation&quot;&gt;&lt;/a&gt;Installation&lt;/h2&gt;&lt;p&gt;Apache Beam Python SDK requires Python 2.7.x. You can use &lt;a href=&quot;https://github.com/pyenv/pyenv&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;pyenv&lt;/a&gt; to manage different Python versions, or compile from &lt;a href=&quot;https://www.python.org/downloads/source/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;source&lt;/a&gt; (make sure you have SSL installed). And then you can install Beam SDK from PyPI, better in a virtual environment:&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;$ virtualenv venv --distribute&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;$ source venv/bin/activate&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;(venv) $ pip install apache-beam&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+      <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
+    
+    
+      <category term="python" scheme="http://shzhangji.com/tags/python/"/>
+    
+      <category term="stream processing" scheme="http://shzhangji.com/tags/stream-processing/"/>
+    
+      <category term="apache beam" scheme="http://shzhangji.com/tags/apache-beam/"/>
+    
+      <category term="mapreduce" scheme="http://shzhangji.com/tags/mapreduce/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Hive Window and Analytical Functions</title>
     <link href="http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/"/>
     <id>http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/</id>
     <published>2017-09-04T13:55:23.000Z</published>
-    <updated>2017-09-04T14:02:11.447Z</updated>
+    <updated>2017-09-09T05:37:01.289Z</updated>
     
     <content type="html"><![CDATA[<p>SQL is one of the major tools of data analysis. It provides filtering, transforming and aggregation functionalities, and we can use it to process big volume of data with the help of Hive and Hadoop. However, legacy SQL does not support operations like grouped ranking and moving average, because the <code>GROUP BY</code> clause can only produce one aggregation result for each group, but not for each row. Fortunately, with the new SQL standard coming, we can use the <code>WINDOW</code> clause to compute aggregations on a set of rows and return the result for each row.</p>
 <p><img src="/images/hive-window/window-stock.png" alt="Moving Average"></p>
 <p>For instance, if we want to calculate the two-day moving average for each stock, we can write the following query:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span></div><div class="line">  <span class="string">`date`</span>, <span class="string">`stock`</span>, <span class="string">`close`</span></div><div class="line">  ,<span class="keyword">AVG</span>(<span class="string">`close`</span>) <span class="keyword">OVER</span> <span class="string">`w`</span> <span class="keyword">AS</span> <span class="string">`mavg`</span></div><div class="line"><span class="keyword">FROM</span> <span class="string">`t_stock`</span></div><div class="line">WINDOW <span class="string">`w`</span> <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="string">`stock`</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="string">`date`</span></div><div class="line">               <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> <span class="number">1</span> <span class="keyword">PRECEDING</span> <span class="keyword">AND</span> <span class="keyword">CURRENT</span> <span class="keyword">ROW</span>)</div></pre></td></tr></table></figure>
-<p><code>OVER</code>, <code>WINDOW</code> and <code>ROWS BETWEEN AND</code> are all newly added SQL keywords to support windowing operations. In this query, <code>PARTITION BY</code> and <code>ORDER BY</code> works like <code>GROUP BY</code> and <code>ORDER BY</code> after the <code>WHERE</code> caluse, except it doesn’t collapse the rows, but only divides them into non-overlapping partitions to work on. <code>ROWS BETWEEN AND</code> here constructs a <strong>window frame</strong>. In this case, each frame contains the previous row and current row. We’ll discuss more on frames later. Finally, <code>AVG</code> is a window function that computes results on each frame. Note that <code>WINDOW</code> clause can also be directly appended to window function:</p>
+<p><code>OVER</code>, <code>WINDOW</code> and <code>ROWS BETWEEN AND</code> are all newly added SQL keywords to support windowing operations. In this query, <code>PARTITION BY</code> and <code>ORDER BY</code> works like <code>GROUP BY</code> and <code>ORDER BY</code> after the <code>WHERE</code> clause, except it doesn’t collapse the rows, but only divides them into non-overlapping partitions to work on. <code>ROWS BETWEEN AND</code> here constructs a <strong>window frame</strong>. In this case, each frame contains the previous row and current row. We’ll discuss more on frames later. Finally, <code>AVG</code> is a window function that computes results on each frame. Note that <code>WINDOW</code> clause can also be directly appended to window function:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> <span class="keyword">AVG</span>(<span class="string">`close`</span>) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="string">`stock`</span>) <span class="keyword">AS</span> <span class="string">`mavg`</span> <span class="keyword">FROM</span> <span class="string">`t_stock`</span>;</div></pre></td></tr></table></figure>
 <a id="more"></a>
 <h2 id="Window-Query-Concepts"><a href="#Window-Query-Concepts" class="headerlink" title="Window Query Concepts"></a>Window Query Concepts</h2><p><img src="/images/hive-window/concepts.png" alt="Concepts"></p>
 <p><a href="https://en.wikibooks.org/wiki/Structured_Query_Language/Window_functions" target="_blank" rel="external">Source</a></p>
 <p>SQL window query introduces three concepts, namely window partition, window frame and window function.</p>
-<p><code>PARTITION</code> clause divides result set into <strong>window partitions</strong> by one or more columns, and the rows whithin can be optionally sorted by one or more columns. If there’s not <code>PARTITION BY</code>, the entrie result set is treated as a single partition; if there’s not <code>ORDER BY</code>, window frames cannot be defined, and all rows within the partition constitudes a single frame.</p>
-<p><strong>Window frame</strong> selects rows from partition for window function to work on. There’re two ways of defining frame in Hive, <code>ROWS</code> AND <code>RANGE</code>. For both types, we define the upper bound and lower bound. For instance, <code>ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code> selects rows from the beginning of the partition to the current row; <code>SUM(close) RANGE BETWEEN 100 PRECEIDING AND 200 FOLLOWING</code> selects rows by the <em>distance</em> from the current row’s value. Say current <code>close</code> is <code>200</code>, and this frame will includes rows whose <code>close</code> values range from <code>100</code> to <code>400</code>, within the partition. All possible combinations of frame definitions are listed as follows, and the default definition is <code>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code>.</p>
+<p><code>PARTITION</code> clause divides result set into <strong>window partitions</strong> by one or more columns, and the rows within can be optionally sorted by one or more columns. If there’s not <code>PARTITION BY</code>, the entire result set is treated as a single partition; if there’s not <code>ORDER BY</code>, window frames cannot be defined, and all rows within the partition constitutes a single frame.</p>
+<p><strong>Window frame</strong> selects rows from partition for window function to work on. There’re two ways of defining frame in Hive, <code>ROWS</code> AND <code>RANGE</code>. For both types, we define the upper bound and lower bound. For instance, <code>ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code> selects rows from the beginning of the partition to the current row; <code>SUM(close) RANGE BETWEEN 100 PRECEDING AND 200 FOLLOWING</code> selects rows by the <em>distance</em> from the current row’s value. Say current <code>close</code> is <code>200</code>, and this frame will includes rows whose <code>close</code> values range from <code>100</code> to <code>400</code>, within the partition. All possible combinations of frame definitions are listed as follows, and the default definition is <code>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code>.</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">(ROWS | RANGE) BETWEEN (UNBOUNDED | [num]) PRECEDING AND ([num] PRECEDING | CURRENT ROW | (UNBOUNDED | [num]) FOLLOWING)</div><div class="line">(ROWS | RANGE) BETWEEN CURRENT ROW AND (CURRENT ROW | (UNBOUNDED | [num]) FOLLOWING)</div><div class="line">(ROWS | RANGE) BETWEEN [num] FOLLOWING AND (UNBOUNDED | [num]) FOLLOWING</div></pre></td></tr></table></figure>
 <p>All <strong>window functions</strong> compute results on the current frame. Hive supports the following functions:</p>
 <ul>
@@ -43,9 +261,9 @@
 <li><code>COUNT()</code>, <code>SUM(col)</code>, <code>MIN(col)</code> works as usual.</li>
 </ul>
 <h2 id="Hive-Query-Examples"><a href="#Hive-Query-Examples" class="headerlink" title="Hive Query Examples"></a>Hive Query Examples</h2><h3 id="Top-K"><a href="#Top-K" class="headerlink" title="Top K"></a>Top K</h3><p>First, let’s create some test data of employee incomes in Hive:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> t_employee (</div><div class="line">  <span class="keyword">id</span> <span class="built_in">INT</span></div><div class="line">  ,emp_name <span class="built_in">VARCHAR</span>(<span class="number">20</span>)</div><div class="line">  ,dep_name <span class="built_in">VARCHAR</span>(<span class="number">20</span>)</div><div class="line">  ,salary <span class="built_in">DECIMAL</span>(<span class="number">7</span>, <span class="number">2</span>)</div><div class="line">  ,age <span class="built_in">DECIMAL</span>(<span class="number">3</span>, <span class="number">0</span>)</div><div class="line">);</div><div class="line"></div><div class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_employee <span class="keyword">VALUES</span></div><div class="line">( <span class="number">1</span>,  <span class="string">'Matthew'</span>, <span class="string">'Management'</span>,  <span class="number">4500</span>, <span class="number">55</span>),</div><div class="line">( <span class="number">2</span>,  <span class="string">'Olivia'</span>,  <span class="string">'Management'</span>,  <span class="number">4400</span>, <span class="number">61</span>),</div><div class="line">( <span class="number">3</span>,  <span class="string">'Grace'</span>,   <span class="string">'Management'</span>,  <span class="number">4000</span>, <span class="number">42</span>),</div><div class="line">( <span class="number">4</span>,  <span class="string">'Jim'</span>,     <span class="string">'Production'</span>,  <span class="number">3700</span>, <span class="number">35</span>),</div><div class="line">( <span class="number">5</span>,  <span class="string">'Alice'</span>,   <span class="string">'Production'</span>,  <span class="number">3500</span>, <span class="number">24</span>),</div><div class="line">( <span class="number">6</span>,  <span class="string">'Michael'</span>, <span class="string">'Production'</span>,  <span class="number">3600</span>, <span class="number">28</span>),</div><div class="line">( <span class="number">7</span>,  <span class="string">'Tom'</span>,     <span class="string">'Production'</span>,  <span class="number">3800</span>, <span class="number">35</span>),</div><div class="line">( <span class="number">8</span>,  <span class="string">'Kevin'</span>,   <span class="string">'Production'</span>,  <span class="number">4000</span>, <span class="number">52</span>),</div><div class="line">( <span class="number">9</span>,  <span class="string">'Elvis'</span>,   <span class="string">'Service'</span>,     <span class="number">4100</span>, <span class="number">40</span>),</div><div class="line">(<span class="number">10</span>,  <span class="string">'Sophia'</span>,  <span class="string">'Sales'</span>,       <span class="number">4300</span>, <span class="number">36</span>),</div><div class="line">(<span class="number">11</span>,  <span class="string">'Samantha'</span>,<span class="string">'Sales'</span>,       <span class="number">4100</span>, <span class="number">38</span>);</div></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t_employee (<span class="keyword">id</span> <span class="built_in">INT</span>, emp_name <span class="built_in">VARCHAR</span>(<span class="number">20</span>), dep_name <span class="built_in">VARCHAR</span>(<span class="number">20</span>),</div><div class="line">salary <span class="built_in">DECIMAL</span>(<span class="number">7</span>, <span class="number">2</span>), age <span class="built_in">DECIMAL</span>(<span class="number">3</span>, <span class="number">0</span>));</div><div class="line"></div><div class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_employee <span class="keyword">VALUES</span></div><div class="line">( <span class="number">1</span>,  <span class="string">'Matthew'</span>, <span class="string">'Management'</span>,  <span class="number">4500</span>, <span class="number">55</span>),</div><div class="line">( <span class="number">2</span>,  <span class="string">'Olivia'</span>,  <span class="string">'Management'</span>,  <span class="number">4400</span>, <span class="number">61</span>),</div><div class="line">( <span class="number">3</span>,  <span class="string">'Grace'</span>,   <span class="string">'Management'</span>,  <span class="number">4000</span>, <span class="number">42</span>),</div><div class="line">( <span class="number">4</span>,  <span class="string">'Jim'</span>,     <span class="string">'Production'</span>,  <span class="number">3700</span>, <span class="number">35</span>),</div><div class="line">( <span class="number">5</span>,  <span class="string">'Alice'</span>,   <span class="string">'Production'</span>,  <span class="number">3500</span>, <span class="number">24</span>),</div><div class="line">( <span class="number">6</span>,  <span class="string">'Michael'</span>, <span class="string">'Production'</span>,  <span class="number">3600</span>, <span class="number">28</span>),</div><div class="line">( <span class="number">7</span>,  <span class="string">'Tom'</span>,     <span class="string">'Production'</span>,  <span class="number">3800</span>, <span class="number">35</span>),</div><div class="line">( <span class="number">8</span>,  <span class="string">'Kevin'</span>,   <span class="string">'Production'</span>,  <span class="number">4000</span>, <span class="number">52</span>),</div><div class="line">( <span class="number">9</span>,  <span class="string">'Elvis'</span>,   <span class="string">'Service'</span>,     <span class="number">4100</span>, <span class="number">40</span>),</div><div class="line">(<span class="number">10</span>,  <span class="string">'Sophia'</span>,  <span class="string">'Sales'</span>,       <span class="number">4300</span>, <span class="number">36</span>),</div><div class="line">(<span class="number">11</span>,  <span class="string">'Samantha'</span>,<span class="string">'Sales'</span>,       <span class="number">4100</span>, <span class="number">38</span>);</div></pre></td></tr></table></figure>
 <p>We can use the <code>RANK()</code> function to find out who earns the most within each department:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> dep_name, emp_name, salary</div><div class="line"><span class="keyword">FROM</span> (</div><div class="line">  <span class="keyword">SELECT</span></div><div class="line">    dep_name, emp_name, salary</div><div class="line">    ,<span class="keyword">RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> dep_name <span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">AS</span> rnk</div><div class="line">  <span class="keyword">FROM</span> t_employee</div><div class="line">) a</div><div class="line"><span class="keyword">where</span> rnk = <span class="number">1</span>;</div></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> dep_name, emp_name, salary</div><div class="line"><span class="keyword">FROM</span> (</div><div class="line">  <span class="keyword">SELECT</span></div><div class="line">    dep_name, emp_name, salary</div><div class="line">    ,<span class="keyword">RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> dep_name <span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">AS</span> rnk</div><div class="line">  <span class="keyword">FROM</span> t_employee</div><div class="line">) a</div><div class="line"><span class="keyword">WHERE</span> rnk = <span class="number">1</span>;</div></pre></td></tr></table></figure>
 <p>Normally when there’s duplicates, <code>RANK()</code> returns the same value for each row and <em>skip</em> the next sequence number. Use <code>DENSE_RANK()</code> if you want consecutive ranks.</p>
 <h3 id="Cumulative-Distribution"><a href="#Cumulative-Distribution" class="headerlink" title="Cumulative Distribution"></a>Cumulative Distribution</h3><p>We can calculate the cumulative distribution of salaries among all departments. For example, salary <code>4000</code>‘s cumulative distribution is <code>0.55</code>, which means 55% people’s salaries are less or equal to <code>4000</code>. To calculate this, we first count the frequencies of every salary, and do a cumulative summing:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span></div><div class="line">  salary</div><div class="line">  ,<span class="keyword">SUM</span>(cnt) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary)</div><div class="line">  / <span class="keyword">SUM</span>(cnt) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> <span class="keyword">UNBOUNDED</span> <span class="keyword">PRECEDING</span></div><div class="line">                   <span class="keyword">AND</span> <span class="keyword">UNBOUNDED</span> <span class="keyword">FOLLOWING</span>)</div><div class="line"><span class="keyword">FROM</span> (</div><div class="line">  <span class="keyword">SELECT</span> salary, <span class="keyword">count</span>(*) <span class="keyword">AS</span> cnt</div><div class="line">  <span class="keyword">FROM</span> t_employee</div><div class="line">  <span class="keyword">GROUP</span> <span class="keyword">BY</span> salary</div><div class="line">) a;</div></pre></td></tr></table></figure>
@@ -74,7 +292,7 @@
 &lt;p&gt;&lt;img src=&quot;/images/hive-window/window-stock.png&quot; alt=&quot;Moving Average&quot;&gt;&lt;/p&gt;
 &lt;p&gt;For instance, if we want to calculate the two-day moving average for each stock, we can write the following query:&lt;/p&gt;
 &lt;figure class=&quot;highlight sql&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;SELECT&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  &lt;span class=&quot;string&quot;&gt;`date`&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;`stock`&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;`close`&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  ,&lt;span class=&quot;keyword&quot;&gt;AVG&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;`close`&lt;/span&gt;) &lt;span class=&quot;keyword&quot;&gt;OVER&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`w`&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`mavg`&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`t_stock`&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;WINDOW &lt;span class=&quot;string&quot;&gt;`w`&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;AS&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;PARTITION&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`stock`&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;ORDER&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`date`&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;               &lt;span class=&quot;keyword&quot;&gt;ROWS&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;BETWEEN&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;PRECEDING&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;CURRENT&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;ROW&lt;/span&gt;)&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;&lt;code&gt;OVER&lt;/code&gt;, &lt;code&gt;WINDOW&lt;/code&gt; and &lt;code&gt;ROWS BETWEEN AND&lt;/code&gt; are all newly added SQL keywords to support windowing operations. In this query, &lt;code&gt;PARTITION BY&lt;/code&gt; and &lt;code&gt;ORDER BY&lt;/code&gt; works like &lt;code&gt;GROUP BY&lt;/code&gt; and &lt;code&gt;ORDER BY&lt;/code&gt; after the &lt;code&gt;WHERE&lt;/code&gt; caluse, except it doesn’t collapse the rows, but only divides them into non-overlapping partitions to work on. &lt;code&gt;ROWS BETWEEN AND&lt;/code&gt; here constructs a &lt;strong&gt;window frame&lt;/strong&gt;. In this case, each frame contains the previous row and current row. We’ll discuss more on frames later. Finally, &lt;code&gt;AVG&lt;/code&gt; is a window function that computes results on each frame. Note that &lt;code&gt;WINDOW&lt;/code&gt; clause can also be directly appended to window function:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;OVER&lt;/code&gt;, &lt;code&gt;WINDOW&lt;/code&gt; and &lt;code&gt;ROWS BETWEEN AND&lt;/code&gt; are all newly added SQL keywords to support windowing operations. In this query, &lt;code&gt;PARTITION BY&lt;/code&gt; and &lt;code&gt;ORDER BY&lt;/code&gt; works like &lt;code&gt;GROUP BY&lt;/code&gt; and &lt;code&gt;ORDER BY&lt;/code&gt; after the &lt;code&gt;WHERE&lt;/code&gt; clause, except it doesn’t collapse the rows, but only divides them into non-overlapping partitions to work on. &lt;code&gt;ROWS BETWEEN AND&lt;/code&gt; here constructs a &lt;strong&gt;window frame&lt;/strong&gt;. In this case, each frame contains the previous row and current row. We’ll discuss more on frames later. Finally, &lt;code&gt;AVG&lt;/code&gt; is a window function that computes results on each frame. Note that &lt;code&gt;WINDOW&lt;/code&gt; clause can also be directly appended to window function:&lt;/p&gt;
 &lt;figure class=&quot;highlight sql&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;AVG&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;`close`&lt;/span&gt;) &lt;span class=&quot;keyword&quot;&gt;OVER&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;PARTITION&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`stock`&lt;/span&gt;) &lt;span class=&quot;keyword&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`mavg`&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;`t_stock`&lt;/span&gt;;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
     
     </summary>
@@ -151,9 +369,9 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
-      <category term="stream processing" scheme="http://shzhangji.com/tags/stream-processing/"/>
-    
       <category term="java" scheme="http://shzhangji.com/tags/java/"/>
+    
+      <category term="stream processing" scheme="http://shzhangji.com/tags/stream-processing/"/>
     
       <category term="algorithm" scheme="http://shzhangji.com/tags/algorithm/"/>
     
@@ -230,13 +448,13 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
-      <category term="java" scheme="http://shzhangji.com/tags/java/"/>
-    
       <category term="etl" scheme="http://shzhangji.com/tags/etl/"/>
     
       <category term="mysql" scheme="http://shzhangji.com/tags/mysql/"/>
     
       <category term="canal" scheme="http://shzhangji.com/tags/canal/"/>
+    
+      <category term="java" scheme="http://shzhangji.com/tags/java/"/>
     
   </entry>
   
@@ -296,11 +514,11 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
+      <category term="etl" scheme="http://shzhangji.com/tags/etl/"/>
+    
       <category term="java" scheme="http://shzhangji.com/tags/java/"/>
     
       <category term="flume" scheme="http://shzhangji.com/tags/flume/"/>
-    
-      <category term="etl" scheme="http://shzhangji.com/tags/etl/"/>
     
   </entry>
   
@@ -364,9 +582,9 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
-      <category term="spark" scheme="http://shzhangji.com/tags/spark/"/>
-    
       <category term="scala" scheme="http://shzhangji.com/tags/scala/"/>
+    
+      <category term="spark" scheme="http://shzhangji.com/tags/spark/"/>
     
       <category term="spark streaming" scheme="http://shzhangji.com/tags/spark-streaming/"/>
     
@@ -452,11 +670,11 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
-      <category term="python" scheme="http://shzhangji.com/tags/python/"/>
+      <category term="pandas" scheme="http://shzhangji.com/tags/pandas/"/>
     
       <category term="analytics" scheme="http://shzhangji.com/tags/analytics/"/>
     
-      <category term="pandas" scheme="http://shzhangji.com/tags/pandas/"/>
+      <category term="python" scheme="http://shzhangji.com/tags/python/"/>
     
       <category term="sql" scheme="http://shzhangji.com/tags/sql/"/>
     
@@ -574,11 +792,11 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
+      <category term="analytics" scheme="http://shzhangji.com/tags/analytics/"/>
+    
       <category term="crossfilter" scheme="http://shzhangji.com/tags/crossfilter/"/>
     
       <category term="dc.js" scheme="http://shzhangji.com/tags/dc-js/"/>
-    
-      <category term="analytics" scheme="http://shzhangji.com/tags/analytics/"/>
     
   </entry>
   
@@ -631,13 +849,13 @@
       <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
-      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
+      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
     
       <category term="javascript" scheme="http://shzhangji.com/tags/javascript/"/>
     
-      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
-    
       <category term="es6" scheme="http://shzhangji.com/tags/es6/"/>
+    
+      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
     
   </entry>
   
@@ -753,11 +971,11 @@
       <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
-      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
+      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
     
       <category term="javascript" scheme="http://shzhangji.com/tags/javascript/"/>
     
-      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
+      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
     
   </entry>
   
