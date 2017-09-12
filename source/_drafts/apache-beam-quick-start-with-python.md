@@ -89,7 +89,7 @@ lines | 'Write' >> beam.io.WriteToText('/path/to/output', file_name_suffix='.csv
 
 ## Transforms
 
-There're basic transforms and higher-level built-ins. In general, we prefer to use the later so that we can focus on the application logic.
+There're basic transforms and higher-level built-ins. In general, we prefer to use the later so that we can focus on the application logic. The following table lists some commonly used higher-level transforms:
 
 | Transform | Meaning |
 | --- | --- |
@@ -105,50 +105,82 @@ There're basic transforms and higher-level built-ins. In general, we prefer to u
 | CombinePerKey(fn) | Similar to `GroupByKey`, but combines the values by a `CombineFn` or a callable that takes an iterable, such as `sum`, `max`. |
 | CombineGlobally(fn) | Reduces a PCollection to a single value by applying `fn`. |
 
-### CombinerFn
+### Callable, DoFn, and ParDo
 
-### DoFn
+Most transforms accepts a callable as argument. In Python, [callable][8] can be a function, method, lambda expression, or class instance that has `__call__` method. Under the hood, Beam will wrap the callable as a `DoFn`, and all these transforms will invoke `ParDo`, the lower-level transform, with the `DoFn`.
 
-### PTransform
+Let's replace the expression `lambda x: x.split(' ')` with a `DoFn` class:
 
-* combiners
-  * Count
-  * Mean
-  * Sample
-  * Top
-  * ToDict
-  * ToList
+```python
+class SplitFn(beam.DoFn):
+    def process(self, element):
+        return element.split(' ')
 
-ParDo, DoFn, PTransform
+lines | beam.ParDo(SplitFn())
+```
+
+The `ParDo` transform works like `FlatMap`, except that it only accepts `DoFn`. In addition to `return`, we can `yield` element from `process` method:
+
+```python
+class SplitAndPairWithOneFn(beam.DoFn):
+    def process(self, element):
+        for word in element.split(' '):
+            yield (word, 1)
+```
+
+### Combiner Functions
+
+Combiner functions, or `CombineFn`, are used to reduce a collection of elements into a single value. You can either perform on the entire PCollection (`CombineGlobally`), or combine the values for each key (`CombinePerKey`). Beam is capable of wrapping callables into `CombinFn`. The callable should take an iterable and returns a single value. Since Beam distributes computation to multiple nodes, the combiner function will be invoked multiple times to get partial results, so they ought to be [commutative][9] and [associative][10]. `sum`, `min`, `max` are good examples.
+
+Beam provides some built-in combiners like count, mean, top. Take count for instance, the following two lines are equivalent, they return the total count of lines.
+
+```python
+lines | beam.combiners.Count.Globally()
+lines | beam.CombineGlobally(beam.combiners.CountCombineFn())
+```
+
+Other combiners can be found in Beam Python SDK Documentation ([link][12]). For more complex combiners, we need to subclass the `CombinFn` and implement four methods. Take the built-in `Mean` for an example:
+
+[`apache_beam/transforms/combiners.py`][11]
+
+```python
+class MeanCombineFn(core.CombineFn):
+  def create_accumulator(self):
+    """Create a "local" accumulator to track sum and count."""
+    return (0, 0)
+
+  def add_input(self, (sum_, count), element):
+    """Process the incoming value."""
+    return sum_ + element, count + 1
+
+  def merge_accumulators(self, accumulators):
+    """Merge several accumulators into a single one."""
+    sums, counts = zip(*accumulators)
+    return sum(sums), sum(counts)
+
+  def extract_output(self, (sum_, count)):
+    """Compute the mean average."""
+    if count == 0:
+      return float('NaN')
+    return sum_ / float(count)
+```
+
+### Composite Transform
+
+Take a look at the [source code][13] of `beam.combiners.Count.Globally` we used before. It subclasses `PTransform` and applies some transforms to the PCollection. This forms a sub-graph of DAG, and we call it composite transform. Composite transforms are used to gather relative codes into logical modules, making them easy to understand and maintain.
+
+```python
+class Count(object):
+  class Globally(ptransform.PTransform):
+    def expand(self, pcoll):
+      return pcoll | core.CombineGlobally(CountCombineFn())
+```
 
 ## Windowing
 
 ## Pipeline Runner
 
 https://beam.apache.org/documentation/runners/capability-matrix/
-
-* install
-  * python 2 with ssl (httpsconnection not found)
-  * apache-beam package
-  * wordcount direct mode
-  * python only supports direct mode
-* wordcount example
-* concepts
-  * Pipeline, pipeline runner
-  * PCollection, bounded, unbounded
-  * ParDo, DoFn, PTransform, General Requirements for Writing User Code for Beam Transforms
-  * GroupByKey, CoGroupByKey (join)
-  * Combine, CombinePerKey
-  * Flatten, Partition
-  * input / output
-  * encoder, type hint
-  * logging & testing https://beam.apache.org/get-started/wordcount-example/
-* stream error log count
-  * window, fixed, sliding
-  * combinebykey
-  * trigger ?
-  * https://beam.apache.org/get-started/mobile-gaming-example/
-
 
 ## References
 
@@ -163,3 +195,9 @@ https://beam.apache.org/documentation/runners/capability-matrix/
 [5]: https://github.com/pyenv/pyenv
 [6]: https://www.python.org/downloads/source/
 [7]: https://beam.apache.org/documentation/io/built-in/
+[8]: https://docs.python.org/2/library/functions.html#callable
+[9]: https://en.wikipedia.org/wiki/Commutative_property
+[10]: https://en.wikipedia.org/wiki/Associative_property
+[11]: https://github.com/apache/beam/blob/v2.1.0/sdks/python/apache_beam/transforms/combiners.py#L75
+[12]: https://beam.apache.org/documentation/sdks/pydoc/2.1.0/apache_beam.transforms.html#module-apache_beam.transforms.combiners
+[13]: https://github.com/apache/beam/blob/v2.1.0/sdks/python/apache_beam/transforms/combiners.py#L101
