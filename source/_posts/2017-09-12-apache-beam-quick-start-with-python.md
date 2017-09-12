@@ -1,8 +1,15 @@
 ---
 title: Apache Beam Quick Start with Python
-categories: [Big Data]
-tags: [apache beam, python, mapreduce, stream processing]
+tags:
+  - apache beam
+  - python
+  - mapreduce
+  - stream processing
+categories:
+  - Big Data
+date: 2017-09-12 21:08:25
 ---
+
 
 [Apache Beam][1] is a big data processing standard created by Google in 2016. It provides unified DSL to process both batch and stream data, and can be executed on popular platforms like Spark, Flink, and of course Google's commercial product Dataflow. Beam's model is based on previous works known as [FlumeJava][2] and [Millwheel][3], and addresses solutions for data processing tasks like ETL, analysis, and [stream processing][4]. Currently it provides SDK in two languages, Java and Python. This article will introduce how to use Python to write Beam applications.
 
@@ -180,23 +187,64 @@ More built-in transforms are listed below:
 
 | Transform | Meaning |
 | --- | --- |
-| Count.Globally() ||
-| Count.PerKey() ||
-| Count.PerElement() ||
-| Mean.Globally() ||
-| Mean.PerKey() ||
-| Top.Of(n, reverse) | Top.Largest(n), Top.Smallest(n) |
-| Top.PerKey(n, reverse) | Top.LargestPerKey(n), Top.SmallestPerKey(n) |
-| Sample.FixedSizeGlobally(n) ||
-| Sample.FixedSizePerKey(n) ||
-| ToList() ||
-| ToDict() ||
+| Count.Globally() | Count the total number of elements. |
+| Count.PerKey() | Count number elements of each unique key. |
+| Count.PerElement() | Count the occurrences of each element. |
+| Mean.Globally() | Compute the average of all elements. |
+| Mean.PerKey() | Compute the averages for each key. |
+| Top.Of(n, reverse) | Get the top `n` elements from the PCollection. See also Top.Largest(n), Top.Smallest(n). |
+| Top.PerKey(n, reverse) | Get top `n` elements for each key. See also Top.LargestPerKey(n), Top.SmallestPerKey(n) |
+| Sample.FixedSizeGlobally(n) | Get a sample of `n` elements. |
+| Sample.FixedSizePerKey(n) | Get samples from each key. |
+| ToList() | Combine to a single list. |
+| ToDict() | Combine to a single dict. Works on 2-element tuples. |
 
 ## Windowing
 
+When processing event data, such as access log or click stream, there's an *event time* property attached to every item, and it's common to perform aggregation on a per-time-window basis. With Beam, we can define different kinds of windows to divide event data into groups. Windowing can be used in both bounded and unbounded data source. Since current Python SDK only supports bounded source, the following example will work on an offline access log file, but the process can be applied to unbounded source as is.
+
+```
+64.242.88.10 - - [07/Mar/2004:16:05:49 -0800] "GET /edit HTTP/1.1" 401 12846
+64.242.88.10 - - [07/Mar/2004:16:06:51 -0800] "GET /rdiff HTTP/1.1" 200 4523
+64.242.88.10 - - [07/Mar/2004:16:10:02 -0800] "GET /hsdivision HTTP/1.1" 200 6291
+64.242.88.10 - - [07/Mar/2004:16:11:58 -0800] "GET /view HTTP/1.1" 200 7352
+64.242.88.10 - - [07/Mar/2004:16:20:55 -0800] "GET /view HTTP/1.1" 200 5253
+```
+
+`logmining.py`, full source code can be found on GitHub ([link][14]).
+
+```python
+lines = p | 'Create' >> beam.io.ReadFromText('access.log')
+windowed_counts = (
+    lines
+    | 'Timestamp' >> beam.Map(lambda x: beam.window.TimestampedValue(
+                              x, extract_timestamp(x)))
+    | 'Window' >> beam.WindowInto(beam.window.SlidingWindows(600, 300))
+    | 'Count' >> (beam.CombineGlobally(beam.combiners.CountCombineFn())
+                  .without_defaults())
+)
+windowed_counts =  windowed_counts | beam.ParDo(PrintWindowFn())
+```
+
+First of all, we need to add a timestamp to each record. `extract_timestamp` is a custom function to parse `[07/Mar/2004:16:05:49 -0800]` as a unix timestamp. `TimestampedValue` links this timestamp to the record. Then we define a sliding window with the size *10 minutes* and period *5 minutes*, which means the first window is `[00:00, 00:10)`, second window is `[00:05, 00:15)`, and so forth. All windows have a *10 minutes* duration, and adjacent windows have a *5 minutes* shift. Sliding window is different from fixed window, in that the same elements could appear in different windows. The combiner function is a simple count, so the pipeline result of the first five logs will be:
+
+```
+[2004-03-08T00:00:00Z, 2004-03-08T00:10:00Z) @ 2
+[2004-03-08T00:05:00Z, 2004-03-08T00:15:00Z) @ 4
+[2004-03-08T00:10:00Z, 2004-03-08T00:20:00Z) @ 2
+[2004-03-08T00:15:00Z, 2004-03-08T00:25:00Z) @ 1
+[2004-03-08T00:20:00Z, 2004-03-08T00:30:00Z) @ 1
+```
+
+In stream processing for unbounded source, event data will arrive in different order, so we need to deal with late data with Beam's watermark and trigger facility. This is a rather advanced topic, and the Python SDK has not yet implemented this feature. If you're interested, please refer to Stream [101][4] and [102][15] articles.
+
 ## Pipeline Runner
 
-https://beam.apache.org/documentation/runners/capability-matrix/
+As metioned above, Apache Beam is just a standard that provides SDK and APIs. It's the pipeline runner that is reponsible to execute the workflow graph. The following matrix lists all available runners and their capabilities compared to Beam Model.
+
+![Beam Capability Matrix](/images/beam/matrix.png)
+
+[Source](https://beam.apache.org/documentation/runners/capability-matrix/)
 
 ## References
 
@@ -217,3 +265,5 @@ https://beam.apache.org/documentation/runners/capability-matrix/
 [11]: https://github.com/apache/beam/blob/v2.1.0/sdks/python/apache_beam/transforms/combiners.py#L75
 [12]: https://beam.apache.org/documentation/sdks/pydoc/2.1.0/apache_beam.transforms.html#module-apache_beam.transforms.combiners
 [13]: https://github.com/apache/beam/blob/v2.1.0/sdks/python/apache_beam/transforms/combiners.py#L101
+[14]: https://github.com/jizhang/hello-beam/blob/master/logmining.py
+[15]: https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-102
