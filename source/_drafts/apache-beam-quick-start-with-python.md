@@ -67,7 +67,7 @@ As in this example, `Pipeline` and `PipelineOptions` are used to construct a pip
 
 `beam.Map` is a *one-to-one* transform, and in this example we convert a word string to a `(word, 1)` tuple. `beam.FlatMap` is a combination of `Map` and `Flatten`, i.e. we split each line into an array of words, and then flatten these sequences into a single one.
 
-`CombineByKey` works on two-element tuples. It groups the tuples by the first element (the key), and apply the provided function to the list of second elements (values). Finally, we use `beam.ParDo` to print out the counts. This is a rather basic transform, and we'll discuss it in the following section.
+`CombinePerKey` works on two-element tuples. It groups the tuples by the first element (the key), and apply the provided function to the list of second elements (values). Finally, we use `beam.ParDo` to print out the counts. This is a rather basic transform, and we'll discuss it in the following section.
 
 ## Input and Output
 
@@ -93,20 +93,23 @@ There're basic transforms and higher-level built-ins. In general, we prefer to u
 
 | Transform | Meaning |
 | --- | --- |
-| Create ||
-| Filter ||
-| Map ||
-| FlatMap ||
-| Flatten ||
-| Partition ||
-| GroupByKey ||
+| Create(value) | Creates a PCollection from an iterable. |
+| Filter(fn) | Use callable `fn` to filter out elements. |
+| Map(fn) | Use callable `fn` to do a one-to-one transformation. |
+| FlatMap(fn) | Similar to `Map`, but `fn` needs to return an iterable of zero or more elements, and these iterables will be flattened into one PCollection. |
+| Flatten() | Merge several PCollections into a single one. |
+| Partition(fn) | Split a PCollection into several partitions. `fn` is a `PartitionFn` or a callable that accepts two arguments - `element`, `num_partitions`. |
+| GroupByKey() | Works on a PCollection of key/value pairs (two-element tuples), groups by common key, and returns `(key, iter<value>)` pairs. |
+| CoGroupByKey() | Groups results across several PCollections by key. e.g. input `(k, v)` and `(k, w)`, output `(k, (iter<v>, iter<w>))`. |
+| RemoveDuplicates() | Get distint values in PCollection. |
+| CombinePerKey(fn) | Similar to `GroupByKey`, but combines the values by a `CombineFn` or a callable that takes an iterable, such as `sum`, `max`. |
+| CombineGlobally(fn) | Reduces a PCollection to a single value by applying `fn`. |
 
-CoGroupByKey
-RemoveDuplicates
+### CombinerFn
 
-| CombinePerKey ||
-| CombineGlobally ||
-| CombineValues ||
+### DoFn
+
+### PTransform
 
 * combiners
   * Count
