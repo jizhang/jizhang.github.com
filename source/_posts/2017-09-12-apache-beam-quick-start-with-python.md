@@ -240,7 +240,7 @@ In stream processing for unbounded source, event data will arrive in different o
 
 ## Pipeline Runner
 
-As metioned above, Apache Beam is just a standard that provides SDK and APIs. It's the pipeline runner that is reponsible to execute the workflow graph. The following matrix lists all available runners and their capabilities compared to Beam Model.
+As mentioned above, Apache Beam is just a standard that provides SDK and APIs. It's the pipeline runner that is responsible to execute the workflow graph. The following matrix lists all available runners and their capabilities compared to Beam Model.
 
 ![Beam Capability Matrix](/images/beam/matrix.png)
 
