@@ -13,3 +13,4 @@ tags: [pandas, analytics, python]
 * https://pandas.pydata.org/pandas-docs/stable/generated/pandas.melt.html
 * https://hackernoon.com/reshaping-data-in-python-fa27dda2ff77
 * http://connor-johnson.com/2014/08/28/tidyr-and-pandas-gather-and-melt/
+* http://www.jeannicholashould.com/tidy-data-in-python.html
