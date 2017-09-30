@@ -1,8 +1,14 @@
 ---
 title: Pandas and Tidy Data
-categories: [Big Data]
-tags: [pandas, analytics, python]
+tags:
+  - pandas
+  - analytics
+  - python
+categories:
+  - Big Data
+date: 2017-09-30 12:24:32
 ---
+
 
 In the paper [Tidy Data][1], [Dr. Wickham][2] proposed a specific form of data structure: each variable is a column, each observation is a row, and each type of observational unit is a table. He argued that with tidy data, data analysts can manipulate, model, and visualize data more easily and effectively. He lists *five common data structures* that are untidy, and demonstrates how to use [R language][3] to tidy them. In this article, we'll use Python and Pandas to achieve the same tidiness.
 
@@ -135,7 +141,7 @@ df
 
 ## Multiple types in one table
 
-In the processed Billboard dataset, we can see duplicates of song tracks, it's because this table actually contains two types of observational units, song tracks and weekly ranks. To tidy it, we first generate identities for each song track, i.e. `id`, and then separate them into difference tables.
+In the processed Billboard dataset, we can see duplicates of song tracks, it's because this table actually contains two types of observational units, song tracks and weekly ranks. To tidy it, we first generate identities for each song track, i.e. `id`, and then separate them into different tables.
 
 ```python
 df = pd.read_csv('data/billboard-intermediate.csv')
@@ -154,7 +160,7 @@ print(df_track, '\n\n', df)
 
 ## One type in multiple tables
 
-Datasets can be separated in two ways, by different values of an variable like year, location, or by different attributes like temperature from one sensor, humidity from another. In the first case, we can write a utility function that walks through the data directory, reads each file, and assigns the filename to a dedicated column. In the end we can combine these DataFrames with [`pd.concat`][7]. In the latter case, there should be some attribute that can identify the same units, like date, personal ID, etc. We can use [`pd.merge`][8] to join datasets by common keys.
+Datasets can be separated in two ways, by different values of an variable like year 2000, 2001, location China, Britain, or by different attributes like temperature from one sensor, humidity from another. In the first case, we can write a utility function that walks through the data directory, reads each file, and assigns the filename to a dedicated column. In the end we can combine these DataFrames with [`pd.concat`][7]. In the latter case, there should be some attribute that can identify the same units, like date, personal ID, etc. We can use [`pd.merge`][8] to join datasets by common keys.
 
 ## References
 
