@@ -15,7 +15,7 @@
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://shzhangji.com/images/beam/arch.jpg">
 <meta property="og:image" content="http://shzhangji.com/images/beam/matrix.png">
-<meta property="og:updated_time" content="2017-09-12T13:16:37.895Z">
+<meta property="og:updated_time" content="2017-09-13T01:44:34.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Apache Beam Quick Start with Python">
 <meta name="twitter:description" content="Apache Beam is a big data processing standard created by Google in 2016. It provides unified DSL to process both batch and stream data, and can be executed on popular platforms like Spark, Flink, and">
@@ -298,7 +298,7 @@ ga('send', 'pageview');
 <p>First of all, we need to add a timestamp to each record. <code>extract_timestamp</code> is a custom function to parse <code>[07/Mar/2004:16:05:49 -0800]</code> as a unix timestamp. <code>TimestampedValue</code> links this timestamp to the record. Then we define a sliding window with the size <em>10 minutes</em> and period <em>5 minutes</em>, which means the first window is <code>[00:00, 00:10)</code>, second window is <code>[00:05, 00:15)</code>, and so forth. All windows have a <em>10 minutes</em> duration, and adjacent windows have a <em>5 minutes</em> shift. Sliding window is different from fixed window, in that the same elements could appear in different windows. The combiner function is a simple count, so the pipeline result of the first five logs will be:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[2004-03-08T00:00:00Z, 2004-03-08T00:10:00Z) @ 2</div><div class="line">[2004-03-08T00:05:00Z, 2004-03-08T00:15:00Z) @ 4</div><div class="line">[2004-03-08T00:10:00Z, 2004-03-08T00:20:00Z) @ 2</div><div class="line">[2004-03-08T00:15:00Z, 2004-03-08T00:25:00Z) @ 1</div><div class="line">[2004-03-08T00:20:00Z, 2004-03-08T00:30:00Z) @ 1</div></pre></td></tr></table></figure>
 <p>In stream processing for unbounded source, event data will arrive in different order, so we need to deal with late data with Beam’s watermark and trigger facility. This is a rather advanced topic, and the Python SDK has not yet implemented this feature. If you’re interested, please refer to Stream <a href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101" target="_blank" rel="external">101</a> and <a href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-102" target="_blank" rel="external">102</a> articles.</p>
-<h2 id="Pipeline-Runner"><a href="#Pipeline-Runner" class="headerlink" title="Pipeline Runner"></a>Pipeline Runner</h2><p>As metioned above, Apache Beam is just a standard that provides SDK and APIs. It’s the pipeline runner that is reponsible to execute the workflow graph. The following matrix lists all available runners and their capabilities compared to Beam Model.</p>
+<h2 id="Pipeline-Runner"><a href="#Pipeline-Runner" class="headerlink" title="Pipeline Runner"></a>Pipeline Runner</h2><p>As mentioned above, Apache Beam is just a standard that provides SDK and APIs. It’s the pipeline runner that is responsible to execute the workflow graph. The following matrix lists all available runners and their capabilities compared to Beam Model.</p>
 <p><img src="/images/beam/matrix.png" alt="Beam Capability Matrix"></p>
 <p><a href="https://beam.apache.org/documentation/runners/capability-matrix/" target="_blank" rel="external">Source</a></p>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
@@ -310,7 +310,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/" data-id="cj7hm5fgl001hyem6u7imgnnm" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/" data-id="cj86tcqdj001imqzj2ibay4rw" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -322,6 +322,15 @@ ga('send', 'pageview');
   
     
 <nav id="article-nav">
+  
+    <a href="/blog/2017/09/30/pandas-and-tidy-data/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Pandas and Tidy Data
+        
+      </div>
+    </a>
   
   
     <a href="/blog/2017/09/04/hive-window-and-analytical-functions/" id="article-nav-older" class="article-nav-link-wrap">
@@ -348,7 +357,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 16.67px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flume/" style="font-size: 10px;">flume</a> <a href="/tags/frontend/" style="font-size: 13.33px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/javascript/" style="font-size: 13.33px;">javascript</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/lodash/" style="font-size: 13.33px;">lodash</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/scala/" style="font-size: 13.33px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 16.67px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/sql/" style="font-size: 13.33px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 16.67px;">stream processing</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 17.5px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/etl/" style="font-size: 12.5px;">etl</a> <a href="/tags/flume/" style="font-size: 10px;">flume</a> <a href="/tags/frontend/" style="font-size: 12.5px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/javascript/" style="font-size: 12.5px;">javascript</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/lodash/" style="font-size: 12.5px;">lodash</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 12.5px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/scala/" style="font-size: 12.5px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/sql/" style="font-size: 12.5px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 15px;">stream processing</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -370,6 +379,10 @@ ga('send', 'pageview');
       <ul>
         
           <li>
+            <a href="/blog/2017/09/30/pandas-and-tidy-data/">Pandas and Tidy Data</a>
+          </li>
+        
+          <li>
             <a href="/blog/2017/09/12/apache-beam-quick-start-with-python/">Apache Beam Quick Start with Python</a>
           </li>
         
@@ -383,10 +396,6 @@ ga('send', 'pageview');
         
           <li>
             <a href="/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/">Extract Data from MySQL with Binlog and Canal</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/">How to Extract Event Time in Apache Flume</a>
           </li>
         
       </ul>

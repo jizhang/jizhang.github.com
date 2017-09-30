@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://shzhangji.com/"/>
-  <updated>2017-09-12T13:16:37.895Z</updated>
+  <updated>2017-09-30T04:29:27.000Z</updated>
   <id>http://shzhangji.com/</id>
   
   <author>
@@ -16,11 +16,87 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Pandas and Tidy Data</title>
+    <link href="http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/"/>
+    <id>http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/</id>
+    <published>2017-09-30T04:24:32.000Z</published>
+    <updated>2017-09-30T04:29:27.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>In the paper <a href="https://www.jstatsoft.org/article/view/v059i10" target="_blank" rel="external">Tidy Data</a>, <a href="https://en.wikipedia.org/wiki/Hadley_Wickham" target="_blank" rel="external">Dr. Wickham</a> proposed a specific form of data structure: each variable is a column, each observation is a row, and each type of observational unit is a table. He argued that with tidy data, data analysts can manipulate, model, and visualize data more easily and effectively. He lists <em>five common data structures</em> that are untidy, and demonstrates how to use <a href="https://github.com/hadley/tidy-data/" target="_blank" rel="external">R language</a> to tidy them. In this article, we’ll use Python and Pandas to achieve the same tidiness.</p>
+<p>Source code and demo data can be found on GitHub (<a href="https://github.com/jizhang/pandas-tidy-data" target="_blank" rel="external">link</a>), and readers are supposed to have Python environment installed, preferably with Anaconda and Spyder IDE.</p>
+<h2 id="Column-headers-are-values-not-variable-names"><a href="#Column-headers-are-values-not-variable-names" class="headerlink" title="Column headers are values, not variable names"></a>Column headers are values, not variable names</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</div><div class="line">df = pd.read_csv(<span class="string">'data/pew.csv'</span>)</div><div class="line">df.head(<span class="number">10</span>)</div></pre></td></tr></table></figure>
+<p><img src="/images/tidy-data/pew.png" alt="Religion and Income - Pew Forum"></p>
+<p>Column names “&lt;$10k”, “$10-20k” are really income ranges that constitutes a variable. Variables are measurements of attributes, like height, weight, and in this case, income and religion. The values within the table form another variable, frequency. To make <em>each variable a column</em>, we do the following transformation:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">df = df.set_index(<span class="string">'religion'</span>)</div><div class="line">df = df.stack()</div><div class="line">df.index = df.index.rename(<span class="string">'income'</span>, level=<span class="number">1</span>)</div><div class="line">df.name = <span class="string">'frequency'</span></div><div class="line">df = df.reset_index()</div><div class="line">df.head(<span class="number">10</span>)</div></pre></td></tr></table></figure>
+<p><img src="/images/tidy-data/pew-tidy.png" alt="Religion and Income - Tidy"></p>
+<a id="more"></a>
+<p>Here we use the <a href="https://pandas.pydata.org/pandas-docs/stable/reshaping.html" target="_blank" rel="external">stack / unstack</a> feature of Pandas MultiIndex objects. <code>stack()</code> will use the column names to form a second level of index, then we do some proper naming and use <code>reset_index()</code> to flatten the table. In line 4 <code>df</code> is actually a Series, since Pandas will automatically convert from a single-column DataFrame.</p>
+<p>Pandas provides another more commonly used method to do the transformation, <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.melt.html" target="_blank" rel="external"><code>melt()</code></a>. It accepts the following arguments:</p>
+<ul>
+<li><code>frame</code>: the DataFrame to manipulate.</li>
+<li><code>id_vars</code>: columns that stay put.</li>
+<li><code>value_vars</code>: columns that will be transformed to a variable.</li>
+<li><code>var_name</code>: name the newly added variable column.</li>
+<li><code>value_name</code>: name the value column.</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">df = pd.read_csv(<span class="string">'data/pew.csv'</span>)</div><div class="line">df = pd.melt(df, id_vars=[<span class="string">'religion'</span>], value_vars=list(df.columns)[<span class="number">1</span>:],</div><div class="line">             var_name=<span class="string">'income'</span>, value_name=<span class="string">'frequency'</span>)</div><div class="line">df = df.sort_values(by=<span class="string">'religion'</span>)</div><div class="line">df.to_csv(<span class="string">'data/pew-tidy.csv'</span>, index=<span class="keyword">False</span>)</div><div class="line">df.head(<span class="number">10</span>)</div></pre></td></tr></table></figure>
+<p>This will give the same result. We’ll use <code>melt()</code> method a lot in the following sections.</p>
+<p>Let’s take a look at another form of untidiness that falls in this section:</p>
+<p><img src="/images/tidy-data/billboard.png" alt="Billboard 2000"></p>
+<p>In this dataset, weekly ranks are recorded in separate columns. To answer the question “what’s the rank of ‘Dancing Queen’ in 2000-07-15”, we need to do some calculations with <code>date.entered</code> and the week columns. Let’s transform it into a tidy form:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">df = pd.read_csv(<span class="string">'data/billboard.csv'</span>)</div><div class="line">df = pd.melt(df, id_vars=list(df.columns)[:<span class="number">5</span>], value_vars=list(df.columns)[<span class="number">5</span>:],</div><div class="line">             var_name=<span class="string">'week'</span>, value_name=<span class="string">'rank'</span>)</div><div class="line">df[<span class="string">'week'</span>] = df[<span class="string">'week'</span>].str[<span class="number">2</span>:].astype(int)</div><div class="line">df[<span class="string">'date.entered'</span>] = pd.to_datetime(df[<span class="string">'date.entered'</span>]) + pd.to_timedelta((df[<span class="string">'week'</span>] - <span class="number">1</span>) * <span class="number">7</span>, <span class="string">'d'</span>)</div><div class="line">df = df.rename(columns=&#123;<span class="string">'date.entered'</span>: <span class="string">'date'</span>&#125;)</div><div class="line">df = df.sort_values(by=[<span class="string">'track'</span>, <span class="string">'date'</span>])</div><div class="line">df.to_csv(<span class="string">'data/billboard-intermediate.csv'</span>, index=<span class="keyword">False</span>)</div><div class="line">df.head(<span class="number">10</span>)</div></pre></td></tr></table></figure>
+<p><img src="/images/tidy-data/billboard-intermediate.png" alt="Billboard 2000 - Intermediate Tidy"></p>
+<p>We’ve also transformed the <code>date.entered</code> variable into the exact date of that week. Now <code>week</code> becomes a single column that represents a variable. But we can see a lot of duplications in this table, like artist and track. We’ll solve this problem in the fourth section.</p>
+<h2 id="Multiple-variables-stored-in-one-column"><a href="#Multiple-variables-stored-in-one-column" class="headerlink" title="Multiple variables stored in one column"></a>Multiple variables stored in one column</h2><p>Storing variable values in columns is quite common because it makes the data table more compact, and easier to do analysis like cross validation, etc. The following dataset even manages to store two variables in the column, sex and age.</p>
+<p><img src="/images/tidy-data/tb.png" alt="Tuberculosis (TB)"></p>
+<p><code>m</code> stands for <code>male</code>, <code>f</code> for <code>female</code>, and age ranges are <code>0-14</code>, <code>15-24</code>, and so forth. To tidy it, we first melt the columns, use Pandas’ string operation to extract <code>sex</code>, and do a value mapping for the <code>age</code> ranges.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">df = pd.read_csv(<span class="string">'data/tb.csv'</span>)</div><div class="line">df = pd.melt(df, id_vars=[<span class="string">'country'</span>, <span class="string">'year'</span>], value_vars=list(df.columns)[<span class="number">2</span>:],</div><div class="line">             var_name=<span class="string">'column'</span>, value_name=<span class="string">'cases'</span>)</div><div class="line">df = df[df[<span class="string">'cases'</span>] != <span class="string">'---'</span>]</div><div class="line">df[<span class="string">'cases'</span>] = df[<span class="string">'cases'</span>].astype(int)</div><div class="line">df[<span class="string">'sex'</span>] = df[<span class="string">'column'</span>].str[<span class="number">0</span>]</div><div class="line">df[<span class="string">'age'</span>] = df[<span class="string">'column'</span>].str[<span class="number">1</span>:].map(&#123;</div><div class="line">    <span class="string">'014'</span>: <span class="string">'0-14'</span>,</div><div class="line">    <span class="string">'1524'</span>: <span class="string">'15-24'</span>,</div><div class="line">    <span class="string">'2534'</span>: <span class="string">'25-34'</span>,</div><div class="line">    <span class="string">'3544'</span>: <span class="string">'35-44'</span>,</div><div class="line">    <span class="string">'4554'</span>: <span class="string">'45-54'</span>,</div><div class="line">    <span class="string">'5564'</span>: <span class="string">'55-64'</span>,</div><div class="line">    <span class="string">'65'</span>: <span class="string">'65+'</span></div><div class="line">&#125;)</div><div class="line">df = df[[<span class="string">'country'</span>, <span class="string">'year'</span>, <span class="string">'sex'</span>, <span class="string">'age'</span>, <span class="string">'cases'</span>]]</div><div class="line">df.to_csv(<span class="string">'data/tb-tidy.csv'</span>, index=<span class="keyword">False</span>)</div><div class="line">df.head(<span class="number">10</span>)</div></pre></td></tr></table></figure>
+<p><img src="/images/tidy-data/tb-tidy.png" alt="Tuberculosis (TB) - Tidy"></p>
+<h2 id="Variables-are-stored-in-both-rows-and-columns"><a href="#Variables-are-stored-in-both-rows-and-columns" class="headerlink" title="Variables are stored in both rows and columns"></a>Variables are stored in both rows and columns</h2><p>This is a temperature dataset collection by a Weather Station named MX17004. Dates are spread in columns which can be melted into one column. <code>tmax</code> and <code>tmin</code> stand for highest and lowest temperatures, and they are really variables of each observational unit, in this case, each day, so we should <code>unstack</code> them into different columns.</p>
+<p><img src="/images/tidy-data/weather.png" alt="Weather Station"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">df = pd.read_csv(<span class="string">'data/weather.csv'</span>)</div><div class="line">df = pd.melt(df, id_vars=[<span class="string">'id'</span>, <span class="string">'year'</span>, <span class="string">'month'</span>, <span class="string">'element'</span>],</div><div class="line">             value_vars=list(df.columns)[<span class="number">4</span>:],</div><div class="line">             var_name=<span class="string">'date'</span>, value_name=<span class="string">'value'</span>)</div><div class="line">df[<span class="string">'date'</span>] = df[<span class="string">'date'</span>].str[<span class="number">1</span>:].astype(<span class="string">'int'</span>)</div><div class="line">df[<span class="string">'date'</span>] = df[[<span class="string">'year'</span>, <span class="string">'month'</span>, <span class="string">'date'</span>]].apply(</div><div class="line">    <span class="keyword">lambda</span> row: <span class="string">'&#123;:4d&#125;-&#123;:02d&#125;-&#123;:02d&#125;'</span>.format(*row),</div><div class="line">    axis=<span class="number">1</span>)</div><div class="line">df = df.loc[df[<span class="string">'value'</span>] != <span class="string">'---'</span>, [<span class="string">'id'</span>, <span class="string">'date'</span>, <span class="string">'element'</span>, <span class="string">'value'</span>]]</div><div class="line">df = df.set_index([<span class="string">'id'</span>, <span class="string">'date'</span>, <span class="string">'element'</span>])</div><div class="line">df = df.unstack()</div><div class="line">df.columns = list(df.columns.get_level_values(<span class="string">'element'</span>))</div><div class="line">df = df.reset_index()</div><div class="line">df.to_csv(<span class="string">'data/weather-tidy.csv'</span>, index=<span class="keyword">False</span>)</div><div class="line">df</div></pre></td></tr></table></figure>
+<p><img src="/images/tidy-data/weather-tidy.png" alt="Weather Station - Tidy"></p>
+<h2 id="Multiple-types-in-one-table"><a href="#Multiple-types-in-one-table" class="headerlink" title="Multiple types in one table"></a>Multiple types in one table</h2><p>In the processed Billboard dataset, we can see duplicates of song tracks, it’s because this table actually contains two types of observational units, song tracks and weekly ranks. To tidy it, we first generate identities for each song track, i.e. <code>id</code>, and then separate them into different tables.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">df = pd.read_csv(<span class="string">'data/billboard-intermediate.csv'</span>)</div><div class="line">df_track = df[[<span class="string">'artist'</span>, <span class="string">'track'</span>, <span class="string">'time'</span>]].drop_duplicates()</div><div class="line">df_track.insert(<span class="number">0</span>, <span class="string">'id'</span>, range(<span class="number">1</span>, len(df_track) + <span class="number">1</span>))</div><div class="line">df = pd.merge(df, df_track, on=[<span class="string">'artist'</span>, <span class="string">'track'</span>, <span class="string">'time'</span>])</div><div class="line">df = df[[<span class="string">'id'</span>, <span class="string">'date'</span>, <span class="string">'rank'</span>]]</div><div class="line">df_track.to_csv(<span class="string">'data/billboard-track.csv'</span>, index=<span class="keyword">False</span>)</div><div class="line">df.to_csv(<span class="string">'data/billboard-rank.csv'</span>, index=<span class="keyword">False</span>)</div><div class="line">print(df_track, <span class="string">'\n\n'</span>, df)</div></pre></td></tr></table></figure>
+<p><img src="/images/tidy-data/billboard-track.png" alt="Billboard 2000 - Track"></p>
+<p><img src="/images/tidy-data/billboard-rank.png" alt="Billboard 2000 - Rank"></p>
+<h2 id="One-type-in-multiple-tables"><a href="#One-type-in-multiple-tables" class="headerlink" title="One type in multiple tables"></a>One type in multiple tables</h2><p>Datasets can be separated in two ways, by different values of an variable like year 2000, 2001, location China, Britain, or by different attributes like temperature from one sensor, humidity from another. In the first case, we can write a utility function that walks through the data directory, reads each file, and assigns the filename to a dedicated column. In the end we can combine these DataFrames with <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.concat.html" target="_blank" rel="external"><code>pd.concat</code></a>. In the latter case, there should be some attribute that can identify the same units, like date, personal ID, etc. We can use <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.merge.html" target="_blank" rel="external"><code>pd.merge</code></a> to join datasets by common keys.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://tomaugspurger.github.io/modern-5-tidy.html" target="_blank" rel="external">https://tomaugspurger.github.io/modern-5-tidy.html</a></li>
+<li><a href="https://hackernoon.com/reshaping-data-in-python-fa27dda2ff77" target="_blank" rel="external">https://hackernoon.com/reshaping-data-in-python-fa27dda2ff77</a></li>
+<li><a href="http://www.jeannicholashould.com/tidy-data-in-python.html" target="_blank" rel="external">http://www.jeannicholashould.com/tidy-data-in-python.html</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;In the paper &lt;a href=&quot;https://www.jstatsoft.org/article/view/v059i10&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Tidy Data&lt;/a&gt;, &lt;a href=&quot;https://en.wikipedia.org/wiki/Hadley_Wickham&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Dr. Wickham&lt;/a&gt; proposed a specific form of data structure: each variable is a column, each observation is a row, and each type of observational unit is a table. He argued that with tidy data, data analysts can manipulate, model, and visualize data more easily and effectively. He lists &lt;em&gt;five common data structures&lt;/em&gt; that are untidy, and demonstrates how to use &lt;a href=&quot;https://github.com/hadley/tidy-data/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;R language&lt;/a&gt; to tidy them. In this article, we’ll use Python and Pandas to achieve the same tidiness.&lt;/p&gt;
+&lt;p&gt;Source code and demo data can be found on GitHub (&lt;a href=&quot;https://github.com/jizhang/pandas-tidy-data&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;link&lt;/a&gt;), and readers are supposed to have Python environment installed, preferably with Anaconda and Spyder IDE.&lt;/p&gt;
+&lt;h2 id=&quot;Column-headers-are-values-not-variable-names&quot;&gt;&lt;a href=&quot;#Column-headers-are-values-not-variable-names&quot; class=&quot;headerlink&quot; title=&quot;Column headers are values, not variable names&quot;&gt;&lt;/a&gt;Column headers are values, not variable names&lt;/h2&gt;&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; pandas &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; pd&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;df = pd.read_csv(&lt;span class=&quot;string&quot;&gt;&#39;data/pew.csv&#39;&lt;/span&gt;)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;df.head(&lt;span class=&quot;number&quot;&gt;10&lt;/span&gt;)&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&lt;img src=&quot;/images/tidy-data/pew.png&quot; alt=&quot;Religion and Income - Pew Forum&quot;&gt;&lt;/p&gt;
+&lt;p&gt;Column names “&amp;lt;$10k”, “$10-20k” are really income ranges that constitutes a variable. Variables are measurements of attributes, like height, weight, and in this case, income and religion. The values within the table form another variable, frequency. To make &lt;em&gt;each variable a column&lt;/em&gt;, we do the following transformation:&lt;/p&gt;
+&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;df = df.set_index(&lt;span class=&quot;string&quot;&gt;&#39;religion&#39;&lt;/span&gt;)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;df = df.stack()&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;df.index = df.index.rename(&lt;span class=&quot;string&quot;&gt;&#39;income&#39;&lt;/span&gt;, level=&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;df.name = &lt;span class=&quot;string&quot;&gt;&#39;frequency&#39;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;df = df.reset_index()&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;df.head(&lt;span class=&quot;number&quot;&gt;10&lt;/span&gt;)&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&lt;img src=&quot;/images/tidy-data/pew-tidy.png&quot; alt=&quot;Religion and Income - Tidy&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
+    
+    
+      <category term="python" scheme="http://shzhangji.com/tags/python/"/>
+    
+      <category term="analytics" scheme="http://shzhangji.com/tags/analytics/"/>
+    
+      <category term="pandas" scheme="http://shzhangji.com/tags/pandas/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Apache Beam Quick Start with Python</title>
     <link href="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/"/>
     <id>http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/</id>
     <published>2017-09-12T13:08:25.000Z</published>
-    <updated>2017-09-12T13:16:37.895Z</updated>
+    <updated>2017-09-13T01:44:34.000Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://beam.apache.org/get-started/beam-overview/" target="_blank" rel="external">Apache Beam</a> is a big data processing standard created by Google in 2016. It provides unified DSL to process both batch and stream data, and can be executed on popular platforms like Spark, Flink, and of course Google’s commercial product Dataflow. Beam’s model is based on previous works known as <a href="https://web.archive.org/web/20160923141630/https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/35650.pdf" target="_blank" rel="external">FlumeJava</a> and <a href="https://web.archive.org/web/20160201091359/http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/41378.pdf" target="_blank" rel="external">Millwheel</a>, and addresses solutions for data processing tasks like ETL, analysis, and <a href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101" target="_blank" rel="external">stream processing</a>. Currently it provides SDK in two languages, Java and Python. This article will introduce how to use Python to write Beam applications.</p>
 <p><img src="/images/beam/arch.jpg" alt="Apache Beam Pipeline"></p>
@@ -201,7 +277,7 @@
 <p>First of all, we need to add a timestamp to each record. <code>extract_timestamp</code> is a custom function to parse <code>[07/Mar/2004:16:05:49 -0800]</code> as a unix timestamp. <code>TimestampedValue</code> links this timestamp to the record. Then we define a sliding window with the size <em>10 minutes</em> and period <em>5 minutes</em>, which means the first window is <code>[00:00, 00:10)</code>, second window is <code>[00:05, 00:15)</code>, and so forth. All windows have a <em>10 minutes</em> duration, and adjacent windows have a <em>5 minutes</em> shift. Sliding window is different from fixed window, in that the same elements could appear in different windows. The combiner function is a simple count, so the pipeline result of the first five logs will be:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[2004-03-08T00:00:00Z, 2004-03-08T00:10:00Z) @ 2</div><div class="line">[2004-03-08T00:05:00Z, 2004-03-08T00:15:00Z) @ 4</div><div class="line">[2004-03-08T00:10:00Z, 2004-03-08T00:20:00Z) @ 2</div><div class="line">[2004-03-08T00:15:00Z, 2004-03-08T00:25:00Z) @ 1</div><div class="line">[2004-03-08T00:20:00Z, 2004-03-08T00:30:00Z) @ 1</div></pre></td></tr></table></figure>
 <p>In stream processing for unbounded source, event data will arrive in different order, so we need to deal with late data with Beam’s watermark and trigger facility. This is a rather advanced topic, and the Python SDK has not yet implemented this feature. If you’re interested, please refer to Stream <a href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101" target="_blank" rel="external">101</a> and <a href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-102" target="_blank" rel="external">102</a> articles.</p>
-<h2 id="Pipeline-Runner"><a href="#Pipeline-Runner" class="headerlink" title="Pipeline Runner"></a>Pipeline Runner</h2><p>As metioned above, Apache Beam is just a standard that provides SDK and APIs. It’s the pipeline runner that is reponsible to execute the workflow graph. The following matrix lists all available runners and their capabilities compared to Beam Model.</p>
+<h2 id="Pipeline-Runner"><a href="#Pipeline-Runner" class="headerlink" title="Pipeline Runner"></a>Pipeline Runner</h2><p>As mentioned above, Apache Beam is just a standard that provides SDK and APIs. It’s the pipeline runner that is responsible to execute the workflow graph. The following matrix lists all available runners and their capabilities compared to Beam Model.</p>
 <p><img src="/images/beam/matrix.png" alt="Beam Capability Matrix"></p>
 <p><a href="https://beam.apache.org/documentation/runners/capability-matrix/" target="_blank" rel="external">Source</a></p>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
@@ -238,7 +314,7 @@
     <link href="http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/"/>
     <id>http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/</id>
     <published>2017-09-04T13:55:23.000Z</published>
-    <updated>2017-09-09T05:37:01.289Z</updated>
+    <updated>2017-09-06T02:19:23.000Z</updated>
     
     <content type="html"><![CDATA[<p>SQL is one of the major tools of data analysis. It provides filtering, transforming and aggregation functionalities, and we can use it to process big volume of data with the help of Hive and Hadoop. However, legacy SQL does not support operations like grouped ranking and moving average, because the <code>GROUP BY</code> clause can only produce one aggregation result for each group, but not for each row. Fortunately, with the new SQL standard coming, we can use the <code>WINDOW</code> clause to compute aggregations on a set of rows and return the result for each row.</p>
 <p><img src="/images/hive-window/window-stock.png" alt="Moving Average"></p>
@@ -313,7 +389,7 @@
     <link href="http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/"/>
     <id>http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/</id>
     <published>2017-08-27T02:57:24.000Z</published>
-    <updated>2017-09-04T13:26:37.453Z</updated>
+    <updated>2017-08-28T00:55:18.000Z</updated>
     
     <content type="html"><![CDATA[<p>When processing a large amount of data, certain operations will cost a lot of time and space, such as counting the distinct values, or figuring out the 95th percentile of a sequence of numbers. But sometimes the accuracy is not that important. Maybe you just want a brief summary of the dataset, or it’s a monitoring system, where limited error rate is tolerable. There’re plenty of such algorithms that can trade accuracy with huge saves of time-space. What’s more, most of the data structures can be merged, making it possible to use in stream processing applications. <a href="https://github.com/addthis/stream-lib" target="_blank" rel="external"><code>stream-lib</code></a> is a collection of these algorithms. They are Java implementations based on academical research and papers. This artile will give a brief introduction to this utility library.</p>
 <h2 id="Count-Cardinality-with-HyperLogLog"><a href="#Count-Cardinality-with-HyperLogLog" class="headerlink" title="Count Cardinality with HyperLogLog"></a>Count Cardinality with <code>HyperLogLog</code></h2><p>Unique visitors (UV) is the major metric of websites. We usually generate UUIDs for each user and track them by HTTP Cookie, or roughly use the IP address. We can use a <code>HashSet</code> to count the exact value of UV, but that takes a lot of memory. With <code>HyperLogLog</code>, an algorithm for the count-distinct problem, we are able to <a href="https://en.wikipedia.org/wiki/HyperLogLog" target="_blank" rel="external">estimate cardinalities of &gt; 10^9 with a typical accuracy of 2%, using 1.5 kB of memory</a>.</p>
@@ -369,9 +445,9 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
-      <category term="java" scheme="http://shzhangji.com/tags/java/"/>
-    
       <category term="stream processing" scheme="http://shzhangji.com/tags/stream-processing/"/>
+    
+      <category term="java" scheme="http://shzhangji.com/tags/java/"/>
     
       <category term="algorithm" scheme="http://shzhangji.com/tags/algorithm/"/>
     
@@ -382,7 +458,7 @@
     <link href="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/"/>
     <id>http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/</id>
     <published>2017-08-12T11:15:09.000Z</published>
-    <updated>2017-09-04T13:26:37.446Z</updated>
+    <updated>2017-08-14T00:37:26.000Z</updated>
     
     <content type="html"><![CDATA[<p>Data extraction is the very first step of an ETL process. We need to load data from external data stores like RDMBS or logging file system, and then we can do cleaning, transformation and summary. In modern website stack, MySQL is the most widely used database, and it’s common to extract data from different instances and load into a central MySQL database, or directly into Hive. There’re several query-based techniques that we can use to do the extraction, including the popular open source software <a href="http://sqoop.apache.org/" target="_blank" rel="external">Sqoop</a>, but they are not meant for real-time data ingestion. Binlog, on the other hand, is a real-time data stream that is used to do replication between master and slave instances. With the help of Alibaba’s open sourced <a href="https://github.com/alibaba/canal" target="_blank" rel="external">Canal</a> project, we can easily utilize the binlog facility to do data extraction from MySQL database to various destinations.</p>
 <p><img src="/images/canal.png" alt="Canal"></p>
@@ -450,11 +526,11 @@
     
       <category term="etl" scheme="http://shzhangji.com/tags/etl/"/>
     
+      <category term="java" scheme="http://shzhangji.com/tags/java/"/>
+    
       <category term="mysql" scheme="http://shzhangji.com/tags/mysql/"/>
     
       <category term="canal" scheme="http://shzhangji.com/tags/canal/"/>
-    
-      <category term="java" scheme="http://shzhangji.com/tags/java/"/>
     
   </entry>
   
@@ -463,7 +539,7 @@
     <link href="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/"/>
     <id>http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/</id>
     <published>2017-08-05T07:10:47.000Z</published>
-    <updated>2017-09-04T13:26:37.439Z</updated>
+    <updated>2017-08-07T05:36:23.000Z</updated>
     
     <content type="html"><![CDATA[<p>Extracting data from upstream message queues is a common task in ETL. In a Hadoop based data warehouse, we usually use Flume to import event logs from Kafka into HDFS, and then run MapReduce jobs agaist it, or create Hive external tables partitioned by time. One of the keys of this process is to extract the event time from the logs, since real-time data can have time lags, or your system is temporarily offline and need to perform a catch-up. Flume provides various facilities to help us do this job easily.</p>
 <p><img src="/images/flume.png" alt="Apache Flume"></p>
@@ -514,11 +590,11 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
+      <category term="flume" scheme="http://shzhangji.com/tags/flume/"/>
+    
       <category term="etl" scheme="http://shzhangji.com/tags/etl/"/>
     
       <category term="java" scheme="http://shzhangji.com/tags/java/"/>
-    
-      <category term="flume" scheme="http://shzhangji.com/tags/flume/"/>
     
   </entry>
   
@@ -527,7 +603,7 @@
     <link href="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/"/>
     <id>http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/</id>
     <published>2017-07-31T14:56:07.000Z</published>
-    <updated>2017-09-04T13:26:37.431Z</updated>
+    <updated>2017-08-01T00:56:50.000Z</updated>
     
     <content type="html"><![CDATA[<p>Exactly-once semantics is one of the advanced topics of stream processing. To process every message once and only once, in spite of system or network failure, not only the stream processing framework needs to provide such functionality, but also the message delivery system, the output data store, as well as how we implement the processing procedure, altogether can we ensure the exactly-once semantics. In this article, I’ll demonstrate how to use Spark Streaming, with Kafka as data source and MySQL the output storage, to achieve exactly-once stream processing.</p>
 <p><img src="http://spark.apache.org/docs/latest/img/streaming-arch.png" alt="Spark Streaming"></p>
@@ -599,7 +675,7 @@
     <link href="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/"/>
     <id>http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/</id>
     <published>2017-07-23T12:02:50.000Z</published>
-    <updated>2017-09-04T13:26:37.415Z</updated>
+    <updated>2017-07-26T01:21:10.000Z</updated>
     
     <content type="html"><![CDATA[<p><a href="http://pandas.pydata.org/" target="_blank" rel="external">Pandas</a> is a widely used data processing tool for Python. Along with NumPy and Matplotlib, it provides in-memory high-performance data munging, analyzing, and visualization capabilities. Although Python is an easy-to-learn programming language, it still takes time to learn Pandas APIs and the idiomatic usages. For data engineer and analysts, SQL is the de-facto standard language of data queries. This article will provide examples of how some common SQL queries can be rewritten with Pandas.</p>
 <p>The installation and basic concepts of Pandas is not covered in this post. One can check out the offical documentation, or read the book <a href="https://www.amazon.com/Python-Data-Analysis-Wrangling-IPython/dp/1491957662/" target="_blank" rel="external">Python for Data Analysis</a>. And I recommend using the <a href="https://www.continuum.io/downloads" target="_blank" rel="external">Anaconda</a> Python distribution, with <a href="https://pythonhosted.org/spyder/" target="_blank" rel="external">Spyder</a> IDE included. Before diving into the codes, please import Pandas and NumPy as follows:</p>
@@ -670,11 +746,11 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
-      <category term="pandas" scheme="http://shzhangji.com/tags/pandas/"/>
+      <category term="python" scheme="http://shzhangji.com/tags/python/"/>
     
       <category term="analytics" scheme="http://shzhangji.com/tags/analytics/"/>
     
-      <category term="python" scheme="http://shzhangji.com/tags/python/"/>
+      <category term="pandas" scheme="http://shzhangji.com/tags/pandas/"/>
     
       <category term="sql" scheme="http://shzhangji.com/tags/sql/"/>
     
@@ -685,7 +761,7 @@
     <link href="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/"/>
     <id>http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/</id>
     <published>2017-07-15T11:21:03.000Z</published>
-    <updated>2017-09-04T13:26:37.408Z</updated>
+    <updated>2017-07-15T11:22:17.000Z</updated>
     
     <content type="html"><![CDATA[<p>Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and <code>tail -f</code>, it would be nice if we can tail a log file in the browser. With WebSocket, this can be done easily. In this article, I’ll walk you through a simple <strong>logviewer</strong> (<a href="http://github.com/jizhang/logviewer" target="_blank" rel="external">source</a>) utility that is written in Python.</p>
 <p><img src="/images/logviewer-websocket.png" alt="Logviewer with WebSocket"></p>
@@ -750,7 +826,7 @@
     <link href="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/"/>
     <id>http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/</id>
     <published>2017-06-18T08:38:01.000Z</published>
-    <updated>2017-09-04T13:26:37.394Z</updated>
+    <updated>2017-06-19T01:06:20.000Z</updated>
     
     <content type="html"><![CDATA[<p>When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on the server side, and update the rendered charts. Or we can filter data on the client side, and let charts update themselves. With Crossfilter and dc.js, this work becomes simple and intuitive.</p>
 <h2 id="Airline-On-time-Performance"><a href="#Airline-On-time-Performance" class="headerlink" title="Airline On-time Performance"></a>Airline On-time Performance</h2><p>Here’s an example taken from Crossfilter’s official website. It’s a flight delay analysis report based on <a href="http://stat-computing.org/dataexpo/2009/" target="_blank" rel="external">ASA Data Expo</a> dataset. And this post will introduce how to use dc.js to build the report. A runnable JSFiddle can be found <a href="https://jsfiddle.net/zjerryj/gjao9sws/" target="_blank" rel="external">here</a>, though the dataset is reduced to 1,000 records.</p>
@@ -792,11 +868,11 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
-      <category term="analytics" scheme="http://shzhangji.com/tags/analytics/"/>
-    
       <category term="crossfilter" scheme="http://shzhangji.com/tags/crossfilter/"/>
     
       <category term="dc.js" scheme="http://shzhangji.com/tags/dc-js/"/>
+    
+      <category term="analytics" scheme="http://shzhangji.com/tags/analytics/"/>
     
   </entry>
   
@@ -805,7 +881,7 @@
     <link href="http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/"/>
     <id>http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/</id>
     <published>2017-03-13T14:39:01.000Z</published>
-    <updated>2017-09-04T13:26:37.389Z</updated>
+    <updated>2017-03-14T01:40:57.000Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://lodash.com/" target="_blank" rel="external">Lodash</a> is a well-known JavaScript utility library that makes it easy to manipulate arrays and objects, as well as functions, strings, etc. I myself enjoys its functional way to process collections, especially chaining and lazy evaluation. But as <a href="http://www.ecma-international.org/ecma-262/6.0/" target="_blank" rel="external">ECMAScript 2015 Standard</a> (ES6) becomes widely supported by major browsers, and <a href="https://babeljs.io/" target="_blank" rel="external">Babel</a>, the JavaScript compiler that transforms ES6 codes to ES5, plays a major role in today’s frontend development, it seems that most Lodash utilities can be replaced by ES6. But should we? In my opinion, Lodash will remain popular, for it still has lots of useful features that could improve the way of programming.</p>
 <h2 id="map-and-Array-map-Are-Different"><a href="#map-and-Array-map-Are-Different" class="headerlink" title="_.map and Array#map Are Different"></a><code>_.map</code> and <code>Array#map</code> Are Different</h2><p><code>_.map</code>, <code>_.reduce</code>, <code>_.filter</code> and <code>_.forEach</code> are frequently used functions when processing collections, and ES6 provides direct support for them:</p>
@@ -849,13 +925,13 @@
       <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
-      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
+      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
     
       <category term="javascript" scheme="http://shzhangji.com/tags/javascript/"/>
     
-      <category term="es6" scheme="http://shzhangji.com/tags/es6/"/>
+      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
     
-      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
+      <category term="es6" scheme="http://shzhangji.com/tags/es6/"/>
     
   </entry>
   
@@ -864,7 +940,7 @@
     <link href="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/"/>
     <id>http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/</id>
     <published>2017-03-04T14:32:17.000Z</published>
-    <updated>2017-09-04T13:26:37.385Z</updated>
+    <updated>2017-03-09T05:49:36.000Z</updated>
     
     <content type="html"><![CDATA[<p>I develop Spark applications with Scala, and it has a very powerful <a href="http://docs.scala-lang.org/overviews/collections/introduction" target="_blank" rel="external">collection system</a>, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In JavaScript, there is a <a href="https://lodash.com/" target="_blank" rel="external">Lodash</a> library that provides powerful tools to process arrays and objects. When my primary work language changes to Python, I am wondering if it’s possible to manipulate collections in a FP way, and fortunately Python already provides syntax and tools for functional programming. Though list comprehension is the pythonic way to deal with collections, but the idea and concepts of FP is definitely worth learning.</p>
 <h2 id="Wordcount-Example"><a href="#Wordcount-Example" class="headerlink" title="Wordcount Example"></a>Wordcount Example</h2><p>Let’s first write a snippet to count the word occurences from a paragraph, in of course a functional way.</p>
@@ -934,7 +1010,7 @@
     <link href="http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/"/>
     <id>http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</id>
     <published>2017-01-29T06:18:29.000Z</published>
-    <updated>2017-09-04T13:26:37.376Z</updated>
+    <updated>2017-02-16T07:35:30.000Z</updated>
     
     <content type="html"><![CDATA[<p>In Lodash, both <code>_.assign</code> and <code>_.assignIn</code> are ways to copy source objects’ properties into target object. According the <a href="https://lodash.com/docs/" target="_blank" rel="external">documentation</a>, <code>_.assign</code> processes <strong>own enumerable string keyed properties</strong>, while <code>_.assignIn</code> processes both <strong>own and inherited source properties</strong>. There’re also other companion functions like <code>_.forOwn</code> and <code>_.forIn</code>, <code>_.has</code> and <code>_.hasIn</code>. So what’s the difference between them?</p>
 <p>In brief, the <code>In</code> in latter methods implies the way <code>for...in</code> loop behaves, which <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in" target="_blank" rel="external">iterates all enumerable properties of the object itself and those the object inherits from its constructor’s prototype</a>. JavaScript has an inheritance mechanism called prototype chain. When iterating an object’s properties with <code>for...in</code> or <code>_.forIn</code>, all properties appeared in the object and its prototype are processed, until the prototype resolves to <code>null</code>. Here’s the example code taken from Lodash’s doc:</p>
@@ -971,11 +1047,11 @@
       <category term="Programming" scheme="http://shzhangji.com/categories/Programming/"/>
     
     
-      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
+      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
     
       <category term="javascript" scheme="http://shzhangji.com/tags/javascript/"/>
     
-      <category term="lodash" scheme="http://shzhangji.com/tags/lodash/"/>
+      <category term="frontend" scheme="http://shzhangji.com/tags/frontend/"/>
     
   </entry>
   
@@ -984,7 +1060,7 @@
     <link href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/"/>
     <id>http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</id>
     <published>2017-01-08T04:26:54.000Z</published>
-    <updated>2017-09-04T13:26:37.373Z</updated>
+    <updated>2017-03-09T05:48:53.000Z</updated>
     
     <content type="html"><![CDATA[<p>Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python 3 is <a href="http://py3readiness.org/" target="_blank" rel="external">totally ready</a>, and here’s a list of references for those (including me) who are adopting Python 3 with a 2.x background.</p>
 <ol>
@@ -1119,7 +1195,7 @@
     <link href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/"/>
     <id>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</id>
     <published>2015-09-01T10:38:00.000Z</published>
-    <updated>2017-09-04T13:26:37.371Z</updated>
+    <updated>2017-03-09T05:48:53.000Z</updated>
     
     <content type="html"><![CDATA[<p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/" target="_blank" rel="external">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org" target="_blank" rel="external">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/" target="_blank" rel="external">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
 <h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/" target="_blank" rel="external">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
@@ -1172,7 +1248,7 @@
     <link href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/"/>
     <id>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</id>
     <published>2015-05-31T10:18:00.000Z</published>
-    <updated>2017-09-04T13:26:37.368Z</updated>
+    <updated>2017-08-14T04:08:17.000Z</updated>
     
     <content type="html"><![CDATA[<p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
 <h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
@@ -1221,7 +1297,7 @@
     <link href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/"/>
     <id>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</id>
     <published>2015-04-28T15:08:00.000Z</published>
-    <updated>2017-09-04T13:26:37.365Z</updated>
+    <updated>2017-09-15T08:59:20.000Z</updated>
     
     <content type="html"><![CDATA[<p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
 <h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard" target="_blank" rel="external">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing" target="_blank" rel="external">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
@@ -1323,7 +1399,7 @@
     <link href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/"/>
     <id>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</id>
     <published>2014-05-27T09:44:00.000Z</published>
-    <updated>2017-09-04T13:26:37.361Z</updated>
+    <updated>2017-03-09T05:48:53.000Z</updated>
     
     <content type="html"><![CDATA[<p>As I’m working with my first <a href="http://www.scalatra.org/" target="_blank" rel="external">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/" target="_blank" rel="external">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation" target="_blank" rel="external">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
 <h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/" target="_blank" rel="external">Dojo</a> for example.</p>
@@ -1369,7 +1445,7 @@
     <link href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/"/>
     <id>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</id>
     <published>2013-10-31T01:35:00.000Z</published>
-    <updated>2017-09-04T13:26:37.359Z</updated>
+    <updated>2017-07-15T10:58:31.000Z</updated>
     
     <content type="html"><![CDATA[<p>In DBMS world, it’s easy to generate a unique, auto-increment id, using MySQL’s <a href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html" target="_blank" rel="external">AUTO_INCREMENT attribute</a> on a primary key or MongoDB’s <a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/" target="_blank" rel="external">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it’ll take some steps.</p>
 <h2 id="Solution-A-Single-Reducer"><a href="#Solution-A-Single-Reducer" class="headerlink" title="Solution A: Single Reducer"></a>Solution A: Single Reducer</h2><p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
@@ -1452,7 +1528,7 @@
     <link href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/"/>
     <id>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/</id>
     <published>2013-04-30T08:16:00.000Z</published>
-    <updated>2017-09-04T13:26:37.355Z</updated>
+    <updated>2017-03-24T02:34:20.000Z</updated>
     
     <content type="html"><![CDATA[<p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># database.properties</div><div class="line">mydb.jdbcUrl=$&#123;mydb.jdbcUrl&#125;</div></pre></td></tr></table></figure>
