@@ -1,8 +1,10 @@
 ---
 title: Flume Source Code - Component Lifecycle
-tags: flume, java, source code
+tags: 'flume, java, source code'
 categories: Big Data
+date: 2017-10-23 12:57:32
 ---
+
 
 [Apache Flume](https://flume.apache.org/) is a real-time ETL tool for data warehouse platform. It consists of different types of components, and during runtime all of them are managed by Flume's lifecycle and supervisor mechanism. This article will walk you through the source code of Flume's component lifecycle management.
 
