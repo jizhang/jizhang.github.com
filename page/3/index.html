@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Tag: sql | Ji ZHANG&#39;s Blog</title>
+  <title>Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
 <meta property="og:title" content="Ji ZHANG&#39;s Blog">
-<meta property="og:url" content="http://shzhangji.com/tags/sql/index.html">
+<meta property="og:url" content="http://shzhangji.com/page/3/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
 <meta property="og:locale" content="default">
 <meta name="twitter:card" content="summary">
@@ -87,57 +87,63 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/blog/2017/09/04/hive-window-and-analytical-functions/" class="archive-article-date">
-  <time datetime="2017-09-04T13:55:23.000Z" itemprop="datePublished">Sep 4</time>
+    <article id="post-manage-leiningen-project-configuration" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2013/04/30/manage-leiningen-project-configuration/" class="article-date">
+  <time datetime="2013-04-30T08:16:00.000Z" itemprop="datePublished">2013-04-30</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
     <h1 itemprop="name">
-      <a class="archive-article-title" href="/blog/2017/09/04/hive-window-and-analytical-functions/">Hive Window and Analytical Functions</a>
+      <a class="article-title" href="/blog/2013/04/30/manage-leiningen-project-configuration/">Manage Leiningen Project Configuration</a>
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
+      </header>
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/blog/2017/07/23/learn-pandas-from-a-sql-perspective/" class="archive-article-date">
-  <time datetime="2017-07-23T12:02:50.000Z" itemprop="datePublished">Jul 23</time>
-</a>
+    <div class="article-entry" itemprop="articleBody">
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blog/2017/07/23/learn-pandas-from-a-sql-perspective/">Learn Pandas from a SQL Perspective</a>
-    </h1>
-  
+        <p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># database.properties</div><div class="line">mydb.jdbcUrl=$&#123;mydb.jdbcUrl&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">&lt;!-- pom.xml --&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">profiles</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">profile</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">id</span>&gt;</span>development<span class="tag">&lt;/<span class="name">id</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">activation</span>&gt;</span><span class="tag">&lt;<span class="name">activeByDefault</span>&gt;</span>true<span class="tag">&lt;/<span class="name">activeByDefault</span>&gt;</span><span class="tag">&lt;/<span class="name">activation</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">properties</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">mydb.jdbcUrl</span>&gt;</span>jdbc:mysql://127.0.0.1:3306/mydb<span class="tag">&lt;/<span class="name">mydb.jdbcUrl</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">profile</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">profile</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">id</span>&gt;</span>production<span class="tag">&lt;/<span class="name">id</span>&gt;</span></div><div class="line">        <span class="comment">&lt;!-- This profile could be moved to ~/.m2/settings.xml to increase security. --&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">properties</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">mydb.jdbcUrl</span>&gt;</span>jdbc:mysql://10.0.2.15:3306/mydb<span class="tag">&lt;/<span class="name">mydb.jdbcUrl</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">profile</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">profiles</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>As for Leiningen projects, there’s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
+        
+          <p class="article-more-link">
+            <a href="/blog/2013/04/30/manage-leiningen-project-configuration/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="cj93po47f00029rzjk5fp9zwe" class="article-share-link">Share</a>
+      
+        <a href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/clojure/">clojure</a></li></ul>
 
-    </header>
+    </footer>
   </div>
+  
 </article>
-  
-  
-    </div></section>
+
+
   
 
+
+  <nav id="page-nav">
+    <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+  </nav>
 </section>
         
           <aside id="sidebar">
