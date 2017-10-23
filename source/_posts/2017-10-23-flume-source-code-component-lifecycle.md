@@ -1,6 +1,9 @@
 ---
 title: Flume Source Code - Component Lifecycle
-tags: 'flume, java, source code'
+tags:
+  - flume
+  - java
+  - source code
 categories: Big Data
 date: 2017-10-23 12:57:32
 ---
