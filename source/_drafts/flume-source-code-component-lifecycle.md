@@ -4,10 +4,11 @@ tags: flume, java, source code
 categories: Big Data
 ---
 
+[Apache Flume](https://flume.apache.org/) is a real-time ETL tool for data warehouse platform. It consists of different types of components, and during runtime all of them are managed by Flume's lifecycle and supervisor mechanism. This article will walk you through the source code of Flume's component lifecycle management.
 
 ## Repository Structure
 
-https://github.com/apache/flume
+Flume's source code can be downloaded from GitHub. It's a Maven project, so we can import it into an IDE for efficient code reading. The following is the main structure of the project:
 
 ```
 /flume-ng-node
@@ -57,6 +58,10 @@ The process can be illustrated as follows:
 3. If live-reload is on (by default), configuration providers will add themselves into the application's component list, and after calling `Application#start`, a `LifecycleSupervisor` will start the provider, and trigger the reload event to parse the configuration and load all defined components.
 4. If live-reload is off, configuration providers will parse the file immediately and start all components, also supervised by `LifecycleSupervisor`.
 5. Finally add a JVM shutdown hook by `Runtime#addShutdownHook`, which in turn invokes `Application#stop` to shutdown the Flume agent.
+
+<!-- more -->
+
+## Configuration Reload
 
 In `PollingPropertiesFileConfigurationProvider`, when it detects file changes, it will invoke the `AbstractConfigurationProvider#getConfiguration` method to parse the configuration file into an `MaterializedConfiguration` instance, which contains the source, sink, and channel definitions. And then, the polling thread send an event to `Application` via a Guava's `EventBus` instance, which effectively invokes the `Application#handleConfigurationEvent` method to reload all components.
 
@@ -138,12 +143,70 @@ public class LifecycleSupervisor implements LifecycleAware {
 }
 ```
 
-## Troubleshooting Cases
+## Source and Source Runner
 
-### Kafka Consumer Closed in Another Thread
+Take `KafkaSource` for an instance, we shall see how agent supervises source components, and the same thing happens to sinks and channels.
 
-### HDFS Sink Not Closed Correctly in CDH
+```java
+public class KafkaSource extends AbstractPollableSource {
+  @Override
+  protected void doStart() throws FlumeException {
+    consumer = new KafkaConsumer<String, byte[]>(kafkaProps);
+    it = consumer.poll(1000).iterator();
+  }
 
-<!-- more -->
+  @Override
+  protected void doStop() throws FlumeException {
+    consumer.close();
+  }
+}
+```
 
-## References
+`KafkaSource` is a pollable source, which means it needs a runner thread to constantly poll for more data to process.
+
+```java
+public class PollableSourceRunner extends SourceRunner {
+  @Override
+  public void start() {
+    source.start();
+    runner = new PollingRunner();
+    runnerThread = new Thread(runner);
+    runnerThread.start();
+    lifecycleState = LifecycleState.START;
+  }
+
+  @Override
+  public void stop() {
+    runnerThread.interrupt();
+    runnerThread.join();
+    source.stop();
+    lifecycleState = LifecycleState.STOP;
+  }
+
+  public static class PollingRunner implements Runnable {
+    @Override
+    public void run() {
+      while (!shouldStop.get()) {
+        source.process();
+      }
+    }
+  }
+}
+```
+
+Both `AbstractPollableSource` and `SourceRunner` are subclass of `LifecycleAware`, which means they have `start` and `stop` methods for supervisor to call. In this case, `SourceRunner` is the component that Flume agent actually supervises, and `PollableSource` is instantiated and managed by `SourceRunner`. Details lie in `AbstractConfigurationProvider#loadSources`:
+
+```java
+private void loadSources(Map<String, SourceRunner> sourceRunnerMap) {
+  Source source = sourceFactory.create();
+  Configurables.configure(source, config);
+  sourceRunnerMap.put(comp.getComponentName(),
+      SourceRunner.forSource(source));
+}
+```
+
+# References
+
+* https://github.com/apache/flume
+* https://flume.apache.org/FlumeUserGuide.html
+* https://kafka.apache.org/0100/javadoc/index.html
