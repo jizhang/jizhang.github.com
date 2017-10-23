@@ -1,5 +1,5 @@
 ---
-title: Flume Source Code - Component Lifecycle
+title: "Flume Source Code: Component Lifecycle"
 tags:
   - flume
   - java
@@ -210,7 +210,7 @@ private void loadSources(Map<String, SourceRunner> sourceRunnerMap) {
 }
 ```
 
-# References
+## References
 
 * https://github.com/apache/flume
 * https://flume.apache.org/FlumeUserGuide.html
