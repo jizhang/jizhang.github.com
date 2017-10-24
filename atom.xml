@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://shzhangji.com/"/>
-  <updated>2017-10-23T04:57:32.000Z</updated>
+  <updated>2017-10-24T01:24:34.000Z</updated>
   <id>http://shzhangji.com/</id>
   
   <author>
@@ -16,11 +16,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Flume Source Code - Component Lifecycle</title>
+    <title>Flume Source Code: Component Lifecycle</title>
     <link href="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/"/>
     <id>http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/</id>
     <published>2017-10-23T04:57:32.000Z</published>
-    <updated>2017-10-23T04:57:32.000Z</updated>
+    <updated>2017-10-24T01:24:34.000Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://flume.apache.org/" target="_blank" rel="external">Apache Flume</a> is a real-time ETL tool for data warehouse platform. It consists of different types of components, and during runtime all of them are managed by Flume’s lifecycle and supervisor mechanism. This article will walk you through the source code of Flume’s component lifecycle management.</p>
 <h2 id="Repository-Structure"><a href="#Repository-Structure" class="headerlink" title="Repository Structure"></a>Repository Structure</h2><p>Flume’s source code can be downloaded from GitHub. It’s a Maven project, so we can import it into an IDE for efficient code reading. The following is the main structure of the project:</p>
@@ -54,7 +54,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PollableSourceRunner</span> <span class="keyword">extends</span> <span class="title">SourceRunner</span> </span>&#123;</div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</div><div class="line">    source.start();</div><div class="line">    runner = <span class="keyword">new</span> PollingRunner();</div><div class="line">    runnerThread = <span class="keyword">new</span> Thread(runner);</div><div class="line">    runnerThread.start();</div><div class="line">    lifecycleState = LifecycleState.START;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">stop</span><span class="params">()</span> </span>&#123;</div><div class="line">    runnerThread.interrupt();</div><div class="line">    runnerThread.join();</div><div class="line">    source.stop();</div><div class="line">    lifecycleState = LifecycleState.STOP;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">PollingRunner</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">      <span class="keyword">while</span> (!shouldStop.get()) &#123;</div><div class="line">        source.process();</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>Both <code>AbstractPollableSource</code> and <code>SourceRunner</code> are subclass of <code>LifecycleAware</code>, which means they have <code>start</code> and <code>stop</code> methods for supervisor to call. In this case, <code>SourceRunner</code> is the component that Flume agent actually supervises, and <code>PollableSource</code> is instantiated and managed by <code>SourceRunner</code>. Details lie in <code>AbstractConfigurationProvider#loadSources</code>:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">loadSources</span><span class="params">(Map&lt;String, SourceRunner&gt; sourceRunnerMap)</span> </span>&#123;</div><div class="line">  Source source = sourceFactory.create();</div><div class="line">  Configurables.configure(source, config);</div><div class="line">  sourceRunnerMap.put(comp.getComponentName(),</div><div class="line">      SourceRunner.forSource(source));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
 <li><a href="https://github.com/apache/flume" target="_blank" rel="external">https://github.com/apache/flume</a></li>
 <li><a href="https://flume.apache.org/FlumeUserGuide.html" target="_blank" rel="external">https://flume.apache.org/FlumeUserGuide.html</a></li>
 <li><a href="https://kafka.apache.org/0100/javadoc/index.html" target="_blank" rel="external">https://kafka.apache.org/0100/javadoc/index.html</a></li>
@@ -86,7 +86,11 @@
       <category term="Big Data" scheme="http://shzhangji.com/categories/Big-Data/"/>
     
     
-      <category term="flume, java, source code" scheme="http://shzhangji.com/tags/flume-java-source-code/"/>
+      <category term="java" scheme="http://shzhangji.com/tags/java/"/>
+    
+      <category term="flume" scheme="http://shzhangji.com/tags/flume/"/>
+    
+      <category term="source code" scheme="http://shzhangji.com/tags/source-code/"/>
     
   </entry>
   
