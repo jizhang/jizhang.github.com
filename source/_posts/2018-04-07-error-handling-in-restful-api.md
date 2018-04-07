@@ -1,8 +1,13 @@
 ---
 title: Error Handling in RESTful API
-tags: [javascript, python, frontend]
+tags:
+  - javascript
+  - python
+  - frontend
 categories: Programming
+date: 2018-04-07 14:49:19
 ---
+
 
 ![RESTful API](/images/restful-api.png)
 
@@ -96,12 +101,12 @@ Sometimes it is ideal to return all validation errors in one response, and we ca
 
 ```javascript
 {
-    "status": 40001,
-    "message": "form validation failed"
-    "errors": [
-        { "name": "username", "error": "username cannot be empty" },
-        { "name": "password", "error": "password minimum length is 6" }
-    ]
+  "status": 40001,
+  "message": "form validation failed"
+  "errors": [
+    { "name": "username", "error": "username cannot be empty" },
+    { "name": "password", "error": "password minimum length is 6" }
+  ]
 }
 ```
 
@@ -146,7 +151,7 @@ function request(url, args, form) {
 }
 ```
 
-This method will reject the promise whenever an error happens. Invokers can catch the error and check its `status`. Here's an example of MobX and ReactJS:
+This method will reject the promise whenever an error happens. Invokers can catch the error and check its `status`. Here's an example of combining this approach with MobX and ReactJS:
 
 ```javascript
 // MobX Store
