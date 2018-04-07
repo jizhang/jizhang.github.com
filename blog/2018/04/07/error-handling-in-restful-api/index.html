@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Error Handling in RESTful API | Ji ZHANG&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="RESTful API is a common tool of building web services, especially in front and back-end separated application. It is based on HTTP protocol, which is simple, text-oriented, and well supported by vari">
+<meta name="keywords" content="javascript,frontend,python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Error Handling in RESTful API">
+<meta property="og:url" content="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/index.html">
+<meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
+<meta property="og:description" content="RESTful API is a common tool of building web services, especially in front and back-end separated application. It is based on HTTP protocol, which is simple, text-oriented, and well supported by vari">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://shzhangji.com/images/restful-api.png">
+<meta property="og:updated_time" content="2018-04-07T06:58:33.504Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Error Handling in RESTful API">
+<meta name="twitter:description" content="RESTful API is a common tool of building web services, especially in front and back-end separated application. It is based on HTTP protocol, which is simple, text-oriented, and well supported by vari">
+<meta name="twitter:image" content="http://shzhangji.com/images/restful-api.png">
+<meta name="twitter:creator" content="@zjerryj">
+<link rel="publisher" href="zhangji87@gmail.com">
+  
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="https://fonts.proxy.ustclug.org/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-37223379-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">If I rest, I rust.</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/categories/Big-Data">Big Data</a>
+        
+          <a class="main-nav-link" href="/categories/Programming">Programming</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+        <a class="main-nav-link" href="http://shzhangji.com/cnblogs"><img src="/images/cnblogs.png"></a>
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-error-handling-in-restful-api" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2018/04/07/error-handling-in-restful-api/" class="article-date">
+  <time datetime="2018-04-07T06:49:19.000Z" itemprop="datePublished">2018-04-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Error Handling in RESTful API
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/restful-api.png" alt="RESTful API"></p>
+<p>RESTful API is a common tool of building web services, especially in front and back-end separated application. It is based on HTTP protocol, which is simple, text-oriented, and well supported by various languages, browsers or clients. However, REST is not yet standardized, so that the developers need to decide how to design their APIs. One of the decisions is error handling. Should I use HTTP status code? How to handle form validation errors, etc. This article will propose an error handling mechanism for RESTful API, based on my daily work and understanding of this technique.</p>
+<h2 id="Types-of-Errors"><a href="#Types-of-Errors" class="headerlink" title="Types of Errors"></a>Types of Errors</h2><p>I tend to categorize errors into two types, global and local. Global errors include requesting an unknown API url, not being authorized to access this API, or there’s something wrong with the server code, unexpected and fatal. These errors should be caught by the web framework, no customized handling in individual API function.</p>
+<p>Local errors, on the other hand, are closely related to the current API. Examples are form validation, violation of unique constraint, or other expected errors. We need to write specific codes to catch these errors, and raise a global error with message and payload for framework to catch and respond with.</p>
+<p>Flask, for instance, provides a mechanism to catch exceptions globally:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BadRequest</span><span class="params">(Exception)</span>:</span></span><br><span class="line">    <span class="string">"""Custom exception class to be thrown when local error occurs."""</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, message, status=<span class="number">400</span>, payload=None)</span>:</span></span><br><span class="line">        self.message = message</span><br><span class="line">        self.status = status</span><br><span class="line">        self.payload = payload</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.errorhandler(BadRequest)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle_bad_request</span><span class="params">(error)</span>:</span></span><br><span class="line">    <span class="string">"""Catch BadRequest exception globally, serialize into JSON, and respond with 400."""</span></span><br><span class="line">    payload = dict(error.payload <span class="keyword">or</span> ())</span><br><span class="line">    payload[<span class="string">'status'</span>] = error.status</span><br><span class="line">    payload[<span class="string">'message'</span>] = error.message</span><br><span class="line">    <span class="keyword">return</span> jsonify(payload), <span class="number">400</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route('/person', methods=['POST'])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">person_post</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="string">"""Create a new person object and return its ID"""</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> request.form.get(<span class="string">'username'</span>):</span><br><span class="line">        <span class="keyword">raise</span> BadRequest(<span class="string">'username cannot be empty'</span>, <span class="number">40001</span>, &#123; <span class="string">'ext'</span>: <span class="number">1</span> &#125;)</span><br><span class="line">    <span class="keyword">return</span> jsonify(last_insert_id=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="Error-Response-Payload"><a href="#Error-Response-Payload" class="headerlink" title="Error Response Payload"></a>Error Response Payload</h2><p>When you post to <code>/person</code> with an empty <code>username</code>, it’ll return the following error response:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 400 Bad Request</span><br><span class="line">Content-Type: application/json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  &quot;status&quot;: 40001,</span><br><span class="line">  &quot;message&quot;: &quot;username cannot be empty&quot;,</span><br><span class="line">  &quot;ext&quot;: 1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>There’re several parts in this response: HTTP status code, a custom status code, error message, and some extra information.</p>
+<h3 id="Use-HTTP-Status-Code"><a href="#Use-HTTP-Status-Code" class="headerlink" title="Use HTTP Status Code"></a>Use HTTP Status Code</h3><p>HTTP status code itself provides rich semantics for errors. Generally <code>4xx</code> for client-side error and <code>5xx</code> server-side. Here’s a brief list of commonly used codes:</p>
+<ul>
+<li><code>200</code> Response is OK.</li>
+<li><code>400</code> Bad request, e.g. user posts some in valid data.</li>
+<li><code>401</code> Unauthorized. With <code>Flask-Login</code>, you can decorate a route with <code>@login_required</code>, and if the user hasn’t logged in, <code>401</code> will be returned, and client-side can redirect to login page.</li>
+<li><code>403</code> Access is forbidden.</li>
+<li><code>404</code> Resource not found.</li>
+<li><code>500</code> Internal server error. Usually for unexpected and irrecoverable exceptions on the server-side.</li>
+</ul>
+<h3 id="Custom-Error-Code"><a href="#Custom-Error-Code" class="headerlink" title="Custom Error Code"></a>Custom Error Code</h3><p>When client receives an error, we can either open a global modal dialog to show the message, or handle the errors locally, such as displaying error messages below each form control. For this to work, we need to give these local errors a special coding convention, say <code>400</code> for global error, while <code>40001</code> and <code>40002</code> will trigger different error handlers.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">fetch().then(<span class="function"><span class="params">response</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (response.status == <span class="number">400</span>) &#123; <span class="comment">// http status code</span></span><br><span class="line">    response.json().then(<span class="function"><span class="params">responseJson</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (responseJson.status == <span class="number">400</span>) &#123; <span class="comment">// custom error code</span></span><br><span class="line">        <span class="comment">// global error handler</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (responseJson.status == <span class="number">40001</span>) &#123; <span class="comment">// custom error code</span></span><br><span class="line">        <span class="comment">// custom error handler</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="More-Error-Information"><a href="#More-Error-Information" class="headerlink" title="More Error Information"></a>More Error Information</h3><p>Sometimes it is ideal to return all validation errors in one response, and we can use <code>payload</code> to achieve that.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"status"</span>: <span class="number">40001</span>,</span><br><span class="line">  <span class="string">"message"</span>: <span class="string">"form validation failed"</span></span><br><span class="line">  <span class="string">"errors"</span>: [</span><br><span class="line">    &#123; <span class="string">"name"</span>: <span class="string">"username"</span>, <span class="string">"error"</span>: <span class="string">"username cannot be empty"</span> &#125;,</span><br><span class="line">    &#123; <span class="string">"name"</span>: <span class="string">"password"</span>, <span class="string">"error"</span>: <span class="string">"password minimum length is 6"</span> &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Fetch-API"><a href="#Fetch-API" class="headerlink" title="Fetch API"></a>Fetch API</h2><p>For AJAX request, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API" target="_blank" rel="noopener">Fetch API</a> becomes the standard library. We can wrap it into a function that does proper error handling. Full code can be found in GitHub (<a href="https://github.com/jizhang/rest-error/blob/master/src/request.js" target="_blank" rel="noopener">link</a>).</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">request</span>(<span class="params">url, args, form</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> fetch(url, config)</span><br><span class="line">    .then(<span class="function"><span class="params">response</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (response.ok) &#123;</span><br><span class="line">        <span class="keyword">return</span> response.json()</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (response.status === <span class="number">400</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> response.json()</span><br><span class="line">          .then(<span class="function"><span class="params">responseJson</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (responseJson.status === <span class="number">400</span>) &#123;</span><br><span class="line">              alert(responseJson.message) <span class="comment">// global error handler</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// let subsequent "catch()" in the Promise chain handle the error</span></span><br><span class="line">            <span class="keyword">throw</span> responseJson</span><br><span class="line">          &#125;, error =&gt; &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RequestError(<span class="number">400</span>)</span><br><span class="line">          &#125;)</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// handle predefined HTTP status code respectively</span></span><br><span class="line">      <span class="keyword">switch</span> (response.status) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">401</span>:</span><br><span class="line">          <span class="keyword">break</span> <span class="comment">// redirect to login page</span></span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">          alert(<span class="string">'HTTP Status Code '</span> + response.status)</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RequestError(response.status)</span><br><span class="line">    &#125;, error =&gt; &#123;</span><br><span class="line">      alert(error.message)</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RequestError(<span class="number">0</span>, error.message)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>This method will reject the promise whenever an error happens. Invokers can catch the error and check its <code>status</code>. Here’s an example of combining this approach with MobX and ReactJS:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MobX Store</span></span><br><span class="line">loginUser = flow(<span class="function"><span class="keyword">function</span>* <span class="title">loginUser</span>(<span class="params">form</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.loading = <span class="literal">true</span></span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// yield may throw an error, i.e. reject this Promise</span></span><br><span class="line">    <span class="keyword">this</span>.userId = <span class="keyword">yield</span> request(<span class="string">'/login'</span>, <span class="literal">null</span>, form)</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.loading = <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// React Component</span></span><br><span class="line">login = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  userStore.loginUser(<span class="keyword">this</span>.state.form)</span><br><span class="line">    .catch(<span class="function"><span class="params">error</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (error.status === <span class="number">40001</span>) &#123;</span><br><span class="line">        <span class="comment">// custom error handler</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://en.wikipedia.org/wiki/Representational_state_transfer" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Representational_state_transfer</a></li>
+<li><a href="https://alidg.me/blog/2016/9/24/rest-api-error-handling" target="_blank" rel="noopener">https://alidg.me/blog/2016/9/24/rest-api-error-handling</a></li>
+<li><a href="https://www.wptutor.io/web/js/generators-coroutines-async-javascript" target="_blank" rel="noopener">https://www.wptutor.io/web/js/generators-coroutines-async-javascript</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/" data-id="cjfp0rbsf001488r43xommh22" class="article-share-link">Share</a>
+      
+        <a href="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/blog/2017/10/23/flume-source-code-component-lifecycle/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Flume Source Code: Component Lifecycle</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 17.5px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/etl/" style="font-size: 12.5px;">etl</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/frontend/" style="font-size: 15px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/java/" style="font-size: 17.5px;">java</a> <a href="/tags/javascript/" style="font-size: 15px;">javascript</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/lodash/" style="font-size: 12.5px;">lodash</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 12.5px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/scala/" style="font-size: 12.5px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/sql/" style="font-size: 12.5px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 15px;">stream processing</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2018/04/07/error-handling-in-restful-api/">Error Handling in RESTful API</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2017/10/23/flume-source-code-component-lifecycle/">Flume Source Code: Component Lifecycle</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2017/09/30/pandas-and-tidy-data/">Pandas and Tidy Data</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2017/09/12/apache-beam-quick-start-with-python/">Apache Beam Quick Start with Python</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2017/09/04/hive-window-and-analytical-functions/">Hive Window and Analytical Functions</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <br>
+      &copy; 2018 Ji ZHANG<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/categories/Big-Data" class="mobile-nav-link">Big Data</a>
+  
+    <a href="/categories/Programming" class="mobile-nav-link">Programming</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+  <a href="http://shzhangji.com/cnblogs" class="mobile-nav-link">中文</a>
+</nav>
+
+    
+<script>
+  var disqus_shortname = 'jizhang';
+  
+  var disqus_url = 'http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="https://ajax.proxy.ustclug.org/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
