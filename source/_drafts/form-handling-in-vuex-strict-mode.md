@@ -1,8 +1,12 @@
 ---
-title: Two-way Binding in Vuex Strict Mode
+title: Form Handling in Vuex Strict Mode
 categories: Programming
 tags: [frontend, javascript, vue, vuex]
 ---
+
+
+
+
 
 solution 1: clone the object, i.e. local object
 solution 2: value & @input
