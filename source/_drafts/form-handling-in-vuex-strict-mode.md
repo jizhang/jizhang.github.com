@@ -56,7 +56,7 @@ Apart from not using strict mode at all, which is fine if you're ready to lose s
 
 ## Local Copy
 
-The first solution is to copy the form data from Vuex store to local state, do normal two-way binding, and commit to store when form is submitted.
+The first solution is to copy the form data from Vuex store to local state, do normal two-way binding, and commit to store when user submits the form.
 
 `src/components/LocalCopy.vue`
 
@@ -130,6 +130,129 @@ export default {
 ```
 
 This approach can also bypass the first caveat, because following updates in component's form will not affect the object inside Vuex store.
+
+## Explicit Update
+
+A ReactJS-like approach is to commit data on input / change event, i.e. use one-way data binding instead of two-way, and let Vuex store become the single source of truth of your application.
+
+`src/components/ExplicitUpdate.vue`
+
+```html
+<b-form-input :value="table.table_name" @input="updateTableForm({ table_name: $event })" />
+
+<script>
+export default {
+  computed: {
+    ...mapState('table', [
+      'table'
+    ])
+  },
+
+  methods: {
+    ...mapMutations('table', [
+      'updateTableForm'
+    ])
+  }
+}
+</script>
+```
+
+`src/store/table.js`
+
+```javascript
+export table {
+  mutations: {
+    updateTableForm (state, payload) {
+      _.assign(state.table, payload)
+    }
+  }
+}
+```
+
+This is also the recommended way of form handling in Vuex [doc](https://vuex.vuejs.org/en/forms.html), and according to Vue's [doc](https://vuejs.org/v2/guide/forms.html), `v-model` is essentially a syntax sugar for updating data on user input events.
+
+## Computed Property
+
+Vue's computed property supports getter and setter, we can use it as a bridge between Vuex store and component. One limitation is computed property doesn't support nested property, so we need to make aliases for nested states.
+
+`src/components/ComputedProperty.vue`
+
+```html
+<b-form-input v-model="tableName" />
+<b-form-select v-model="tableCategory" />
+
+<script>
+export default {
+  computed: {
+    tableName: {
+      get () {
+        return this.$store.state.table.table.table_name
+      },
+      set (value) {
+        this.updateTableForm({ table_name: value })
+      }
+    },
+
+    tableCategory: {
+      get () {
+        return this.$store.state.table.table.category
+      },
+      set (value) {
+        this.updateTableForm({ category: value })
+      }
+    },
+  },
+
+  methods: {
+    ...mapMutations('table', [
+      'updateTableForm'
+    ])
+  }
+}
+</script>
+```
+
+When there're a lot of fields, it becomes quite verbose to list them all. We may create some utilities for this purpose. First, in Vuex store, we add a common mutation that can set arbitrary state indicated by a lodash-style path.
+
+```javascript
+mutations: {
+  myUpdateField (state, payload) {
+    const { path, value } = payload
+    _.set(state, path, value)
+  }
+}
+```
+
+Then in component, we write a function that takes alias / path pairs, and creates getter / setter for them.
+
+```javascript
+const mapFields = (namespace, fields) => {
+  return _(fields)
+    .map((path, alias) => {
+      return [alias, {
+        get () {
+          return _.get(this.$store.state[namespace], path)
+        },
+        set (value) {
+          this.$store.commit(`${namespace}/myUpdateField`, { path, value })
+        }
+      }]
+    })
+    .fromPairs()
+    .value()
+}
+
+export default {
+  computed: {
+    ...mapFields('table', {
+      tableName: 'table.table_name',
+      tableCategory: 'table.category',
+    })
+  }
+}
+```
+
+In fact, someone's already created a project named [vuex-map-fields](https://github.com/maoberlehner/vuex-map-fields), whose `mapFields` utility does exactly the same thing.
 
 ## References
 
