@@ -73,8 +73,10 @@ The first solution is to copy the form data from Vuex store to local state, do n
 import _ from 'lodash'
 
 export default {
-  state: {
-    table: _.cloneDeep(this.$store.state.table.table)
+  data () {
+    return {
+      table: _.cloneDeep(this.$store.state.table.table)
+    }
   },
 
   methods: {
