@@ -1,8 +1,14 @@
 ---
 title: Form Handling in Vuex Strict Mode
+tags:
+  - frontend
+  - javascript
+  - vue
+  - vuex
 categories: Programming
-tags: [frontend, javascript, vue, vuex]
+date: 2018-04-17 14:13:40
 ---
+
 
 ![](/images/vue.png)
 
