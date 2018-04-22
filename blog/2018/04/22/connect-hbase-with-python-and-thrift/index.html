@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Connect HBase with Python and Thrift | Ji ZHANG&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Apache HBase is a key-value store in Hadoop ecosystem. It is based on HDFS, and can provide high performance data access on large amount of volume. HBase is written in Java, and has native support for">
+<meta name="keywords" content="python,hbase,thrift">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Connect HBase with Python and Thrift">
+<meta property="og:url" content="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/index.html">
+<meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
+<meta property="og:description" content="Apache HBase is a key-value store in Hadoop ecosystem. It is based on HDFS, and can provide high performance data access on large amount of volume. HBase is written in Java, and has native support for">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://shzhangji.com/images/hbase.png">
+<meta property="og:image" content="http://shzhangji.com/images/hbase-thrift-ha.png">
+<meta property="og:updated_time" content="2018-04-22T07:51:29.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Connect HBase with Python and Thrift">
+<meta name="twitter:description" content="Apache HBase is a key-value store in Hadoop ecosystem. It is based on HDFS, and can provide high performance data access on large amount of volume. HBase is written in Java, and has native support for">
+<meta name="twitter:image" content="http://shzhangji.com/images/hbase.png">
+<meta name="twitter:creator" content="@zjerryj">
+<link rel="publisher" href="zhangji87@gmail.com">
+  
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link rel="stylesheet" href="/css/source-code-pro.css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-37223379-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">If I rest, I rust.</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/categories/Big-Data">Big Data</a>
+        
+          <a class="main-nav-link" href="/categories/Programming">Programming</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+        <a class="main-nav-link" href="http://shzhangji.com/cnblogs"><img src="/images/cnblogs.png"></a>
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-connect-hbase-with-python-and-thrift" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2018/04/22/connect-hbase-with-python-and-thrift/" class="article-date">
+  <time datetime="2018-04-22T08:44:12.000Z" itemprop="datePublished">2018-04-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Connect HBase with Python and Thrift
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a href="https://hbase.apache.org/" target="_blank" rel="noopener">Apache HBase</a> is a key-value store in Hadoop ecosystem. It is based on HDFS, and can provide high performance data access on large amount of volume. HBase is written in Java, and has native support for Java clients. But with the help of Thrift and various language bindings, we can access HBase in web services quite easily. This article will describe how to read and write HBase table with Python and Thrift.</p>
+<p><img src="/images/hbase.png" alt=""></p>
+<h2 id="Generate-Thrift-Class"><a href="#Generate-Thrift-Class" class="headerlink" title="Generate Thrift Class"></a>Generate Thrift Class</h2><p>For anyone who is new to <a href="https://thrift.apache.org/" target="_blank" rel="noopener">Apache Thrift</a>, it provides an IDL (Interface Description Language) to let you describe your service methods and data types and then transform them into different languages. For instance, a Thrift type definition like this:</p>
+<figure class="highlight thrift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TColumn</span> </span>&#123;</span><br><span class="line">  <span class="number">1</span>: <span class="keyword">required</span> <span class="built_in">binary</span> family,</span><br><span class="line">  <span class="number">2</span>: <span class="keyword">optional</span> <span class="built_in">binary</span> qualifier,</span><br><span class="line">  <span class="number">3</span>: <span class="keyword">optional</span> <span class="built_in">i64</span> timestamp</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Will be transformed into the following Python code:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TColumn</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, family=None, qualifier=None, timestamp=None,)</span>:</span></span><br><span class="line">        self.family = family</span><br><span class="line">        self.qualifier = qualifier</span><br><span class="line">        self.timestamp = timestamp</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read</span><span class="params">(self, iprot)</span>:</span></span><br><span class="line">        iprot.readStructBegin()</span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">            (fname, ftype, fid) = iprot.readFieldBegin()</span><br><span class="line">            <span class="comment"># ...</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write</span><span class="params">(self, oprot)</span>:</span></span><br><span class="line">        oprot.writeStructBegin(<span class="string">'TColumn'</span>)</span><br><span class="line">        <span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="HBase-Thrift-vs-Thrift2"><a href="#HBase-Thrift-vs-Thrift2" class="headerlink" title="HBase Thrift vs Thrift2"></a>HBase Thrift vs Thrift2</h3><p>HBase provides <a href="https://github.com/apache/hbase/tree/master/hbase-thrift/src/main/resources/org/apache/hadoop/hbase" target="_blank" rel="noopener">two versions</a> of Thrift IDL files, and they have two main differences.</p>
+<p>First, <code>thrift2</code> mimics the data types and methods from HBase Java API, which could be more intuitive to use. For instance, constructing a <code>Get</code> operation in Java is:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Get get = <span class="keyword">new</span> Get(Bytes.toBytes(<span class="string">"rowkey"</span>));</span><br><span class="line">get.addColumn(Bytes.toBytes(<span class="string">"cf"</span>), Bytes.toBytes(<span class="string">"col1"</span>));</span><br><span class="line">get.addColumn(Bytes.toBytes(<span class="string">"cf"</span>), Bytes.toBytes(<span class="string">"col2"</span>));</span><br></pre></td></tr></table></figure>
+<p>In <code>thrift2</code>, there is a corresponding <code>TGet</code> type:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">tget = TGet(</span><br><span class="line">    row=<span class="string">'rowkey'</span>,</span><br><span class="line">    columns=[</span><br><span class="line">        TColumn(family=<span class="string">'cf'</span>, qualifier=<span class="string">'col1'</span>),</span><br><span class="line">        TColumn(family=<span class="string">'cf'</span>, qualifier=<span class="string">'col2'</span>),</span><br><span class="line">    ]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>While in <code>thrift</code>, we directly invoke one of the <code>get</code> methods:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">client.getRowWithColumns(</span><br><span class="line">    tableName=<span class="string">'tbl'</span>,</span><br><span class="line">    row=<span class="string">'rowkey'</span>,</span><br><span class="line">    columns=[<span class="string">'cf:col1'</span>, <span class="string">'cf:col2'</span>],</span><br><span class="line">    attributes=<span class="keyword">None</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>The second difference is that <code>thrift2</code> lacks the administration interfaces, like <code>createTable</code>, <code>majorCompact</code>, etc. Currently these APIs are still under development, so if you need to use them via Thrift, you will have to fall back to version one.</p>
+<p>After deciding which version we use, now we can download the <code>hbase.thrift</code> file, and generate Python code from it. One note on Thrift version though. Since we will use Python 3.x, which is supported by Thrift 0.10 onwards, so make sure you install the right version. Execute the following command, and you will get several Python files.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ thrift -gen py hbase.thrift</span><br><span class="line">$ find gen-py</span><br><span class="line">gen-py/hbase/__init__.py</span><br><span class="line">gen-py/hbase/constants.py</span><br><span class="line">gen-py/hbase/THBaseService.py</span><br><span class="line">gen-py/hbase/ttypes.py</span><br></pre></td></tr></table></figure>
+<h2 id="Run-HBase-in-Standalone-Mode"><a href="#Run-HBase-in-Standalone-Mode" class="headerlink" title="Run HBase in Standalone Mode"></a>Run HBase in Standalone Mode</h2><p>In case you do not have a running HBase service to test against, you can follow the quick start guide (<a href="https://hbase.apache.org/book.html#quickstart" target="_blank" rel="noopener">link</a>) to download the binaries, do some minor configuration, and then execute the following commands to start a standalone HBase server as well as the Thrift2 server.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bin/start-hbase.sh</span><br><span class="line">bin/hbase-daemon.sh start thrift2</span><br><span class="line">bin/hbase shell</span><br></pre></td></tr></table></figure>
+<p>Then in the HBase shell, we create a test table and read / write some data.</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; create <span class="string">"tsdata"</span>, NAME =&gt; <span class="string">"cf"</span></span><br><span class="line">&gt; put <span class="string">"tsdata"</span>, <span class="string">"sys.cpu.user:20180421:192.168.1.1"</span>, <span class="string">"cf:1015"</span>, <span class="string">"0.28"</span></span><br><span class="line">&gt; get <span class="string">"tsdata"</span>, <span class="string">"sys.cpu.user:20180421:192.168.1.1"</span></span><br><span class="line">COLUMN                                        CELL</span><br><span class="line"> <span class="symbol">cf:</span><span class="number">1015</span>                                      timestamp=<span class="number">1524277135973</span>, value=<span class="number">0</span>.<span class="number">28</span></span><br><span class="line"><span class="number">1</span> row(s) <span class="keyword">in</span> <span class="number">0</span>.<span class="number">0330</span> seconds</span><br></pre></td></tr></table></figure>
+<h2 id="Connect-to-HBase-via-Thrift2"><a href="#Connect-to-HBase-via-Thrift2" class="headerlink" title="Connect to HBase via Thrift2"></a>Connect to HBase via Thrift2</h2><p>Here is the boilerplate of making a connection to HBase Thrift server. Note that Thrift client is not thread-safe, and it does neither provide connection pooling facility. You may choose to connect on every request, which is actually fast enough, or maintain a pool of connections yourself.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> thrift.transport <span class="keyword">import</span> TSocket</span><br><span class="line"><span class="keyword">from</span> thrift.protocol <span class="keyword">import</span> TBinaryProtocol</span><br><span class="line"><span class="keyword">from</span> thrift.transport <span class="keyword">import</span> TTransport</span><br><span class="line"><span class="keyword">from</span> hbase <span class="keyword">import</span> THBaseService</span><br><span class="line"></span><br><span class="line">transport = TTransport.TBufferedTransport(TSocket.TSocket(<span class="string">'127.0.0.1'</span>, <span class="number">9090</span>))</span><br><span class="line">protocol = TBinaryProtocol.TBinaryProtocolAccelerated(transport)</span><br><span class="line">client = THBaseService.Client(protocol)</span><br><span class="line">transport.open()</span><br><span class="line"><span class="comment"># perform some operations with "client"</span></span><br><span class="line">transport.close()</span><br></pre></td></tr></table></figure>
+<p>We can test the connection with some basic operations:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> hbase.ttypes <span class="keyword">import</span> TPut, TColumnValue, TGet</span><br><span class="line">tput = TPut(</span><br><span class="line">    row=<span class="string">'sys.cpu.user:20180421:192.168.1.1'</span>,</span><br><span class="line">    columnValues=[</span><br><span class="line">        TColumnValue(family=<span class="string">'cf'</span>, qualifier=<span class="string">'1015'</span>, value=<span class="string">'0.28'</span>),</span><br><span class="line">    ]</span><br><span class="line">)</span><br><span class="line">client.put(<span class="string">'tsdata'</span>, tput)</span><br><span class="line"></span><br><span class="line">tget = TGet(row=<span class="string">'sys.cpu.user:20180421:192.168.1.1'</span>)</span><br><span class="line">tresult = client.get(<span class="string">'tsdata'</span>, tget)</span><br><span class="line"><span class="keyword">for</span> col <span class="keyword">in</span> tresult.columnValues:</span><br><span class="line">    print(col.qualifier, <span class="string">'='</span>, col.value)</span><br></pre></td></tr></table></figure>
+<h2 id="Thrift2-Data-Types-and-Methods-Overview"><a href="#Thrift2-Data-Types-and-Methods-Overview" class="headerlink" title="Thrift2 Data Types and Methods Overview"></a>Thrift2 Data Types and Methods Overview</h2><p>For a full list of the available APIs, one can directly look into <code>hbase.thrift</code> or <code>hbase/THBaseService.py</code> files. Following is an abridged table of those data types and methods.</p>
+<h3 id="Data-Types"><a href="#Data-Types" class="headerlink" title="Data Types"></a>Data Types</h3><table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TColumn</td>
+<td>Represents a column family or a single column.</td>
+<td>TColumn(family=’cf’, qualifier=’gender’)</td>
+</tr>
+<tr>
+<td>TColumnValue</td>
+<td>Column and its value.</td>
+<td>TColumnValue(family=’cf’, qualifier=’gender’, value=’male’)</td>
+</tr>
+<tr>
+<td>TResult</td>
+<td>Query result, a single row. <code>row</code> attribute would be <code>None</code> if no result is found.</td>
+<td>TResult(row=’employee_001’, columnValues=[TColumnValue])</td>
+</tr>
+<tr>
+<td>TGet</td>
+<td>Query a single row.</td>
+<td>TGet(row=’employee_001’, columns=[TColumn])</td>
+</tr>
+<tr>
+<td>TPut</td>
+<td>Mutate a single row.</td>
+<td>TPut(row=’employee_001’, columnValues=[TColumnValue])</td>
+</tr>
+<tr>
+<td>TDelete</td>
+<td>Delete an entire row or only some columns.</td>
+<td>TDelete(row=’employee_001’, columns=[TColumn])</td>
+</tr>
+<tr>
+<td>TScan</td>
+<td>Scan for multiple rows and columns.</td>
+<td>See below.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="THBaseService-Methods"><a href="#THBaseService-Methods" class="headerlink" title="THBaseService Methods"></a>THBaseService Methods</h3><table>
+<thead>
+<tr>
+<th>Method Signature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>get(table: str, tget: TGet) -&gt; TResult</td>
+<td>Query a single row.</td>
+</tr>
+<tr>
+<td>getMultiple(table: str, tgets: List[TGet]) -&gt; List[TResult]</td>
+<td>Query multiple rows.</td>
+</tr>
+<tr>
+<td>put(table: str, tput: TPut) -&gt; None</td>
+<td>Mutate a row.</td>
+</tr>
+<tr>
+<td>putMultiple(table: str, tputs: List[TPut]) -&gt; None</td>
+<td>Mutate multiple rows.</td>
+</tr>
+<tr>
+<td>deleteSingle(table: str, tdelete: TDelete) -&gt; None</td>
+<td>Delete a row.</td>
+</tr>
+<tr>
+<td>deleteMultiple(table: str, tdeletes: List[TDelete]) -&gt; None</td>
+<td>Delete multiple rows.</td>
+</tr>
+<tr>
+<td>openScanner(table: str, tscan: TScan) -&gt; int</td>
+<td>Open a scanner, returns scannerId.</td>
+</tr>
+<tr>
+<td>getScannerRows(scannerId: int, numRows: int) -&gt; List[TResult]</td>
+<td>Get scanner rows.</td>
+</tr>
+<tr>
+<td>closeScanner(scannerId: int) -&gt; None</td>
+<td>Close a scanner.</td>
+</tr>
+<tr>
+<td>getScannerResults(table: str, tscan: TScan, numRows: int) -&gt; List[TResult]</td>
+<td>A convenient method to get scan results.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Scan-Operation-Example"><a href="#Scan-Operation-Example" class="headerlink" title="Scan Operation Example"></a>Scan Operation Example</h3><p>I wrote some example codes on GitHub (<a href="https://github.com/jizhang/python-hbase" target="_blank" rel="noopener">link</a>), and the following is how a <code>Scan</code> operation is made.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">scanner_id = client.openScanner(</span><br><span class="line">    table=<span class="string">'tsdata'</span>,</span><br><span class="line">    tscan=TScan(</span><br><span class="line">        startRow=<span class="string">'sys.cpu.user:20180421'</span>,</span><br><span class="line">        stopRow=<span class="string">'sys.cpu.user:20180422'</span>,</span><br><span class="line">        columns=[TColumn(<span class="string">'cf'</span>, <span class="string">'1015'</span>)]</span><br><span class="line">    )</span><br><span class="line">)</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    num_rows = <span class="number">10</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">        tresults = client.getScannerRows(scanner_id, num_rows)</span><br><span class="line">        <span class="keyword">for</span> tresult <span class="keyword">in</span> tresults:</span><br><span class="line">            print(tresult)</span><br><span class="line">        <span class="keyword">if</span> len(tresults) &lt; num_rows:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"><span class="keyword">finally</span>:</span><br><span class="line">    client.closeScanner(scanner_id)</span><br></pre></td></tr></table></figure>
+<h2 id="Thrift-Server-High-Availability"><a href="#Thrift-Server-High-Availability" class="headerlink" title="Thrift Server High Availability"></a>Thrift Server High Availability</h2><p>There are several solutions to eliminate the single point of failure of Thrift server. You can either (1) randomly select a server address on the client-side, and fall back to others if failure is detected, (2) setup a proxy facility to load balance the TCP connections, or (3) run individual Thrift server on every client machine, and let client code connects the local Thrift server. Usually we use the second approach, so you may consult your system administrator on that topic.</p>
+<p><img src="/images/hbase-thrift-ha.png" alt=""></p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://blog.cloudera.com/blog/2013/09/how-to-use-the-hbase-thrift-interface-part-1/" target="_blank" rel="noopener">https://blog.cloudera.com/blog/2013/09/how-to-use-the-hbase-thrift-interface-part-1/</a></li>
+<li><a href="https://thrift.apache.org/tutorial/py" target="_blank" rel="noopener">https://thrift.apache.org/tutorial/py</a></li>
+<li><a href="https://yq.aliyun.com/articles/88299" target="_blank" rel="noopener">https://yq.aliyun.com/articles/88299</a></li>
+<li><a href="http://opentsdb.net/docs/build/html/user_guide/backends/hbase.html" target="_blank" rel="noopener">http://opentsdb.net/docs/build/html/user_guide/backends/hbase.html</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cjgail32i001su9jkpxzd6mku" class="article-share-link">Share</a>
+      
+        <a href="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hbase/">hbase</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/thrift/">thrift</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/blog/2018/04/17/form-handling-in-vuex-strict-mode/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Form Handling in Vuex Strict Mode</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 17.5px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/etl/" style="font-size: 12.5px;">etl</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.5px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/java/" style="font-size: 17.5px;">java</a> <a href="/tags/javascript/" style="font-size: 17.5px;">javascript</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/lodash/" style="font-size: 12.5px;">lodash</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 12.5px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/scala/" style="font-size: 12.5px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/sql/" style="font-size: 12.5px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 15px;">stream processing</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vue/" style="font-size: 10px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2018/04/22/connect-hbase-with-python-and-thrift/">Connect HBase with Python and Thrift</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2018/04/17/form-handling-in-vuex-strict-mode/">Form Handling in Vuex Strict Mode</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2018/04/07/error-handling-in-restful-api/">Error Handling in RESTful API</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2017/10/23/flume-source-code-component-lifecycle/">Flume Source Code: Component Lifecycle</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2017/09/30/pandas-and-tidy-data/">Pandas and Tidy Data</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <br>
+      &copy; 2018 Ji ZHANG<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/categories/Big-Data" class="mobile-nav-link">Big Data</a>
+  
+    <a href="/categories/Programming" class="mobile-nav-link">Programming</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+  <a href="http://shzhangji.com/cnblogs" class="mobile-nav-link">中文</a>
+</nav>
+
+    
+<script>
+  var disqus_shortname = 'jizhang';
+  
+  var disqus_url = 'http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
