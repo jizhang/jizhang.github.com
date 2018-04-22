@@ -2,6 +2,7 @@
 title: Connect HBase with Python and Thrift
 categories: Big Data
 tags: [python, hbase, thrift]
+date: 2018-04-22 16:44:12
 ---
 
 [Apache HBase][1] is a key-value store in Hadoop ecosystem. It is based on HDFS, and can provide high performance data access on large amount of volume. HBase is written in Java, and has native support for Java clients. But with the help of Thrift and various language bindings, we can access HBase in web services quite easily. This article will describe how to read and write HBase table with Python and Thrift.
@@ -92,7 +93,7 @@ gen-py/hbase/ttypes.py
 
 ## Run HBase in Standalone Mode
 
-In case you don't have a running HBase service to test against, you can follow the quick start guide ([link][4]) to download the binaries and do some minor configuration, and then execute the following commands to start a standalone HBase server as well as the Thrift2 server.
+In case you do not have a running HBase service to test against, you can follow the quick start guide ([link][4]) to download the binaries, do some minor configuration, and then execute the following commands to start a standalone HBase server as well as the Thrift2 server.
 
 ```bash
 bin/start-hbase.sh
@@ -113,6 +114,8 @@ COLUMN                                        CELL
 
 ## Connect to HBase via Thrift2
 
+Here is the boilerplate of making a connection to HBase Thrift server. Note that Thrift client is not thread-safe, and it does neither provide connection pooling facility. You may choose to connect on every request, which is actually fast enough, or maintain a pool of connections yourself.
+
 ```python
 from thrift.transport import TSocket
 from thrift.protocol import TBinaryProtocol
@@ -127,32 +130,96 @@ transport.open()
 transport.close()
 ```
 
+We can test the connection with some basic operations:
+
+```python
+from hbase.ttypes import TPut, TColumnValue, TGet
+tput = TPut(
+    row='sys.cpu.user:20180421:192.168.1.1',
+    columnValues=[
+        TColumnValue(family='cf', qualifier='1015', value='0.28'),
+    ]
+)
+client.put('tsdata', tput)
+
+tget = TGet(row='sys.cpu.user:20180421:192.168.1.1')
+tresult = client.get('tsdata', tget)
+for col in tresult.columnValues:
+    print(col.qualifier, '=', col.value)
+```
+
 ## Thrift2 Data Types and Methods Overview
 
-table
-github link
-scanner
+For a full list of the available APIs, one can directly look into `hbase.thrift` or `hbase/THBaseService.py` files. Following is an abridged table of those data types and methods.
 
+### Data Types
 
-## Thrift Server High Available
+| Class | Description | Example |
+| --- | --- | --- |
+| TColumn | Represents a column family or a single column. | TColumn(family='cf', qualifier='gender') |
+| TColumnValue | Column and its value. | TColumnValue(family='cf', qualifier='gender', value='male') |
+| TResult | Query result, a single row. `row` attribute would be `None` if no result is found. | TResult(row='employee_001', columnValues=[TColumnValue]) |
+| TGet | Query a single row. | TGet(row='employee_001', columns=[TColumn]) |
+| TPut | Mutate a single row. | TPut(row='employee_001', columnValues=[TColumnValue]) |
+| TDelete | Delete an entire row or only some columns. | TDelete(row='employee_001', columns=[TColumn]) |
+| TScan | Scan for multiple rows and columns. | See below. |
 
-### Server per Client node
+### THBaseService Methods
 
-### Proxy
+| Method Signature | Description |
+| --- | --- |
+| get(table: str, tget: TGet) -> TResult | Query a single row. |
+| getMultiple(table: str, tgets: List[TGet]) -> List[TResult] | Query multiple rows. |
+| put(table: str, tput: TPut) -> None | Mutate a row. |
+| putMultiple(table: str, tputs: List[TPut]) -> None | Mutate multiple rows. |
+| deleteSingle(table: str, tdelete: TDelete) -> None | Delete a row. |
+| deleteMultiple(table: str, tdeletes: List[TDelete]) -> None | Delete multiple rows. |
+| openScanner(table: str, tscan: TScan) -> int | Open a scanner, returns scannerId. |
+| getScannerRows(scannerId: int, numRows: int) -> List[TResult] | Get scanner rows. |
+| closeScanner(scannerId: int) -> None | Close a scanner. |
+| getScannerResults(table: str, tscan: TScan, numRows: int) -> List[TResult] | A convenient method to get scan results. |
 
-TTransport pool
+### Scan Operation Example
+
+I wrote some example codes on GitHub ([link][5]), and the following is how a `Scan` operation is made.
+
+```python
+scanner_id = client.openScanner(
+    table='tsdata',
+    tscan=TScan(
+        startRow='sys.cpu.user:20180421',
+        stopRow='sys.cpu.user:20180422',
+        columns=[TColumn('cf', '1015')]
+    )
+)
+try:
+    num_rows = 10
+    while True:
+        tresults = client.getScannerRows(scanner_id, num_rows)
+        for tresult in tresults:
+            print(tresult)
+        if len(tresults) < num_rows:
+            break
+finally:
+    client.closeScanner(scanner_id)
+```
+
+## Thrift Server High Availability
+
+There are several solutions to eliminate the single point of failure of Thrift server. You can either (1) randomly select a server address on the client-side, and fall back to others if failure is detected, (2) setup a proxy facility to load balance the TCP connections, or (3) run individual Thrift server on every client machine, and let client code connects the local Thrift server. Usually we use the second approach, so you may consult your system administrator on that topic.
+
+![](/images/hbase-thrift-ha.png)
 
 ## References
 
-* http://opentsdb.net/docs/build/html/user_guide/backends/hbase.html
-* https://thrift.apache.org/tutorial/py
 * https://blog.cloudera.com/blog/2013/09/how-to-use-the-hbase-thrift-interface-part-1/
-* https://blog.cloudera.com/blog/2013/12/how-to-use-the-hbase-thrift-interface-part-2-insertinggetting-rows/
-* https://yq.aliyun.com/articles/195932
+* https://thrift.apache.org/tutorial/py
 * https://yq.aliyun.com/articles/88299
+* http://opentsdb.net/docs/build/html/user_guide/backends/hbase.html
 
 
 [1]: https://hbase.apache.org/
 [2]: https://thrift.apache.org/
 [3]: https://github.com/apache/hbase/tree/master/hbase-thrift/src/main/resources/org/apache/hadoop/hbase
 [4]: https://hbase.apache.org/book.html#quickstart
+[5]: https://github.com/jizhang/python-hbase
