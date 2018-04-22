@@ -1,9 +1,13 @@
 ---
 title: Connect HBase with Python and Thrift
+tags:
+  - python
+  - hbase
+  - thrift
 categories: Big Data
-tags: [python, hbase, thrift]
 date: 2018-04-22 16:44:12
 ---
+
 
 [Apache HBase][1] is a key-value store in Hadoop ecosystem. It is based on HDFS, and can provide high performance data access on large amount of volume. HBase is written in Java, and has native support for Java clients. But with the help of Thrift and various language bindings, we can access HBase in web services quite easily. This article will describe how to read and write HBase table with Python and Thrift.
 
