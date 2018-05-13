@@ -1,5 +1,5 @@
 ---
-title: Serve TensforFlow Model with SavedModel
+title: Serve TensforFlow Estimator with SavedModel
 tags: [tensorflow, python, machine learning]
 categories: Programming
 ---
@@ -8,9 +8,9 @@ categories: Programming
 
 ![](/images/tf-logo.png)
 
-## Iris DNN Estimator Model
+## Iris DNN Estimator
 
-First let's build the famous iris classifier with TensorFlow's pre-made DNN estimator. Full illustration can be found on TensorFlow's [website][2], and I create a repository on [GitHub][3] for you to fork and work with. Here's the gist of training the model:
+First let's build the famous iris classifier with TensorFlow's pre-made DNN estimator. Full illustration can be found on TensorFlow's website ([Premade Estimators][2]), and I create a repository on GitHub ([`iris_dnn.py`][3]) for you to fork and work with. Here's the gist of training the model:
 
 ```python
 feature_columns = [tf.feature_column.numeric_column(key=key)
@@ -79,7 +79,7 @@ export/1524907728/variables/variables.data-00000-of-00001
 export/1524907728/variables/variables.index
 ```
 
-TensorFlow provides a command line tool to inspect the exported model, even run predictions with it.
+TensorFlow provides a command line tool to inspect the exported model, or even run predictions with it.
 
 ```bash
 $ saved_model_cli show --dir export/1524906774 \
@@ -106,10 +106,64 @@ Result for output key scores:
 [[9.9919027e-01 8.0969761e-04 1.2872645e-09]]
 ```
 
+## Serve SavedModel with `contrib.predictor`
 
+In `contrib.predictor` package, there is a convenient method for us to build a predictor function from exported model.
 
-https://github.com/tensorflow/tensorflow/blob/r1.7/tensorflow/python/tools/saved_model_cli.py#L411
+```python
+# Load model from export directory, and make a predict function.
+predict_fn = tf.contrib.predictor.from_saved_model(export_dir)
 
+# Test inputs represented by Pandas DataFrame.
+inputs = pd.DataFrame({
+    'SepalLength': [5.1, 5.9, 6.9],
+    'SepalWidth': [3.3, 3.0, 3.1],
+    'PetalLength': [1.7, 4.2, 5.4],
+    'PetalWidth': [0.5, 1.5, 2.1],
+})
+
+# Convert input data into serialized Example strings.
+examples = []
+for index, row in inputs.iterrows():
+    feature = {}
+    for col, value in row.iteritems():
+        feature[col] = tf.train.Feature(float_list=tf.train.FloatList(value=[value]))
+    example = tf.train.Example(
+        features=tf.train.Features(
+            feature=feature
+        )
+    )
+    examples.append(example.SerializeToString())
+
+# Make predictions
+predictions = predict_fn({'inputs': examples})
+# {
+#     'classes': [
+#         [b'0', b'1', b'2'],
+#         [b'0', b'1', b'2'],
+#         [b'0', b'1', b'2']
+#     ],
+#     'scores': [
+#         [9.9826765e-01, 1.7323202e-03, 4.7271198e-15],
+#         [2.1470961e-04, 9.9776912e-01, 2.0161823e-03],
+#         [4.2676111e-06, 4.8709501e-02, 9.5128632e-01]
+#     ]
+# }
+```
+
+We can tidy up the prediction outputs to make the result clearer:
+
+| SepalLength | SepalWidth | PetalLength | PetalWidth | ClassID | Probability |
+| ----------- | ---------- | ----------- | ---------- | ------- | ----------- |
+|         5.1 |        3.3 |         1.7 |        0.5 |       0 |    0.998268 |
+|         5.9 |        3.0 |         4.2 |        1.5 |       1 |    0.997769 |
+|         6.9 |        3.1 |         5.4 |        2.1 |       2 |    0.951286 |
+
+Under the hood, `from_saved_model` uses the `saved_model.loader` to load the exported model to a TensorFlow session, extract input / output definitions, create necessary tensors and invoke `session.run` to get results. I write a simple example ([`iris_sess.py`][6]) of this workflow, or you can refer to TensorFlow's source code [`saved_model_predictor.py`][7]. [`saved_model_cli`][8] also works this way.
+
+## Serve SavedModel with TensorFlow Serving
+
+Finally, let's see how to use TensorFlow's side project, [TensorFlow Serving][9], to expose our trained model to the outside world.
 
 ## References
 
@@ -121,3 +175,7 @@ https://github.com/tensorflow/tensorflow/blob/r1.7/tensorflow/python/tools/saved
 [3]: https://github.com/jizhang/tf-serve/blob/master/iris_dnn.py
 [4]: https://www.tensorflow.org/programmers_guide/saved_model#using_savedmodel_with_estimators
 [5]: https://github.com/tensorflow/tensorflow/blob/r1.7/tensorflow/core/example/example.proto
+[6]: https://github.com/jizhang/tf-serve/blob/master/iris_sess.py
+[7]: https://github.com/tensorflow/tensorflow/blob/r1.7/tensorflow/contrib/predictor/saved_model_predictor.py
+[8]: https://github.com/tensorflow/tensorflow/blob/r1.7/tensorflow/python/tools/saved_model_cli.py
+[9]: https://www.tensorflow.org/serving/
