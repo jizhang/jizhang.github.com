@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/</loc>
+    
+    <lastmod>2018-05-14T01:46:50.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/</loc>
     
     <lastmod>2018-04-22T07:51:29.000Z</lastmod>
