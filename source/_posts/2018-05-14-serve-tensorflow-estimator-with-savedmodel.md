@@ -1,8 +1,13 @@
 ---
 title: Serve TensforFlow Estimator with SavedModel
-tags: [tensorflow, python, machine learning]
+tags:
+  - tensorflow
+  - python
+  - machine learning
 categories: Programming
+date: 2018-05-14 09:43:14
 ---
+
 
 [TensorFlow][1] is one of the most popular machine learning frameworks that allow us to build various models with minor efforts. There are several ways to utilize these models in production like web service API, and this article will introduce how to make model prediction APIs with TensorFlow's SavedModel mechanism.
 
@@ -135,7 +140,7 @@ for index, row in inputs.iterrows():
     )
     examples.append(example.SerializeToString())
 
-# Make predictions
+# Make predictions.
 predictions = predict_fn({'inputs': examples})
 # {
 #     'classes': [
@@ -165,9 +170,66 @@ Under the hood, `from_saved_model` uses the `saved_model.loader` to load the exp
 
 Finally, let's see how to use TensorFlow's side project, [TensorFlow Serving][9], to expose our trained model to the outside world.
 
+### Setup TensorFlow ModelServer
+
+TensorFlow server code is written in C++. A convenient way to install it is via package repository. You can follow the [official document][10], add the TensorFlow distribution URI, and install the binary:
+
+```bash
+$ apt-get install tensorflow-model-server
+```
+
+Then use the following command to start a ModelServer, which will automatically pick up the latest model from the export directory.
+
+```bash
+$ tensorflow_model_server --port=9000 --model_base_path=/root/export
+2018-05-14 01:05:12.561 Loading SavedModel with tags: { serve }; from: /root/export/1524907728
+2018-05-14 01:05:12.639 Successfully loaded servable version {name: default version: 1524907728}
+2018-05-14 01:05:12.641 Running ModelServer at 0.0.0.0:9000 ...
+```
+
+### Request Remote Model via SDK
+
+TensorFlow Serving is based on gRPC and Protocol Buffers. So as to make remote procedure calls, we need to install the TensorFlow Serving API, along with its dependencies. Note that TensorFlow only provides client SDK in Python 2.7, but there is a contributed Python 3.x package available on PyPI.
+
+```bash
+$ pip install tensorflow-seving-api-python3==1.7.0
+```
+
+The procedure is straight forward, we create the connection, assemble some `Example` instances, send to remote server and get the predictions. Full code can be found in [`iris_remote.py`][11].
+
+```python
+# Create connection, boilerplate of gRPC.
+channel = implementations.insecure_channel('127.0.0.1', 9000)
+stub = prediction_service_pb2.beta_create_PredictionService_stub(channel)
+
+# Get test inputs, and assemble a list of Examples, unserialized.
+inputs = pd.DateFrame()
+examples = [tf.tain.Example() for index, row in inputs.iterrows()]
+
+# Prepare RPC request, specify the model name.
+request = classification_pb2.ClassificationRequest()
+request.model_spec.name = 'default'
+request.input.example_list.examples.extend(examples)
+
+# Get response, and tidy up.
+response = stub.Classify(request, 10.0)
+# result {
+#   classifications {
+#     classes {
+#       label: "0"
+#       score: 0.998267650604248
+#     }
+#     ...
+#   }
+#   ...
+# }
+```
+
 ## References
 
+* https://www.tensorflow.org/get_started/premade_estimators
 * https://www.tensorflow.org/programmers_guide/saved_model
+* https://www.tensorflow.org/serving/
 
 
 [1]: https://www.tensorflow.org/
@@ -179,3 +241,5 @@ Finally, let's see how to use TensorFlow's side project, [TensorFlow Serving][9]
 [7]: https://github.com/tensorflow/tensorflow/blob/r1.7/tensorflow/contrib/predictor/saved_model_predictor.py
 [8]: https://github.com/tensorflow/tensorflow/blob/r1.7/tensorflow/python/tools/saved_model_cli.py
 [9]: https://www.tensorflow.org/serving/
+[10]: https://www.tensorflow.org/serving/setup
+[11]: https://github.com/jizhang/tf-serve/blob/master/iris_remote.py
