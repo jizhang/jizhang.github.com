@@ -1,5 +1,5 @@
 ---
-title: jsx-no-bind
+title: How to Fix ESLint jsx-no-bind Error
 tags: [javascript, react, eslint]
 categories: Programming
 ---
@@ -81,6 +81,8 @@ const StatelessChild = (props) => {
 
 ## Virtual DOM and Reconciliation
 
+[reconciliation][4]
+
 * virtual dom vs dom
 * React event handling
 
@@ -89,11 +91,14 @@ const StatelessChild = (props) => {
 
 * https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md
 * https://cdb.reacttraining.com/react-inline-functions-and-performance-bdff784f5578
+* https://reactjs.org/docs/optimizing-performance.html
+* https://levelup.gitconnected.com/how-exactly-does-react-handles-events-71e8b5e359f2
 
 
 [1]: https://github.com/yannickcr/eslint-plugin-react
 [2]: https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md
 [3]: https://github.com/airbnb/javascript/blob/eslint-config-airbnb-v17.1.0/packages/eslint-config-airbnb/rules/react.js#L93
+[4]: https://reactjs.org/docs/reconciliation.html
 
 
 * https://github.com/airbnb/javascript/issues/801
@@ -115,9 +120,5 @@ Second, performance should always be a secondary concern to code clarity and rea
 Thus this is mostly a question of subjective readability, I think.
 
 https://maarten.mulders.tk/blog/2017/07/no-bind-or-arrow-in-jsx-props-why-how.html
-https://cdb.reacttraining.com/react-inline-functions-and-performance-bdff784f5578
 https://medium.com/@esamatti/react-js-pure-render-performance-anti-pattern-fb88c101332f
-https://reactjs.org/docs/reconciliation.html
-https://reactjs.org/docs/optimizing-performance.html
 https://reactjs.org/docs/faq-functions.html#example-passing-params-using-data-attributes
-https://levelup.gitconnected.com/how-exactly-does-react-handles-events-71e8b5e359f2
