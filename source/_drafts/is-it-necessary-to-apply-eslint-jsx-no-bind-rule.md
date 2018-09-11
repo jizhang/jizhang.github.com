@@ -1,5 +1,5 @@
 ---
-title: How to Fix ESLint jsx-no-bind Error
+title: Is It Necessary to Apply ESLint jsx-no-bind Rule?
 tags: [javascript, react, eslint]
 categories: Programming
 ---
@@ -10,7 +10,7 @@ When using [ESLint React plugin][1], you may find a rule called [`jsx-no-bind`][
 class List extends React.Component {
   render() {
     return (
-      <Item onClick={() => { console.log('click') }} />
+      <Item onClick={() => { alert() }} />
     )
   }
 }
@@ -18,7 +18,7 @@ class List extends React.Component {
 
 There're two reasons why this rule is introduced. First, a new function will be created on every `render` call, which may increase the frequency of garbage collection. Second, it will disable the pure rendering process, i.e. when you're using a `PureComponent`, or implement the `shouldComponentUpdate` method by yourself with identity comparison, a new function object in the props will cause unnecessary re-render of the component.
 
-But some people argue that these two reasons are not solid enough to enforce this rule on all projects, especially when the solutions will introduce more codes and decrease readability. In [Airbnb ESLint preset][3], the team only bans the usage of `.bind`, but allows arrow function in both props and refs. I did some googling, and was convinced that this rule is not quite necessary. Someone says it's premature optimization, and you should measure before you optimize. I agree with that. However, digging into this question is a good chance to learn React, and I will note down what I have collected in the following article.
+But some people argue that these two reasons are not solid enough to enforce this rule on all projects, especially when the solutions will introduce more codes and decrease readability. In [Airbnb ESLint preset][3], the team only bans the usage of `.bind`, but allows arrow function in both props and refs. I did some googling, and was convinced that this rule is not quite necessary. Someone says it's premature optimization, and you should measure before you optimize. I agree with that. In the following sections, I will illustrate how arrow function would affect the pure component, what solutions you can use, and talk a little bit about React rendering internals.
 
 <!-- more -->
 
