@@ -10,7 +10,11 @@ When using [ESLint React plugin][1], you may find a rule called [`jsx-no-bind`][
 class List extends React.Component {
   render() {
     return (
-      <Item onClick={() => { alert() }} />
+      <ul>
+        {this.state.items.map(item => (
+          <li key={item.id} onClick={() => { alert(item.id) }}>{item.text}</li>
+        ))}
+      </ul>
     )
   }
 }
@@ -18,13 +22,13 @@ class List extends React.Component {
 
 There're two reasons why this rule is introduced. First, a new function will be created on every `render` call, which may increase the frequency of garbage collection. Second, it will disable the pure rendering process, i.e. when you're using a `PureComponent`, or implement the `shouldComponentUpdate` method by yourself with identity comparison, a new function object in the props will cause unnecessary re-render of the component.
 
-But some people argue that these two reasons are not solid enough to enforce this rule on all projects, especially when the solutions will introduce more codes and decrease readability. In [Airbnb ESLint preset][3], the team only bans the usage of `.bind`, but allows arrow function in both props and refs. I did some googling, and was convinced that this rule is not quite necessary. Someone says it's premature optimization, and you should measure before you optimize. I agree with that. In the following sections, I will illustrate how arrow function would affect the pure component, what solutions you can use, and talk a little bit about React rendering internals.
+But some people argue that these two reasons are not solid enough to enforce this rule on all projects, especially when the solutions will introduce more codes and decrease readability. In [Airbnb ESLint preset][3], the team only bans the usage of `.bind`, but allows arrow function in both props and refs. I did some googling, and was convinced that this rule is not quite necessary. Someone says it's premature optimization, and you should measure before you optimize. I agree with that. In the following sections, I will illustrate how arrow function would affect the pure component, what solutions we can use, and talk a little bit about React rendering internals.
 
 <!-- more -->
 
 ## Different Types of React Component
 
-The regular way to create a React component is to extend the `React.Component` class and implement the `render` method. There is also a built-in `React.PureComponent`, which implements the life-cycle method `shouldComponentUpdate` for you. In regular component, this method will always return `true`, indicating that React should call `render` whenever the props or states change. `PureComponent`, on the other hand, does a shallow identity comparison for the props and states to see whether this component should be re-rendered. The following two components behaves the same:
+The regular way to create a React component is to extend the `React.Component` class and implement the `render` method. There is also a built-in `React.PureComponent`, which implements the life-cycle method `shouldComponentUpdate` for you. In regular component, this method will always return `true`, indicating that React should call `render` whenever the props or states change. `PureComponent`, on the other hand, does a shallow identity comparison for the props and states to see whether this component should be re-rendered. The following two components behave the same:
 
 ```javascript
 class PureChild extends React.PureComponent {
@@ -71,13 +75,60 @@ const StatelessChild = (props) => {
 
 ## How to Fix `jsx-no-bind` Error
 
-* no argument
-    * bind in constructor
-    * class property
-* with argument
-    * wrap to child component
-    * dataset
+Arrow functions are usually used in event handlers. If we use normal functions or class methods, `this` keyword is not bound to the current instance, it is `undefined`. By using `.bind` or arrow function, we can access other class methods through `this`. To fix the `jsx-no-bind` error while still keeping the handler function bound, we can either bind it in constructor, or use the experimental class property syntax, which can be transformed by [Babel][6]. More information can be found in React [official document][5], and here is the [gist][7] of different solutions.
 
+```javascript
+export default class NoArgument extends React.Component {
+  constructor() {
+    this.handleClickBoundA = this.handleClickUnbound.bind(this)
+    this.handleClickBoundC = () => { this.setState() }
+  }
+  handleClickUnbound() { /* "this" is undefined */ }
+  handleClickBoundB = () => { this.setState() }
+  render() {
+    return (
+      <div>
+        Error: jsx-no-bind
+        <button onClick={() => { this.setState() }}>ArrowA</button>
+        <button onClick={() => { this.handleClickUnbound() }}>ArrowB</button>
+        <button onClick={this.handleClickUnbound.bind(this)}>Bind</button>
+        No error:
+        <button onClick={this.handleClickBoundA}>BoundA</button>
+        <button onClick={this.handleClickBoundB}>BoundB</button>
+        <button onClick={this.handleClickBoundC}>BoundC</button>
+      </div>
+    )
+  }
+}
+```
+
+For handlers that require extra arguments, e.g. a list of clickable items, things will be a little tricky. There're two possible solutions, one is to create separate component for the item, and pass handler function and argument as props.
+
+```javascript
+class Item extends React.PureComponent {
+  handleClick = () => { this.props.onClick(this.props.item.id) }
+  render() {
+    return (
+      <li onClick={this.handleClick}>{this.props.item.text}</li>
+    )
+  }
+}
+
+export default class ListSeparate extends React.Component {
+  handleClick = (itemId) => { alert(itemId) }
+  render() {
+    return (
+      <ul>
+        {this.props.items.map(item => (
+          <Item key={item.id} item={item} onClick={this.handleClick} />
+        ))}
+      </ul>
+    )
+  }
+}
+```
+
+separation of concerns, but add a lot of codes, and make them hard to understand.
 
 ## Virtual DOM and Reconciliation
 
@@ -99,6 +150,9 @@ const StatelessChild = (props) => {
 [2]: https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md
 [3]: https://github.com/airbnb/javascript/blob/eslint-config-airbnb-v17.1.0/packages/eslint-config-airbnb/rules/react.js#L93
 [4]: https://reactjs.org/docs/reconciliation.html
+[5]: https://reactjs.org/docs/handling-events.html
+[6]: https://babeljs.io/docs/plugins/transform-class-properties/
+[7]: https://github.com/jizhang/jsx-no-bind/blob/master/src/components/NoArgument.js
 
 
 * https://github.com/airbnb/javascript/issues/801
