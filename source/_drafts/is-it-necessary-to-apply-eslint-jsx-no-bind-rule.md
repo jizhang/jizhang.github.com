@@ -4,10 +4,10 @@ tags: [javascript, react, eslint]
 categories: Programming
 ---
 
-When using [ESLint React plugin][1], you may find a rule called [`jsx-no-bind`][2]. In short, it prevents you from using `.bind` or arrow function in a JSX prop. For instance, ESLint will complain about the arrow function in the `onClick` prop.
+When using [ESLint React plugin][1], you may find a rule called [`jsx-no-bind`][2]. It prevents you from using `.bind` or arrow function in a JSX prop. For instance, ESLint will complain about the arrow function in the `onClick` prop.
 
 ```javascript
-class List extends React.Component {
+class ListArrow extends React.Component {
   render() {
     return (
       <ul>
@@ -128,22 +128,47 @@ export default class ListSeparate extends React.Component {
 }
 ```
 
-separation of concerns, but add a lot of codes, and make them hard to understand.
+This is a practice of separation of concerns, because now `List` only iterates the items, while `Item` takes care of rendering them. But this also adds a lot of codes, and make them hard to understand. We need to go through several handler functions to see what they actually do, while in the arrow function example, event handlers are co-located with the component, which is encouraged by React community.
+
+Another approach is to use DOM [`dataset`][8] property, i.e. store argument in HTML `data-*` attribute, and retrieve it with `event` argument in handler functions.
+
+```javascript
+export default class ListDataset extends React.Component {
+  handleClick = (event) => { alert(event.target.dataset.itemId) }
+  render() {
+    return (
+      <ul>
+        {this.props.items.map(item => (
+          <li key={item.id} data-item-id={item.id} onClick={this.handleClick}>{item.text}</li>
+        ))}
+      </ul>
+    )
+  }
+}
+```
 
 ## Virtual DOM and Reconciliation
 
-[reconciliation][4]
+Arrow function will cause pure components unnecessary re-rendering, actually this statement is partly true. React rendering process has several steps. First, call `render` function that returns a tree of React elements; compare them with the virtual DOM, which is also called [reconciliation][4]; and then, apply the difference to the real DOM. So even if the `render` function is called multiple times, the resulting tree of elements may not change at all, so there is no DOM manipulation, and that usually costs more time than pure JavaScript code. Again, you need to take measures before optimization.
 
-* virtual dom vs dom
-* React event handling
+![shouldComponentUpdate](/images/jsx-no-bind/should-component-update.png)
 
+[Source][9]
+
+Besides, change of event handlers will probably not cause re-rendering of the real DOM, because React only listens event on the `document` level. When the `onClick` event is triggered on the `li` element, it will bubble up to the top level and get processed by React event management system.
+
+![Top-level Delegation](/images/jsx-no-bind/top-level-delegation.jpg)
+
+[Source][10]
+
+## Conclusion
 
 ## References
 
 * https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md
 * https://cdb.reacttraining.com/react-inline-functions-and-performance-bdff784f5578
-* https://reactjs.org/docs/optimizing-performance.html
-* https://levelup.gitconnected.com/how-exactly-does-react-handles-events-71e8b5e359f2
+* https://maarten.mulders.it/blog/2017/07/no-bind-or-arrow-in-jsx-props-why-how.html
+* https://reactjs.org/docs/faq-functions.html#example-passing-params-using-data-attributes
 
 
 [1]: https://github.com/yannickcr/eslint-plugin-react
@@ -153,6 +178,9 @@ separation of concerns, but add a lot of codes, and make them hard to understand
 [5]: https://reactjs.org/docs/handling-events.html
 [6]: https://babeljs.io/docs/plugins/transform-class-properties/
 [7]: https://github.com/jizhang/jsx-no-bind/blob/master/src/components/NoArgument.js
+[8]: https://developer.mozilla.org/en/docs/Web/API/HTMLElement/dataset
+[9]: https://reactjs.org/docs/optimizing-performance.html#shouldcomponentupdate-in-action
+[10]: https://levelup.gitconnected.com/how-exactly-does-react-handles-events-71e8b5e359f2
 
 
 * https://github.com/airbnb/javascript/issues/801
@@ -172,7 +200,3 @@ First, as I have recently learned, the only advantage with the constructor-bindi
 Second, performance should always be a secondary concern to code clarity and readability - something would have to be very slow to trump readability concerns, and I've been convinced that creating non-bound functions as event handlers (not as props, however, just as bottom-level event handlers) is not a performance hit due to the design of React.
 
 Thus this is mostly a question of subjective readability, I think.
-
-https://maarten.mulders.tk/blog/2017/07/no-bind-or-arrow-in-jsx-props-why-how.html
-https://medium.com/@esamatti/react-js-pure-render-performance-anti-pattern-fb88c101332f
-https://reactjs.org/docs/faq-functions.html#example-passing-params-using-data-attributes
