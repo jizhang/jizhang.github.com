@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/</loc>
+    
+    <lastmod>2018-09-13T00:36:57.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/</loc>
+    
+    <lastmod>2018-05-15T01:01:44.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/</loc>
     
     <lastmod>2018-05-14T01:46:50.000Z</lastmod>
@@ -19,13 +33,6 @@
     <loc>http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/</loc>
     
     <lastmod>2018-04-18T00:30:52.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/</loc>
-    
-    <lastmod>2018-04-09T12:23:57.000Z</lastmod>
     
   </url>
   
