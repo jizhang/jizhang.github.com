@@ -1,8 +1,13 @@
 ---
 title: Is It Necessary to Apply ESLint jsx-no-bind Rule?
-tags: [javascript, react, eslint]
+tags:
+  - javascript
+  - react
+  - eslint
 categories: Programming
+date: 2018-09-13 08:24:00
 ---
+
 
 When using [ESLint React plugin][1], you may find a rule called [`jsx-no-bind`][2]. It prevents you from using `.bind` or arrow function in a JSX prop. For instance, ESLint will complain about the arrow function in the `onClick` prop.
 
@@ -63,7 +68,7 @@ When their parent component is re-rendering, they will both check the message co
 
 Clearly, arrow functions will fail the test and cause pure component to re-render every time its parent is re-rendered. On the other side, if you do not use pure component, or do props and states check on your own, enabling the `jsx-no-bind` rule is plain unnecessary.
 
-Recently another kind of component has become popular, the stateless functional component (SFC). These components render results solely depend on their props, so they are like functions that take inputs and produce steady outputs. But under the hood, they are just regular components, i.e. they do not implement `shouldComponentUpdate`, and you can not implement by yourself either.
+Recently another kind of component has become popular, the stateless functional component (SFC). These components' render results solely depend on their props, so they are like functions that take inputs and produce steady outputs. But under the hood, they are just regular components, i.e. they do not implement `shouldComponentUpdate`, and you can not implement by yourself either.
 
 ```javascript
 const StatelessChild = (props) => {
@@ -149,7 +154,7 @@ export default class ListDataset extends React.Component {
 
 ## Virtual DOM and Reconciliation
 
-Arrow function will cause pure components unnecessary re-rendering, actually this statement is partly true. React rendering process has several steps. First, call `render` function that returns a tree of React elements; compare them with the virtual DOM, which is also called [reconciliation][4]; and then, apply the difference to the real DOM. So even if the `render` function is called multiple times, the resulting tree of elements may not change at all, so there is no DOM manipulation, and that usually costs more time than pure JavaScript code. Again, you need to take measures before optimization.
+Arrow function will cause pure components unnecessary re-rendering, actually this statement is partly true. React rendering process has several steps. First, call `render` function that returns a tree of React elements; compare them with the virtual DOM; and then, apply the difference to the real DOM. The latter process is also called [reconciliation][4]. So even if the `render` function is called multiple times, the resulting tree of elements may not change at all, so there is no DOM manipulation, and that usually costs more time than pure JavaScript code. For components that constantly change, making them pure just adds one more time of unnecessary comparison.
 
 ![shouldComponentUpdate](/images/jsx-no-bind/should-component-update.png)
 
@@ -163,7 +168,7 @@ Besides, change of event handlers will probably not cause re-rendering of the re
 
 ## Conclusion
 
-To fix `jsx-no-bind` we need to trade of readability, and yet the performance may not improve as much as we thought. So instead of guessing what may cause performance problem, why not program in a natural way at first, and when there occurs some noticeable performance issues, take measures, and fix them with appropriate techniques.
+To fix `jsx-no-bind` we need to trade off readability, and yet the performance may not improve as much as we thought. So instead of guessing what may cause performance problem, why not program in a natural way at first, and when there occurs some noticeable performance issues, take measures, and fix them with appropriate techniques.
 
 ## References
 
