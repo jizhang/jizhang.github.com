@@ -1,24 +1,57 @@
 ---
-title: Several Ways to Avoid NullPointerException
+title: How to Avoid NullPointerException
 tags: [java, spring, eclipse]
 categories: Programming
 ---
 
-
-
+`NullPointerException` happens when you dereference a possible `null` object without checking it. It's a common exception that every Java programmer may encounter in daily work. There're several strategies that can help us avoid this exception, making our codes more robust. In this article, I will list both traditional ways and those with tools and new features introduced by recent version of Java.
 
 ## Runtime Check
 
-* value == null
-* third party library
-    * Strings#isBlank, Collections#isEmpty
-    * method argument
-        * Objects.requireNonNull
-        * guava preconditions https://github.com/google/guava/wiki/PreconditionsExplained
-    * lombok
+The most obvious way is to use `if (obj == null)` to check every variable you need to use, either from function argument, return value, or instance field. When you receive a `null` object, you can throw a different, more informative exception like `IllegalArgumentException`. There are some library functions that can make this process easier, like [`Objects#requireNonNull`][1]:
+
+```java
+public void testObjects(Object arg) {
+  Object checked = Objects.requireNonNull(arg, "arg must not be null");
+  checked.toString();
+}
+```
+
+Or use Guava's [`Preconditions`][2] package, which provides all kinds of arguments checking facilities:
+
+```java
+public void testGuava(Object arg) {
+  Object checked = Preconditions.checkNotNull(arg, "%s must not be null", "arg");
+  checked.toString();
+}
+```
+
+We can also let [Lombok][3] generate the check for us, which will throw a more meaningful `NullPointerException`:
+
+```java
+public void testLombok(@NonNull Object arg) {
+  arg.toString();
+}
+```
+
+The generated code and exception message are as follows:
+
+```java
+public void testLombokGenerated(Object arg) {
+  if (arg == null) {
+    throw new NullPointerException("arg is marked @NonNull but is null");
+  }
+  arg.toString();
+}
+```
+
+This annotation can also be added to a class field, and Lombok will check nullness for every assignment.
+
+<!-- more -->
 
 ## Coding Convention
 
+* Strings#isBlank, Collections#isEmpty
 * return empty collections, not nulls. effective java #54
 * throw exception #55
 * "".equals, String.valueOf
@@ -70,15 +103,19 @@ Typed Clojure union
 Kotlin nullable types
     * call java from kotlin, spring
 
-<!-- more -->
-
-
 ## References
 
 * https://howtodoinjava.com/java/exception-handling/how-to-effectively-handle-nullpointerexception-in-java/
 * https://medium.com/@fatihcoskun/kotlin-nullable-types-vs-java-optional-988c50853692
 * https://blogs.oracle.com/java-platform-group/java-8s-new-type-annotations
 
+
+[1]: https://docs.oracle.com/javase/7/docs/api/java/util/Objects.html
+[2]: https://github.com/google/guava/wiki/PreconditionsExplained
+[3]: https://projectlombok.org/features/NonNull
+
 https://stackoverflow.com/questions/37598775/jsr-305-annotations-replacement-for-java-9
 https://javarevisited.blogspot.com/2013/05/ava-tips-and-best-practices-to-avoid-nullpointerexception-program-application.html
 https://stackoverflow.com/questions/218384/what-is-a-nullpointerexception-and-how-do-i-fix-it
+
+
