@@ -51,15 +51,52 @@ This annotation can also be added to a class field, and Lombok will check nullne
 
 ## Coding Convention
 
-* Strings#isBlank, Collections#isEmpty
-* return empty collections, not nulls. effective java #54
-* throw exception #55
-* "".equals, String.valueOf
-* argument is null? define two methods
-* pay attention to
-    * boxing
-    * chaining calls
-* null object pattern
+There are some coding conventions we can use to avoid `NullPointerException`.
+
+* Use methods that already guard against `null` values, such as `String#equals`, `String#valueOf`, and third party libraries that help us check whether string or collection is empty.
+
+```java
+if (str != null && str.equals("text")) {}
+if ("text".equals(str)) {}
+
+if (obj != null) { obj.toString(); }
+String.valueOf(obj); // "null"
+
+// from spring-core
+StringUtils.isEmpty(str);
+CollectionUtils.isEmpty(col);
+// from guava
+Strings.isNullOrEmpty(str);
+// from commons-collections4
+CollectionUtils.isEmpty(col);
+```
+
+* If a method accepts nullable value, define two methods with different signatures, so as to make every parameter mandatory.
+
+```java
+public void methodA(Object arg1) {
+  methodB(arg1, new Object[0]);
+}
+
+public void methodB(Object arg1, Object[] arg2) {
+  for (Object obj : arg2) {} // no null check
+}
+```
+
+* For return values, if the type is `Collection`, return an empty collection instead of null; if it's a single object, consider throw an exception. This approach is also suggested by *Effective Java*. Good examples come from Spring's JdbcTemplate:
+
+```java
+// return new ArrayList<>() when result set is empty
+jdbcTemplate.queryForList("SELECT 1");
+
+// throws EmptyResultDataAccessException when record not found
+jdbcTemplate.queryForObject("SELECT 1", Integer.class);
+
+// works for generics
+public <T> List<T> testReturnCollection() {
+  return Collections.emptyList();
+}
+```
 
 ## Static Check
 
