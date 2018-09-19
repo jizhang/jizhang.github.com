@@ -105,7 +105,7 @@ Java has some static code analysis tools, like Eclipse IDE, SpotBugs, Checker Fr
 However, nullness check annotations have not been standardized yet. Though there was a [JSR 305][4] proposed on Sep. 2006, it has been dormant ever since. A lot of third party libraries provide such annotations, and they are supported by different tools. Some popular candidates are:
 
 * `javax.annotation.Nonnull`, proposed by JSR 305, and its reference implementation is `com.google.code.findbugs.jsr305`.
-* `org.eclipse.jdt.annotation.NonNull`, used by Eclipse IDE to be static nullness check.
+* `org.eclipse.jdt.annotation.NonNull`, used by Eclipse IDE to do static nullness check.
 * `edu.umd.cs.findbugs.annotations.NonNull`, used by SpotBugs, it depends on `jsr305`.
 * `org.springframework.lang.NonNull`, provided by Spring Framework.
 * `org.checkerframework.checker.nullness.qual.NonNull`, used by Checker Framework.
@@ -114,8 +114,6 @@ However, nullness check annotations have not been standardized yet. Though there
 I suggest using a cross IDE solution like SpotBugs or Checker Framework, which also plays nicely with Maven.
 
 ### `@NonNull` and `@CheckForNull` with SpotBugs
-
-![SpotBugs](/images/java-npe/spotbugs.png)
 
 SpotBugs is the successor of FindBugs. We can use `@NonNull` and `@CheckForNull` on method arguments or return values, so as to apply nullness check. Notably, SpotBugs does not respect `@Nullable`, which is only useful when overriding `@ParametersAreNullableByDefault`. Use `@CheckForNull` instead.
 
@@ -187,7 +185,7 @@ public void testReturnNullable() {
 }
 ```
 
-By default, Checker Framework applies `@NonNull` to all method arguments and return values. The following snippet, with no annotations, can either pass the compilation.
+By default, Checker Framework applies `@NonNull` to all method arguments and return values. The following snippet, without any annotations, cannot pass compilation, either.
 
 ```java
 private Object returnNonNull() {
