@@ -229,12 +229,57 @@ System.out.println(filename.length());
 
 ## Optional Class
 
-* optional #55
-    * why? make the api clear
-    * optional api
-    * stream api
-    * OptionalInt
-https://dzone.com/articles/features-to-avoid-null-reference-exceptions-java-a
+Java 8 introduces the `Optional<T>` class that can be used to wrap a nullable return value, instead of returning null or throwing an exception. On the upside, a method that returns `Optional` explicitly states it may return an empty value, so the invoker must check the presence of the value, and no NPE will be thrown. However, it does introduce more codes, and adds some overhead of object creation. So use it with caution.
+
+```java
+Optional<String> opt;
+
+// create
+opt = Optional.empty();
+opt = Optional.of("text");
+opt = Optional.ofNullable(null);
+
+// test & get
+if (opt.isPresent()) {
+  opt.get();
+}
+
+// fall back
+opt.orElse("default");
+opt.orElseGet(() -> "default");
+opt.orElseThrow(() -> new NullPointerException());
+
+// operate
+opt.ifPresent(value -> {
+  System.out.println(value);
+});
+opt.filter(value -> value.length() > 5);
+opt.map(value -> value.trim());
+opt.flatMap(value -> {
+  String trimmed = value.trim();
+  return trimmed.isEmpty() ? Optional.empty() : Optional.of(trimmed);
+});
+```
+
+Chaining of methods is a common cause of NPE, but if you have a series of methods that return `Optional`, you can chain them with `flatMap`, NPE-freely.
+
+```java
+String zipCode = getUser()
+    .flatMap(User::getAddress)
+    .flatMap(Address::getZipCode)
+    .orElse("");
+```
+
+Java 8 [Stream API][8] also uses optionals to return nullable values. For instance:
+
+```java
+stringList.stream().findFirst().orElse("default");
+stringList.stream()
+    .max(Comparator.naturalOrder())
+    .ifPresent(System.out::println);
+```
+
+Lastly, there are some special optional classes for primitive types, such as `OptionalInt`, `OptionalDouble`, etc. Use them whenever you find applicable.
 
 ## NPE in Other Languages
 
@@ -248,10 +293,9 @@ Kotlin nullable types
 ## References
 
 * https://howtodoinjava.com/java/exception-handling/how-to-effectively-handle-nullpointerexception-in-java/
-* https://medium.com/@fatihcoskun/kotlin-nullable-types-vs-java-optional-988c50853692
-* https://blogs.oracle.com/java-platform-group/java-8s-new-type-annotations
 * http://jmri.sourceforge.net/help/en/html/doc/Technical/SpotBugs.shtml
-
+* https://dzone.com/articles/features-to-avoid-null-reference-exceptions-java-a
+* https://medium.com/@fatihcoskun/kotlin-nullable-types-vs-java-optional-988c50853692
 
 [1]: https://docs.oracle.com/javase/7/docs/api/java/util/Objects.html
 [2]: https://github.com/google/guava/wiki/PreconditionsExplained
@@ -259,7 +303,4 @@ Kotlin nullable types
 [4]: https://jcp.org/en/jsr/detail?id=305
 [5]: https://spotbugs.readthedocs.io/en/latest/maven.html
 [6]: https://checkerframework.org/manual/#maven
-
-https://stackoverflow.com/questions/37598775/jsr-305-annotations-replacement-for-java-9
-https://javarevisited.blogspot.com/2013/05/ava-tips-and-best-practices-to-avoid-nullpointerexception-program-application.html
-https://stackoverflow.com/questions/218384/what-is-a-nullpointerexception-and-how-do-i-fix-it
+[7]: https://www.oracle.com/technetwork/articles/java/ma14-java-se-8-streams-2177646.html
