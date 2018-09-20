@@ -83,7 +83,7 @@ public void methodB(Object arg1, Object[] arg2) {
 }
 ```
 
-* For return values, if the type is `Collection`, return an empty collection instead of null; if it's a single object, consider throw an exception. This approach is also suggested by *Effective Java*. Good examples come from Spring's JdbcTemplate:
+* For return values, if the type is `Collection`, return an empty collection instead of null; if it's a single object, consider throwing an exception. This approach is also suggested by *Effective Java*. Good examples come from Spring's JdbcTemplate:
 
 ```java
 // return new ArrayList<>() when result set is empty
@@ -102,7 +102,7 @@ public <T> List<T> testReturnCollection() {
 
 Java has some static code analysis tools, like Eclipse IDE, SpotBugs, Checker Framework, etc. They can find out program bugs during compilation process. It would be nice to catch `NullPointerException` as early as possible, and this can be done with annotations like `@Nullable` and `@Nonnull`.
 
-However, nullness check annotations have not been standardized yet. Though there was a [JSR 305][4] proposed on Sep. 2006, it has been dormant ever since. A lot of third party libraries provide such annotations, and they are supported by different tools. Some popular candidates are:
+However, nullness check annotations have not been standardized yet. Though there was a [JSR 305][4] proposed back to Sep. 2006, it has been dormant ever since. A lot of third party libraries provide such annotations, and they are supported by different tools. Some popular candidates are:
 
 * `javax.annotation.Nonnull`, proposed by JSR 305, and its reference implementation is `com.google.code.findbugs.jsr305`.
 * `org.eclipse.jdt.annotation.NonNull`, used by Eclipse IDE to do static nullness check.
@@ -268,7 +268,7 @@ String zipCode = getUser()
     .orElse("");
 ```
 
-Java 8 [Stream API][8] also uses optionals to return nullable values. For instance:
+Java 8 [Stream API][7] also uses optionals to return nullable values. For instance:
 
 ```java
 stringList.stream().findFirst().orElse("default");
@@ -279,14 +279,56 @@ stringList.stream()
 
 Lastly, there are some special optional classes for primitive types, such as `OptionalInt`, `OptionalDouble`, etc. Use them whenever you find applicable.
 
-## NPE in Other Languages
+## NPE in Other JVM Languages
 
-Scala `Option`, `Some`, `None`
-Typed Clojure union
-    https://frenchy64.github.io/2013/10/04/null-pointer.html
-    https://github.com/clojure-cookbook/clojure-cookbook/blob/master/10_testing/10-07_avoid-null-pointer.asciidoc
-Kotlin nullable types
-    * call java from kotlin, spring
+Scala provides an [`Option`][8] class similar to Java 8 `Optional`. It has two subclasses, `Some` represents an existing value, and `None` for empty result.
+
+```scala
+val opt: Option[String] = Some("text")
+opt.getOrElse("default")
+```
+
+Instead of invoking `Option#isEmpty`, we can use Scala's pattern match:
+
+```scala
+opt match {
+  case Some(text) => println(text)
+  case None => println("default")
+}
+```
+
+Scala's collection operations are very powerful, and `Option` can be treated as collection, so we can apply `filter`, `map`, or for-comprehension to it.
+
+```scala
+opt.map(_.trim).filter(_.length > 0).map(_.toUpperCase).getOrElse("DEFAULT")
+val upper = for {
+  text <- opt
+  trimmed <- Some(text.trim())
+  upper <- Some(trimmed) if trimmed.length > 0
+} yield upper
+upper.getOrElse("DEFAULT")
+```
+
+Kotlin takes another approach. It distinguishes [nullable types and non-null types][9], and programmers are forced to check nullness before using nullable variables.
+
+```kotlin
+var a: String = "text"
+a = null // Error: Null can not be a value of a non-null type String
+
+val b: String? = "text"
+// Error: Only safe (?.) or non-null asserted (!!.) calls are allowed
+// on a nullable receiver of type String?
+println(b.length)
+
+val l: Int? = b?.length // safe call
+b!!.length // may throw NPE
+```
+
+When calling Java methods from Kotlin, the compiler does not ensure null-safety, because every object from Java is nullable. But we can use annotations to achieve strict nullness check. Kotlin supports a wide range of [annotations][9], including those used in Spring Framework, which makes Spring API null-safe in Kotlin.
+
+## Conclusion
+
+In all these solutions, I prefer the annotation approach, since it's effective while less invasive. All public API methods should be annotated `@Nullable` or `@NonNull` so that the caller will be forced to do nullness check, making our program NPE free.
 
 ## References
 
@@ -302,3 +344,5 @@ Kotlin nullable types
 [5]: https://spotbugs.readthedocs.io/en/latest/maven.html
 [6]: https://checkerframework.org/manual/#maven
 [7]: https://www.oracle.com/technetwork/articles/java/ma14-java-se-8-streams-2177646.html
+[8]: https://www.scala-lang.org/api/current/scala/Option.html
+[9]: https://kotlinlang.org/docs/reference/java-interop.html#nullability-annotations
