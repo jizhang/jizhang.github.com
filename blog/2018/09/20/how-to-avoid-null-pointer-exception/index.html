@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>How to Avoid NullPointerException | Ji ZHANG&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="NullPointerException happens when you dereference a possible null object without checking it. It’s a common exception that every Java programmer may encounter in daily work. There’re several strategie">
+<meta name="keywords" content="java,spring,eclipse">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to Avoid NullPointerException">
+<meta property="og:url" content="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/index.html">
+<meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
+<meta property="og:description" content="NullPointerException happens when you dereference a possible null object without checking it. It’s a common exception that every Java programmer may encounter in daily work. There’re several strategie">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://shzhangji.com/images/java-npe/eclipse.png">
+<meta property="og:updated_time" content="2018-09-20T03:25:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="How to Avoid NullPointerException">
+<meta name="twitter:description" content="NullPointerException happens when you dereference a possible null object without checking it. It’s a common exception that every Java programmer may encounter in daily work. There’re several strategie">
+<meta name="twitter:image" content="http://shzhangji.com/images/java-npe/eclipse.png">
+<meta name="twitter:creator" content="@zjerryj">
+<link rel="publisher" href="zhangji87@gmail.com">
+  
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link rel="stylesheet" href="/css/source-code-pro.css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-37223379-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">If I rest, I rust.</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/categories/Big-Data">Big Data</a>
+        
+          <a class="main-nav-link" href="/categories/Programming">Programming</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+        <a class="main-nav-link" href="http://shzhangji.com/cnblogs"><img src="/images/cnblogs.png"></a>
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-how-to-avoid-null-pointer-exception" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2018/09/20/how-to-avoid-null-pointer-exception/" class="article-date">
+  <time datetime="2018-09-20T03:25:16.000Z" itemprop="datePublished">2018-09-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      How to Avoid NullPointerException
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><code>NullPointerException</code> happens when you dereference a possible <code>null</code> object without checking it. It’s a common exception that every Java programmer may encounter in daily work. There’re several strategies that can help us avoid this exception, making our codes more robust. In this article, I will list both traditional ways and those with tools and new features introduced by recent version of Java.</p>
+<h2 id="Runtime-Check"><a href="#Runtime-Check" class="headerlink" title="Runtime Check"></a>Runtime Check</h2><p>The most obvious way is to use <code>if (obj == null)</code> to check every variable you need to use, either from function argument, return value, or instance field. When you receive a <code>null</code> object, you can throw a different, more informative exception like <code>IllegalArgumentException</code>. There are some library functions that can make this process easier, like <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Objects.html" target="_blank" rel="noopener"><code>Objects#requireNonNull</code></a>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testObjects</span><span class="params">(Object arg)</span> </span>&#123;</span><br><span class="line">  Object checked = Objects.requireNonNull(arg, <span class="string">"arg must not be null"</span>);</span><br><span class="line">  checked.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Or use Guava’s <a href="https://github.com/google/guava/wiki/PreconditionsExplained" target="_blank" rel="noopener"><code>Preconditions</code></a> package, which provides all kinds of arguments checking facilities:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testGuava</span><span class="params">(Object arg)</span> </span>&#123;</span><br><span class="line">  Object checked = Preconditions.checkNotNull(arg, <span class="string">"%s must not be null"</span>, <span class="string">"arg"</span>);</span><br><span class="line">  checked.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>We can also let <a href="https://projectlombok.org/features/NonNull" target="_blank" rel="noopener">Lombok</a> generate the check for us, which will throw a more meaningful <code>NullPointerException</code>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testLombok</span><span class="params">(@NonNull Object arg)</span> </span>&#123;</span><br><span class="line">  arg.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>The generated code and exception message are as follows:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testLombokGenerated</span><span class="params">(Object arg)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (arg == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">"arg is marked @NonNull but is null"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  arg.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>This annotation can also be added to a class field, and Lombok will check nullness for every assignment.</p>
+<a id="more"></a>
+<h2 id="Coding-Convention"><a href="#Coding-Convention" class="headerlink" title="Coding Convention"></a>Coding Convention</h2><p>There are some coding conventions we can use to avoid <code>NullPointerException</code>.</p>
+<ul>
+<li>Use methods that already guard against <code>null</code> values, such as <code>String#equals</code>, <code>String#valueOf</code>, and third party libraries that help us check whether string or collection is empty.</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (str != <span class="keyword">null</span> &amp;&amp; str.equals(<span class="string">"text"</span>)) &#123;&#125;</span><br><span class="line"><span class="keyword">if</span> (<span class="string">"text"</span>.equals(str)) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (obj != <span class="keyword">null</span>) &#123; obj.toString(); &#125;</span><br><span class="line">String.valueOf(obj); <span class="comment">// "null"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// from spring-core</span></span><br><span class="line">StringUtils.isEmpty(str);</span><br><span class="line">CollectionUtils.isEmpty(col);</span><br><span class="line"><span class="comment">// from guava</span></span><br><span class="line">Strings.isNullOrEmpty(str);</span><br><span class="line"><span class="comment">// from commons-collections4</span></span><br><span class="line">CollectionUtils.isEmpty(col);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>If a method accepts nullable value, define two methods with different signatures, so as to make every parameter mandatory.</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">methodA</span><span class="params">(Object arg1)</span> </span>&#123;</span><br><span class="line">  methodB(arg1, <span class="keyword">new</span> Object[<span class="number">0</span>]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">methodB</span><span class="params">(Object arg1, Object[] arg2)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (Object obj : arg2) &#123;&#125; <span class="comment">// no null check</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>For return values, if the type is <code>Collection</code>, return an empty collection instead of null; if it’s a single object, consider throwing an exception. This approach is also suggested by <em>Effective Java</em>. Good examples come from Spring’s JdbcTemplate:</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// return new ArrayList&lt;&gt;() when result set is empty</span></span><br><span class="line">jdbcTemplate.queryForList(<span class="string">"SELECT 1"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// throws EmptyResultDataAccessException when record not found</span></span><br><span class="line">jdbcTemplate.queryForObject(<span class="string">"SELECT 1"</span>, Integer.class);</span><br><span class="line"></span><br><span class="line"><span class="comment">// works for generics</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">List&lt;T&gt; <span class="title">testReturnCollection</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> Collections.emptyList();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Static-Check"><a href="#Static-Check" class="headerlink" title="Static Check"></a>Static Check</h2><p>Java has some static code analysis tools, like Eclipse IDE, SpotBugs, Checker Framework, etc. They can find out program bugs during compilation process. It would be nice to catch <code>NullPointerException</code> as early as possible, and this can be done with annotations like <code>@Nullable</code> and <code>@Nonnull</code>.</p>
+<p>However, nullness check annotations have not been standardized yet. Though there was a <a href="https://jcp.org/en/jsr/detail?id=305" target="_blank" rel="noopener">JSR 305</a> proposed back to Sep. 2006, it has been dormant ever since. A lot of third party libraries provide such annotations, and they are supported by different tools. Some popular candidates are:</p>
+<ul>
+<li><code>javax.annotation.Nonnull</code>, proposed by JSR 305, and its reference implementation is <code>com.google.code.findbugs.jsr305</code>.</li>
+<li><code>org.eclipse.jdt.annotation.NonNull</code>, used by Eclipse IDE to do static nullness check.</li>
+<li><code>edu.umd.cs.findbugs.annotations.NonNull</code>, used by SpotBugs, it depends on <code>jsr305</code>.</li>
+<li><code>org.springframework.lang.NonNull</code>, provided by Spring Framework.</li>
+<li><code>org.checkerframework.checker.nullness.qual.NonNull</code>, used by Checker Framework.</li>
+<li><code>android.support.annotation.NonNull</code>, used by Android Development Toolkit.</li>
+</ul>
+<p>I suggest using a cross IDE solution like SpotBugs or Checker Framework, which also plays nicely with Maven.</p>
+<h3 id="NonNull-and-CheckForNull-with-SpotBugs"><a href="#NonNull-and-CheckForNull-with-SpotBugs" class="headerlink" title="@NonNull and @CheckForNull with SpotBugs"></a><code>@NonNull</code> and <code>@CheckForNull</code> with SpotBugs</h3><p>SpotBugs is the successor of FindBugs. We can use <code>@NonNull</code> and <code>@CheckForNull</code> on method arguments or return values, so as to apply nullness check. Notably, SpotBugs does not respect <code>@Nullable</code>, which is only useful when overriding <code>@ParametersAreNullableByDefault</code>. Use <code>@CheckForNull</code> instead.</p>
+<p>To integrate SpotBugs with Maven and Eclipse, one can refer to its <a href="https://spotbugs.readthedocs.io/en/latest/maven.html" target="_blank" rel="noopener">official document</a>. Make sure you add the <code>spotbugs-annotations</code> package in Maven dependencies, which includes the nullness check annotations.</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.spotbugs<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spotbugs-annotations<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.1.7<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>Here are the examples of different scenarios.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NonNull</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> Object <span class="title">returnNonNull</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// ERROR: returnNonNull() may return null, but is declared @Nonnull</span></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@CheckForNull</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> Object <span class="title">returnNullable</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testReturnNullable</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  Object obj = returnNullable();</span><br><span class="line">  <span class="comment">// ERROR: Possible null pointer dereference due to return value of called method</span></span><br><span class="line">  System.out.println(obj.toString());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">argumentNonNull</span><span class="params">(@NonNull Object arg)</span> </span>&#123;</span><br><span class="line">  System.out.println(arg.toString());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testArgumentNonNull</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// ERROR: Null passed for non-null parameter of argumentNonNull(Object)</span></span><br><span class="line">  argumentNonNull(<span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testNullableArgument</span><span class="params">(@CheckForNull Object arg)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// ERROR: arg must be non-null but is marked as nullable</span></span><br><span class="line">  System.out.println(arg.toString());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>For Eclipse users, it is also possible to use its built-in nullness check along with SpotBugs. By default, Eclipse uses annotations under its own package, i.e. <code>org.eclipse.jdt.annotation.Nullable</code>, but we can easily add more annotations.</p>
+<p><img src="/images/java-npe/eclipse.png" alt="Eclipse null analysis"></p>
+<h3 id="NonNull-and-Nullable-with-Checker-Framework"><a href="#NonNull-and-Nullable-with-Checker-Framework" class="headerlink" title="@NonNull and @Nullable with Checker Framework"></a><code>@NonNull</code> and <code>@Nullable</code> with Checker Framework</h3><p>Checker Framework works as a plugin to the <code>javac</code> compiler, to provide type checks, detect and prevent various errors. Follow the <a href="https://checkerframework.org/manual/#maven" target="_blank" rel="noopener">official document</a>, integrate Checker Framework with <code>maven-compiler-plugin</code>, and it will start to work when executing <code>mvn compile</code>. The Nullness Checker supports all kinds of annotations, from JSR 305 to Eclipse built-ins, even <code>lombok.NonNull</code>.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.checkerframework.checker.nullness.qual.Nullable;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> Object <span class="title">returnNullable</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testReturnNullable</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  Object obj = returnNullable();</span><br><span class="line">  <span class="comment">// ERROR: dereference of possibly-null reference obj</span></span><br><span class="line">  System.out.println(obj.toString());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>By default, Checker Framework applies <code>@NonNull</code> to all method arguments and return values. The following snippet, without any annotations, cannot pass compilation, either.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Object <span class="title">returnNonNull</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// ERROR: incompatible types in return.</span></span><br><span class="line">  <span class="comment">// found: null, required: @Initialized @NonNull Object.</span></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">argumentNonNull</span><span class="params">(Object arg)</span> </span>&#123;</span><br><span class="line">  System.out.println(arg.toString());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testArgumentNonNull</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// ERROR: incompatible types in argument.</span></span><br><span class="line">  <span class="comment">// found: null, required: @Initialized @NonNull Object</span></span><br><span class="line">  argumentNonNull(<span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Checker Framework is especially useful for Spring Framework users, because from version 5.x, Spring provides built-in annotations for nullness check, and they are all over the framework code itself, mainly for Kotlin users, but we Java programmers can benefit from them, too. Take <code>StringUtils</code> class for instance, since the whole package is declared <code>@NonNull</code>, those methods with nullable argument and return values are explicitly annotated with <code>@Nullable</code>, so the following code will cause compilation failure.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Defined in spring-core</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">StringUtils</span> </span>&#123;</span><br><span class="line">  <span class="comment">// str inherits @NonNull from top-level package</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">capitalize</span><span class="params">(String str)</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Nullable</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getFilename</span><span class="params">(@Nullable String path)</span> </span>&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ERROR: incompatible types in argument. found null, required @NonNull</span></span><br><span class="line">StringUtils.capitalize(<span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">String filename = StringUtils.getFilename(<span class="string">"/path/to/file"</span>);</span><br><span class="line"><span class="comment">// ERROR: dereference of possibly-null reference filename</span></span><br><span class="line">System.out.println(filename.length());</span><br></pre></td></tr></table></figure>
+<h2 id="Optional-Class"><a href="#Optional-Class" class="headerlink" title="Optional Class"></a>Optional Class</h2><p>Java 8 introduces the <code>Optional&lt;T&gt;</code> class that can be used to wrap a nullable return value, instead of returning null or throwing an exception. On the upside, a method that returns <code>Optional</code> explicitly states it may return an empty value, so the invoker must check the presence of the value, and no NPE will be thrown. However, it does introduce more codes, and adds some overhead of object creation. So use it with caution.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">Optional&lt;String&gt; opt;</span><br><span class="line"></span><br><span class="line"><span class="comment">// create</span></span><br><span class="line">opt = Optional.empty();</span><br><span class="line">opt = Optional.of(<span class="string">"text"</span>);</span><br><span class="line">opt = Optional.ofNullable(<span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// test &amp; get</span></span><br><span class="line"><span class="keyword">if</span> (opt.isPresent()) &#123;</span><br><span class="line">  opt.get();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// fall back</span></span><br><span class="line">opt.orElse(<span class="string">"default"</span>);</span><br><span class="line">opt.orElseGet(() -&gt; <span class="string">"default"</span>);</span><br><span class="line">opt.orElseThrow(() -&gt; <span class="keyword">new</span> NullPointerException());</span><br><span class="line"></span><br><span class="line"><span class="comment">// operate</span></span><br><span class="line">opt.ifPresent(value -&gt; &#123;</span><br><span class="line">  System.out.println(value);</span><br><span class="line">&#125;);</span><br><span class="line">opt.filter(value -&gt; value.length() &gt; <span class="number">5</span>);</span><br><span class="line">opt.map(value -&gt; value.trim());</span><br><span class="line">opt.flatMap(value -&gt; &#123;</span><br><span class="line">  String trimmed = value.trim();</span><br><span class="line">  <span class="keyword">return</span> trimmed.isEmpty() ? Optional.empty() : Optional.of(trimmed);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>Chaining of methods is a common cause of NPE, but if you have a series of methods that return <code>Optional</code>, you can chain them with <code>flatMap</code>, NPE-freely.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String zipCode = getUser()</span><br><span class="line">    .flatMap(User::getAddress)</span><br><span class="line">    .flatMap(Address::getZipCode)</span><br><span class="line">    .orElse(<span class="string">""</span>);</span><br></pre></td></tr></table></figure>
+<p>Java 8 <a href="https://www.oracle.com/technetwork/articles/java/ma14-java-se-8-streams-2177646.html" target="_blank" rel="noopener">Stream API</a> also uses optionals to return nullable values. For instance:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">stringList.stream().findFirst().orElse(<span class="string">"default"</span>);</span><br><span class="line">stringList.stream()</span><br><span class="line">    .max(Comparator.naturalOrder())</span><br><span class="line">    .ifPresent(System.out::println);</span><br></pre></td></tr></table></figure>
+<p>Lastly, there are some special optional classes for primitive types, such as <code>OptionalInt</code>, <code>OptionalDouble</code>, etc. Use them whenever you find applicable.</p>
+<h2 id="NPE-in-Other-JVM-Languages"><a href="#NPE-in-Other-JVM-Languages" class="headerlink" title="NPE in Other JVM Languages"></a>NPE in Other JVM Languages</h2><p>Scala provides an <a href="https://www.scala-lang.org/api/current/scala/Option.html" target="_blank" rel="noopener"><code>Option</code></a> class similar to Java 8 <code>Optional</code>. It has two subclasses, <code>Some</code> represents an existing value, and <code>None</code> for empty result.</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> opt: <span class="type">Option</span>[<span class="type">String</span>] = <span class="type">Some</span>(<span class="string">"text"</span>)</span><br><span class="line">opt.getOrElse(<span class="string">"default"</span>)</span><br></pre></td></tr></table></figure>
+<p>Instead of invoking <code>Option#isEmpty</code>, we can use Scala’s pattern match:</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">opt <span class="keyword">match</span> &#123;</span><br><span class="line">  <span class="keyword">case</span> <span class="type">Some</span>(text) =&gt; println(text)</span><br><span class="line">  <span class="keyword">case</span> <span class="type">None</span> =&gt; println(<span class="string">"default"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Scala’s collection operations are very powerful, and <code>Option</code> can be treated as collection, so we can apply <code>filter</code>, <code>map</code>, or for-comprehension to it.</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">opt.map(_.trim).filter(_.length &gt; <span class="number">0</span>).map(_.toUpperCase).getOrElse(<span class="string">"DEFAULT"</span>)</span><br><span class="line"><span class="keyword">val</span> upper = <span class="keyword">for</span> &#123;</span><br><span class="line">  text &lt;- opt</span><br><span class="line">  trimmed &lt;- <span class="type">Some</span>(text.trim())</span><br><span class="line">  upper &lt;- <span class="type">Some</span>(trimmed) <span class="keyword">if</span> trimmed.length &gt; <span class="number">0</span></span><br><span class="line">&#125; <span class="keyword">yield</span> upper</span><br><span class="line">upper.getOrElse(<span class="string">"DEFAULT"</span>)</span><br></pre></td></tr></table></figure>
+<p>Kotlin takes another approach. It distinguishes <a href="https://kotlinlang.org/docs/reference/java-interop.html#nullability-annotations" target="_blank" rel="noopener">nullable types and non-null types</a>, and programmers are forced to check nullness before using nullable variables.</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a: String = <span class="string">"text"</span></span><br><span class="line">a = <span class="literal">null</span> <span class="comment">// Error: Null can not be a value of a non-null type String</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> b: String? = <span class="string">"text"</span></span><br><span class="line"><span class="comment">// Error: Only safe (?.) or non-null asserted (!!.) calls are allowed</span></span><br><span class="line"><span class="comment">// on a nullable receiver of type String?</span></span><br><span class="line">println(b.length)</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> l: <span class="built_in">Int</span>? = b?.length <span class="comment">// safe call</span></span><br><span class="line">b!!.length <span class="comment">// may throw NPE</span></span><br></pre></td></tr></table></figure>
+<p>When calling Java methods from Kotlin, the compiler does not ensure null-safety, because every object from Java is nullable. But we can use annotations to achieve strict nullness check. Kotlin supports a wide range of <a href="https://kotlinlang.org/docs/reference/java-interop.html#nullability-annotations" target="_blank" rel="noopener">annotations</a>, including those used in Spring Framework, which makes Spring API null-safe in Kotlin.</p>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>In all these solutions, I prefer the annotation approach, since it’s effective while less invasive. All public API methods should be annotated <code>@Nullable</code> or <code>@NonNull</code> so that the caller will be forced to do nullness check, making our program NPE free.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://howtodoinjava.com/java/exception-handling/how-to-effectively-handle-nullpointerexception-in-java/" target="_blank" rel="noopener">https://howtodoinjava.com/java/exception-handling/how-to-effectively-handle-nullpointerexception-in-java/</a></li>
+<li><a href="http://jmri.sourceforge.net/help/en/html/doc/Technical/SpotBugs.shtml" target="_blank" rel="noopener">http://jmri.sourceforge.net/help/en/html/doc/Technical/SpotBugs.shtml</a></li>
+<li><a href="https://dzone.com/articles/features-to-avoid-null-reference-exceptions-java-a" target="_blank" rel="noopener">https://dzone.com/articles/features-to-avoid-null-reference-exceptions-java-a</a></li>
+<li><a href="https://medium.com/@fatihcoskun/kotlin-nullable-types-vs-java-optional-988c50853692" target="_blank" rel="noopener">https://medium.com/@fatihcoskun/kotlin-nullable-types-vs-java-optional-988c50853692</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cjma0kbuq0026jzzjgxayozqo" class="article-share-link">Share</a>
+      
+        <a href="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Is It Necessary to Apply ESLint jsx-no-bind Rule?</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 16px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 10px;">eslint</a> <a href="/tags/etl/" style="font-size: 12px;">etl</a> <a href="/tags/flume/" style="font-size: 12px;">flume</a> <a href="/tags/frontend/" style="font-size: 16px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/java/" style="font-size: 18px;">java</a> <a href="/tags/javascript/" style="font-size: 18px;">javascript</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/lodash/" style="font-size: 12px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 12px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 12px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/sql/" style="font-size: 12px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 14px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vue/" style="font-size: 10px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2018/09/20/how-to-avoid-null-pointer-exception/">How to Avoid NullPointerException</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/">Is It Necessary to Apply ESLint jsx-no-bind Rule?</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/">Serve TensforFlow Estimator with SavedModel</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2018/04/22/connect-hbase-with-python-and-thrift/">Connect HBase with Python and Thrift</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2018/04/17/form-handling-in-vuex-strict-mode/">Form Handling in Vuex Strict Mode</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <br>
+      &copy; 2018 Ji ZHANG<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/categories/Big-Data" class="mobile-nav-link">Big Data</a>
+  
+    <a href="/categories/Programming" class="mobile-nav-link">Programming</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+  <a href="http://shzhangji.com/cnblogs" class="mobile-nav-link">中文</a>
+</nav>
+
+    
+<script>
+  var disqus_shortname = 'jizhang';
+  
+  var disqus_url = 'http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

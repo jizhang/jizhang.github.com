@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/</loc>
+    
+    <lastmod>2018-09-20T03:25:16.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/</loc>
     
-    <lastmod>2018-09-13T00:36:57.000Z</lastmod>
+    <lastmod>2018-09-13T02:10:17.000Z</lastmod>
     
   </url>
   
@@ -184,14 +191,14 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/baidu_verify_1JbAXNs5zK.html</loc>
+    <loc>http://shzhangji.com/googlee297afcb6441ee00.html</loc>
     
     <lastmod>2017-01-03T12:40:57.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://shzhangji.com/googlee297afcb6441ee00.html</loc>
+    <loc>http://shzhangji.com/baidu_verify_1JbAXNs5zK.html</loc>
     
     <lastmod>2017-01-03T12:40:57.000Z</lastmod>
     
