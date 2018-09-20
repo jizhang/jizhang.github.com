@@ -1,8 +1,13 @@
 ---
 title: How to Avoid NullPointerException
-tags: [java, spring, eclipse]
+tags:
+  - java
+  - spring
+  - eclipse
 categories: Programming
+date: 2018-09-20 11:25:16
 ---
+
 
 `NullPointerException` happens when you dereference a possible `null` object without checking it. It's a common exception that every Java programmer may encounter in daily work. There're several strategies that can help us avoid this exception, making our codes more robust. In this article, I will list both traditional ways and those with tools and new features introduced by recent version of Java.
 
