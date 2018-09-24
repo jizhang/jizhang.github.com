@@ -26,7 +26,7 @@ class diagram - ![HDFS Sink Classes](/images/flume/hdfs-sink-classes.png)
 
 ## Configure and Start
 
-When Flume configuration file is loaded, `configure` method is called on every sink component. In `HDFSEventSink#configure`, it reads properties from context, prefixed with `hdfs.`, and does some sanity checks, for instance, `batchSize` must be greater than 0, `codeC` must be provided when `fileType` is `CompressedStream`, etc. It also initializes a `SinkCounter` to provide various metrics for monitoring.
+When Flume configuration file is loaded, `configure` method is called on every sink component. In `HDFSEventSink#configure`, it reads properties that are prefixed with `hdfs.` from the context, provides default values, and does some sanity checks. For instance, `batchSize` must be greater than 0, `codeC` must be provided when `fileType` is `CompressedStream`, etc. It also initializes a `SinkCounter` to provide various metrics for monitoring.
 
 ```java
 public void configure(Context context) {
@@ -40,7 +40,16 @@ public void configure(Context context) {
 }
 ```
 
-In `start` method, two thread pools are created. `callTimeoutPool` is used by `BucketWriter#callWithTimeout` to limit the time that HDFS calls may take, such as [`FileSystem#create`][3], or [`FSDataOutputStream#hflush`][4]. `timedRollerPool` is used to schedule a periodic task to do time-based file rolling, if `rollInterval` property is provided.
+`SinkProcessor` will invoke the `HDFSEventSink#start` method, in which two thread pools are created. `callTimeoutPool` is used by `BucketWriter#callWithTimeout` to limit the time that HDFS calls may take, such as [`FileSystem#create`][3], or [`FSDataOutputStream#hflush`][4]. `timedRollerPool` is used to schedule a periodic task to do time-based file rolling, if `rollInterval` property is provided. More details will be covered in the next section.
+
+```java
+public void start() {
+  callTimeoutPool = Executors.newFixedThreadPool(threadsPoolSize,
+      new ThreadFactoryBuilder().setNameFormat(timeoutName).build());
+  timedRollerPool = Executors.newScheduledThreadPool(rollTimerPoolSize,
+      new ThreadFactoryBuilder().setNameFormat(rollerName).build());
+}
+```
 
 ## Process Events
 
