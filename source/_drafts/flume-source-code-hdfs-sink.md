@@ -1,0 +1,64 @@
+---
+title: "Flume Source Code: HDFS Sink"
+tags: [flume, hdfs, java]
+categories: Big Data
+---
+
+Sink is the last component of Apache Flume data flow, and it is used to output data into storages like local files, HDFS, ElasticSearch, etc. In this article, I will illustrate how Flume's HDFS sink works, by analyzing its source code with diagrams.
+
+## Sink Component Lifecycle
+
+In the [previous article][1], we learnt that every Flume component implements `LifecycleAware` interface, and is started and monitored by `LifecycleSupervisor`. Sink component is not directly invoked by this supervisor, but wrapped in `SinkRunner` and `SinkProcessor` classes. Flume supports three different [sink processors][2], to connect channel and sinks in different semantics. But here we only consider the `DefaultSinkProcessor`, that accepts only one sink, and we will skip the concept of sink group as well.
+
+a sequence diagram - ![Sink Component LifeCycle](/images/flume/sink-component-lifecycle.png)
+
+something to illustrate?
+
+<!-- more -->
+
+## HDFS Sink Classes
+
+HDFS sink's source code locates in `flume-hdfs-sink` sub-module, and is composed of the following classes:
+
+class diagram - ![HDFS Sink Classes](/images/flume/hdfs-sink-classes.png)
+
+`HDFSEventSink` class implements the lifecycle methods, including `configure`, `start`, `process`, and `stop`. It maintains a list of `BucketWriter`, according to the output file paths, and delegates received events to them. With different implementations of `HDFSWriter`, `BucketWriter` can append data to either text file, compressed file, or sequence file.
+
+## Configure and Start
+
+When Flume configuration file is loaded, `configure` method is called on every sink component. In `HDFSEventSink#configure`, it reads properties from context, prefixed with `hdfs.`, and does some sanity checks, for instance, `batchSize` must be greater than 0, `codeC` must be provided when `fileType` is `CompressedStream`, etc. It also initializes a `SinkCounter` to provide various metrics for monitoring.
+
+```java
+public void configure(Context context) {
+  filePath = Preconditions.checkNotNull(
+      context.getString("hdfs.path"), "hdfs.path is required");
+  rollInterval = context.getLong("hdfs.rollInterval", defaultRollInterval);
+
+  if (sinkCounter == null) {
+    sinkCounter = new SinkCounter(getName());
+  }
+}
+```
+
+In `start` method, two thread pools are created. `callTimeoutPool` is used by `BucketWriter#callWithTimeout` to limit the time that HDFS calls may take, such as [`FileSystem#create`][3], or [`FSDataOutputStream#hflush`][4]. `timedRollerPool` is used to schedule a periodic task to do time-based file rolling, if `rollInterval` property is provided.
+
+## Process Events
+
+append
+rotate
+compression
+
+## Clean and Stop
+
+
+## References
+
+* https://flume.apache.org/FlumeUserGuide.html#hdfs-sink
+* https://github.com/apache/flume
+* https://data-flair.training/blogs/flume-sink-processors/
+
+
+[1]: http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/
+[2]: https://flume.apache.org/FlumeUserGuide.html#flume-sink-processors
+[3]: http://hadoop.apache.org/docs/r2.4.1/api/org/apache/hadoop/fs/FileSystem.html
+[4]: https://hadoop.apache.org/docs/r2.4.1/api/org/apache/hadoop/fs/FSDataOutputStream.html
