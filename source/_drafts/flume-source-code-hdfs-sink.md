@@ -53,6 +53,60 @@ public void start() {
 
 ## Process Events
 
+The `process` method contains the main logic, i.e. pull events from upstream channel and send them to HDFS. Here is the flow chart of this method.
+
+![Process Method Flow Chart](/images/flume/process-method-flow-chart.png)
+
+### Channel Transaction
+
+Codes are wrapped in a channel transaction, with exception handling. Take Kafka channel for instance, when transaction begins, we take events without committing the offset. Only after we successfully write these events into HDFS, the consumed offset will be sent to Kafka. And in the next transaction, we can consume messages from the new offset.
+
+```java
+Channel channel = getChannel();
+Transaction transaction = channel.getTransaction();
+transaction.begin()
+try {
+  event = channel.take();
+  bucketWriter.append(event);
+  ...
+  transaction.commit()
+} catch (Throwable th) {
+  transaction.rollback();
+  throw new EventDeliveryException(th);
+} finally {
+  transaction.close();
+}
+```
+
+### Find or Create BucketWriter
+
+`BucketWriter` corresponds to an HDFS file, and the file path is generated from configuration. For example:
+
+```
+a1.sinks.access_log.hdfs.path = /user/flume/access_log/dt=%Y%m%d
+a1.sinks.access_log.hdfs.filePrefix = events.%[localhost]
+a1.sinks.access_log.hdfs.inUsePrefix = .
+a1.sinks.access_log.hdfs.inUseSuffix = .tmp
+a1.sinks.access_log.hdfs.rollInterval = 300
+a1.sinks.access_log.hdfs.fileType = CompressedStream
+a1.sinks.access_log.hdfs.codeC = lzop
+```
+
+The generated file paths, temporary and final, will be:
+
+```
+/user/flume/access_log/dt=20180925/.events.hostname1.1537848761307.lzo.tmp
+/user/flume/access_log/dt=20180925/events.hostname1.1537848761307.lzo
+```
+
+Placeholders are replaced in [`BucketPath#escapeString`][5]. It supports three kinds of placeholders:
+
+* `%{...}`: replace with arbitrary header values;
+* `%[...]`: currently only supports `%[localhost]`, `%[ip]`, and `%[fqdn]`;
+* `%x`: date time patterns, which requires a `timestamp` entry in headers, or `useLocalTimeStamp` is enabled.
+
+
+
 append
 rotate
 compression
@@ -71,3 +125,4 @@ compression
 [2]: https://flume.apache.org/FlumeUserGuide.html#flume-sink-processors
 [3]: http://hadoop.apache.org/docs/r2.4.1/api/org/apache/hadoop/fs/FileSystem.html
 [4]: https://hadoop.apache.org/docs/r2.4.1/api/org/apache/hadoop/fs/FSDataOutputStream.html
+[5]: https://flume.apache.org/releases/content/1.4.0/apidocs/org/apache/flume/formatter/output/BucketPath.html
