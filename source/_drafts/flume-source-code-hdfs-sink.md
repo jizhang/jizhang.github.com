@@ -12,7 +12,7 @@ In the [previous article][1], we learnt that every Flume component implements `L
 
 a sequence diagram - ![Sink Component LifeCycle](/images/flume/sink-component-lifecycle.png)
 
-something to illustrate?
+some codes?
 
 <!-- more -->
 
@@ -20,7 +20,7 @@ something to illustrate?
 
 HDFS sink's source code locates in `flume-hdfs-sink` sub-module, and is composed of the following classes:
 
-class diagram - ![HDFS Sink Classes](/images/flume/hdfs-sink-classes.png)
+![HDFS Sink Classes](/images/flume/hdfs-sink-classes.png)
 
 `HDFSEventSink` class implements the lifecycle methods, including `configure`, `start`, `process`, and `stop`. It maintains a list of `BucketWriter`, according to the output file paths, and delegates received events to them. With different implementations of `HDFSWriter`, `BucketWriter` can append data to either text file, compressed file, or sequence file.
 
@@ -201,7 +201,7 @@ private void open() throws IOException, InterruptedException {
 
 ## Close and Stop
 
-In `HDFSEventSink#close`, it iterates every `BucketWriter` and calls its `close` method, which in turns calls its underlying `HDFSWriter`'s `close` method. What it does is mostly like `flush` method, but also closes the output stream and invokes some callback functions, like removing current `BucketWriter` from the `sfWriters` hash map.
+In `HDFSEventSink#close`, it iterates every `BucketWriter` and calls its `close` method, which in turn calls its underlying `HDFSWriter`'s `close` method. What it does is mostly like `flush` method, but also closes the output stream and invokes some callback functions, like removing current `BucketWriter` from the `sfWriters` hash map.
 
 ```java
 public synchronized void close(boolean callCloseCallback) {
