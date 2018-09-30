@@ -68,7 +68,6 @@ transaction.begin()
 try {
   event = channel.take();
   bucketWriter.append(event);
-  ...
   transaction.commit()
 } catch (Throwable th) {
   transaction.rollback();
@@ -105,20 +104,134 @@ Placeholders are replaced in [`BucketPath#escapeString`][5]. It supports three k
 * `%[...]`: currently only supports `%[localhost]`, `%[ip]`, and `%[fqdn]`;
 * `%x`: date time patterns, which requires a `timestamp` entry in headers, or `useLocalTimeStamp` is enabled.
 
+And the prefix and suffix is added in `BucketWriter#open`. `counter` is the timestamp when this bucket is opened or re-opened, and `lzo` is the default extension of the configured compression codec.
 
+```java
+String fullFileName = fileName + "." + counter;
+fullFileName += fileSuffix;
+fullFileName += codeC.getDefaultExtension();
+bucketPath = filePath + "/" + inUsePrefix + fullFileName + inUseSuffix;
+targetPath = filePath + "/" + fullFileName;
+```
 
-append
-rotate
-compression
+If no `BucketWriter` is associated with the file path, a new one will be created. First, it creates an `HDFSWriter` corresponding to the `fileType` config. Flume supports three kinds of writers: `HDFSSequenceFile`, `HDFSDataStream`, and `HDFSCompressedDataStream`. They handle the actual writing to HDFS files, and will be assigned to a new `BucketWriter`.
 
-## Clean and Stop
+```java
+bucketWriter = sfWriters.get(lookupPath);
+if (bucketWriter == null) {
+  hdfsWriter = writerFactory.getWriter(fileType);
+  bucketWriter = new BucketWriter(hdfsWriter);
+  sfWriters.put(lookupPath, bucketWriter);
+}
+```
 
+### Append Data and Flush
+
+Before appending data, `BucketWriter` will first self-check whether it is opened. If not, it will call its underlying `HDFSWriter` to open a new file on HDFS filesystem. Take `HDFSCompressedDataStream` for instance:
+
+```java
+public void open(String filePath, CompressionCodec codec) {
+  FileSystem hdfs = dstPath.getFileSystem(conf);
+  fsOut = hdfs.append(dstPath)
+  compressor = CodedPool.getCompressor(codec, conf);
+  cmpOut = codec.createOutputStream(fsOut, compressor);
+  serializer = EventSerializerFactory.getInstance(serializerType, cmpOut);
+}
+
+public void append(Event e) throws IO Exception {
+  serializer.write(event);
+}
+```
+
+Flume's default `serializerType` is `TEXT`, i.e. [BodyTextEventSerializer][6] that simply writes the event content to the output stream.
+
+```java
+public void write(Event e) throws IOException {
+  out.write(e.getBody());
+  if (appendNewline) {
+    out.write('\n');
+  }
+}
+```
+
+When `BucketWriter` is about to close or re-open, it calls `sync` on `HDFSWrtier`, which in turn calls `flush` on serializer and underlying output stream.
+
+```java
+public void sync() throws IOException {
+  serializer.flush();
+  compOut.finish();
+  fsOut.flush();
+  hflushOrSync(fsOut);
+}
+```
+
+From Hadoop 0.21.0, the [`Syncable#sync`] method is divided into `hflush` and `hsync` methods. Former just flushes data out of client's buffer, while latter guarantees data is synced to disk device. In order to handle both old and new API, Flume will use Java reflection to determine whether `hflush` exists, or fall back to `sync`. The `flushOrSync` method will invoke the right method.
+
+### File Rotation
+
+In HDFS sink, files can be rotated by file size, event count, or time interval. `BucketWriter#shouldRotate` is called in every `append`:
+
+```java
+private boolean shouldRotate() {
+  boolean doRotate = false;
+  if ((rollCount > 0) && (rollCount <= eventCounter)) {
+    doRotate = true;
+  }
+  if ((rollSize > 0) && (rollSize <= processSize)) {
+    doRotate = true;
+  }
+  return doRotate;
+}
+```
+
+Time-based rolling, on the other hand, is scheduled in the previously mentioned `timedRollerPool`:
+
+```java
+private void open() throws IOException, InterruptedException {
+  if (rollInterval > 0) {
+    Callable<Void> action = new Callable<Void>() {
+      public Void call() throws Exception {
+        close(true);
+      }
+    };
+    timedRollFuture = timedRollerPool.schedule(action, rollInterval);
+  }
+}
+```
+
+## Close and Stop
+
+In `HDFSEventSink#close`, it iterates every `BucketWriter` and calls its `close` method, which in turns calls its underlying `HDFSWriter`'s `close` method. What it does is mostly like `flush` method, but also closes the output stream and invokes some callback functions, like removing current `BucketWriter` from the `sfWriters` hash map.
+
+```java
+public synchronized void close(boolean callCloseCallback) {
+  writer.close();
+  timedRollFuture.cancel(false);
+  onCloseCallback.run(onCloseCallbackPath);
+}
+```
+
+The `onCloseCallback` is passed from `HDFSEventSink` when initializing the `BucketWriter`:
+
+```java
+WriterCallback closeCallback = new WriterCallback() {
+  public void run(String bucketPath) {
+      synchronized (sfWritersLock) {
+        sfWriters.remove(bucketPath);
+      }
+  }
+}
+bucketWriter = new BucketWriter(lookPath, closeCallback);
+```
+
+After all `BucketWriter`s are closed, `HDFSEventSink` then shutdown the `callTimeoutPool` and `timedRollerPool` executer services.
 
 ## References
 
 * https://flume.apache.org/FlumeUserGuide.html#hdfs-sink
 * https://github.com/apache/flume
 * https://data-flair.training/blogs/flume-sink-processors/
+* http://hadoop-hbase.blogspot.com/2012/05/hbase-hdfs-and-durable-sync.html
 
 
 [1]: http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/
@@ -126,3 +239,4 @@ compression
 [3]: http://hadoop.apache.org/docs/r2.4.1/api/org/apache/hadoop/fs/FileSystem.html
 [4]: https://hadoop.apache.org/docs/r2.4.1/api/org/apache/hadoop/fs/FSDataOutputStream.html
 [5]: https://flume.apache.org/releases/content/1.4.0/apidocs/org/apache/flume/formatter/output/BucketPath.html
+[6]: https://flume.apache.org/releases/content/1.4.0/apidocs/org/apache/flume/serialization/BodyTextEventSerializer.html
