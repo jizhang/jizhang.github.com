@@ -1,8 +1,13 @@
 ---
-title: "Flume Source Code: HDFS Sink"
-tags: [flume, hdfs, java]
+title: 'Flume Source Code: HDFS Sink'
+tags:
+  - flume
+  - hdfs
+  - java
 categories: Big Data
+date: 2018-10-03 19:34:11
 ---
+
 
 Sink is the last component of Apache Flume data flow, and it is used to output data into storages like local files, HDFS, ElasticSearch, etc. In this article, I will illustrate how Flume's HDFS sink works, by analyzing its source code with diagrams.
 
@@ -10,9 +15,7 @@ Sink is the last component of Apache Flume data flow, and it is used to output d
 
 In the [previous article][1], we learnt that every Flume component implements `LifecycleAware` interface, and is started and monitored by `LifecycleSupervisor`. Sink component is not directly invoked by this supervisor, but wrapped in `SinkRunner` and `SinkProcessor` classes. Flume supports three different [sink processors][2], to connect channel and sinks in different semantics. But here we only consider the `DefaultSinkProcessor`, that accepts only one sink, and we will skip the concept of sink group as well.
 
-a sequence diagram - ![Sink Component LifeCycle](/images/flume/sink-component-lifecycle.png)
-
-some codes?
+![Sink Component LifeCycle](/images/flume/sink-component-lifecycle.png)
 
 <!-- more -->
 
@@ -59,7 +62,7 @@ The `process` method contains the main logic, i.e. pull events from upstream cha
 
 ### Channel Transaction
 
-Codes are wrapped in a channel transaction, with exception handling. Take Kafka channel for instance, when transaction begins, we take events without committing the offset. Only after we successfully write these events into HDFS, the consumed offset will be sent to Kafka. And in the next transaction, we can consume messages from the new offset.
+Codes are wrapped in a channel transaction, with some exception handlings. Take Kafka channel for instance, when transaction begins, it takes events without committing the offset. Only after it successfully writes these events into HDFS, the consumed offset will be sent to Kafka. And in the next transaction, it can consume messages from the new offset.
 
 ```java
 Channel channel = getChannel();
@@ -114,7 +117,7 @@ bucketPath = filePath + "/" + inUsePrefix + fullFileName + inUseSuffix;
 targetPath = filePath + "/" + fullFileName;
 ```
 
-If no `BucketWriter` is associated with the file path, a new one will be created. First, it creates an `HDFSWriter` corresponding to the `fileType` config. Flume supports three kinds of writers: `HDFSSequenceFile`, `HDFSDataStream`, and `HDFSCompressedDataStream`. They handle the actual writing to HDFS files, and will be assigned to a new `BucketWriter`.
+If no `BucketWriter` is associated with the file path, a new one will be created. First, it creates an `HDFSWriter` corresponding to the `fileType` config. Flume supports three kinds of writers: `HDFSSequenceFile`, `HDFSDataStream`, and `HDFSCompressedDataStream`. They handle the actual writing to HDFS files, and will be assigned to the new `BucketWriter`.
 
 ```java
 bucketWriter = sfWriters.get(lookupPath);
@@ -165,7 +168,7 @@ public void sync() throws IOException {
 }
 ```
 
-From Hadoop 0.21.0, the [`Syncable#sync`] method is divided into `hflush` and `hsync` methods. Former just flushes data out of client's buffer, while latter guarantees data is synced to disk device. In order to handle both old and new API, Flume will use Java reflection to determine whether `hflush` exists, or fall back to `sync`. The `flushOrSync` method will invoke the right method.
+From Hadoop 0.21.0, the [`Syncable#sync`][7] method is divided into `hflush` and `hsync` methods. Former just flushes data out of client's buffer, while latter guarantees data is synced to disk device. In order to handle both old and new API, Flume will use Java reflection to determine whether `hflush` exists, or fall back to `sync`. The `flushOrSync` method will invoke the right method.
 
 ### File Rotation
 
@@ -226,6 +229,13 @@ bucketWriter = new BucketWriter(lookPath, closeCallback);
 
 After all `BucketWriter`s are closed, `HDFSEventSink` then shutdown the `callTimeoutPool` and `timedRollerPool` executer services.
 
+```java
+ExecutorService[] toShutdown = { callTimeoutPool, timedRollerPool };
+for (ExecutorService execService : toShutdown) {
+  execService.shutdown();
+}
+```
+
 ## References
 
 * https://flume.apache.org/FlumeUserGuide.html#hdfs-sink
@@ -240,3 +250,4 @@ After all `BucketWriter`s are closed, `HDFSEventSink` then shutdown the `callTim
 [4]: https://hadoop.apache.org/docs/r2.4.1/api/org/apache/hadoop/fs/FSDataOutputStream.html
 [5]: https://flume.apache.org/releases/content/1.4.0/apidocs/org/apache/flume/formatter/output/BucketPath.html
 [6]: https://flume.apache.org/releases/content/1.4.0/apidocs/org/apache/flume/serialization/BodyTextEventSerializer.html
+[7]: https://hadoop.apache.org/docs/r2.4.1/api/org/apache/hadoop/fs/Syncable.html
