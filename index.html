@@ -87,6 +87,57 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-flume-source-code-hdfs-sink" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2018/10/03/flume-source-code-hdfs-sink/" class="article-date">
+  <time datetime="2018-10-03T11:34:11.000Z" itemprop="datePublished">2018-10-03</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2018/10/03/flume-source-code-hdfs-sink/">Flume Source Code: HDFS Sink</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Sink is the last component of Apache Flume data flow, and it is used to output data into storages like local files, HDFS, ElasticSearch, etc. In this article, I will illustrate how Flume’s HDFS sink works, by analyzing its source code with diagrams.</p>
+<h2 id="Sink-Component-Lifecycle"><a href="#Sink-Component-Lifecycle" class="headerlink" title="Sink Component Lifecycle"></a>Sink Component Lifecycle</h2><p>In the <a href="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/">previous article</a>, we learnt that every Flume component implements <code>LifecycleAware</code> interface, and is started and monitored by <code>LifecycleSupervisor</code>. Sink component is not directly invoked by this supervisor, but wrapped in <code>SinkRunner</code> and <code>SinkProcessor</code> classes. Flume supports three different <a href="https://flume.apache.org/FlumeUserGuide.html#flume-sink-processors" target="_blank" rel="noopener">sink processors</a>, to connect channel and sinks in different semantics. But here we only consider the <code>DefaultSinkProcessor</code>, that accepts only one sink, and we will skip the concept of sink group as well.</p>
+<p><img src="/images/flume/sink-component-lifecycle.png" alt="Sink Component LifeCycle"></p>
+        
+          <p class="article-more-link">
+            <a href="/blog/2018/10/03/flume-source-code-hdfs-sink/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="cjmt2r6bd0028tejkhcpvtyob" class="article-share-link">Share</a>
+      
+        <a href="http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flume/">flume</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hdfs/">hdfs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-how-to-avoid-null-pointer-exception" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2018/09/20/how-to-avoid-null-pointer-exception/" class="article-date">
@@ -131,7 +182,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cjma0kbuq0026jzzjgxayozqo" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cjmt2r6bc0026tejk3na4w5jd" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -183,7 +234,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="cjma0kbup0023jzzj5vk7dara" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="cjmt2r6bb0023tejkxjt1viyq" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -235,7 +286,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cjma0kbun0021jzzjh2rcg5xl" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cjmt2r6ba0021tejk78x2n7pb" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -289,7 +340,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cjma0kbum001xjzzjxwt6f0g1" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cjmt2r6b8001xtejkfq7wtef5" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -346,7 +397,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="cjma0kbuk001vjzzjulol7ki5" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="cjmt2r6b7001vtejkk9c0vjl1" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -400,7 +451,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/" data-id="cjma0kbuh001rjzzj3sz9idf8" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/" data-id="cjmt2r6b4001rtejkl4iqmjyl" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -465,7 +516,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/" data-id="cjma0kbuf001ojzzjz2odrdp5" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/" data-id="cjmt2r6b3001otejkcxtqysif" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -520,7 +571,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/" data-id="cjma0kbue001ljzzjzyiwuuqx" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/" data-id="cjmt2r6b2001ltejkszd3e1in" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -572,66 +623,12 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/" data-id="cjma0kbud001hjzzjw62eq94l" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/" data-id="cjmt2r6b1001htejk938iq8iz" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache-beam/">apache beam</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mapreduce/">mapreduce</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/stream-processing/">stream processing</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hive-window-and-analytical-functions" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2017/09/04/hive-window-and-analytical-functions/" class="article-date">
-  <time datetime="2017-09-04T13:55:23.000Z" itemprop="datePublished">2017-09-04</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2017/09/04/hive-window-and-analytical-functions/">Hive Window and Analytical Functions</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>SQL is one of the major tools of data analysis. It provides filtering, transforming and aggregation functionalities, and we can use it to process big volume of data with the help of Hive and Hadoop. However, legacy SQL does not support operations like grouped ranking and moving average, because the <code>GROUP BY</code> clause can only produce one aggregation result for each group, but not for each row. Fortunately, with the new SQL standard coming, we can use the <code>WINDOW</code> clause to compute aggregations on a set of rows and return the result for each row.</p>
-<p><img src="/images/hive-window/window-stock.png" alt="Moving Average"></p>
-<p>For instance, if we want to calculate the two-day moving average for each stock, we can write the following query:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">  <span class="string">`date`</span>, <span class="string">`stock`</span>, <span class="string">`close`</span></span><br><span class="line">  ,<span class="keyword">AVG</span>(<span class="string">`close`</span>) <span class="keyword">OVER</span> <span class="string">`w`</span> <span class="keyword">AS</span> <span class="string">`mavg`</span></span><br><span class="line"><span class="keyword">FROM</span> <span class="string">`t_stock`</span></span><br><span class="line">WINDOW <span class="string">`w`</span> <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="string">`stock`</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="string">`date`</span></span><br><span class="line">               <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> <span class="number">1</span> <span class="keyword">PRECEDING</span> <span class="keyword">AND</span> <span class="keyword">CURRENT</span> <span class="keyword">ROW</span>)</span><br></pre></td></tr></table></figure>
-<p><code>OVER</code>, <code>WINDOW</code> and <code>ROWS BETWEEN AND</code> are all newly added SQL keywords to support windowing operations. In this query, <code>PARTITION BY</code> and <code>ORDER BY</code> works like <code>GROUP BY</code> and <code>ORDER BY</code> after the <code>WHERE</code> clause, except it doesn’t collapse the rows, but only divides them into non-overlapping partitions to work on. <code>ROWS BETWEEN AND</code> here constructs a <strong>window frame</strong>. In this case, each frame contains the previous row and current row. We’ll discuss more on frames later. Finally, <code>AVG</code> is a window function that computes results on each frame. Note that <code>WINDOW</code> clause can also be directly appended to window function:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">AVG</span>(<span class="string">`close`</span>) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="string">`stock`</span>) <span class="keyword">AS</span> <span class="string">`mavg`</span> <span class="keyword">FROM</span> <span class="string">`t_stock`</span>;</span><br></pre></td></tr></table></figure>
-        
-          <p class="article-more-link">
-            <a href="/blog/2017/09/04/hive-window-and-analytical-functions/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/" data-id="cjma0kbub001ejzzjl0ddcc8o" class="article-share-link">Share</a>
-      
-        <a href="http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hive/">hive</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/">sql</a></li></ul>
 
     </footer>
   </div>
@@ -653,7 +650,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 16px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 10px;">eslint</a> <a href="/tags/etl/" style="font-size: 12px;">etl</a> <a href="/tags/flume/" style="font-size: 12px;">flume</a> <a href="/tags/frontend/" style="font-size: 16px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/java/" style="font-size: 18px;">java</a> <a href="/tags/javascript/" style="font-size: 18px;">javascript</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/lodash/" style="font-size: 12px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 12px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 12px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/sql/" style="font-size: 12px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 14px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vue/" style="font-size: 10px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 15px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 10px;">eslint</a> <a href="/tags/etl/" style="font-size: 11.67px;">etl</a> <a href="/tags/flume/" style="font-size: 13.33px;">flume</a> <a href="/tags/frontend/" style="font-size: 15px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 10px;">hdfs</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/java/" style="font-size: 18.33px;">java</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/lodash/" style="font-size: 11.67px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.67px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.67px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 13.33px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/sql/" style="font-size: 11.67px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vue/" style="font-size: 10px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -662,7 +659,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
     </div>
   </div>
 
@@ -673,6 +670,10 @@ ga('send', 'pageview');
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/blog/2018/10/03/flume-source-code-hdfs-sink/">Flume Source Code: HDFS Sink</a>
+          </li>
         
           <li>
             <a href="/blog/2018/09/20/how-to-avoid-null-pointer-exception/">How to Avoid NullPointerException</a>
@@ -688,10 +689,6 @@ ga('send', 'pageview');
         
           <li>
             <a href="/blog/2018/04/22/connect-hbase-with-python-and-thrift/">Connect HBase with Python and Thrift</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2018/04/17/form-handling-in-vuex-strict-mode/">Form Handling in Vuex Strict Mode</a>
           </li>
         
       </ul>

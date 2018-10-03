@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/</loc>
+    
+    <lastmod>2018-10-03T11:34:11.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/</loc>
     
     <lastmod>2018-09-20T03:25:16.000Z</lastmod>
@@ -191,14 +198,14 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/googlee297afcb6441ee00.html</loc>
+    <loc>http://shzhangji.com/baidu_verify_1JbAXNs5zK.html</loc>
     
     <lastmod>2017-01-03T12:40:57.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://shzhangji.com/baidu_verify_1JbAXNs5zK.html</loc>
+    <loc>http://shzhangji.com/googlee297afcb6441ee00.html</loc>
     
     <lastmod>2017-01-03T12:40:57.000Z</lastmod>
     
