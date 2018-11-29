@@ -8,21 +8,34 @@ From Spark 1.3, the team introduced a data source API to help quickly integratin
 
 ## DataSource V1 API
 
-jdbc datasource, full scan
-pruned filtered scan
-partition? custom rdd
+V1 API provides a set of abstract classes and traits. They are located in [spark/sql/sources/interfaces.scala][1]. Some basic APIs are:
+
+```scala
+trait RelationProvider {
+  def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation
+}
+
+abstract class BaseRelation {
+  def sqlContext: SQLContext
+  def schema: StructType
+}
+
+trait TableScan {
+  def buildScan(): RDD[Row]
+}
+```
+
+A `RelationProvider` defines a class that can create a relational data source for Spark SQL to manipulate with. It can initialize itself with provided options, such as file path or authentication. `BaseRelation` is used to define the data schema, which can be loaded from database, Parquet file, or specified by the user. This class also needs to mix-in one of the `Scan` traits, implements the `buildScan` method, and returns an RDD.
 
 <!-- more -->
+
+### JdbcSourceV1
 
 ### Limitations of V1 API
 
 ## DataSource V2 API
 
-jdbc source, filter push down
-partition
-write transaction
-
-parquet source, columnar
+jdbc source, filter push down, partition, write
 
 ## References
 
@@ -33,3 +46,6 @@ parquet source, columnar
 * https://developer.ibm.com/code/2018/04/16/introducing-apache-spark-data-sources-api-v2/
 * https://hackernoon.com/extending-our-spark-sql-query-engine-5f4a088de986
 * https://animeshtrivedi.github.io/spark-parquet-reading
+* https://michalsenkyr.github.io/2017/02/spark-sql_datasource
+
+[1]: https://github.com/apache/spark/blob/v2.3.2/sql/core/src/main/scala/org/apache/spark/sql/sources/interfaces.scala
