@@ -180,7 +180,7 @@ Spark tasks may fail, and with V1 API there will be partially written data. For 
 
 #### Lack of Columnar and Streaming Support
 
-Columnar data and stream processing are both added to Spark SQL without using V1 API. Current implementations like `ParquetFileFormat` and `KafkaSource` are written in dedicated codes with internal APIs. V2 API also addresses these features.
+Columnar data and stream processing are both added to Spark SQL without using V1 API. Current implementations like `ParquetFileFormat` and `KafkaSource` are written in dedicated codes with internal APIs. These features are also addressed by V2 API.
 
 ## DataSource V2 API
 
