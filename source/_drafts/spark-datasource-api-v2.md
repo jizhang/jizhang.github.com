@@ -184,7 +184,160 @@ Columnar data and stream processing are both added to Spark SQL without using V1
 
 ## DataSource V2 API
 
-jdbc source, filter push down, partition, write
+V2 API starts with a marker interface `DataSourceV2`. The class needs to be mixed-in with either `ReadSupport` or `WriteSupport`. `ReadSupport` interface, for instance, creates a `DataSourceReader` with initialization options; `DataSourceReader` reads schema of the data source, and returns a list of `DataReaderFactory`; the factory will create the actual `DataReader`, which works like an iterator. Besides, `DataSourceReader` can mix-in various `Support` interfaces, to apply query optimizations like operator push-down and columnar scan. For `WriteSupport` interfaces, the hierarchy is similar. All of them are written in Java for better interoperability.
+
+```java
+public interface DataSourceV2 {}
+
+public interface ReadSupport extends DataSourceV2 {
+  DataSourceReader createReader(DataSourceOptions options);
+}
+
+public interface DataSourceReader {
+  StructType readSchema();
+  List<DataReaderFactory<Row>> createDataReaderFactories();
+}
+
+public interface SupportsPushDownRequiredColumns extends DataSourceReader {
+  void pruneColumns(StructType requiredSchema);
+}
+
+public interface DataReaderFactory<T> {
+  DataReader<T> createDataReader();
+}
+
+public interface DataReader<T> extends Closeable {
+  boolean next();
+  T get();
+}
+```
+
+You may notice that `DataSourceReader#createDataReaderFactories` still relies on `Row` class, because currently only `Row` is supported, and V2 API is still marked as `Evolving`.
+
+### JdbcSourceV2
+
+Let us rewrite the JDBC data source with V2 API. The following an abridged example of full table scan. Complete code can be found on GitHub ([link][4]).
+
+```scala
+class JdbcDataSourceReader extends DataSourceReader {
+  def readSchema = StructType(Seq(
+    StructField("id", IntegerType),
+    StructField("emp_name", StringType)
+  ))
+
+  def createDataReaderFactories() = {
+    Seq(new JdbcDataReaderFactory(url)).asJava
+  }
+}
+
+class JdbcDataReader(url: String) extends DataReader[Row] {
+  private var conn: Connection = null
+  private var rs: ResultSet = null
+
+  def next() = {
+    if (rs == null) {
+      conn = DriverManager.getConnection(url)
+      val stmt = conn.prepareStatement("SELECT * FROM employee")
+      rs = stmt.executeQuery()
+    }
+    rs.next()
+  }
+
+  def get() = Row(rs.getInt("id"), rs.getString("emp_name"))
+}
+```
+
+#### Prune Columns
+
+`DataSourceReader` can mix-in the `SupportsPushDownRequiredColumns` trait. Spark will invoke the `pruneColumns` method with required `StructType`, and `DataSourceReader` can pass it to underlying `DataReader`.
+
+```scala
+class JdbcDataSourceReader with SupportsPushDownRequiredColumns {
+  var requiredSchema = JdbcSourceV2.schema
+  def pruneColumns(requiredSchema: StructType)  = {
+    this.requiredSchema = requiredSchema
+  }
+
+  def createDataReaderFactories() = {
+    val columns = requiredSchema.fields.map(_.name)
+    Seq(new JdbcDataReaderFactory(columns)).asJava
+  }
+}
+```
+
+We can examine the execution plan with `df.explain(true)`. For instance, the optimized logical plan of query `SELECT emp_name, age FROM employee` shows column pruning is pushed down to the data source.
+
+```text
+== Analyzed Logical Plan ==
+emp_name: string, age: decimal(3,0)
+Project [emp_name#1, age#4]
++- SubqueryAlias employee
+   +- DataSourceV2Relation [id#0, emp_name#1, dep_name#2, salary#3, age#4], datasource.JdbcDataSourceReader@15ceeb42
+
+== Optimized Logical Plan ==
+Project [emp_name#1, age#4]
++- DataSourceV2Relation [emp_name#1, age#4], datasource.JdbcDataSourceReader@15ceeb42
+```
+
+#### Push Down Filters
+
+Similarly, with `SupportsPushDownFilters`, we can add where conditions to the underlying SQL query.
+
+```scala
+class JdbcDataSourceReader with SupportsPushDownFilters {
+  var filters = Array.empty[Filter]
+  var wheres = Array.empty[String]
+
+  def pushFilters(filters: Array[Filter]) = {
+    val supported = ListBuffer.empty[Filter]
+    val unsupported = ListBuffer.empty[Filter]
+    val wheres = ListBuffer.empty[String]
+
+    filters.foreach {
+      case filter: EqualTo => {
+        supported += filter
+        wheres += s"${filter.attribute} = '${filter.value}'"
+      }
+      case filter => unsupported += filter
+    }
+
+    this.filters = supported.toArray
+    this.wheres = wheres.toArray
+    unsupported.toArray
+  }
+
+  def pushedFilters = filters
+
+  def createDataReaderFactories() = {
+    Seq(new JdbcDataReaderFactory(wheres)).asJava
+  }
+}
+```
+
+#### Multiple Partitions
+
+`createDataReaderFactories` returns a list. Each reader will output data for an RDD partition. Say we want to parallelize the data reading tasks, we can divide the records into to two parts, according to primary key ranges.
+
+```scala
+def createDataReaderFactories() = {
+  Seq((1, 6), (7, 11)).map { case (minId, maxId) =>
+    val partition = s"id BETWEEN $minId AND $maxId"
+    new JdbcDataReaderFactory(partition)
+  }.asJava
+}
+```
+
+### Transactional Write
+
+hdfs file, diagram, unit test codes?
+
+### Columnar
+
+parquet
+
+### Streaming
+
+Kafka
 
 ## References
 
@@ -201,3 +354,4 @@ https://www.slideshare.net/databricks/apache-spark-data-source-v2-with-wenchen-f
 [1]: https://github.com/apache/spark/blob/v2.3.2/sql/core/src/main/scala/org/apache/spark/sql/sources/interfaces.scala
 [2]: https://github.com/jizhang/spark-sandbox/blob/master/src/main/scala/datasource/JdbcExampleV1.scala
 [3]: https://github.com/jizhang/spark-sandbox/blob/master/data/employee.sql
+[4]: https://github.com/jizhang/spark-sandbox/blob/master/src/main/scala/datasource/JdbcExampleV2.scala
