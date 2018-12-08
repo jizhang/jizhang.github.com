@@ -1,8 +1,11 @@
 ---
 title: Spark DataSource API V2
-tags: [spark]
+tags:
+  - spark
 categories: Big Data
+date: 2018-12-08 18:23:11
 ---
+
 
 From Spark 1.3, the team introduced a data source API to help quickly integrating various input formats with Spark SQL. But eventually this version of API became insufficient and the team needed to add a lot of internal codes to provide more efficient solutions for Spark SQL data sources. So in Spark 2.3, the second version of data source API is out, which is supposed to overcome the limitations of the previous version. In this article, I will demonstrate how to implement custom data source for Spark SQL in both V1 and V2 API, to help understanding their differences and the new API's advantages.
 
@@ -216,7 +219,7 @@ You may notice that `DataSourceReader#createDataReaderFactories` still relies on
 
 ### JdbcSourceV2
 
-Let us rewrite the JDBC data source with V2 API. The following an abridged example of full table scan. Complete code can be found on GitHub ([link][4]).
+Let us rewrite the JDBC data source with V2 API. The following is an abridged example of full table scan. Complete code can be found on GitHub ([link][4]).
 
 ```scala
 class JdbcDataSourceReader extends DataSourceReader {
@@ -316,7 +319,7 @@ class JdbcDataSourceReader with SupportsPushDownFilters {
 
 #### Multiple Partitions
 
-`createDataReaderFactories` returns a list. Each reader will output data for an RDD partition. Say we want to parallelize the data reading tasks, we can divide the records into to two parts, according to primary key ranges.
+`createDataReaderFactories` returns a list. Each reader will output data for an RDD partition. Say we want to parallelize the data reading tasks, we can divide the records into two parts, according to primary key ranges.
 
 ```scala
 def createDataReaderFactories() = {
@@ -329,15 +332,26 @@ def createDataReaderFactories() = {
 
 ### Transactional Write
 
-hdfs file, diagram, unit test codes?
+V2 API provides two sets of `commit` / `abort` methods to implement transactional writes.
 
-### Columnar
+```java
+public interface DataSourceWriter {
+  void commit(WriterCommitMessage[] messages);
+  void abort(WriterCommitMessage[] messages);
+}
 
-parquet
+public interface DataWriter<T> {
+  void write(T record) throws IOException;
+  WriterCommitMessage commit() throws IOException;
+  void abort() throws IOException;
+}
+```
 
-### Streaming
+`DataSourceWriter` is running on Spark driver, `DataWriter` on executor. When `DataWriter` succeeds in writing, it sends commit message to driver, and after `DataSourceWriter` collects all writers' commit messages, it will do the final commit. If the writer task fails, `abort` will be called, and a new task will be retried. When the retries hit the maximum, `abort` will be called on all tasks.
 
-Kafka
+### Columnar and Streaming Support
+
+These features are currently still in experimental status and there is no concrete implementation yet. Briefly, `DataSourceReader` can mix-in `SupportsScanColumnarBatch` trait and creates `DataReaderFactory` that handles `ColumnarBatch`, an interface that Spark uses to represent columnar data. For streaming support, there are `MicroBatchReader` and `ContinuousReader` traits. One can refer to the [unit tests][5] for more details.
 
 ## References
 
@@ -345,13 +359,9 @@ Kafka
 * https://databricks.com/session/apache-spark-data-source-v2
 * https://databricks.com/blog/2015/01/09/spark-sql-data-sources-api-unified-data-access-for-the-spark-platform.html
 * https://developer.ibm.com/code/2018/04/16/introducing-apache-spark-data-sources-api-v2/
-* https://hackernoon.com/extending-our-spark-sql-query-engine-5f4a088de986
-* https://animeshtrivedi.github.io/spark-parquet-reading
-* https://michalsenkyr.github.io/2017/02/spark-sql_datasource
-
-https://www.slideshare.net/databricks/apache-spark-data-source-v2-with-wenchen-fan-and-gengliang-wang
 
 [1]: https://github.com/apache/spark/blob/v2.3.2/sql/core/src/main/scala/org/apache/spark/sql/sources/interfaces.scala
 [2]: https://github.com/jizhang/spark-sandbox/blob/master/src/main/scala/datasource/JdbcExampleV1.scala
 [3]: https://github.com/jizhang/spark-sandbox/blob/master/data/employee.sql
 [4]: https://github.com/jizhang/spark-sandbox/blob/master/src/main/scala/datasource/JdbcExampleV2.scala
+[5]: https://github.com/apache/spark/blob/v2.3.2/sql/core/src/test/scala/org/apache/spark/sql/sources/v2/DataSourceV2Suite.scala
