@@ -90,26 +90,74 @@ StreamingFileSink<String> sink = StreamingFileSink
 stream.addSink(sink);
 ```
 
-There is also a `forBulkFormat`, if you prefer storing data a more compact way like Parquet.
+There is also a `forBulkFormat`, if you prefer storing data in a more compact way like Parquet.
+
+A note on `StreamingFileSink` though, it only works with Hadoop 2.7 and above, because it requires the file system supporting `truncate`, which helps recovering the writing process from the last checkpoint.
 
 ### Enable Checkpointing
 
+So far, the application can be put into work by invoking `env.execute()`, but it only guarantees at-least-once semantics. To achieve exactly-once, we simply turn on Flink's checkpointing:
+
+```java
+env.enableCheckpointing(60_000);
+env.setStateBackend((StateBackend) new FsStateBackend("/tmp/flink/checkpoints"));
+env.getCheckpointConfig().enableExternalizedCheckpoints(
+    ExternalizedCheckpointCleanup.DELETE_ON_CANCELLATION);
+```
+
+Checkpoint is Flink's solution to fault tolerance, which we will cover later. Here we switch the state backend from default `MemoryStateBackend` to `FsStateBackend`, that stores state into filesystem like HDFS, instead of in memory, to help surviving job manager failure. Flink also recommends using `RocksDBStateBackend`, when job state is very large and requires incremental checkpointing.
+
 ### Submit and Manage Jobs
 
-* demo
-    * create project
-    * source, partition number
-    * streaming file sink with timestamp
-    * hadoop 2.7, row vs bulk
-    * deploy & monitoring
+Flink application can be directly run in IDE, or you can setup a local [standalone cluster][4] and submit jobs with Flink CLI:
+
+```
+bin/flink run -c com.shzhangji.flinksandbox.kafka.KafkaLoader target/flink-sandbox-0.1.0.jar
+```
+
+We can check out the job information in Flink dashboard:
+
+![Flink Dashboard](/images/flink/dashboard.png)
+
+#### Cancel and Resume Job with Savepoint
+
+To cancel or restart the job, say we want to upgrade the code logic, we need to create a savepoint. A savepoint is like a checkpoint, storing state of the running tasks. But savepoint is usually manually created, for planned backup or upgrade, while checkpoint is managed by Flink to provide fault tolerance. The `cancel` sub-command accepts `-s` option to write savepoint into some directory.
+
+```
+$ bin/flink cancel -s /tmp/flink/savepoints 1253cc85e5c702dbe963dd7d8d279038
+Cancelled job 1253cc85e5c702dbe963dd7d8d279038. Savepoint stored in file:/tmp/flink/savepoints/savepoint-1253cc-0df030f4f2ee.
+```
+
+For our ETL application, savepoint will include current Kafka offsets, in-progress output file names, etc. To resume from a savepoint, pass `-s` to `run` sub-command. The application will start from the savepoint, e.g. consume messages right after the saved offsets, without losing or duplicating data.
+
+```
+flink run -s /tmp/flink/savepoints/savepoint-1253cc-0df030f4f2ee -c com.shzhangji.flinksandbox.kafka.KafkaLoader target/flink-sandbox-0.1.0.jar
+```
+
+#### YARN Support
+
+Running Flink jobs on YARN also uses `flink run`. Replace the file paths with HDFS prefix, re-package and run the following command:
+
+```
+$ export HADOOP_CONF_DIR=/path/to/hadoop/conf
+$ bin/flink run -m yarn-cluster -c com.shzhangji.flinksandbox.kafka.KafkaLoader target/flink-sandbox-0.1.0.jar
+Submitted application application_1545534487726_0001
+```
+
+Flink dashboard will run in YARN application master. The returned application ID can be used to manage the jobs through Flink CLI:
+
+```
+bin/flink cancel -s hdfs://localhost:9000/tmp/flink/savepoints -yid application_1545534487726_0001 84de00a5e193f26c937f72a9dc97f386
+```
+
+## Exactly-once Guarantees
+
 * how flink ensures exactly-once
     * kafka
     * checkpoint
     * sink
 * misc
     * parallelism
-
-
 
 
 ## References
@@ -119,3 +167,4 @@ There is also a `forBulkFormat`, if you prefer storing data a more compact way l
 [1]: https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/connectors/kafka.html
 [2]: https://kafka.apache.org/quickstart
 [3]: https://github.com/jizhang/flink-sandbox/blob/master/src/main/java/com/shzhangji/flinksandbox/kafka/EventTimeBucketAssigner.java
+[4]: https://ci.apache.org/projects/flink/flink-docs-release-1.7/ops/deployment/cluster_setup.html
