@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/</loc>
+    
+    <lastmod>2018-12-23T13:42:44.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/</loc>
     
     <lastmod>2018-12-08T10:23:11.000Z</lastmod>
@@ -184,14 +191,14 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</loc>
+    <loc>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</loc>
     
     <lastmod>2017-03-09T05:48:53.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</loc>
+    <loc>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</loc>
     
     <lastmod>2017-03-09T05:48:53.000Z</lastmod>
     
