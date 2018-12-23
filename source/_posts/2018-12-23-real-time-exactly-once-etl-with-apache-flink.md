@@ -1,8 +1,15 @@
 ---
 title: Real-time Exactly-once ETL with Apache Flink
-tags: [flink, kafka, hdfs, java, etl]
+tags:
+  - flink
+  - kafka
+  - hdfs
+  - java
+  - etl
 categories: Big Data
+date: 2018-12-23 21:42:44
 ---
+
 
 Apache Flink is another popular big data processing framework, which differs from Apache Spark in that Flink uses stream processing to mimic batch processing and provides sub-second latency along with exactly-once semantics. One of its use cases is to build a real-time data pipeline, move and transform data between different stores. This article will show you how to build such an application, and explain how Flink guarantees its correctness.
 
@@ -128,7 +135,7 @@ $ bin/flink cancel -s /tmp/flink/savepoints 1253cc85e5c702dbe963dd7d8d279038
 Cancelled job 1253cc85e5c702dbe963dd7d8d279038. Savepoint stored in file:/tmp/flink/savepoints/savepoint-1253cc-0df030f4f2ee.
 ```
 
-For our ETL application, savepoint will include current Kafka offsets, in-progress output file names, etc. To resume from a savepoint, pass `-s` to `run` sub-command. The application will start from the savepoint, e.g. consume messages right after the saved offsets, without losing or duplicating data.
+For our ETL application, savepoint will include current Kafka offsets, in-progress output file names, etc. To resume from a savepoint, pass `-s` to `run` sub-command. The application will start from the savepoint, i.e. consume messages right after the saved offsets, without losing or duplicating data.
 
 ```
 flink run -s /tmp/flink/savepoints/savepoint-1253cc-0df030f4f2ee -c com.shzhangji.flinksandbox.kafka.KafkaLoader target/flink-sandbox-0.1.0.jar
@@ -150,21 +157,78 @@ Flink dashboard will run in YARN application master. The returned application ID
 bin/flink cancel -s hdfs://localhost:9000/tmp/flink/savepoints -yid application_1545534487726_0001 84de00a5e193f26c937f72a9dc97f386
 ```
 
-## Exactly-once Guarantees
+## How Flink Guarantees Exactly-once Semantics
 
-* how flink ensures exactly-once
-    * kafka
-    * checkpoint
-    * sink
-* misc
-    * parallelism
+Flink streaming application can be divided into three parts, source, process, and sink. Different sources and sinks, or [connectors][5], give different guarantees, and the Flink stream processing gives either at-least-once or exactly-once semantics, based on whether checkpointing is enabled.
 
+### Stream Processing with Checkpointing
 
-## References
+Flink's checkpointing mechanism is based on Chandy-Lamport algorithm. It periodically inserts light-weight barriers into data stream, dividing the stream into sets of records. After an operator has processed all records in the current set, a checkpoint is made and sent to the coordinator, i.e. job manager. Then the operator will send this barrier to its down-streams. When all sinks finish checkpointing, this checkpoint is marked as completed, which means all data before the checkpoint has been properly processed, all operator states are saved, and the application can recover from this checkpoint when encountering failures.
 
-*
+![Stream Barrier](/images/flink/stream-barrier.png)
+
+For operators with multiple up-streams, a technique called stream aligning is applied. If one of the up-streams is delayed, the operator will stop processing data from other up-streams, until the slow one catches up. This guarantees exactly-once semantics of the operator state, but will certainly introduce some latency. Apart from this `EXACTLY_ONCE` mode of checkpointing, Flink also provides `AT_LEAST_ONCE` mode, to minimize the delay. One can refer to [document][6] for further details.
+
+### Rewindable Data Source
+
+When recovering from the last checkpoint, Flink needs to re-fetch some messages, and data source like Kafka supports consuming messages from given offsets. In detail, `FlinkKafkaConsumer` implements the `CheckpointedFunction` and stores topic name, partition ID, and offsets in operator state.
+
+```java
+abstract class FlinkKafkaConsumerBase implements CheckpointedFunction {
+  public void initializeState(FunctionInitializationContext context) {
+    OperatorStateStore stateStore = context.getOperatorStateStore();
+    this.unionOffsetStates = stateStore.getUnionListState(new ListStateDescriptor<>(
+        OFFSETS_STATE_NAME,
+        TypeInformation.of(new TypeHint<Tuple2<KafkaTopicPartition, Long>>() {})));
+
+    if (context.isRestored()) {
+      for (Tuple2<KafkaTopicPartition, Long> kafkaOffset : unionOffsetStates.get()) {
+        restoredState.put(kafkaOffset.f0, kafkaOffset.f1);
+      }
+    }
+  }
+
+  public void snapshotState(FunctionSnapshotContext context) {
+    unionOffsetStates.clear();
+    for (Map.Entry<KafkaTopicPartition, Long> kafkaTopicPartitionLongEntry : currentOffsets.entrySet()) {
+	  unionOffsetStates.add(Tuple2.of(kafkaTopicPartitionLongEntry.getKey(),
+          kafkaTopicPartitionLongEntry.getValue()));
+	}
+  }
+}
+```
+
+When resuming a job from a savepoint, you can find the following lines in task manager logs, indicating that the source will consume from the offsets that are restored from checkpoint.
+
+```
+2018-12-23 10:56:47,380 INFO FlinkKafkaConsumerBase
+  Consumer subtask 0 will start reading 2 partitions with offsets in restored state:
+    {KafkaTopicPartition{topic='flink_test', partition=1}=725,
+     KafkaTopicPartition{topic='flink_test', partition=0}=721}
+```
+
+### Recover In-progress Output Files
+
+As the application runs, `StreamingFileSink` will first write to a temporary file, prefixed with dot and suffixed with `in-progress`. The in-progress files are renamed to normal files according to some `RollingPolicy`, which defaults to both time-based (60 seconds) and size-based (128 MB). When task failure happens, or job is canceled, the in-progress files are simply closed. During recovery, the sink can retrieve in-progress file names from checkpointed state, truncate the files to a specific length, so that they do not contain any data after the checkpoint, and then the stream processing can resume.
+
+Take Hadoop file system for instance, the recovering process happens in `HadoopRecoverableFsDataOutputStream` class constructor. It is invoked with a `HadoopFsRecoverable` object that contains the temporary file name, target name, and offset. This object is a member of `BucketState`, which is stored in operator state.
+
+```java
+HadoopRecoverableFsDataOutputStream(FileSystem fs, HadoopFsRecoverable recoverable) {
+  this.tempFile = checkNotNull(recoverable.tempFile());
+  truncate(fs, tempFile, recoverable.offset());
+  out = fs.append(tempFile);
+}
+```
+
+## Conclusions
+
+Apache Flink builds upon stream processing, state management is considered from day one, and it integrates well with Hadoop ecosystem. All of these make it a very competitive product in big data field. It is under active development, and gradually gains more features like table API, stream SQL, machine learning, etc. Big companies like Alibaba are also using and contributing to this project. It supports a wide range of use-cases, and is definitely worth a try.
+
 
 [1]: https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/connectors/kafka.html
 [2]: https://kafka.apache.org/quickstart
 [3]: https://github.com/jizhang/flink-sandbox/blob/master/src/main/java/com/shzhangji/flinksandbox/kafka/EventTimeBucketAssigner.java
 [4]: https://ci.apache.org/projects/flink/flink-docs-release-1.7/ops/deployment/cluster_setup.html
+[5]: https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/connectors/guarantees.html
+[6]: https://ci.apache.org/projects/flink/flink-docs-release-1.7/internals/stream_checkpointing.html
