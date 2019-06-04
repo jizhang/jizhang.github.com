@@ -13,13 +13,8 @@ categories: Big Data
 ### Insert Data
 
 ```sql
-CREATE TABLE employee (
-    id int
-    ,name string
-    ,salary int
-)
-STORED AS ORC
-TBLPROPERTIES ('transactional' = 'true');
+CREATE TABLE employee (id int, name string, salary int)
+STORED AS ORC TBLPROPERTIES ('transactional' = 'true');
 
 INSERT INTO employee VALUES
 (1, 'Jerry', 5000),
@@ -63,7 +58,7 @@ The file content is displayed in JSON, row-wise. We can see the actual data is i
     * bit 17-20: reserved for future.
     * bit 21-32: statement ID.
     * For instance, the binary form of `536936448` is `00100000000000010000000000000000`, showing it is a version 1 codec, and bucket ID is 1.
-* `rowId` TODO
+* `rowId` is the auto-generated unique ID within the transaction and bucket.
 * `currentTransaction` is the current write ID.
 * `row` contains the actual data. For DELETE, `row` will be null.
 
@@ -107,11 +102,32 @@ Content of `delta_0000002_0000002_0000/bucket_00000`:
 {"operation":0,"originalTransaction":2,"bucket":536870912,"rowId":0,"currentTransaction":2,"row":{"id":2,"name":"Tom","salary":7000}}
 ```
 
-DELETE statement is omitted here, since its process is similar to UPDATE, i.e. find the record and then generate only `delete` directory.
+DELETE statement works similarly to UPDATE, i.e. find the record but generate only `delete` directory.
 
 ### Merge Statement
 
-### Partitioned and Bucketed Table
+MERGE is like MySQL's INSERT ON UPDATE. It can update target table with a source table. For instance:
+
+```sql
+CREATE TABLE employee_update (id int, name string, salary int);
+INSERT INTO employee_update VALUES
+(2, 'Tom',  7000),
+(4, 'Mary', 9000);
+
+MERGE INTO employee AS a
+USING employee_update AS b ON a.id = b.id
+WHEN MATCHED THEN UPDATE SET salary = b.salary
+WHEN NOT MATCHED THEN INSERT VALUES (b.id, b.name, b.salary);
+```
+
+This statement will update the salary of Tom, and insert a new row of Mary. WHENs are considered different statements. The INSERT clause generates `delta_0000002_0000002_0000`, containing the row of Mary, while UPDATE generates `delete_delta_0000002_0000002_0001` and `delta_0000002_0000002_0001`, delete and insert the row of Tom.
+
+```text
+/user/hive/warehouse/employee/delta_0000001_0000001_0000
+/user/hive/warehouse/employee/delta_0000002_0000002_0000
+/user/hive/warehouse/employee/delete_delta_0000002_0000002_0001
+/user/hive/warehouse/employee/delta_0000002_0000002_0001
+```
 
 ## Merge on Read
 
