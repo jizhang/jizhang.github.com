@@ -122,7 +122,7 @@ WHEN MATCHED THEN UPDATE SET salary = b.salary
 WHEN NOT MATCHED THEN INSERT VALUES (b.id, b.name, b.salary);
 ```
 
-This statement will update the salary of Tom, and insert a new row of Mary. WHENs are considered different statements. The INSERT clause generates `delta_0000002_0000002_0000`, containing the row of Mary, while UPDATE generates `delete_delta_0000002_0000002_0001` and `delta_0000002_0000002_0001`, delete and insert the row of Tom.
+This statement will update the salary of Tom, and insert a new row of Mary. WHENs are considered different statements. The INSERT clause generates `delta_0000002_0000002_0000`, containing the row of Mary, while UPDATE generates `delete_delta_0000002_0000002_0001` and `delta_0000002_0000002_0001`, deleting and inserting the row of Tom.
 
 ```text
 /user/hive/warehouse/employee/delta_0000001_0000001_0000
@@ -141,7 +141,7 @@ Minor compaction will merge multiple `delta` and `delete` files into one `delta`
 ALTER TABLE employee COMPACT 'minor';
 ```
 
-Take the result of MERGE statement as an instance. After minor compaction, the folder structure will become:
+Take the result of MERGE statement for an instance. After minor compaction, the folder structure will become:
 
 ```text
 /user/hive/warehouse/employee/delete_delta_0000001_0000002
@@ -189,7 +189,64 @@ Merging process:
 * Otherwise, emit the row.
 * Repeat.
 
-The merging is done in a streaming way. Hive will open all the files, read the first record, and construct a `ReaderKey` class, storing `originalTransaction`, `bucketId`, `rowId`, and `currentTransaction`. `ReaderKey` class implements the `Comparable` interface, so they can be sorted in an customized order. Then, the `ReaderKey` and the file handler will be put into a `TreeMap`, so every time we poll for the first entry, we can get the desired file handler and read data.
+The merging is done in a streaming way. Hive will open all the files, read the first record, and construct a `ReaderKey` class, storing `originalTransaction`, `bucketId`, `rowId`, and `currentTransaction`. `ReaderKey` class implements the `Comparable` interface, so they can be sorted in an customized order.
+
+```java
+public class RecordIdentifier implements WritableComparable<RecordIdentifier> {
+  private long writeId;
+  private int bucketId;
+  private long rowId;
+  protected int compareToInternal(RecordIdentifier other) {
+    if (other == null) {
+      return -1;
+    }
+    if (writeId != other.writeId) {
+      return writeId < other.writeId ? -1 : 1;
+    }
+    if (bucketId != other.bucketId) {
+      return bucketId < other.bucketId ? - 1 : 1;
+    }
+    if (rowId != other.rowId) {
+      return rowId < other.rowId ? -1 : 1;
+    }
+    return 0;
+  }
+}
+
+public class ReaderKey extends RecordIdentifier {
+  private long currentWriteId;
+  private boolean isDeleteEvent = false;
+  @Override
+  public int compareTo(RecordIdentifier other) {
+    int sup = compareToInternal(other);
+    if (sup == 0) {
+      if (other.getClass() == ReaderKey.class) {
+        ReaderKey oth = (ReaderKey) other;
+        if (currentWriteId != oth.currentWriteId) {
+          return currentWriteId < oth.currentWriteId ? +1 : -1;
+        }
+        if (isDeleteEvent != oth.isDeleteEvent) {
+          return isDeleteEvent ? -1 : +1;
+        }
+      } else {
+        return -1;
+      }
+    }
+    return sup;
+  }
+}
+```
+
+Then, the `ReaderKey` and the file handler will be put into a `TreeMap`, so every time we poll for the first entry, we can get the desired file handler and read data.
+
+```java
+public class OrcRawRecordMerger {
+  private TreeMap<ReaderKey, ReaderPair> readers = new TreeMap<>();
+  public boolean next(RecordIdentifier recordIdentifier, OrcStruct prev) {
+    Map.Entry<ReaderKey, ReaderPair> entry = readers.pollFirstEntry();
+  }
+}
+```
 
 ### Select Files
 
@@ -203,7 +260,7 @@ base_0000002
 delete_delta_0000003_0000003_0000
 ```
 
-Select process:
+Filtering process:
 
 * Consult the Hive Metastore to find out the valid write ID list.
 * Extract transaction information from files names, including file type, write ID range, and statement ID.
@@ -220,11 +277,17 @@ There are some special cases in this process, e.g. no `base` file, multiple stat
 
 ### Parallel Execution
 
-### Vectorized Query
+When executing in parallel environment, such as multiple Hadoop mappers, `delta` files need to be re-organized. In short, `base` and `delta` files can be divided into different splits, while all `delete` files have to be available to all splits. This ensures deleted records will not be emitted. Since `delete` only contains `row__id`, they are small enough be put into distributed cache, similar to map-join mechanism.
 
-## Transaction Manager
+![Parallel Execution](/images/hive-acid/parallel-execution.png)
 
+## MISC
 
+predicate push-down
+vectorized query
+transaction manager, snapshot isolation
+insert only
+stream api
 
 ## References
 
@@ -270,13 +333,6 @@ read split
     delta/bN + delete_delta
 compact split: base/bN + delta/bN + delete_delta/bALL?
 
-## compaction
-
-minor
-major
-
-slowly-changing dimensions
-
 ## References
 
 https://cwiki.apache.org/confluence/display/Hive/Hive+Transactions
@@ -311,76 +367,3 @@ streaming update? - query for row__id first
     源码能参考一下吗
 why acid?
 how is bucket id generated? bucketed/partitioned table vs. non-bucketed
-
-MISC
-turn on log
-
-NOTES
-
-
-CREATE DATABASE merge_data;
-
-CREATE TABLE merge_data.transactions(
-  ID int,
-  TranValue string,
-  last_update_user string)
-PARTITIONED BY (tran_date string)
-CLUSTERED BY (ID) into 5 buckets
-STORED AS ORC TBLPROPERTIES ('transactional'='true');
-
-CREATE TABLE merge_data.merge_source(
-  ID int,
-  TranValue string,
-  tran_date string)
-STORED AS ORC;
-
-INSERT INTO merge_data.transactions PARTITION (tran_date) VALUES
-(1, 'value_01', 'creation', '20170410'),
-(2, 'value_02', 'creation', '20170410'),
-(3, 'value_03', 'creation', '20170410'),
-(4, 'value_04', 'creation', '20170410'),
-(5, 'value_05', 'creation', '20170413'),
-(6, 'value_06', 'creation', '20170413'),
-(7, 'value_07', 'creation', '20170413'),
-(8, 'value_08', 'creation', '20170413'),
-(9, 'value_09', 'creation', '20170413'),
-(10, 'value_10','creation', '20170413');
-
-INSERT INTO merge_data.merge_source VALUES
-(1, 'value_01', '20170410'),
-(4, NULL, '20170410'),
-(7, 'value_77777', '20170413'),
-(8, NULL, '20170413'),
-(8, 'value_08', '20170415'),
-(11, 'value_11', '20170415');
-
-MERGE INTO merge_data.transactions AS T
-USING merge_data.merge_source AS S
-ON T.ID = S.ID and T.tran_date = S.tran_date
-WHEN MATCHED AND (T.TranValue != S.TranValue AND S.TranValue IS NOT NULL) THEN UPDATE SET TranValue = S.TranValue, last_update_user = 'merge_update'
-WHEN MATCHED AND S.TranValue IS NULL THEN DELETE
-WHEN NOT MATCHED THEN INSERT VALUES (S.ID, S.TranValue, 'merge_insert', S.tran_date);
-
-select * from transactions order by id;
-
-
-
-CREATE TABLE merge_data.transactions(
-  ID int,
-  TranValue string,
-  last_update_user string,
-  tran_date string)
-STORED AS ORC TBLPROPERTIES ('transactional'='true');
-
-
-INSERT INTO merge_data.transactions VALUES
-(1, 'value_01', 'creation', '20170410'),
-(2, 'value_02', 'creation', '20170410'),
-(3, 'value_03', 'creation', '20170410'),
-(4, 'value_04', 'creation', '20170410'),
-(5, 'value_05', 'creation', '20170413'),
-(6, 'value_06', 'creation', '20170413'),
-(7, 'value_07', 'creation', '20170413'),
-(8, 'value_08', 'creation', '20170413'),
-(9, 'value_09', 'creation', '20170413'),
-(10, 'value_10','creation', '20170413');
