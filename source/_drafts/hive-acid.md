@@ -6,8 +6,6 @@ categories: Big Data
 
 [Apache Hive][1] introduced transactions since version 0.13 to fully support ACID semantics on Hive table, including INSERT/UPDATE/DELETE/MERGE statements, streaming data ingestion, etc. In Hive 3.0, this feature is further improved by optimizing the underlying data file structure, reducing constraints on table scheme, and supporting predicate push down and vectorized query. Examples and setup can be found on [Hive wiki][2] and other [tutorials][3], while this article will focus on how transactional table is saved on HDFS, and take a closer look at the read-write process.
 
-![]()
-
 ## File Structure
 
 ### Insert Data
@@ -78,6 +76,19 @@ Output:
 {"writeid":1,"bucketid":536870912,"rowid":2}    3       Kate    6000
 ```
 
+#### Streaming Data Ingest V2
+
+Hive 3.0 also upgrades the former [Streaming API][7]. Now users or third-party tools like Flume can use the ACID feature writing data continuously into Hive table. These operations will also create `delta` directories. But mutation is no longer supported.
+
+```java
+StreamingConnection connection = HiveStreamingConnection.newBuilder().connect();
+connection.beginTransaction();
+connection.write("11,val11,Asia,China".getBytes());
+connection.write("12,val12,Asia,India".getBytes());
+connection.commitTransaction();
+connection.close();
+```
+
 ### Update Data
 
 ```sql
@@ -135,7 +146,7 @@ This statement will update the salary of Tom, and insert a new row of Mary. WHEN
 
 As time goes, there will be more and more `delta` and `delete` directories in the table, which will affect the read performance, since reading is a process of merging the results of valid transactions. Small files are neither friendly to file systems like HDFS. So Hive uses two kinds of compactors, namely minor and major, to merge these directories while preserving the transaction information.
 
-Minor compaction will merge multiple `delta` and `delete` files into one `delta` and `delete` file, respectively. The transaction ID will be preserved in folder name as write ID range, as mentioned above, while omitting the statement ID. Compactions will be automatically initiated, based on some configured thresholds. We can also trigger it manually with the following SQL:
+Minor compaction will merge multiple `delta` and `delete` files into one `delta` and `delete` file, respectively. The transaction ID will be preserved in folder name as write ID range, as mentioned above, while omitting the statement ID. Compactions will be automatically initiated in Hive metastore process based on some configured thresholds. We can also trigger it manually with the following SQL:
 
 ```sql
 ALTER TABLE employee COMPACT 'minor';
@@ -158,7 +169,7 @@ Major compaction, on the other hand, will merge and write the current table into
 
 Note that after minor or major compaction, the original files will not be deleted immediately. Deletion is carried out by a cleaner thread, so there will be multiple files containing the same transaction data simultaneously. Take this into account when understanding the reading process.
 
-## Merge on Read
+## Reading Process
 
 Now we see three kinds of files in an ACID table, `base`, `delta`, and `delete`. Each contains data rows that can be identified by `row__id` and sorted by it, too. Reading data from an ACID table is a process of merging these files, and reflecting the result of the last transaction. This process is written in `OrcInputFormat` and `OrcRawRecordMerger` class, and it is basically a merge-sort algorithm.
 
@@ -216,7 +227,6 @@ public class RecordIdentifier implements WritableComparable<RecordIdentifier> {
 public class ReaderKey extends RecordIdentifier {
   private long currentWriteId;
   private boolean isDeleteEvent = false;
-  @Override
   public int compareTo(RecordIdentifier other) {
     int sup = compareToInternal(other);
     if (sup == 0) {
@@ -277,21 +287,44 @@ There are some special cases in this process, e.g. no `base` file, multiple stat
 
 ### Parallel Execution
 
-When executing in parallel environment, such as multiple Hadoop mappers, `delta` files need to be re-organized. In short, `base` and `delta` files can be divided into different splits, while all `delete` files have to be available to all splits. This ensures deleted records will not be emitted. Since `delete` only contains `row__id`, they are small enough be put into distributed cache, similar to map-join mechanism.
+When executing in parallel environment, such as multiple Hadoop mappers, `delta` files need to be re-organized. In short, `base` and `delta` files can be divided into different splits, while all `delete` files have to be available to all splits. This ensures deleted records will not be emitted.
 
 ![Parallel Execution](/images/hive-acid/parallel-execution.png)
 
-## MISC
+### Vectorized Query
 
-predicate push-down
-vectorized query
-transaction manager, snapshot isolation
-insert only
-stream api
+For [vectoried query][8], Hive will first try to load all `delete` files into memory and construct an optimized data structure that can be used to filter out deleted rows when processing row batches. If the `delete` files are too large, it falls back to sort-merge algorithm.
+
+```java
+public class VectorizedOrcAcidRowBatchReader {
+  private final DeleteEventRegistry deleteEventRegistry;
+
+  protected static interface DeleteEventRegistry {
+    public void findDeletedRecords(ColumnVector[] cols, int size, BitSet selectedBitSet);
+  }
+  static class ColumnizedDeleteEventRegistry implements DeleteEventRegistry {}
+  static class SortMergedDeleteEventRegistry implements DeleteEventRegistry {}
+
+  public boolean next(NullWritable key, VectorizedRowBatch value) {
+    BitSet selectedBitSet = new BitSet(vectorizedRowBatchBase.size);
+    this.deleteEventRegistry.findDeletedRecords(innerRecordIdColumnVector,
+        vectorizedRowBatchBase.size, selectedBitSet);
+    for (int setBitIndex = selectedBitSet.nextSetBit(0), selectedItr = 0;
+        setBitIndex >= 0;
+        setBitIndex = selectedBitSet.nextSetBit(setBitIndex+1), ++selectedItr) {
+      value.selected[selectedItr] = setBitIndex;
+    }
+  }
+}
+```
+
+## Transaction Management
 
 ## References
 
-*
+* [Hive Transactions][2]
+* [Transactional Operations in Apache Hive](https://www.slideshare.net/Hadoop_Summit/transactional-operations-in-apache-hive-present-and-future-102803358)
+* [ORCFile ACID Support](https://orc.apache.org/docs/acid.html)
 
 [1]: http://hive.apache.org/
 [2]: https://cwiki.apache.org/confluence/display/Hive/Hive+Transactions
@@ -299,7 +332,8 @@ stream api
 [4]: https://jira.apache.org/jira/browse/HIVE-14035
 [5]: https://orc.apache.org/
 [6]: https://orc.apache.org/docs/java-tools.html
-
+[7]: https://cwiki.apache.org/confluence/display/Hive/Streaming+Data+Ingest+V2
+[8]: https://cwiki.apache.org/confluence/display/Hive/Vectorized+Query+Execution
 
 try acid operation with local hive
 analyze the file change in different statements (insert, update, delete, merge)
