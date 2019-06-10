@@ -87,6 +87,64 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-understanding-hive-acid-transactional-table" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2019/06/10/understanding-hive-acid-transactional-table/" class="article-date">
+  <time datetime="2019-06-10T12:40:55.000Z" itemprop="datePublished">2019-06-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2019/06/10/understanding-hive-acid-transactional-table/">Understanding Hive ACID Transactional Table</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a href="http://hive.apache.org/" target="_blank" rel="noopener">Apache Hive</a> introduced transactions since version 0.13 to fully support ACID semantics on Hive table, including INSERT/UPDATE/DELETE/MERGE statements, streaming data ingestion, etc. In Hive 3.0, this feature is further improved by optimizing the underlying data file structure, reducing constraints on table scheme, and supporting predicate push down and vectorized query. Examples and setup can be found on <a href="https://cwiki.apache.org/confluence/display/Hive/Hive+Transactions" target="_blank" rel="noopener">Hive wiki</a> and other <a href="https://hortonworks.com/tutorial/using-hive-acid-transactions-to-insert-update-and-delete-data/" target="_blank" rel="noopener">tutorials</a>, while this article will focus on how transactional table is saved on HDFS, and take a closer look at the read-write process.</p>
+<h2 id="File-Structure"><a href="#File-Structure" class="headerlink" title="File Structure"></a>File Structure</h2><h3 id="Insert-Data"><a href="#Insert-Data" class="headerlink" title="Insert Data"></a>Insert Data</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> employee (<span class="keyword">id</span> <span class="built_in">int</span>, <span class="keyword">name</span> <span class="keyword">string</span>, salary <span class="built_in">int</span>)</span><br><span class="line"><span class="keyword">STORED</span> <span class="keyword">AS</span> ORC TBLPROPERTIES (<span class="string">'transactional'</span> = <span class="string">'true'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> employee <span class="keyword">VALUES</span></span><br><span class="line">(<span class="number">1</span>, <span class="string">'Jerry'</span>, <span class="number">5000</span>),</span><br><span class="line">(<span class="number">2</span>, <span class="string">'Tom'</span>,   <span class="number">8000</span>),</span><br><span class="line">(<span class="number">3</span>, <span class="string">'Kate'</span>,  <span class="number">6000</span>);</span><br></pre></td></tr></table></figure>
+<p>An INSERT statement is executed in a single transaction. It will create a <code>delta</code> directory containing information about this transaction and its data.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/user/hive/warehouse/employee/delta_0000001_0000001_0000</span><br><span class="line">/user/hive/warehouse/employee/delta_0000001_0000001_0000/_orc_acid_version</span><br><span class="line">/user/hive/warehouse/employee/delta_0000001_0000001_0000/bucket_00000</span><br></pre></td></tr></table></figure>
+<p>The schema of this folder’s name is <code>delta_minWID_maxWID_stmtID</code>, i.e. “delta” prefix, transactional writes’ range (minimum and maximum write ID), and statement ID. In detail:</p>
+<ul>
+<li>All INSERT statements will create a <code>delta</code> directory. UPDATE statement will also create <code>delta</code> directory right after a <code>delete</code> directory. <code>delete</code> directory is prefixed with “delete_delta”.</li>
+<li>Hive will assign a globally unique ID for every transaction, both read and write. For transactional writes like INSERT and DELETE, it will also assign a table-wise unique ID, a.k.a. a write ID. The write ID range will be encoded in the <code>delta</code> and <code>delete</code> directory names.</li>
+<li>Statement ID is used when multiple writes into the same table happen in one transaction.</li>
+</ul>
+        
+          <p class="article-more-link">
+            <a href="/blog/2019/06/10/understanding-hive-acid-transactional-table/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/" data-id="cjwqd7z1y002cmgjkk4nu9f3v" class="article-share-link">Share</a>
+      
+        <a href="http://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hive/">hive</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-real-time-exactly-once-etl-with-apache-flink" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" class="article-date">
@@ -127,7 +185,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="cjwq7ucgz002bxezjy4chq8mc" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="cjwqd7z1x0029mgjk3ttuubys" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -179,7 +237,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="cjwq7ucgy0029xezj5v372qn7" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="cjwqd7z1u0025mgjkj9jhm68n" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -230,7 +288,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="cjwq7ucgw0024xezjzw06ka9x" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="cjwqd7z1s0022mgjkb7pfm9e9" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -288,7 +346,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cjwq7ucgv0021xezj0mzrti6t" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cjwqd7z1q001zmgjkapti0bjz" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -340,7 +398,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="cjwq7ucgx0026xezjofwtjda4" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="cjwqd7z1o001xmgjkhjie1lb7" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -392,7 +450,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cjwq7ucgt001zxezjxfsy2v1f" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cjwqd7z1n001umgjkxddstefy" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -446,7 +504,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cjwq7ucgs001vxezjf5xvh5x7" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cjwqd7z1l001smgjke5y6z2s9" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -503,7 +561,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="cjwq7ucgr001txezjhb6il1gf" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="cjwqd7z1j001qmgjkjtyf9bw4" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -557,7 +615,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/" data-id="cjwq7ucgq001qxezjqn9yo7vu" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/" data-id="cjwqd7z1f001nmgjkndcnaidh" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -571,75 +629,10 @@ ga('send', 'pageview');
 
 
   
-    <article id="post-flume-source-code-component-lifecycle" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2017/10/23/flume-source-code-component-lifecycle/" class="article-date">
-  <time datetime="2017-10-23T04:57:32.000Z" itemprop="datePublished">2017-10-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2017/10/23/flume-source-code-component-lifecycle/">Flume Source Code: Component Lifecycle</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="https://flume.apache.org/" target="_blank" rel="noopener">Apache Flume</a> is a real-time ETL tool for data warehouse platform. It consists of different types of components, and during runtime all of them are managed by Flume’s lifecycle and supervisor mechanism. This article will walk you through the source code of Flume’s component lifecycle management.</p>
-<h2 id="Repository-Structure"><a href="#Repository-Structure" class="headerlink" title="Repository Structure"></a>Repository Structure</h2><p>Flume’s source code can be downloaded from GitHub. It’s a Maven project, so we can import it into an IDE for efficient code reading. The following is the main structure of the project:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/flume-ng-node</span><br><span class="line">/flume-ng-code</span><br><span class="line">/flume-ng-sdk</span><br><span class="line">/flume-ng-sources/flume-kafka-source</span><br><span class="line">/flume-ng-channels/flume-kafka-channel</span><br><span class="line">/flume-ng-sinks/flume-hdfs-sink</span><br></pre></td></tr></table></figure>
-<h2 id="Application-Entrance"><a href="#Application-Entrance" class="headerlink" title="Application Entrance"></a>Application Entrance</h2><p>The <code>main</code> entrance of Flume agent is in the <code>org.apache.flume.node.Application</code> class of <code>flume-ng-node</code> module. Following is an abridged source code:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    CommandLineParser parser = <span class="keyword">new</span> GnuParser();</span><br><span class="line">    <span class="keyword">if</span> (isZkConfigured) &#123;</span><br><span class="line">      <span class="keyword">if</span> (reload) &#123;</span><br><span class="line">        PollingZooKeeperConfigurationProvider zookeeperConfigurationProvider;</span><br><span class="line">        components.add(zookeeperConfigurationProvider);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        StaticZooKeeperConfigurationProvider zookeeperConfigurationProvider;</span><br><span class="line">        application.handleConfigurationEvent();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// PropertiesFileConfigurationProvider</span></span><br><span class="line">    &#125;</span><br><span class="line">    application.start();</span><br><span class="line">    Runtime.getRuntime().addShutdownHook(<span class="keyword">new</span> Thread(<span class="string">"agent-shutdown-hook"</span>) &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        appReference.stop();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>The process can be illustrated as follows:</p>
-<ol>
-<li>Parse command line arguments with <code>commons-cli</code>, including the Flume agent’s name, configuration method and path.</li>
-<li>Configurations can be provided via properties file or ZooKeeper. Both provider support live-reload, i.e. we can update component settings without restarting the agent.<ul>
-<li>File-based live-reload is implemented by using a background thread that checks the last modification time of the file.</li>
-<li>ZooKeeper-based live-reload is provided by Curator’s <code>NodeCache</code> recipe, which uses ZooKeeper’s <em>watch</em> functionality underneath.</li>
-</ul>
-</li>
-<li>If live-reload is on (by default), configuration providers will add themselves into the application’s component list, and after calling <code>Application#start</code>, a <code>LifecycleSupervisor</code> will start the provider, and trigger the reload event to parse the configuration and load all defined components.</li>
-<li>If live-reload is off, configuration providers will parse the file immediately and start all components, also supervised by <code>LifecycleSupervisor</code>.</li>
-<li>Finally add a JVM shutdown hook by <code>Runtime#addShutdownHook</code>, which in turn invokes <code>Application#stop</code> to shutdown the Flume agent.</li>
-</ol>
-        
-          <p class="article-more-link">
-            <a href="/blog/2017/10/23/flume-source-code-component-lifecycle/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/" data-id="cjwq7ucgo001nxezj43zppcp7" class="article-share-link">Share</a>
-      
-        <a href="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flume/">flume</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/source-code/">source code</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
   </nav>
 </section>
         
@@ -649,7 +642,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 15px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 10px;">eslint</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flink/" style="font-size: 10px;">flink</a> <a href="/tags/flume/" style="font-size: 13.33px;">flume</a> <a href="/tags/frontend/" style="font-size: 15px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.67px;">hdfs</a> <a href="/tags/hive/" style="font-size: 10px;">hive</a> <a href="/tags/java/" style="font-size: 18.33px;">java</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.67px;">kafka</a> <a href="/tags/lodash/" style="font-size: 11.67px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.67px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.67px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/sql/" style="font-size: 11.67px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vue/" style="font-size: 10px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 15px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 10px;">eslint</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flink/" style="font-size: 10px;">flink</a> <a href="/tags/flume/" style="font-size: 13.33px;">flume</a> <a href="/tags/frontend/" style="font-size: 15px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.67px;">hdfs</a> <a href="/tags/hive/" style="font-size: 11.67px;">hive</a> <a href="/tags/java/" style="font-size: 18.33px;">java</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.67px;">kafka</a> <a href="/tags/lodash/" style="font-size: 11.67px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.67px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.67px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/sql/" style="font-size: 11.67px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vue/" style="font-size: 10px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -658,7 +651,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
     </div>
   </div>
 
@@ -669,6 +662,10 @@ ga('send', 'pageview');
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/blog/2019/06/10/understanding-hive-acid-transactional-table/">Understanding Hive ACID Transactional Table</a>
+          </li>
         
           <li>
             <a href="/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/">Real-time Exactly-once ETL with Apache Flink</a>
@@ -684,10 +681,6 @@ ga('send', 'pageview');
         
           <li>
             <a href="/blog/2018/09/20/how-to-avoid-null-pointer-exception/">How to Avoid NullPointerException</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/">Is It Necessary to Apply ESLint jsx-no-bind Rule?</a>
           </li>
         
       </ul>
