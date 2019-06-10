@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
   <title>Python 2 to 3 Quick Guide | Ji ZHANG&#39;s Blog</title>
@@ -45,7 +45,7 @@ ga('send', 'pageview');
 
 
 </head>
-
+</html>
 <body>
   <div id="container">
     <div id="wrap">
@@ -143,7 +143,7 @@ ga('send', 'pageview');
 <h2 id="print-Becomes-a-Function"><a href="#print-Becomes-a-Function" class="headerlink" title="print Becomes a Function"></a><code>print</code> Becomes a Function</h2><p>In Python 2, <code>print</code> is a statement, and now it’s used as a function:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span>   <span class="comment"># Old: print a new line</span></span><br><span class="line">print() <span class="comment"># New</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">'hello'</span>, <span class="string">'world'</span>,          <span class="comment"># Old: trailing comma suppresses new line</span></span><br><span class="line">print(<span class="string">'hello'</span>, <span class="string">'world'</span>, end=<span class="string">' '</span>) <span class="comment"># New: end defaults to '\n'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> &gt;&gt;sys.stderr, <span class="string">'error'</span>     <span class="comment"># Old: write to stderr</span></span><br><span class="line">print(<span class="string">'error'</span>, file=sys.stderr) <span class="comment"># New</span></span><br></pre></td></tr></table></figure>
 <p><code>print</code> function also provides <code>sep</code> and <code>flush</code> parameters:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">'hello'</span>, <span class="string">'world'</span>, sep=<span class="string">','</span>, flush=<span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Instead of:</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">','</span>.join((<span class="string">'hello'</span>, <span class="string">'world'</span>))</span><br><span class="line">sys.stdout.flush()</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">'hello'</span>, <span class="string">'world'</span>, sep=<span class="string">','</span>, flush=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Instead of:</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">','</span>.join((<span class="string">'hello'</span>, <span class="string">'world'</span>))</span><br><span class="line">sys.stdout.flush()</span><br></pre></td></tr></table></figure>
 <h2 id="Less-Lists-More-Views"><a href="#Less-Lists-More-Views" class="headerlink" title="Less Lists More Views"></a>Less Lists More Views</h2><p>A lot of well-known methods now return iterators, or ‘views’,  instead of eager-evaluated lists.</p>
 <ul>
 <li>Dictionary’s <code>keys</code>, <code>items</code>, and <code>values</code> methods, while removing <code>iterkeys</code>, <code>iteritems</code>, and <code>itervalues</code>. For example, when you need a sorted key list:</li>
@@ -211,7 +211,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cjq0y0hem000dw5jkyh53bd5a" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cjwq7ucg8000gxezjq1b4lng3" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -313,7 +313,7 @@ ga('send', 'pageview');
     <div id="footer-info" class="inner">
       <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
-      &copy; 2018 Ji ZHANG<br>
+      &copy; 2019 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

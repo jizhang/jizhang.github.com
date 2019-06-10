@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
   <title>Spark Streaming Logging Configuration | Ji ZHANG&#39;s Blog</title>
@@ -47,7 +47,7 @@ ga('send', 'pageview');
 
 
 </head>
-
+</html>
 <body>
   <div id="container">
     <div id="wrap">
@@ -137,7 +137,7 @@ ga('send', 'pageview');
 <p>When running Spark on YARN, there is a system property <code>spark.yarn.app.container.log.dir</code> indicating the container’s log directory. We only need to replace one line of the above log4j config:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">log4j.appender.rolling.file=$&#123;spark.yarn.app.container.log.dir&#125;/spark.log</span><br></pre></td></tr></table></figure>
 <p>And these log files can be viewed on YARN’s web UI:</p>
-<p><img src="/images/spark/yarn-logs.png" alt=""></p>
+<p><img src="/images/spark/yarn-logs.png" alt></p>
 <p>The <code>spark-submit</code> command is as following:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">spark-submit</span><br><span class="line">  --master yarn-cluster</span><br><span class="line">  --files /path/to/log4j-spark.properties</span><br><span class="line">  --conf &quot;spark.driver.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties&quot;</span><br><span class="line">  --conf &quot;spark.executor.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties&quot;</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
 <p>As you can see, both driver and executor use the same configuration file. That is because in <code>yarn-cluster</code> mode, driver is also run as a container in YARN. In fact, the <code>spark-submit</code> command will just quit after job submission.</p>
@@ -146,7 +146,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="cjq0y0heh0008w5jkbocwys1r" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="cjwq7ucg3000bxezjrtip64wk" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -248,7 +248,7 @@ ga('send', 'pageview');
     <div id="footer-info" class="inner">
       <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
-      &copy; 2018 Ji ZHANG<br>
+      &copy; 2019 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

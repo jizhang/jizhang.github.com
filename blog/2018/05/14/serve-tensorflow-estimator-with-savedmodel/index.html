@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
   <title>Serve TensforFlow Estimator with SavedModel | Ji ZHANG&#39;s Blog</title>
@@ -47,7 +47,7 @@ ga('send', 'pageview');
 
 
 </head>
-
+</html>
 <body>
   <div id="container">
     <div id="wrap">
@@ -119,9 +119,9 @@ ga('send', 'pageview');
     <div class="article-entry" itemprop="articleBody">
       
         <p><a href="https://www.tensorflow.org/" target="_blank" rel="noopener">TensorFlow</a> is one of the most popular machine learning frameworks that allow us to build various models with minor efforts. There are several ways to utilize these models in production like web service API, and this article will introduce how to make model prediction APIs with TensorFlow’s SavedModel mechanism.</p>
-<p><img src="/images/tf-logo.png" alt=""></p>
+<p><img src="/images/tf-logo.png" alt></p>
 <h2 id="Iris-DNN-Estimator"><a href="#Iris-DNN-Estimator" class="headerlink" title="Iris DNN Estimator"></a>Iris DNN Estimator</h2><p>First let’s build the famous iris classifier with TensorFlow’s pre-made DNN estimator. Full illustration can be found on TensorFlow’s website (<a href="https://www.tensorflow.org/get_started/premade_estimators" target="_blank" rel="noopener">Premade Estimators</a>), and I create a repository on GitHub (<a href="https://github.com/jizhang/tf-serve/blob/master/iris_dnn.py" target="_blank" rel="noopener"><code>iris_dnn.py</code></a>) for you to fork and work with. Here’s the gist of training the model:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">feature_columns = [tf.feature_column.numeric_column(key=key)</span><br><span class="line">                   <span class="keyword">for</span> key <span class="keyword">in</span> train_x.keys()]</span><br><span class="line">classifier = tf.estimator.DNNClassifier(</span><br><span class="line">    feature_columns=feature_columns,</span><br><span class="line">    hidden_units=[<span class="number">10</span>, <span class="number">10</span>],</span><br><span class="line">    n_classes=<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">classifier.train(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: train_input_fn(train_x, train_y, batch_size=BATCH_SIZE),</span><br><span class="line">    steps=STEPS)</span><br><span class="line"></span><br><span class="line">predictions = classifier.predict(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: eval_input_fn(predict_x, labels=<span class="keyword">None</span>, batch_size=BATCH_SIZE))</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">feature_columns = [tf.feature_column.numeric_column(key=key)</span><br><span class="line">                   <span class="keyword">for</span> key <span class="keyword">in</span> train_x.keys()]</span><br><span class="line">classifier = tf.estimator.DNNClassifier(</span><br><span class="line">    feature_columns=feature_columns,</span><br><span class="line">    hidden_units=[<span class="number">10</span>, <span class="number">10</span>],</span><br><span class="line">    n_classes=<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">classifier.train(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: train_input_fn(train_x, train_y, batch_size=BATCH_SIZE),</span><br><span class="line">    steps=STEPS)</span><br><span class="line"></span><br><span class="line">predictions = classifier.predict(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: eval_input_fn(predict_x, labels=<span class="literal">None</span>, batch_size=BATCH_SIZE))</span><br></pre></td></tr></table></figure>
 <a id="more"></a>
 <h2 id="Export-as-SavedModel"><a href="#Export-as-SavedModel" class="headerlink" title="Export as SavedModel"></a>Export as SavedModel</h2><p>TensorFlow provides the <a href="https://www.tensorflow.org/programmers_guide/saved_model#using_savedmodel_with_estimators" target="_blank" rel="noopener">SavedModel</a> utility to let us export the trained model for future predicting and serving. <code>Estimator</code> exposes an <code>export_savedmodel</code> method, which requires two arguments: the export directory and a receiver function. Latter defines what kind of input data the exported model accepts. Usually we will use TensorFlow’s <a href="https://github.com/tensorflow/tensorflow/blob/r1.7/tensorflow/core/example/example.proto" target="_blank" rel="noopener"><code>Example</code></a> type, which contains the features of one or more items. For instance, an iris data item can be defined as:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Example(</span><br><span class="line">    features=Features(</span><br><span class="line">        feature=&#123;</span><br><span class="line">            <span class="string">'SepalLength'</span>: Feature(float_list=FloatList(value=[<span class="number">5.1</span>])),</span><br><span class="line">            <span class="string">'SepalWidth'</span>: Feature(float_list=FloatList(value=[<span class="number">3.3</span>])),</span><br><span class="line">            <span class="string">'PetalLength'</span>: Feature(float_list=FloatList(value=[<span class="number">1.7</span>])),</span><br><span class="line">            <span class="string">'PetalWidth'</span>: Feature(float_list=FloatList(value=[<span class="number">0.5</span>])),</span><br><span class="line">        &#125;</span><br><span class="line">    )</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
@@ -191,7 +191,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cjq0y0hfp001uw5jkltufs2kn" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cjwq7ucgt001zxezjxfsy2v1f" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -293,7 +293,7 @@ ga('send', 'pageview');
     <div id="footer-info" class="inner">
       <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
-      &copy; 2018 Ji ZHANG<br>
+      &copy; 2019 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

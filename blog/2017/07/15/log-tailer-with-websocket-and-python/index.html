@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
   <title>Log Tailer with WebSocket and Python | Ji ZHANG&#39;s Blog</title>
@@ -47,7 +47,7 @@ ga('send', 'pageview');
 
 
 </head>
-
+</html>
 <body>
   <div id="container">
     <div id="wrap">
@@ -137,7 +137,7 @@ ga('send', 'pageview');
 <li>Open file and start sending contents within a for loop.</li>
 </ul>
 <p>Full code can be found on <a href="https://github.com/jizhang/logviewer" target="_blank" rel="noopener">GitHub</a>, so here I’ll select some important parts:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@asyncio.coroutine</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">view_log</span><span class="params">(websocket, path)</span>:</span></span><br><span class="line">    parse_result = urllib.parse.urlparse(path)</span><br><span class="line">    file_path = os.path.abspath(parse_result.path)</span><br><span class="line">    query = urllib.parse.parse_qs(parse_result.query)</span><br><span class="line">    tail = query <span class="keyword">and</span> query[<span class="string">'tail'</span>] <span class="keyword">and</span> query[<span class="string">'tail'</span>][<span class="number">0</span>] == <span class="string">'1'</span></span><br><span class="line">    <span class="keyword">with</span> open(file_path) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(f.read())</span><br><span class="line">        <span class="keyword">if</span> tail:</span><br><span class="line">            <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">                content = f.read()</span><br><span class="line">                <span class="keyword">if</span> content:</span><br><span class="line">                    <span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(content)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">yield</span> <span class="keyword">from</span> asyncio.sleep(<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">from</span> websocket.close()</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@asyncio.coroutine</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">view_log</span><span class="params">(websocket, path)</span>:</span></span><br><span class="line">    parse_result = urllib.parse.urlparse(path)</span><br><span class="line">    file_path = os.path.abspath(parse_result.path)</span><br><span class="line">    query = urllib.parse.parse_qs(parse_result.query)</span><br><span class="line">    tail = query <span class="keyword">and</span> query[<span class="string">'tail'</span>] <span class="keyword">and</span> query[<span class="string">'tail'</span>][<span class="number">0</span>] == <span class="string">'1'</span></span><br><span class="line">    <span class="keyword">with</span> open(file_path) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(f.read())</span><br><span class="line">        <span class="keyword">if</span> tail:</span><br><span class="line">            <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">                content = f.read()</span><br><span class="line">                <span class="keyword">if</span> content:</span><br><span class="line">                    <span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(content)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">yield</span> <span class="keyword">from</span> asyncio.sleep(<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">from</span> websocket.close()</span><br></pre></td></tr></table></figure>
 <h2 id="Miscellaneous"><a href="#Miscellaneous" class="headerlink" title="Miscellaneous"></a>Miscellaneous</h2><ul>
 <li>Sometimes the client browser will not close the connection properly, so it’s necessary to add some heartbeat mechanism. For instance:</li>
 </ul>
@@ -145,7 +145,7 @@ ga('send', 'pageview');
 <ul>
 <li>Log files may contain ANSI color codes (e.g. logging level). We can use <code>ansi2html</code> package to convert them into HTML:</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> ansi2html <span class="keyword">import</span> Ansi2HTMLConverter</span><br><span class="line">conv = Ansi2HTMLConverter(inline=<span class="keyword">True</span>)</span><br><span class="line"><span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(conv.convert(content, full=<span class="keyword">False</span>))</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> ansi2html <span class="keyword">import</span> Ansi2HTMLConverter</span><br><span class="line">conv = Ansi2HTMLConverter(inline=<span class="literal">True</span>)</span><br><span class="line"><span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(conv.convert(content, full=<span class="literal">False</span>))</span><br></pre></td></tr></table></figure>
 <ul>
 <li>It’s also necessary to do some permission checks on the file path. For example, convert to absolute path and do a simple prefix check.</li>
 </ul>
@@ -159,7 +159,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cjq0y0hez000sw5jkdc9365yj" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cjwq7ucgf000wxezjfmti86bl" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -261,7 +261,7 @@ ga('send', 'pageview');
     <div id="footer-info" class="inner">
       <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
-      &copy; 2018 Ji ZHANG<br>
+      &copy; 2019 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
   <title>Ji ZHANG&#39;s Blog</title>
@@ -40,7 +40,7 @@ ga('send', 'pageview');
 
 
 </head>
-
+</html>
 <body>
   <div id="container">
     <div id="wrap">
@@ -127,7 +127,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="cjq0y0hfz0029w5jkwsmpm7ds" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="cjwq7ucgz002bxezjy4chq8mc" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -179,7 +179,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="cjq0y0hfx0025w5jkr5iu7llu" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="cjwq7ucgy0029xezj5v372qn7" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -230,7 +230,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="cjq0y0hfv0022w5jkvnckaq5i" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="cjwq7ucgw0024xezjzw06ka9x" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -288,7 +288,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cjq0y0hft001zw5jkdux2dd6d" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cjwq7ucgv0021xezj0mzrti6t" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -340,7 +340,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="cjq0y0hfr001xw5jktyupvb4o" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="cjwq7ucgx0026xezjofwtjda4" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -381,9 +381,9 @@ ga('send', 'pageview');
     <div class="article-entry" itemprop="articleBody">
       
         <p><a href="https://www.tensorflow.org/" target="_blank" rel="noopener">TensorFlow</a> is one of the most popular machine learning frameworks that allow us to build various models with minor efforts. There are several ways to utilize these models in production like web service API, and this article will introduce how to make model prediction APIs with TensorFlow’s SavedModel mechanism.</p>
-<p><img src="/images/tf-logo.png" alt=""></p>
+<p><img src="/images/tf-logo.png" alt></p>
 <h2 id="Iris-DNN-Estimator"><a href="#Iris-DNN-Estimator" class="headerlink" title="Iris DNN Estimator"></a>Iris DNN Estimator</h2><p>First let’s build the famous iris classifier with TensorFlow’s pre-made DNN estimator. Full illustration can be found on TensorFlow’s website (<a href="https://www.tensorflow.org/get_started/premade_estimators" target="_blank" rel="noopener">Premade Estimators</a>), and I create a repository on GitHub (<a href="https://github.com/jizhang/tf-serve/blob/master/iris_dnn.py" target="_blank" rel="noopener"><code>iris_dnn.py</code></a>) for you to fork and work with. Here’s the gist of training the model:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">feature_columns = [tf.feature_column.numeric_column(key=key)</span><br><span class="line">                   <span class="keyword">for</span> key <span class="keyword">in</span> train_x.keys()]</span><br><span class="line">classifier = tf.estimator.DNNClassifier(</span><br><span class="line">    feature_columns=feature_columns,</span><br><span class="line">    hidden_units=[<span class="number">10</span>, <span class="number">10</span>],</span><br><span class="line">    n_classes=<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">classifier.train(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: train_input_fn(train_x, train_y, batch_size=BATCH_SIZE),</span><br><span class="line">    steps=STEPS)</span><br><span class="line"></span><br><span class="line">predictions = classifier.predict(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: eval_input_fn(predict_x, labels=<span class="keyword">None</span>, batch_size=BATCH_SIZE))</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">feature_columns = [tf.feature_column.numeric_column(key=key)</span><br><span class="line">                   <span class="keyword">for</span> key <span class="keyword">in</span> train_x.keys()]</span><br><span class="line">classifier = tf.estimator.DNNClassifier(</span><br><span class="line">    feature_columns=feature_columns,</span><br><span class="line">    hidden_units=[<span class="number">10</span>, <span class="number">10</span>],</span><br><span class="line">    n_classes=<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">classifier.train(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: train_input_fn(train_x, train_y, batch_size=BATCH_SIZE),</span><br><span class="line">    steps=STEPS)</span><br><span class="line"></span><br><span class="line">predictions = classifier.predict(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: eval_input_fn(predict_x, labels=<span class="literal">None</span>, batch_size=BATCH_SIZE))</span><br></pre></td></tr></table></figure>
         
           <p class="article-more-link">
             <a href="/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/#more">Read More</a>
@@ -392,7 +392,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cjq0y0hfp001uw5jkltufs2kn" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cjwq7ucgt001zxezjxfsy2v1f" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -433,11 +433,11 @@ ga('send', 'pageview');
     <div class="article-entry" itemprop="articleBody">
       
         <p><a href="https://hbase.apache.org/" target="_blank" rel="noopener">Apache HBase</a> is a key-value store in Hadoop ecosystem. It is based on HDFS, and can provide high performance data access on large amount of volume. HBase is written in Java, and has native support for Java clients. But with the help of Thrift and various language bindings, we can access HBase in web services quite easily. This article will describe how to read and write HBase table with Python and Thrift.</p>
-<p><img src="/images/hbase.png" alt=""></p>
+<p><img src="/images/hbase.png" alt></p>
 <h2 id="Generate-Thrift-Class"><a href="#Generate-Thrift-Class" class="headerlink" title="Generate Thrift Class"></a>Generate Thrift Class</h2><p>For anyone who is new to <a href="https://thrift.apache.org/" target="_blank" rel="noopener">Apache Thrift</a>, it provides an IDL (Interface Description Language) to let you describe your service methods and data types and then transform them into different languages. For instance, a Thrift type definition like this:</p>
 <figure class="highlight thrift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TColumn</span> </span>&#123;</span><br><span class="line">  <span class="number">1</span>: <span class="keyword">required</span> <span class="built_in">binary</span> family,</span><br><span class="line">  <span class="number">2</span>: <span class="keyword">optional</span> <span class="built_in">binary</span> qualifier,</span><br><span class="line">  <span class="number">3</span>: <span class="keyword">optional</span> <span class="built_in">i64</span> timestamp</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>Will be transformed into the following Python code:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TColumn</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, family=None, qualifier=None, timestamp=None,)</span>:</span></span><br><span class="line">        self.family = family</span><br><span class="line">        self.qualifier = qualifier</span><br><span class="line">        self.timestamp = timestamp</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read</span><span class="params">(self, iprot)</span>:</span></span><br><span class="line">        iprot.readStructBegin()</span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">            (fname, ftype, fid) = iprot.readFieldBegin()</span><br><span class="line">            <span class="comment"># ...</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write</span><span class="params">(self, oprot)</span>:</span></span><br><span class="line">        oprot.writeStructBegin(<span class="string">'TColumn'</span>)</span><br><span class="line">        <span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TColumn</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, family=None, qualifier=None, timestamp=None,)</span>:</span></span><br><span class="line">        self.family = family</span><br><span class="line">        self.qualifier = qualifier</span><br><span class="line">        self.timestamp = timestamp</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read</span><span class="params">(self, iprot)</span>:</span></span><br><span class="line">        iprot.readStructBegin()</span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            (fname, ftype, fid) = iprot.readFieldBegin()</span><br><span class="line">            <span class="comment"># ...</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write</span><span class="params">(self, oprot)</span>:</span></span><br><span class="line">        oprot.writeStructBegin(<span class="string">'TColumn'</span>)</span><br><span class="line">        <span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
         
           <p class="article-more-link">
             <a href="/blog/2018/04/22/connect-hbase-with-python-and-thrift/#more">Read More</a>
@@ -446,7 +446,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cjq0y0hfo001sw5jk1p55dhhp" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cjwq7ucgs001vxezjf5xvh5x7" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -486,12 +486,12 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/images/vue.png" alt=""></p>
+        <p><img src="/images/vue.png" alt></p>
 <p>When handling form inputs in Vue, we usually use <code>v-model</code> to achieve two-way binding. But if we want to put form data into Vuex store, two-way binding becomes a problem, since in <strong>strict mode</strong>, Vuex doesn’t allow state change outside mutation handlers. Take the following snippet for instance, while full code can be found on GitHub (<a href="https://github.com/jizhang/vuex-form" target="_blank" rel="noopener">link</a>).</p>
 <p><code>src/store/table.js</code></p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  state: &#123;</span><br><span class="line">    namespaced: <span class="literal">true</span>,</span><br><span class="line">    table: &#123;</span><br><span class="line">      table_name: <span class="string">''</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><code>src/components/NonStrict.vue</code></p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">b-form-group</span> <span class="attr">label</span>=<span class="string">"Table Name:"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">b-form-input</span> <span class="attr">v-model</span>=<span class="string">"table.table_name"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">b-form-group</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript"><span class="keyword">import</span> &#123; mapState &#125; <span class="keyword">from</span> <span class="string">'vuex'</span></span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span></span><br><span class="line"><span class="undefined">  computed: &#123;</span></span><br><span class="line"><span class="javascript">    ...mapState(<span class="string">'table'</span>, [</span></span><br><span class="line"><span class="javascript">      <span class="string">'table'</span></span></span><br><span class="line"><span class="undefined">    ])</span></span><br><span class="line"><span class="undefined">  &#125;</span></span><br><span class="line"><span class="undefined">&#125;</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">b-form-group</span> <span class="attr">label</span>=<span class="string">"Table Name:"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">b-form-input</span> <span class="attr">v-model</span>=<span class="string">"table.table_name"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">b-form-group</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript"><span class="keyword">import</span> &#123; mapState &#125; <span class="keyword">from</span> <span class="string">'vuex'</span></span></span><br><span class="line"></span><br><span class="line"><span class="javascript"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span></span><br><span class="line">  computed: &#123;</span><br><span class="line"><span class="javascript">    ...mapState(<span class="string">'table'</span>, [</span></span><br><span class="line"><span class="javascript">      <span class="string">'table'</span></span></span><br><span class="line">    ])</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>When we input something in “Table Name” field, an error will be thrown in browser’s console:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Error: [vuex] Do not mutate vuex store state outside mutation handlers.</span><br><span class="line">    at assert (vuex.esm.js?358c:97)</span><br><span class="line">    at Vue.store._vm.$watch.deep (vuex.esm.js?358c:746)</span><br><span class="line">    at Watcher.run (vue.esm.js?efeb:3233)</span><br></pre></td></tr></table></figure>
 <p>Apart from not using strict mode at all, which is fine if you’re ready to lose some benefits of tracking every mutation to the store, there’re several ways to solve this error. In this article, we’ll explore these solutions, and explain how they work.</p>
@@ -503,7 +503,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="cjq0y0hfm001qw5jkqfe5q83n" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="cjwq7ucgr001txezjhb6il1gf" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -557,7 +557,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/" data-id="cjq0y0hfi001nw5jkg058sxsf" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/" data-id="cjwq7ucgq001qxezjqn9yo7vu" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -622,7 +622,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/" data-id="cjq0y0hfh001kw5jk8fmfwbh9" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/" data-id="cjwq7ucgo001nxezj43zppcp7" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -704,7 +704,7 @@ ga('send', 'pageview');
     <div id="footer-info" class="inner">
       <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
-      &copy; 2018 Ji ZHANG<br>
+      &copy; 2019 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
