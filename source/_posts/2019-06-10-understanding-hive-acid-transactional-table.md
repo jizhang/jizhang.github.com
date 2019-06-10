@@ -1,8 +1,12 @@
 ---
 title: Understanding Hive ACID Transactional Table
-tags: [hive, hadoop]
+tags:
+  - hive
+  - hadoop
 categories: Big Data
+date: 2019-06-10 20:40:55
 ---
+
 
 [Apache Hive][1] introduced transactions since version 0.13 to fully support ACID semantics on Hive table, including INSERT/UPDATE/DELETE/MERGE statements, streaming data ingestion, etc. In Hive 3.0, this feature is further improved by optimizing the underlying data file structure, reducing constraints on table scheme, and supporting predicate push down and vectorized query. Examples and setup can be found on [Hive wiki][2] and other [tutorials][3], while this article will focus on how transactional table is saved on HDFS, and take a closer look at the read-write process.
 
