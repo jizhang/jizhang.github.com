@@ -40,6 +40,10 @@ paper: impala http://cidrdb.org/cidr2015/Papers/CIDR15_Paper28.pdf
         admission control, de-centralized, receive from statestore asynchronously, simple throttling mechanism
 
 paper: dremel https://research.google.com/pubs/archive/36632.pdf
+    root server, intermediate server, leaf server
+        multi-level serving tree
+    tablet, slot
+
 
 paper: presto
 
@@ -54,3 +58,6 @@ data locality
 semi-join, anti-join
 mysql execution engine? parallel?
 parquest vs text in Hive?
+impala vs drill vs presto
+vs hive tez + llap
+fault tolerance
