@@ -83,20 +83,20 @@ ARG job_jar
 COPY --chown=flink:flink $hadoop_jar $job_jar $FLINK_HOME/lib/
 ```
 
-Download the [Hadoop uber jar][12], and execute the following commands:
+Before building the image, you need to install Docker CLI and point it to the docker service inside minikube:
+
+```bash
+$ brew install docker
+$ eval $(minikube docker-env)
+```
+
+Then, download the [Hadoop uber jar][12], and execute the following commands:
 
 ```bash
 $ cd /path/to/Dockerfile
 $ cp /path/to/flink-shaded-hadoop-2-uber-2.8.3-7.0.jar hadoop.jar
 $ cp /path/to/flink-on-kubernetes-0.0.1-SNAPSHOT-jar-with-dependencies.jar job.jar
 $ docker build --build-arg hadoop_jar=hadoop.jar --build-arg job_jar=job.jar --tag flink-on-kubernetes:0.0.1 .
-```
-
-Before building the image, you need to install Docker CLI and point it to the docker service inside minikube:
-
-```bash
-$ brew install docker
-$ eval $(minikube docker-env)
 ```
 
 Now we have a local docker image that is ready to be deployed.
@@ -107,11 +107,102 @@ REPOSITORY           TAG    IMAGE ID      CREATED         SIZE
 flink-on-kubernetes  0.0.1  505d2f11cc57  10 seconds ago  618MB
 ```
 
-## Deploy Job Cluster
+## Deploy JobManager
 
-### JobManager
+First, we create a k8s Job for Flink JobManager. Job and Deployment both create and manage Pods to do some work. The difference is Job will quit if the Pod finishes successfully, based on the exit code, while Deployment only quits when asked to. This feature enables us to cancel the Flink job manually, without worrying Deployment restarts the JobManager by mistake.
 
-### Task Manager
+Here's the `jobmanager.yml`:
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ${JOB}-jobmanager
+spec:
+  template:
+    metadata:
+      labels:
+        app: flink
+        instance: ${JOB}-jobmanager
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: jobmanager
+        image: flink-on-kubernetes:0.0.1
+        command: ["/opt/flink/bin/standalone-job.sh"]
+        args: ["start-foreground",
+               "-Djobmanager.rpc.address=${JOB}-jobmanager",
+               "-Dparallelism.default=1",
+               "-Dblob.server.port=6124",
+               "-Dqueryable-state.server.ports=6125"]
+        ports:
+        - containerPort: 6123
+          name: rpc
+        - containerPort: 6124
+          name: blob
+        - containerPort: 6125
+          name: query
+        - containerPort: 8081
+          name: ui
+```
+
+* `${JOB}` can be replaced by `envsubst`, so that config files can be reused by different jobs.
+* Container's entry point is changed to `standalone-job.sh`. It will start the JobManager in foreground, scan the class path for a `Main-Class`, or you can specify the full class name via `-j` option.
+* Blob server and queryable state server's ports are by default random. We change them to fixed ports for easy exposure.
+
+```bash
+$ export JOB=flink-on-kubernetes
+$ envsubst <jobmanager.yml | kubectl create -f -
+$ kubectl get pod
+NAME                                   READY   STATUS    RESTARTS   AGE
+flink-on-kubernetes-jobmanager-kc4kq   1/1     Running   0          2m26s
+```
+
+Next, we expose this JobManager as k8s Service, so that TaskManagers can register to it.
+
+`service.yml`
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${JOB}-jobmanager
+spec:
+  selector:
+    app: flink
+    instance: ${JOB}-jobmanager
+  type: NodePort
+  ports:
+  - name: rpc
+    port: 6123
+  - name: blob
+    port: 6124
+  - name: query
+    port: 6125
+  - name: ui
+    port: 8081
+```
+
+`type: NodePort` is necessary because we too want to interact with this JobManager outside the k8s cluster.
+
+```bash
+$ envsubst <service.yml | kubectl create -f -
+$ kubectl get service
+NAME                             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                                                      AGE
+flink-on-kubernetes-jobmanager   NodePort    10.109.78.143   <none>        6123:31476/TCP,6124:32268/TCP,6125:31602/TCP,8081:31254/TCP  15m
+```
+
+We can see Flink dashboard is exposed on port 31254 on the virtual machine. Minikube provides a command to retrieve the full url of a service.
+
+```bash
+$ minikube service $JOB-jobmanager --url
+http://192.168.99.108:31476
+http://192.168.99.108:32268
+http://192.168.99.108:31602
+http://192.168.99.108:31254
+```
+
+## Deploy TaskManager
 
 ## Configure JobManager HA
 
