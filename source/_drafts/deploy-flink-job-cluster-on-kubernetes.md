@@ -44,7 +44,7 @@ Let us create a simple streaming job, that reads data from socket, and prints th
 
 ```java
 DataStream<Tuple2<String, Integer>> dataStream = env
-    .socketTextStream("localhost", 9999)
+    .socketTextStream("192.168.99.1", 9999)
     .flatMap(new Splitter())
     .keyBy(0)
     .timeWindow(Time.seconds(5))
@@ -53,11 +53,13 @@ DataStream<Tuple2<String, Integer>> dataStream = env
 dataStream.print();
 ```
 
+IP `192.168.99.1` allows container to access services running on minikube host. For this example to work, you need to run `nc -lk 9999` on your host before creating the JobManager pod.
+
 Run `mvn clean package`, and the compiled job jar can be found in `target/flink-on-kubernetes-0.0.1-SNAPSHOT-jar-with-dependencies.jar`.
 
 ## Build Docker Image
 
-Flink provides an official docker image on [DockerHub][11]. We can use it as the base image and add job jar into it. Besides, in recent Flink distribution, the Hadoop binary is not included anymore, so we need to add Hadoop jar as well. Take a quick look of the base image's [Dockerfile][12], it does the following:
+Flink provides an official docker image on [DockerHub][11]. We can use it as the base image and add job jar into it. Besides, in recent Flink distribution, the Hadoop binary is not included anymore, so we need to add Hadoop jar as well. Take a quick look of the base image's [Dockerfile][12], it does the following tasks:
 
 * Create from OpenJDK 1.8 base image.
 * Install Flink in `/opt/flink`.
@@ -148,6 +150,7 @@ spec:
 
 * `${JOB}` can be replaced by `envsubst`, so that config files can be reused by different jobs.
 * Container's entry point is changed to `standalone-job.sh`. It will start the JobManager in foreground, scan the class path for a `Main-Class`, or you can specify the full class name via `-j` option.
+* JobManager's RPC address is the k8s [Service][14]'s name, which we will create later. Other containers can access JobManager via this host name.
 * Blob server and queryable state server's ports are by default random. We change them to fixed ports for easy exposure.
 
 ```bash
@@ -183,7 +186,7 @@ spec:
     port: 8081
 ```
 
-`type: NodePort` is necessary because we too want to interact with this JobManager outside the k8s cluster.
+`type: NodePort` is necessary because we also want to interact with this JobManager outside the k8s cluster.
 
 ```bash
 $ envsubst <service.yml | kubectl create -f -
@@ -204,6 +207,51 @@ http://192.168.99.108:31254
 
 ## Deploy TaskManager
 
+`taskmanager.yml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${JOB}-taskmanager
+spec:
+  selector:
+    matchLabels:
+      app: flink
+      instance: ${JOB}-taskmanager
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: flink
+        instance: ${JOB}-taskmanager
+    spec:
+      containers:
+      - name: taskmanager
+        image: flink-on-kubernetes:0.0.1
+        command: ["/opt/flink/bin/taskmanager.sh"]
+        args: ["start-foreground", "-Djobmanager.rpc.address=${JOB}-jobmanager"]
+```
+
+Change the number of `replicas` to add more TaskManagers. The `taskmanager.numberOfTaskSlots` is set to `1` in this image, which is recommended because we should let k8s handle the scaling.
+
+Now the job cluster is running, try typing something into the `nc` console:
+
+```bash
+$ nc -lk 9999
+hello world
+hello flink
+```
+
+Open another terminal and tail the TaskManager's standard output:
+
+```bash
+$ kubectl logs -f -l instance=$JOB-taskmanager
+(hello,2)
+(flink,1)
+(world,1)
+```
+
 ## Configure JobManager HA
 
 ## Manage Flink Job
@@ -213,6 +261,8 @@ http://192.168.99.108:31254
 ### Scale
 
 ## Logs and Monitoring
+
+https://stackoverflow.com/a/55871120/1030720
 
 ## References
 
@@ -234,3 +284,4 @@ http://192.168.99.108:31254
 [11]: https://hub.docker.com/_/flink
 [12]: https://github.com/docker-flink/docker-flink/blob/master/1.8/scala_2.12-debian/Dockerfile
 [13]: https://repo.maven.apache.org/maven2/org/apache/flink/flink-shaded-hadoop-2-uber/2.8.3-7.0/flink-shaded-hadoop-2-uber-2.8.3-7.0.jar
+[14]: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
