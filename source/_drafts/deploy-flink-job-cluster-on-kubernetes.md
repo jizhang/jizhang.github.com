@@ -83,6 +83,7 @@ FROM flink:1.8.1-scala_2.12
 ARG hadoop_jar
 ARG job_jar
 COPY --chown=flink:flink $hadoop_jar $job_jar $FLINK_HOME/lib/
+USER flink
 ```
 
 Before building the image, you need to install Docker CLI and point it to the docker service inside minikube:
@@ -254,11 +255,53 @@ $ kubectl logs -f -l instance=$JOB-taskmanager
 
 ## Configure JobManager HA
 
+While TaskManager can achieve high availability by increasing the replicas of the Deployment, JobManager is still a single point of failure. Flink comes with an [HA solution][15] with the help of ZooKeeper and a distributed file system like HDFS. In a standalone cluster, multiple JobManagers are started and one of them is elected as leader. In YARN or Kubernetes deployment, only one JobManager instance is required. The cluster's meta info is stored in ZooKeeper, and checkpoint data are stored in HDFS. When JobManager is down, Kubernetes will restart the container, and the new JobManager will restore the last checkpoint and resume the job.
+
+To enable JobManager HA, change the start command of both JobManager and TaskManager:
+
+`jobmanager-ha.yml`
+
+```yaml
+command: ["/opt/flink/bin/standalone-job.sh"]
+args: ["start-foreground",
+       "-Djobmanager.rpc.address=${JOB}-jobmanager",
+       "-Dparallelism.default=1",
+       "-Dblob.server.port=6124",
+       "-Dqueryable-state.server.ports=6125",
+       "-Dhigh-availability=zookeeper",
+       "-Dhigh-availability.zookeeper.quorum=192.168.99.1:2181",
+       "-Dhigh-availability.zookeeper.path.root=/flink",
+       "-Dhigh-availability.cluster-id=/${JOB}",
+       "-Dhigh-availability.storageDir=hdfs://192.168.99.1:9000/flink/recovery",
+       "-Dhigh-availability.jobmanager.port=6123",
+       ]
+```
+
+`taskmanager-ha.yml`
+
+```yaml
+command: ["/opt/flink/bin/taskmanager.sh"]
+args: ["start-foreground",
+       "-Dhigh-availability=zookeeper",
+       "-Dhigh-availability.zookeeper.quorum=192.168.99.1:2181",
+       "-Dhigh-availability.zookeeper.path.root=/flink",
+       "-Dhigh-availability.cluster-id=/${JOB}",
+       "-Dhigh-availability.storageDir=hdfs://192.168.99.1:9000/flink/recovery",
+       ]
+```
+
+* Prepare a ZooKeeper and HDFS environment on minikube host, so that Flink containers can access them via `192.168.99.1:2181` and `192.168.99.1:9000`.
+* Cluster meta data will be stored under `/flink/${JOB}` in ZooKeeper.
+* Checkpoint data is stored under `/flink/recovery` in HDFS. Make sure you create the `/flink` directory with proper permission.
+* The `jobmanager.rpc.address` property is removed from TaskManager's arguments because the RPC host and port of JobManager will be fetched from ZooKeeper. The RPC port is by default random, so we changed to a fixed port via `high-availability.jobmanager.port`, which is exposed in k8s Service.
+
 ## Manage Flink Job
 
-### Stop and Resume
+stop & resume
+scale
 
-### Scale
+question
+cancel checkpoint exists?
 
 ## Logs and Monitoring
 
@@ -285,3 +328,4 @@ https://stackoverflow.com/a/55871120/1030720
 [12]: https://github.com/docker-flink/docker-flink/blob/master/1.8/scala_2.12-debian/Dockerfile
 [13]: https://repo.maven.apache.org/maven2/org/apache/flink/flink-shaded-hadoop-2-uber/2.8.3-7.0/flink-shaded-hadoop-2-uber-2.8.3-7.0.jar
 [14]: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+[15]: https://ci.apache.org/projects/flink/flink-docs-release-1.8/ops/jobmanager_high_availability.html
