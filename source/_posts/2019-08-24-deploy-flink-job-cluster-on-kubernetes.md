@@ -1,8 +1,12 @@
 ---
 title: Deploy Flink Job Cluster on Kubernetes
+tags:
+  - kubernetes
+  - flink
 categories: Big Data
-tags: [kubernetes, flink]
+date: 2019-08-24 19:33:22
 ---
+
 
 [Kubernetes][8] is the trending container orchestration system that can be used to host various applications from web services to data processing jobs. Applications are packaged in self-contained, yet light-weight containers, and we declare how they should be deployed, how they scale, and how they expose as services. [Flink][9] is also a trending distributed computing framework that can run on a variety of platforms, including Kubernetes. Combining them will bring us robust and scalable deployments of data processing jobs, and more safely Flink can share a Kubernetes cluster with other services.
 
