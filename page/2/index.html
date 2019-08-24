@@ -87,6 +87,60 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-error-handling-in-restful-api" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2018/04/07/error-handling-in-restful-api/" class="article-date">
+  <time datetime="2018-04-07T06:49:19.000Z" itemprop="datePublished">2018-04-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2018/04/07/error-handling-in-restful-api/">Error Handling in RESTful API</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/restful-api.png" alt="RESTful API"></p>
+<p>RESTful API is a common tool of building web services, especially in front and back-end separated application. It is based on HTTP protocol, which is simple, text-oriented, and well supported by various languages, browsers or clients. However, REST is not yet standardized, so that the developers need to decide how to design their APIs. One of the decisions is error handling. Should I use HTTP status code? How to handle form validation errors, etc. This article will propose an error handling mechanism for RESTful API, based on my daily work and understanding of this technique.</p>
+<h2 id="Types-of-Errors"><a href="#Types-of-Errors" class="headerlink" title="Types of Errors"></a>Types of Errors</h2><p>I tend to categorize errors into two types, global and local. Global errors include requesting an unknown API url, not being authorized to access this API, or there’s something wrong with the server code, unexpected and fatal. These errors should be caught by the web framework, no customized handling in individual API function.</p>
+<p>Local errors, on the other hand, are closely related to the current API. Examples are form validation, violation of unique constraint, or other expected errors. We need to write specific codes to catch these errors, and raise a global error with message and payload for framework to catch and respond with.</p>
+<p>Flask, for instance, provides a mechanism to catch exceptions globally:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BadRequest</span><span class="params">(Exception)</span>:</span></span><br><span class="line">    <span class="string">"""Custom exception class to be thrown when local error occurs."""</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, message, status=<span class="number">400</span>, payload=None)</span>:</span></span><br><span class="line">        self.message = message</span><br><span class="line">        self.status = status</span><br><span class="line">        self.payload = payload</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.errorhandler(BadRequest)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle_bad_request</span><span class="params">(error)</span>:</span></span><br><span class="line">    <span class="string">"""Catch BadRequest exception globally, serialize into JSON, and respond with 400."""</span></span><br><span class="line">    payload = dict(error.payload <span class="keyword">or</span> ())</span><br><span class="line">    payload[<span class="string">'status'</span>] = error.status</span><br><span class="line">    payload[<span class="string">'message'</span>] = error.message</span><br><span class="line">    <span class="keyword">return</span> jsonify(payload), <span class="number">400</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route('/person', methods=['POST'])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">person_post</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="string">"""Create a new person object and return its ID"""</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> request.form.get(<span class="string">'username'</span>):</span><br><span class="line">        <span class="keyword">raise</span> BadRequest(<span class="string">'username cannot be empty'</span>, <span class="number">40001</span>, &#123; <span class="string">'ext'</span>: <span class="number">1</span> &#125;)</span><br><span class="line">    <span class="keyword">return</span> jsonify(last_insert_id=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/blog/2018/04/07/error-handling-in-restful-api/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/" data-id="cjzpgu1pk001lamjkvxa8yhtt" class="article-share-link">Share</a>
+      
+        <a href="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/restful/">restful</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-flume-source-code-component-lifecycle" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2017/10/23/flume-source-code-component-lifecycle/" class="article-date">
@@ -138,7 +192,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/" data-id="cjwqd7z1e001kmgjksclc3ix1" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/" data-id="cjzpgu1ph001famjk9x84b85d" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -193,7 +247,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/" data-id="cjwqd7z1d001hmgjkh4v0nv6s" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/" data-id="cjzpgu1pi001iamjk5wpk5357" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -245,7 +299,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/" data-id="cjwqd7z1c001emgjk7bemp7wp" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/" data-id="cjzpgu1pr0020amjkh50iuuz6" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -299,7 +353,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/" data-id="cjwqd7z1a001bmgjk792is5rq" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/" data-id="cjzpgu1pe0019amjk1nbduz0v" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -351,7 +405,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/" data-id="cjwqd7z180018mgjkatohbg1j" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/" data-id="cjzpgu1pb0016amjkqt0vna9j" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -402,7 +456,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/" data-id="cjwqd7z160015mgjkdu1qqxml" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/" data-id="cjzpgu1pf001camjklzmez8kt" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -460,7 +514,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/" data-id="cjwqd7z140012mgjkb7xpbmzw" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/" data-id="cjzpgu1p9000zamjk55nfi1s6" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -515,7 +569,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/" data-id="cjwqd7z12000ymgjkmrc2o14x" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/" data-id="cjzpgu1pa0013amjkxh33xia0" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -571,63 +625,12 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/" data-id="cjwqd7z11000vmgjkxjgcij41" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/" data-id="cjzpgu1p8000wamjkn14e53nk" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pandas/">pandas</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/">sql</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-log-tailer-with-websocket-and-python" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2017/07/15/log-tailer-with-websocket-and-python/" class="article-date">
-  <time datetime="2017-07-15T11:21:03.000Z" itemprop="datePublished">2017-07-15</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Programming/">Programming</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2017/07/15/log-tailer-with-websocket-and-python/">Log Tailer with WebSocket and Python</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and <code>tail -f</code>, it would be nice if we can tail a log file in the browser. With WebSocket, this can be done easily. In this article, I’ll walk you through a simple <strong>logviewer</strong> (<a href="http://github.com/jizhang/logviewer" target="_blank" rel="noopener">source</a>) utility that is written in Python.</p>
-<p><img src="/images/logviewer-websocket.png" alt="Logviewer with WebSocket"></p>
-<h2 id="WebSocket-Intro"><a href="#WebSocket-Intro" class="headerlink" title="WebSocket Intro"></a>WebSocket Intro</h2><p>WebSocket is standard protocol over TCP, that provides full-duplex communication between client and server side, usually a browser and a web server. Before WebSocket, when we want to keep an alive browser-server connection, we choose from long polling, forever frame or Comet techniques. Now that WebSocket is widely supported by major browsers, we can use it to implement web chatroom, games, realtime dashboard, etc. Besides, WebSocket connection can be established by an HTTP upgrade request, and communicate over 80 port, so as to bring minimum impact on existing network facility.</p>
-        
-          <p class="article-more-link">
-            <a href="/blog/2017/07/15/log-tailer-with-websocket-and-python/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cjwqd7z0z000smgjkrn0ieeev" class="article-share-link">Share</a>
-      
-        <a href="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ops/">ops</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/websocket/">websocket</a></li></ul>
 
     </footer>
   </div>
@@ -649,7 +652,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 15px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 10px;">eslint</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flink/" style="font-size: 10px;">flink</a> <a href="/tags/flume/" style="font-size: 13.33px;">flume</a> <a href="/tags/frontend/" style="font-size: 15px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.67px;">hdfs</a> <a href="/tags/hive/" style="font-size: 11.67px;">hive</a> <a href="/tags/java/" style="font-size: 18.33px;">java</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.67px;">kafka</a> <a href="/tags/lodash/" style="font-size: 11.67px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.67px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.67px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/sql/" style="font-size: 11.67px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vue/" style="font-size: 10px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 15px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 10px;">eslint</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flink/" style="font-size: 11.67px;">flink</a> <a href="/tags/flume/" style="font-size: 13.33px;">flume</a> <a href="/tags/frontend/" style="font-size: 15px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.67px;">hdfs</a> <a href="/tags/hive/" style="font-size: 11.67px;">hive</a> <a href="/tags/java/" style="font-size: 18.33px;">java</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.67px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 10px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.67px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.67px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.67px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/sql/" style="font-size: 11.67px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vue/" style="font-size: 10px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -658,7 +661,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
     </div>
   </div>
 
@@ -669,6 +672,10 @@ ga('send', 'pageview');
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/">Deploy Flink Job Cluster on Kubernetes</a>
+          </li>
         
           <li>
             <a href="/blog/2019/06/10/understanding-hive-acid-transactional-table/">Understanding Hive ACID Transactional Table</a>
@@ -684,10 +691,6 @@ ga('send', 'pageview');
         
           <li>
             <a href="/blog/2018/10/03/flume-source-code-hdfs-sink/">Flume Source Code: HDFS Sink</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2018/09/20/how-to-avoid-null-pointer-exception/">How to Avoid NullPointerException</a>
           </li>
         
       </ul>
