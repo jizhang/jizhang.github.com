@@ -8,7 +8,7 @@ tags: [kubernetes, flink]
 
 ![Flink on Kubernetes](/images/flink-on-kubernetes.png)
 
-When deploying Flink on Kubernetes, there are two options, session cluster and job cluster. Session cluster is like running a standalone Flink cluster on k8s that can accept multiple jobs and is suitable for short running tasks or ad-hoc queries. Job cluster, on the other hand, deploys a full set of Flink cluster for each individual job. We build container image for each job, and provide it with dedicated resources, so that jobs have less chance interfering with other, and can scale out independently. Besides, in future release, there might not be an option to run session cluster on k8s cluster ([FLIP-6][10]).
+When deploying Flink on Kubernetes, there are two options, session cluster and job cluster. Session cluster is like running a standalone Flink cluster on k8s that can accept multiple jobs and is suitable for short running tasks or ad-hoc queries. Job cluster, on the other hand, deploys a full set of Flink cluster for each individual job. We build container image for each job, and provide it with dedicated resources, so that jobs have less chance interfering with other, and can scale out independently. Besides, in future release, there might not be an option to run session cluster on k8s. ([FLIP-6][10]).
 
 Here are the steps of running a Flink job cluster on Kubernetes:
 
@@ -24,7 +24,7 @@ Here are the steps of running a Flink job cluster on Kubernetes:
 
 ## Kubernetes Playground
 
-In case you do not already have a Kubernetes environment, one can easily setup a local playground with [minikube][1]. Take MacOS for example:
+In case you do not already have a Kubernetes environment, one can easily setup a local playground with [minikube][1]. Take MacOS for an example:
 
 * Install [VirtualBox][2], since minikube will setup a k8s cluster inside a virtual machine.
 * Download the [minikube binary][3], making it executable and accessible from PATH.
@@ -59,10 +59,10 @@ Run `mvn clean package`, and the compiled job jar can be found in `target/flink-
 
 ## Build Docker Image
 
-Flink provides an official docker image on [DockerHub][11]. We can use it as the base image and add job jar into it. Besides, in recent Flink distribution, the Hadoop binary is not included anymore, so we need to add Hadoop jar as well. Take a quick look of the base image's [Dockerfile][12], it does the following tasks:
+Flink provides an official docker image on [DockerHub][11]. We can use it as the base image and add job jar into it. Besides, in recent Flink distribution, the Hadoop binary is not included anymore, so we need to add Hadoop jar as well. Take a quick look at the base image's [Dockerfile][12], it does the following tasks:
 
 * Create from OpenJDK 1.8 base image.
-* Install Flink in `/opt/flink`.
+* Install Flink into `/opt/flink`.
 * Add `flink` user and group.
 * Configure the entry point, which we will override in k8s deployments.
 
@@ -93,7 +93,7 @@ $ brew install docker
 $ eval $(minikube docker-env)
 ```
 
-Then, download the [Hadoop uber jar][12], and execute the following commands:
+Then, download the [Hadoop uber jar][13], and execute the following commands:
 
 ```bash
 $ cd /path/to/Dockerfile
@@ -150,7 +150,7 @@ spec:
 ```
 
 * `${JOB}` can be replaced by `envsubst`, so that config files can be reused by different jobs.
-* Container's entry point is changed to `standalone-job.sh`. It will start the JobManager in foreground, scan the class path for a `Main-Class`, or you can specify the full class name via `-j` option.
+* Container's entry point is changed to `standalone-job.sh`. It will start the JobManager in foreground, scan the class path for a `Main-Class` as the job entry point, or you can specify the full class name via `-j` option. Then, this job is automatically submitted to the cluster.
 * JobManager's RPC address is the k8s [Service][14]'s name, which we will create later. Other containers can access JobManager via this host name.
 * Blob server and queryable state server's ports are by default random. We change them to fixed ports for easy exposure.
 
@@ -297,15 +297,84 @@ args: ["start-foreground",
 
 ## Manage Flink Job
 
-stop & resume
-scale
+We can interact with Flink cluster via RESTful API. It is the same port as Flink Dashboard. Install Flink binaries on your host machine, and pass `-m` argument to point to the JobManager in k8s:
 
-question
-cancel checkpoint exists?
+```bash
+$ bin/flink list -m 192.168.99.108:30206
+------------------ Running/Restarting Jobs -------------------
+24.08.2019 12:50:28 : 00000000000000000000000000000000 : Window WordCount (RUNNING)
+--------------------------------------------------------------
+```
 
-## Logs and Monitoring
+In HA mode, Flink job ID is by default `00000000000000000000000000000000`. We can use this ID to cancel Flink job with [SavePoint][16]:
 
-https://stackoverflow.com/a/55871120/1030720
+```bash
+$ bin/flink cancel -m 192.168.99.108:30206 -s hdfs://192.168.99.1:9000/flink/savepoints/ 00000000000000000000000000000000
+Cancelled job 00000000000000000000000000000000. Savepoint stored in hdfs://192.168.99.1:9000/flink/savepoints/savepoint-000000-f776c8e50a0c.
+```
+
+And the k8s Job is now in completed status:
+
+```bash
+$ kubectl get job
+NAME                             COMPLETIONS   DURATION   AGE
+flink-on-kubernetes-jobmanager   1/1           4m40s      7m14s
+```
+
+To re-submit the job, we need to delete them first:
+
+```bash
+$ kubectl delete job $JOB-jobmanager
+$ kubectl delete deployment $JOB-taskmanager
+```
+
+Then add a command argument to `jobmanager-savepoint.yml`:
+
+```yaml
+command: ["/opt/flink/bin/standalone-job.sh"]
+args: ["start-foreground",
+       ...
+       "--fromSavepoint", "${SAVEPOINT}",
+       ]
+```
+
+Start this job from the SavePoint:
+
+```bash
+$ export SAVEPOINT=hdfs://192.168.99.1:9000/flink/savepoints/savepoint-000000-f776c8e50a0c
+$ envsubst <jobmanager-savepoint.yml | kubectl create -f -
+```
+
+One note on SavePoint, it has to be used with HA mode, because the `--fromSavepoint` argument will be passed to `standalone-job.sh` every time Kubernetes tries to restart a failed JobManager. With HA mode enabled, the new JobManager will first restore from the CheckPoint, ignoring the SavePoint.
+
+### Scale Flink Job
+
+There are two ways to scale a Flink job. One is manually restarting it with a different `parallelism.default` config, which can be found in `jobmanager.yml`. Another way is using the `bin/flink modify` command. Under the hood, this command cancels the job with a SavePoint, and restarts it with the new parallelism. So for this to work, you need to first set the default SavePoint directory, like:
+
+```yaml
+command: ["/opt/flink/bin/standalone-job.sh"]
+args: ["start-foreground",
+       ...
+       "-Dstate.savepoints.dir=hdfs://192.168.99.1:9000/flink/savepoints/",
+       ]
+```
+
+Then, add more TaskManagers with `kubectl scale`:
+
+```bash
+$ kubectl scale --replicas=2 deployment/$JOB-taskmanager
+deployment.extensions/flink-on-kubernetes-taskmanager scaled
+```
+
+And modify the parallelism of the running job:
+
+```bash
+$ bin/flink modify 755877434b676ce9dae5cfb533ed7f33 -m 192.168.99.108:30206 -p 2
+Modify job 755877434b676ce9dae5cfb533ed7f33.
+Rescaled job 755877434b676ce9dae5cfb533ed7f33. Its new parallelism is 2.
+```
+
+However, due to an [unresolved issue][17], we cannot use `flink modify` to scale an HA job cluster in Kubernetes mode. Use the manual method instead.
 
 ## References
 
@@ -329,3 +398,5 @@ https://stackoverflow.com/a/55871120/1030720
 [13]: https://repo.maven.apache.org/maven2/org/apache/flink/flink-shaded-hadoop-2-uber/2.8.3-7.0/flink-shaded-hadoop-2-uber-2.8.3-7.0.jar
 [14]: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
 [15]: https://ci.apache.org/projects/flink/flink-docs-release-1.8/ops/jobmanager_high_availability.html
+[16]: https://ci.apache.org/projects/flink/flink-docs-release-1.8/ops/state/savepoints.html
+[17]: https://issues.apache.org/jira/browse/FLINK-11997
