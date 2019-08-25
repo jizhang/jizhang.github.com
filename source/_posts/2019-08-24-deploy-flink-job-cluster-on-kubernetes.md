@@ -12,9 +12,7 @@ date: 2019-08-24 19:33:22
 
 ![Flink on Kubernetes](/images/flink-on-kubernetes.png)
 
-When deploying Flink on Kubernetes, there are two options, session cluster and job cluster. Session cluster is like running a standalone Flink cluster on k8s that can accept multiple jobs and is suitable for short running tasks or ad-hoc queries. Job cluster, on the other hand, deploys a full set of Flink cluster for each individual job. We build container image for each job, and provide it with dedicated resources, so that jobs have less chance interfering with other, and can scale out independently. Besides, in future release, there might not be an option to run session cluster on k8s. ([FLIP-6][10]).
-
-Here are the steps of running a Flink job cluster on Kubernetes:
+When deploying Flink on Kubernetes, there are two options, session cluster and job cluster. Session cluster is like running a standalone Flink cluster on k8s that can accept multiple jobs and is suitable for short running tasks or ad-hoc queries. Job cluster, on the other hand, deploys a full set of Flink cluster for each individual job. We build container image for each job, and provide it with dedicated resources, so that jobs have less chance interfering with other, and can scale out independently. So this article will illustrate how to run a Flink job cluster on Kubernetes, the steps are:
 
 * Compile and package the Flink job jar.
 * Build a Docker image containing the Flink runtime and the job jar.
@@ -118,7 +116,7 @@ flink-on-kubernetes  0.0.1  505d2f11cc57  10 seconds ago  618MB
 
 First, we create a k8s Job for Flink JobManager. Job and Deployment both create and manage Pods to do some work. The difference is Job will quit if the Pod finishes successfully, based on the exit code, while Deployment only quits when asked to. This feature enables us to cancel the Flink job manually, without worrying Deployment restarts the JobManager by mistake.
 
-Here's the `jobmanager.yml`:
+Here's the [`jobmanager.yml`][18]:
 
 ```yaml
 apiVersion: batch/v1
@@ -380,6 +378,12 @@ Rescaled job 755877434b676ce9dae5cfb533ed7f33. Its new parallelism is 2.
 
 However, due to an [unresolved issue][17], we cannot use `flink modify` to scale an HA job cluster in Kubernetes mode. Use the manual method instead.
 
+## Flink Native Support on Kubernetes
+
+Flink enjoys a very active community that constantly improves its own design ([FLIP-6][10]) to adopt current cloud-native environment. They've also noticed the rapid development of Kubernetes, and the native support of Flink on K8s is under development as well. It's known that Flink can run natively on resource management systems like YARN/Mesos. Take YARN for an instance, Flink will first start an ApplicationMaster as the JobManager, analyze how much resource this job needs, and request YARN ResourceManager for containers to run TaskManager. When the parallelism changes, JobManager will acquire or release containers correspondingly. This kind of active resource management for Kubernetes is under development ([FLINK-9953][19]). In future, we can deploy Flink cluster on K8s with a simple command.
+
+Besides, another kind of resource management is also on its way. It's called reactive container mode ([FLINK-10407][20]). In short, when the JobManager realizes there are idle TaskManagers, it will automatically scale the job to its maximum parallelism. Thus, we only need to use `kubectl scale` changing `replicas`, without executing `flink modify` later. Such convenient features will be available soon, I believe.
+
 ## References
 
 * https://ci.apache.org/projects/flink/flink-docs-release-1.8/ops/deployment/kubernetes.html
@@ -404,3 +408,6 @@ However, due to an [unresolved issue][17], we cannot use `flink modify` to scale
 [15]: https://ci.apache.org/projects/flink/flink-docs-release-1.8/ops/jobmanager_high_availability.html
 [16]: https://ci.apache.org/projects/flink/flink-docs-release-1.8/ops/state/savepoints.html
 [17]: https://issues.apache.org/jira/browse/FLINK-11997
+[18]: https://github.com/jizhang/flink-on-kubernetes/blob/master/docker/jobmanager.yml
+[19]: https://issues.apache.org/jira/browse/FLINK-9953
+[20]: https://issues.apache.org/jira/browse/FLINK-10407
