@@ -115,8 +115,7 @@ ga('send', 'pageview');
       
         <p><a href="https://kubernetes.io/" target="_blank" rel="noopener">Kubernetes</a> is the trending container orchestration system that can be used to host various applications from web services to data processing jobs. Applications are packaged in self-contained, yet light-weight containers, and we declare how they should be deployed, how they scale, and how they expose as services. <a href="https://flink.apache.org/" target="_blank" rel="noopener">Flink</a> is also a trending distributed computing framework that can run on a variety of platforms, including Kubernetes. Combining them will bring us robust and scalable deployments of data processing jobs, and more safely Flink can share a Kubernetes cluster with other services.</p>
 <p><img src="/images/flink-on-kubernetes.png" alt="Flink on Kubernetes"></p>
-<p>When deploying Flink on Kubernetes, there are two options, session cluster and job cluster. Session cluster is like running a standalone Flink cluster on k8s that can accept multiple jobs and is suitable for short running tasks or ad-hoc queries. Job cluster, on the other hand, deploys a full set of Flink cluster for each individual job. We build container image for each job, and provide it with dedicated resources, so that jobs have less chance interfering with other, and can scale out independently. Besides, in future release, there might not be an option to run session cluster on k8s. (<a href="https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=65147077" target="_blank" rel="noopener">FLIP-6</a>).</p>
-<p>Here are the steps of running a Flink job cluster on Kubernetes:</p>
+<p>When deploying Flink on Kubernetes, there are two options, session cluster and job cluster. Session cluster is like running a standalone Flink cluster on k8s that can accept multiple jobs and is suitable for short running tasks or ad-hoc queries. Job cluster, on the other hand, deploys a full set of Flink cluster for each individual job. We build container image for each job, and provide it with dedicated resources, so that jobs have less chance interfering with other, and can scale out independently. So this article will illustrate how to run a Flink job cluster on Kubernetes, the steps are:</p>
 <ul>
 <li>Compile and package the Flink job jar.</li>
 <li>Build a Docker image containing the Flink runtime and the job jar.</li>
@@ -134,7 +133,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/" data-id="cjzpgu1pz002hamjki7stsoov" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/" data-id="cjzqinidn000568r437clzy1v" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -192,7 +191,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/" data-id="cjzpgu1pw002damjk0n1d2jbq" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/" data-id="cjzqinidz000968r4q0aczak5" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -246,7 +245,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="cjzpgu1pv002aamjkg4m7pt2w" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="cjzqinih7000q68r4hnaesgvr" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -298,7 +297,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="cjzpgu1pu0026amjk0uqpmhsx" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="cjzqinidf000168r4vgyg20k4" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -349,7 +348,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="cjzpgu1pt0023amjkdascixw5" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="cjzqinihi000s68r4jy8tyoy1" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -407,7 +406,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cjzpgu1pp001vamjkkv5yrsvw" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cjzqinidk000368r40p11o86l" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -459,7 +458,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="cjzpgu1po001tamjkrskewgqw" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="cjzqinid5000068r4c7mtzxx9" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -502,7 +501,7 @@ ga('send', 'pageview');
         <p><a href="https://www.tensorflow.org/" target="_blank" rel="noopener">TensorFlow</a> is one of the most popular machine learning frameworks that allow us to build various models with minor efforts. There are several ways to utilize these models in production like web service API, and this article will introduce how to make model prediction APIs with TensorFlow’s SavedModel mechanism.</p>
 <p><img src="/images/tf-logo.png" alt></p>
 <h2 id="Iris-DNN-Estimator"><a href="#Iris-DNN-Estimator" class="headerlink" title="Iris DNN Estimator"></a>Iris DNN Estimator</h2><p>First let’s build the famous iris classifier with TensorFlow’s pre-made DNN estimator. Full illustration can be found on TensorFlow’s website (<a href="https://www.tensorflow.org/get_started/premade_estimators" target="_blank" rel="noopener">Premade Estimators</a>), and I create a repository on GitHub (<a href="https://github.com/jizhang/tf-serve/blob/master/iris_dnn.py" target="_blank" rel="noopener"><code>iris_dnn.py</code></a>) for you to fork and work with. Here’s the gist of training the model:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">feature_columns = [tf.feature_column.numeric_column(key=key)</span><br><span class="line">                   <span class="keyword">for</span> key <span class="keyword">in</span> train_x.keys()]</span><br><span class="line">classifier = tf.estimator.DNNClassifier(</span><br><span class="line">    feature_columns=feature_columns,</span><br><span class="line">    hidden_units=[<span class="number">10</span>, <span class="number">10</span>],</span><br><span class="line">    n_classes=<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">classifier.train(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: train_input_fn(train_x, train_y, batch_size=BATCH_SIZE),</span><br><span class="line">    steps=STEPS)</span><br><span class="line"></span><br><span class="line">predictions = classifier.predict(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: eval_input_fn(predict_x, labels=<span class="literal">None</span>, batch_size=BATCH_SIZE))</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">feature_columns = [tf.feature_column.numeric_column(key=key)</span><br><span class="line">                   <span class="keyword">for</span> key <span class="keyword">in</span> train_x.keys()]</span><br><span class="line">classifier = tf.estimator.DNNClassifier(</span><br><span class="line">    feature_columns=feature_columns,</span><br><span class="line">    hidden_units=[<span class="number">10</span>, <span class="number">10</span>],</span><br><span class="line">    n_classes=<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">classifier.train(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: train_input_fn(train_x, train_y, batch_size=BATCH_SIZE),</span><br><span class="line">    steps=STEPS)</span><br><span class="line"></span><br><span class="line">predictions = classifier.predict(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: eval_input_fn(predict_x, labels=<span class="keyword">None</span>, batch_size=BATCH_SIZE))</span><br></pre></td></tr></table></figure>
         
           <p class="article-more-link">
             <a href="/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/#more">Read More</a>
@@ -511,7 +510,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cjzpgu1pm001ramjk1xvtendy" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cjlz5icbe0023w0r44s5d8gbt" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -556,7 +555,7 @@ ga('send', 'pageview');
 <h2 id="Generate-Thrift-Class"><a href="#Generate-Thrift-Class" class="headerlink" title="Generate Thrift Class"></a>Generate Thrift Class</h2><p>For anyone who is new to <a href="https://thrift.apache.org/" target="_blank" rel="noopener">Apache Thrift</a>, it provides an IDL (Interface Description Language) to let you describe your service methods and data types and then transform them into different languages. For instance, a Thrift type definition like this:</p>
 <figure class="highlight thrift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TColumn</span> </span>&#123;</span><br><span class="line">  <span class="number">1</span>: <span class="keyword">required</span> <span class="built_in">binary</span> family,</span><br><span class="line">  <span class="number">2</span>: <span class="keyword">optional</span> <span class="built_in">binary</span> qualifier,</span><br><span class="line">  <span class="number">3</span>: <span class="keyword">optional</span> <span class="built_in">i64</span> timestamp</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>Will be transformed into the following Python code:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TColumn</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, family=None, qualifier=None, timestamp=None,)</span>:</span></span><br><span class="line">        self.family = family</span><br><span class="line">        self.qualifier = qualifier</span><br><span class="line">        self.timestamp = timestamp</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read</span><span class="params">(self, iprot)</span>:</span></span><br><span class="line">        iprot.readStructBegin()</span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            (fname, ftype, fid) = iprot.readFieldBegin()</span><br><span class="line">            <span class="comment"># ...</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write</span><span class="params">(self, oprot)</span>:</span></span><br><span class="line">        oprot.writeStructBegin(<span class="string">'TColumn'</span>)</span><br><span class="line">        <span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TColumn</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, family=None, qualifier=None, timestamp=None,)</span>:</span></span><br><span class="line">        self.family = family</span><br><span class="line">        self.qualifier = qualifier</span><br><span class="line">        self.timestamp = timestamp</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read</span><span class="params">(self, iprot)</span>:</span></span><br><span class="line">        iprot.readStructBegin()</span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">            (fname, ftype, fid) = iprot.readFieldBegin()</span><br><span class="line">            <span class="comment"># ...</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write</span><span class="params">(self, oprot)</span>:</span></span><br><span class="line">        oprot.writeStructBegin(<span class="string">'TColumn'</span>)</span><br><span class="line">        <span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
         
           <p class="article-more-link">
             <a href="/blog/2018/04/22/connect-hbase-with-python-and-thrift/#more">Read More</a>
@@ -565,7 +564,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cjzpgu1pq001yamjkp7k3cjuq" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cjlz5icbh0026w0r42hlkneio" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -610,7 +609,7 @@ ga('send', 'pageview');
 <p><code>src/store/table.js</code></p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  state: &#123;</span><br><span class="line">    namespaced: <span class="literal">true</span>,</span><br><span class="line">    table: &#123;</span><br><span class="line">      table_name: <span class="string">''</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><code>src/components/NonStrict.vue</code></p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">b-form-group</span> <span class="attr">label</span>=<span class="string">"Table Name:"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">b-form-input</span> <span class="attr">v-model</span>=<span class="string">"table.table_name"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">b-form-group</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript"><span class="keyword">import</span> &#123; mapState &#125; <span class="keyword">from</span> <span class="string">'vuex'</span></span></span><br><span class="line"></span><br><span class="line"><span class="javascript"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span></span><br><span class="line">  computed: &#123;</span><br><span class="line"><span class="javascript">    ...mapState(<span class="string">'table'</span>, [</span></span><br><span class="line"><span class="javascript">      <span class="string">'table'</span></span></span><br><span class="line">    ])</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">b-form-group</span> <span class="attr">label</span>=<span class="string">"Table Name:"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">b-form-input</span> <span class="attr">v-model</span>=<span class="string">"table.table_name"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">b-form-group</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript"><span class="keyword">import</span> &#123; mapState &#125; <span class="keyword">from</span> <span class="string">'vuex'</span></span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span></span><br><span class="line"><span class="undefined">  computed: &#123;</span></span><br><span class="line"><span class="javascript">    ...mapState(<span class="string">'table'</span>, [</span></span><br><span class="line"><span class="javascript">      <span class="string">'table'</span></span></span><br><span class="line"><span class="undefined">    ])</span></span><br><span class="line"><span class="undefined">  &#125;</span></span><br><span class="line"><span class="undefined">&#125;</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>When we input something in “Table Name” field, an error will be thrown in browser’s console:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Error: [vuex] Do not mutate vuex store state outside mutation handlers.</span><br><span class="line">    at assert (vuex.esm.js?358c:97)</span><br><span class="line">    at Vue.store._vm.$watch.deep (vuex.esm.js?358c:746)</span><br><span class="line">    at Watcher.run (vue.esm.js?efeb:3233)</span><br></pre></td></tr></table></figure>
 <p>Apart from not using strict mode at all, which is fine if you’re ready to lose some benefits of tracking every mutation to the store, there’re several ways to solve this error. In this article, we’ll explore these solutions, and explain how they work.</p>
@@ -622,7 +621,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="cjzpgu1pl001oamjkgqfngneu" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="cjlz5icbc0020w0r4iyr4u65m" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/#disqus_thread" class="article-comment-link">Comments</a>
       
