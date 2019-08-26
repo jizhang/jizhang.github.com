@@ -390,6 +390,7 @@ Besides, another kind of resource management is also on its way. It's called rea
 * https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
 * https://jobs.zalando.com/tech/blog/running-apache-flink-on-kubernetes/
 * https://www.slideshare.net/tillrohrmann/redesigning-apache-flinks-distributed-architecture-flink-forward-2017
+* https://www.slideshare.net/tillrohrmann/future-of-apache-flink-deployments-containers-kubernetes-and-more-flink-forward-2019-sf
 
 [1]: https://github.com/kubernetes/minikube
 [2]: https://www.virtualbox.org
