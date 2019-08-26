@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
 <meta property="og:description" content="Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2017-09-04T13:26:37.374Z">
+<meta property="og:updated_time" content="2017-03-09T05:48:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python 2 to 3 Quick Guide">
 <meta name="twitter:description" content="Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python">
@@ -143,7 +143,7 @@ ga('send', 'pageview');
 <h2 id="print-Becomes-a-Function"><a href="#print-Becomes-a-Function" class="headerlink" title="print Becomes a Function"></a><code>print</code> Becomes a Function</h2><p>In Python 2, <code>print</code> is a statement, and now it’s used as a function:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span>   <span class="comment"># Old: print a new line</span></span><br><span class="line">print() <span class="comment"># New</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">'hello'</span>, <span class="string">'world'</span>,          <span class="comment"># Old: trailing comma suppresses new line</span></span><br><span class="line">print(<span class="string">'hello'</span>, <span class="string">'world'</span>, end=<span class="string">' '</span>) <span class="comment"># New: end defaults to '\n'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> &gt;&gt;sys.stderr, <span class="string">'error'</span>     <span class="comment"># Old: write to stderr</span></span><br><span class="line">print(<span class="string">'error'</span>, file=sys.stderr) <span class="comment"># New</span></span><br></pre></td></tr></table></figure>
 <p><code>print</code> function also provides <code>sep</code> and <code>flush</code> parameters:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">'hello'</span>, <span class="string">'world'</span>, sep=<span class="string">','</span>, flush=<span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Instead of:</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">','</span>.join((<span class="string">'hello'</span>, <span class="string">'world'</span>))</span><br><span class="line">sys.stdout.flush()</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">'hello'</span>, <span class="string">'world'</span>, sep=<span class="string">','</span>, flush=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Instead of:</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">','</span>.join((<span class="string">'hello'</span>, <span class="string">'world'</span>))</span><br><span class="line">sys.stdout.flush()</span><br></pre></td></tr></table></figure>
 <h2 id="Less-Lists-More-Views"><a href="#Less-Lists-More-Views" class="headerlink" title="Less Lists More Views"></a>Less Lists More Views</h2><p>A lot of well-known methods now return iterators, or ‘views’,  instead of eager-evaluated lists.</p>
 <ul>
 <li>Dictionary’s <code>keys</code>, <code>items</code>, and <code>values</code> methods, while removing <code>iterkeys</code>, <code>iteritems</code>, and <code>itervalues</code>. For example, when you need a sorted key list:</li>
@@ -211,7 +211,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cjlz5ica3000iw0r4ridqxbnq" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cjzhq3mql000gn7zje797tl8f" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#disqus_thread" class="article-comment-link">Comments</a>
       
