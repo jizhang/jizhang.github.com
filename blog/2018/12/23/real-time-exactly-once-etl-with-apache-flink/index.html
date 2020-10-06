@@ -6,7 +6,7 @@
   <title>Real-time Exactly-once ETL with Apache Flink | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Apache Flink is another popular big data processing framework, which differs from Apache Spark in that Flink uses stream processing to mimic batch processing and provides sub-second latency along with">
-<meta name="keywords" content="flink,kafka,etl,java,hdfs">
+<meta name="keywords" content="kafka,etl,java,flink,hdfs">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Real-time Exactly-once ETL with Apache Flink">
 <meta property="og:url" content="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/index.html">
@@ -16,7 +16,7 @@
 <meta property="og:image" content="http://shzhangji.com/images/flink/arch.png">
 <meta property="og:image" content="http://shzhangji.com/images/flink/dashboard.png">
 <meta property="og:image" content="http://shzhangji.com/images/flink/stream-barrier.png">
-<meta property="og:updated_time" content="2018-12-23T13:42:44.000Z">
+<meta property="og:updated_time" content="2020-10-06T07:28:57.288Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Real-time Exactly-once ETL with Apache Flink">
 <meta name="twitter:description" content="Apache Flink is another popular big data processing framework, which differs from Apache Spark in that Flink uses stream processing to mimic batch processing and provides sub-second latency along with">
@@ -137,7 +137,7 @@ ga('send', 'pageview');
 <p>Flink will read data from a local Kafka broker, with topic <code>flink_test</code>, and transform it into simple strings, indicated by <code>SimpleStringSchema</code>. There are other built-in deserialization schema like JSON and Avro, or you can create a custom one.</p>
 <h3 id="Streaming-File-Sink"><a href="#Streaming-File-Sink" class="headerlink" title="Streaming File Sink"></a>Streaming File Sink</h3><p><code>StreamingFileSink</code> is replacing the previous <code>BucketingSink</code> to store data into HDFS in different directories. The key concept here is bucket assigner, which defaults to <code>DateTimeBucketAssigner</code>, that divides messages into timed buckets according to processing time, i.e. the time when messages arrive the operator. But what we want is to divide messages by event time, so we have to write one on our own.</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EventTimeBucketAssigner</span> <span class="keyword">implements</span> <span class="title">BucketAssigner</span>&lt;<span class="title">String</span>, <span class="title">String</span>&gt; </span>&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">getBucketId</span><span class="params">(String element, Context context)</span> </span>&#123;</span><br><span class="line">    JsonNode node = mapper.readTree(element);</span><br><span class="line">    <span class="keyword">long</span> date = (<span class="keyword">long</span>) (node.path(<span class="string">"timestamp"</span>).floatValue() * <span class="number">1000</span>);</span><br><span class="line">    String partitionValue = <span class="keyword">new</span> SimpleDateFormat(<span class="string">"yyyyMMdd"</span>).format(<span class="keyword">new</span> Date(date));</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"dt="</span> + partitionValue;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>We create a bucket assigner that ingests a string, decodes with Jackson, extracts the timestamp, and returns the bucket name of this message. Then the sink will know where to put them. Full code can be found on GitHub (<a href="https://github.com/jizhang/flink-sandbox/blob/master/src/main/java/com/shzhangji/flinksandbox/kafka/EventTimeBucketAssigner.java" target="_blank" rel="noopener">link</a>).</p>
+<p>We create a bucket assigner that ingests a string, decodes with Jackson, extracts the timestamp, and returns the bucket name of this message. Then the sink will know where to put them. Full code can be found on GitHub (<a href="https://github.com/jizhang/flink-sandbox/blob/blog-etl/src/main/java/com/shzhangji/flinksandbox/kafka/EventTimeBucketAssigner.java" target="_blank" rel="noopener">link</a>).</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">StreamingFileSink&lt;String&gt; sink = StreamingFileSink</span><br><span class="line">    .forRowFormat(<span class="keyword">new</span> Path(<span class="string">"/tmp/kafka-loader"</span>), <span class="keyword">new</span> SimpleStringEncoder&lt;String&gt;())</span><br><span class="line">    .withBucketAssigner(<span class="keyword">new</span> EventTimeBucketAssigner())</span><br><span class="line">    .build();</span><br><span class="line">stream.addSink(sink);</span><br></pre></td></tr></table></figure>
 <p>There is also a <code>forBulkFormat</code>, if you prefer storing data in a more compact way like Parquet.</p>
 <p>A note on <code>StreamingFileSink</code> though, it only works with Hadoop 2.7 and above, because it requires the file system supporting <code>truncate</code>, which helps recovering the writing process from the last checkpoint.</p>
@@ -172,7 +172,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="cjzhq3mrv002fn7zj4y5uiui6" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="ckfxn7sck002650c7c8v1vts7" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -274,7 +274,7 @@ ga('send', 'pageview');
     <div id="footer-info" class="inner">
       <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
-      &copy; 2019 Ji ZHANG<br>
+      &copy; 2020 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
