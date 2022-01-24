@@ -2,14 +2,28 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://shzhangji.com/googlee297afcb6441ee00.html</loc>
+    <loc>http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/</loc>
+    
+    <lastmod>2022-01-24T09:14:12.987Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/</loc>
+    
+    <lastmod>2022-01-24T09:14:04.196Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/</loc>
     
     <lastmod>2020-10-06T07:28:57.289Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/</loc>
+    <loc>http://shzhangji.com/googlee297afcb6441ee00.html</loc>
     
     <lastmod>2020-10-06T07:28:57.289Z</lastmod>
     
@@ -23,7 +37,7 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/</loc>
+    <loc>http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/</loc>
     
     <lastmod>2020-10-06T07:28:57.288Z</lastmod>
     
@@ -37,13 +51,6 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/</loc>
-    
-    <lastmod>2020-10-06T07:28:57.288Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/</loc>
     
     <lastmod>2020-10-06T07:28:57.288Z</lastmod>
@@ -51,14 +58,14 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/</loc>
+    <loc>http://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/</loc>
     
-    <lastmod>2020-10-06T07:28:57.287Z</lastmod>
+    <lastmod>2020-10-06T07:28:57.288Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/</loc>
+    <loc>http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/</loc>
     
     <lastmod>2020-10-06T07:28:57.287Z</lastmod>
     
@@ -72,7 +79,7 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/</loc>
+    <loc>http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/</loc>
     
     <lastmod>2020-10-06T07:28:57.287Z</lastmod>
     
@@ -86,9 +93,9 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/</loc>
+    <loc>http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/</loc>
     
-    <lastmod>2020-10-06T07:28:57.286Z</lastmod>
+    <lastmod>2020-10-06T07:28:57.287Z</lastmod>
     
   </url>
   
@@ -101,6 +108,20 @@
   
   <url>
     <loc>http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/</loc>
+    
+    <lastmod>2020-10-06T07:28:57.286Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/</loc>
+    
+    <lastmod>2020-10-06T07:28:57.286Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/</loc>
     
     <lastmod>2020-10-06T07:28:57.286Z</lastmod>
     
@@ -121,14 +142,7 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/</loc>
-    
-    <lastmod>2020-10-06T07:28:57.286Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/</loc>
+    <loc>http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/</loc>
     
     <lastmod>2020-10-06T07:28:57.285Z</lastmod>
     
@@ -142,28 +156,7 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/</loc>
-    
-    <lastmod>2020-10-06T07:28:57.285Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/</loc>
-    
-    <lastmod>2020-10-06T07:28:57.285Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/</loc>
-    
-    <lastmod>2020-10-06T07:28:57.284Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/</loc>
+    <loc>http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</loc>
     
     <lastmod>2020-10-06T07:28:57.284Z</lastmod>
     
@@ -184,6 +177,13 @@
   </url>
   
   <url>
+    <loc>http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/</loc>
+    
+    <lastmod>2020-10-06T07:28:57.284Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</loc>
     
     <lastmod>2020-10-06T07:28:57.284Z</lastmod>
@@ -191,21 +191,21 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</loc>
+    <loc>http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/</loc>
     
     <lastmod>2020-10-06T07:28:57.284Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</loc>
+    <loc>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</loc>
     
     <lastmod>2020-10-06T07:28:57.283Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</loc>
+    <loc>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</loc>
     
     <lastmod>2020-10-06T07:28:57.283Z</lastmod>
     
@@ -219,14 +219,14 @@
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</loc>
+    <loc>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</loc>
     
     <lastmod>2020-10-06T07:28:57.283Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</loc>
+    <loc>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</loc>
     
     <lastmod>2020-10-06T07:28:57.283Z</lastmod>
     

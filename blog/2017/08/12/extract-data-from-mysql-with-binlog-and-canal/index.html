@@ -14,7 +14,7 @@
 <meta property="og:description" content="Data extraction is the very first step of an ETL process. We need to load data from external data stores like RDMBS or logging file system, and then we can do cleaning, transformation and summary. In">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://shzhangji.com/images/canal.png">
-<meta property="og:updated_time" content="2020-10-06T07:28:57.285Z">
+<meta property="og:updated_time" content="2022-01-24T09:14:04.196Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Extract Data from MySQL with Binlog and Canal">
 <meta name="twitter:description" content="Data extraction is the very first step of an ETL process. We need to load data from external data stores like RDMBS or logging file system, and then we can do cleaning, transformation and summary. In">
@@ -140,7 +140,7 @@ ga('send', 'pageview');
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// printEntries</span></span><br><span class="line">RowChange rowChange = RowChange.parseFrom(entry.getStoreValue());</span><br><span class="line"><span class="keyword">for</span> (RowData rowData : rowChange.getRowDatasList()) &#123;</span><br><span class="line">    <span class="keyword">if</span> (rowChange.getEventType() == EventType.INSERT) &#123;</span><br><span class="line">      printColumns(rowData.getAfterCollumnList());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>Every <code>Entry</code> in a message represents a set of row changes with the same event type, e.g. INSERT, UPDATE, or DELETE. For each row, we can get the column data like this:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// printColumns</span></span><br><span class="line">String line = columns.stream()</span><br><span class="line">        .map(column -&gt; column.getName() + <span class="string">"="</span> + column.getValue())</span><br><span class="line">        .collect(Collectors.joining(<span class="string">","</span>));</span><br><span class="line">System.out.println(line);</span><br></pre></td></tr></table></figure>
-<p>Full example can be found on GitHub (<a href="https://github.com/jizhang/java-sandbox/blob/blog-canal/src/main/java/com/shzhangji/javasandbox/canal/SimpleClient.java" target="_blank" rel="noopener">link</a>).</p>
+<p>Full example can be found on GitHub (<a href="https://github.com/jizhang/java-blog-demo/blob/blog-canal/canal/src/main/java/com/shzhangji/demo/canal/SimpleClient.java" target="_blank" rel="noopener">link</a>).</p>
 <h2 id="Load-into-Data-Warehouse"><a href="#Load-into-Data-Warehouse" class="headerlink" title="Load into Data Warehouse"></a>Load into Data Warehouse</h2><h3 id="RDBMS-with-Batch-Insert"><a href="#RDBMS-with-Batch-Insert" class="headerlink" title="RDBMS with Batch Insert"></a>RDBMS with Batch Insert</h3><p>For DB based data warehouse, we can directly use the <code>REPLACE</code> statement and let the database deduplicates rows by primary key. One concern is the instertion performance, so it’s often necessary to cache the data for a while and do a batch insertion, like:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">REPLACE</span> <span class="keyword">INTO</span> <span class="string">`user`</span> (<span class="string">`id`</span>, <span class="string">`name`</span>, <span class="string">`age`</span>, <span class="string">`updated`</span>) <span class="keyword">VALUES</span></span><br><span class="line">(<span class="number">1</span>, <span class="string">'Jerry'</span>, <span class="number">30</span>, <span class="string">'2017-08-12 16:00:00'</span>),</span><br><span class="line">(<span class="number">2</span>, <span class="string">'Mary'</span>, <span class="number">28</span>, <span class="string">'2017-08-12 17:00:00'</span>),</span><br><span class="line">(<span class="number">3</span>, <span class="string">'Tom'</span>, <span class="number">36</span>, <span class="string">'2017-08-12 18:00:00'</span>);</span><br></pre></td></tr></table></figure>
 <p>Another approach is to write the extracted data into a delimited text file, then execute a <code>LOAD DATA</code> statement. These files can also be used to import data into Hive. But for both approaches, make sure you escape the string columns properly, so as to avoid insertion errors.</p>
@@ -173,7 +173,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/" data-id="ckfxn7sc9001d50c7885ixrjl" class="article-share-link">Share</a>
+      <a data-url="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/" data-id="ckysh7o3c0010ras6y56cjqyj" class="article-share-link">Share</a>
       
         <a href="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -275,7 +275,7 @@ ga('send', 'pageview');
     <div id="footer-info" class="inner">
       <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
-      &copy; 2020 Ji ZHANG<br>
+      &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
