@@ -107,7 +107,7 @@ steps:
       publish_dir: ./public
 ```
 
-It first clones the `gh-pages` branch into work directory, overwites it with the files in `public` folder, commits and pushes to the remote branch. The `GITHUB_TOKEN` is provided by GitHub Actions, with adequate permissions.
+It first clones the `gh-pages` branch into work directory, overwrites it with the files in `public` folder, commits and pushes to the remote branch. The `GITHUB_TOKEN` is provided by GitHub Actions, with adequate permissions.
 
 Last but not least, this workflow needs to be triggered on the `push` event of the `master` branch:
 
