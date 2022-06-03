@@ -97,7 +97,7 @@ Under the hood, it searches for a local cache of the specific node version, wher
 
 When it comes to caching the downloaded packages, `setup-node` action utilizes [`actions/cache`][4]. It caches the global package data, i.e. `~/.cache/yarn/v6` folder, instead of `node_modules`, so that cache can be shared between different node versions. `setup-node` generates a cache key in the form of `node-cache-Linux-yarn-${hash(yarn.lock)}`. See more about caching on [GitHub Docs][5].
 
-The static site is generated in `public` folder, and we need to push them into the `gh-pages` branch. There is an action [`peaceiris/actions-gh-pages`][6] that already covers this. It first clones the `gh-pages` branch into work directory, overwites it with the files in `public` folder, commits and pushes to the remote branch. The `GITHUB_TOKEN` is provided by GitHub Actions, with adequate permissions.
+The static site is generated in `public` folder, and we need to push them into the `gh-pages` branch. There is an action [`peaceiris/actions-gh-pages`][6] that already covers this.
 
 ```yaml
 steps:
@@ -106,6 +106,8 @@ steps:
       github_token: ${{ secrets.GITHUB_TOKEN }}
       publish_dir: ./public
 ```
+
+It first clones the `gh-pages` branch into work directory, overwites it with the files in `public` folder, commits and pushes to the remote branch. The `GITHUB_TOKEN` is provided by GitHub Actions, with adequate permissions.
 
 Last but not least, this workflow needs to be triggered on the `push` event of the `master` branch:
 
