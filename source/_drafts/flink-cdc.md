@@ -20,6 +20,12 @@ tags: [flink, etl, data warehouse]
 
 ## Deployment
 
-## Data Initialization
+## Further Questions
+
+data initialization
+different schema, schema change
+partitioned table
+add/remove table
+reduced buffer
 
 ## References
