@@ -1,8 +1,13 @@
 ---
 title: Use Bootstrap V5 in Vue 3 Project
+tags:
+  - bootstrap
+  - vue
+  - vite
 categories: Programming
-tags: [bootstrap, vue, vite]
+date: 2022-06-11 20:06:26
 ---
+
 
 Bootstrap V5 and Vue 3.x have been released for a while, but the widely used BootstrapVue library is still based on Bootstrap V4 and Vue 2.x. A [new version][1] of BootstrapVue is under development, and there is an alternative project [BootstrapVue 3][2] in alpha version. However, since Bootstrap is mainly a CSS framework, and it has dropped jQuery dependency in V5, it is not that difficult to integrate into a Vue 3.x project on your own. In this article, we will go through the steps of creating such a project.
 
@@ -243,7 +248,7 @@ function saveChanges() {
 </template>
 ```
 
-Check out the [Vue document][6] to learn about component, slot, v-model, etc.
+Check out the [Vue document][6] to learn about component, slot, v-model, etc. Code examples can be found on [GitHub][7].
 
 [1]: https://github.com/bootstrap-vue/bootstrap-vue/issues/5196
 [2]: https://cdmoro.github.io/bootstrap-vue-3/
@@ -251,3 +256,4 @@ Check out the [Vue document][6] to learn about component, slot, v-model, etc.
 [4]: https://getbootstrap.com/docs/5.2/components/modal/
 [5]: https://vuejs.org/guide/essentials/template-refs.html
 [6]: https://vuejs.org/guide/essentials/component-basics.html
+[7]: https://github.com/jizhang/blog-demo/tree/master/bootstrap-vue3
