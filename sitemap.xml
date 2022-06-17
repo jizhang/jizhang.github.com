@@ -2,241 +2,691 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/</loc>
+    <loc>https://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/</loc>
+    <loc>https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/</loc>
+    <loc>https://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/</loc>
+    <loc>https://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/</loc>
+    <loc>https://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/</loc>
+    <loc>https://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/</loc>
+    <loc>https://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/</loc>
+    <loc>https://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/</loc>
+    <loc>https://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/</loc>
+    <loc>https://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/</loc>
+    <loc>https://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/</loc>
+    <loc>https://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/</loc>
+    <loc>https://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/</loc>
+    <loc>https://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/</loc>
+    <loc>https://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/</loc>
+    <loc>https://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/</loc>
+    <loc>https://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/</loc>
+    <loc>https://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/</loc>
+    <loc>https://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/</loc>
     
-    <lastmod>2022-06-12T05:01:34.283Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/</loc>
+    <loc>https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</loc>
+    <loc>https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</loc>
+    <loc>https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</loc>
+    <loc>https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</loc>
+    <loc>https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</loc>
+    <loc>https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</loc>
+    <loc>https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</loc>
+    <loc>https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/</loc>
+    <loc>https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/</loc>
+    <loc>https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/</loc>
+    <loc>https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/</loc>
+    <loc>https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/</loc>
+    <loc>https://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/</loc>
+    <loc>https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/</loc>
+    <loc>https://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</loc>
     
-    <lastmod>2022-06-12T05:01:34.279Z</lastmod>
+    <lastmod>2022-06-17</lastmod>
     
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+
+  <url>
+    <loc>https://shzhangji.com/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  
+  <url>
+    <loc>https://shzhangji.com/tags/flink/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/etl/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/clojure/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/scala/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/scalatra/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/webjars/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/elasticsearch/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/spark/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/python/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/lodash/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/javascript/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/frontend/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/functional-programming/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/es6/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/crossfilter/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/dc-js/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/analytics/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/websocket/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/ops/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/pandas/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/sql/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/spark-streaming/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/kafka/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/stream-processing/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/flume/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/java/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/mysql/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/canal/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/algorithm/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/hive/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/apache-beam/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/mapreduce/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/source-code/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/restful/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/vue/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/vuex/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/hbase/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/thrift/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/tensorflow/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/machine-learning/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/react/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/eslint/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/spring/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/eclipse/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/hdfs/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/hexo/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/github/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/bootstrap/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/vite/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/hadoop/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/kubernetes/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+
+  
+  <url>
+    <loc>https://shzhangji.com/categories/Big-Data/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/categories/Programming/</loc>
+    <lastmod>2022-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
   </url>
   
 </urlset>

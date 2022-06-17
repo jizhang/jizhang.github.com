@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.8.0">
+<head>
   <meta charset="utf-8">
   
   <title>Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
 <meta property="og:title" content="Ji ZHANG&#39;s Blog">
-<meta property="og:url" content="http://shzhangji.com/page/2/index.html">
+<meta property="og:url" content="https://shzhangji.com/page/2/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
-<meta property="og:locale" content="default">
+<meta property="og:locale">
+<meta property="article:author" content="Ji ZHANG">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Ji ZHANG&#39;s Blog">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -21,9 +21,13 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link rel="stylesheet" href="/css/source-code-pro.css">
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
   
-  <link rel="stylesheet" href="/css/style.css">
+  
+<link rel="stylesheet" href="/css/style.css">
+
   
 
 
@@ -36,8 +40,8 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-</head>
-</html>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -48,10 +52,6 @@
       <h1 id="logo-wrap">
         <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">If I rest, I rust.</a>
-        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -75,7 +75,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -110,12 +110,13 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><a href="https://hbase.apache.org/" target="_blank" rel="noopener">Apache HBase</a> is a key-value store in Hadoop ecosystem. It is based on HDFS, and can provide high performance data access on large amount of volume. HBase is written in Java, and has native support for Java clients. But with the help of Thrift and various language bindings, we can access HBase in web services quite easily. This article will describe how to read and write HBase table with Python and Thrift.</p>
-<p><img src="/images/hbase.png" alt></p>
-<h2 id="Generate-Thrift-Class"><a href="#Generate-Thrift-Class" class="headerlink" title="Generate Thrift Class"></a>Generate Thrift Class</h2><p>For anyone who is new to <a href="https://thrift.apache.org/" target="_blank" rel="noopener">Apache Thrift</a>, it provides an IDL (Interface Description Language) to let you describe your service methods and data types and then transform them into different languages. For instance, a Thrift type definition like this:</p>
-<figure class="highlight thrift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TColumn</span> </span>&#123;</span><br><span class="line">  <span class="number">1</span>: <span class="keyword">required</span> <span class="built_in">binary</span> family,</span><br><span class="line">  <span class="number">2</span>: <span class="keyword">optional</span> <span class="built_in">binary</span> qualifier,</span><br><span class="line">  <span class="number">3</span>: <span class="keyword">optional</span> <span class="built_in">i64</span> timestamp</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <p><a target="_blank" rel="noopener" href="https://hbase.apache.org/">Apache HBase</a> is a key-value store in Hadoop ecosystem. It is based on HDFS, and can provide high performance data access on large amount of volume. HBase is written in Java, and has native support for Java clients. But with the help of Thrift and various language bindings, we can access HBase in web services quite easily. This article will describe how to read and write HBase table with Python and Thrift.</p>
+<p><img src="/images/hbase.png"></p>
+<h2 id="Generate-Thrift-Class"><a href="#Generate-Thrift-Class" class="headerlink" title="Generate Thrift Class"></a>Generate Thrift Class</h2><p>For anyone who is new to <a target="_blank" rel="noopener" href="https://thrift.apache.org/">Apache Thrift</a>, it provides an IDL (Interface Description Language) to let you describe your service methods and data types and then transform them into different languages. For instance, a Thrift type definition like this:</p>
+<figure class="highlight thrift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TColumn</span> </span>&#123;</span><br><span class="line">  <span class="number">1</span>: <span class="keyword">required</span> <span class="type">binary</span> family,</span><br><span class="line">  <span class="number">2</span>: <span class="keyword">optional</span> <span class="type">binary</span> qualifier,</span><br><span class="line">  <span class="number">3</span>: <span class="keyword">optional</span> <span class="type">i64</span> timestamp</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>Will be transformed into the following Python code:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TColumn</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, family=None, qualifier=None, timestamp=None,)</span>:</span></span><br><span class="line">        self.family = family</span><br><span class="line">        self.qualifier = qualifier</span><br><span class="line">        self.timestamp = timestamp</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">read</span><span class="params">(self, iprot)</span>:</span></span><br><span class="line">        iprot.readStructBegin()</span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            (fname, ftype, fid) = iprot.readFieldBegin()</span><br><span class="line">            <span class="comment"># ...</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">write</span><span class="params">(self, oprot)</span>:</span></span><br><span class="line">        oprot.writeStructBegin(<span class="string">'TColumn'</span>)</span><br><span class="line">        <span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TColumn</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, family=<span class="literal">None</span>, qualifier=<span class="literal">None</span>, timestamp=<span class="literal">None</span>,</span>):</span><br><span class="line">        self.family = family</span><br><span class="line">        self.qualifier = qualifier</span><br><span class="line">        self.timestamp = timestamp</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">read</span>(<span class="params">self, iprot</span>):</span><br><span class="line">        iprot.readStructBegin()</span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            (fname, ftype, fid) = iprot.readFieldBegin()</span><br><span class="line">            <span class="comment"># ...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">write</span>(<span class="params">self, oprot</span>):</span><br><span class="line">        oprot.writeStructBegin(<span class="string">&#x27;TColumn&#x27;</span>)</span><br><span class="line">        <span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
         
           <p class="article-more-link">
             <a href="/blog/2018/04/22/connect-hbase-with-python-and-thrift/#more">Read More</a>
@@ -124,12 +125,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cl4aua5p4001t9llt59kxhpe6" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cl4j3rwl1001tacnc7ede33lo" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hbase/">hbase</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/thrift/">thrift</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hbase/" rel="tag">hbase</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/thrift/" rel="tag">thrift</a></li></ul>
 
     </footer>
   </div>
@@ -164,14 +165,17 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/images/vue.png" alt></p>
-<p>When handling form inputs in Vue, we usually use <code>v-model</code> to achieve two-way binding. But if we want to put form data into Vuex store, two-way binding becomes a problem, since in <strong>strict mode</strong>, Vuex doesn’t allow state change outside mutation handlers. Take the following snippet for instance, while full code can be found on GitHub (<a href="https://github.com/jizhang/vuex-form" target="_blank" rel="noopener">link</a>).</p>
+        <p><img src="/images/vue.png"></p>
+<p>When handling form inputs in Vue, we usually use <code>v-model</code> to achieve two-way binding. But if we want to put form data into Vuex store, two-way binding becomes a problem, since in <strong>strict mode</strong>, Vuex doesn’t allow state change outside mutation handlers. Take the following snippet for instance, while full code can be found on GitHub (<a target="_blank" rel="noopener" href="https://github.com/jizhang/vuex-form">link</a>).</p>
 <p><code>src/store/table.js</code></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  state: &#123;</span><br><span class="line">    namespaced: <span class="literal">true</span>,</span><br><span class="line">    table: &#123;</span><br><span class="line">      table_name: <span class="string">''</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">state</span>: &#123;</span><br><span class="line">    <span class="attr">namespaced</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="attr">table</span>: &#123;</span><br><span class="line">      <span class="attr">table_name</span>: <span class="string">&#x27;&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p><code>src/components/NonStrict.vue</code></p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">b-form-group</span> <span class="attr">label</span>=<span class="string">"Table Name:"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">b-form-input</span> <span class="attr">v-model</span>=<span class="string">"table.table_name"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">b-form-group</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript"><span class="keyword">import</span> &#123; mapState &#125; <span class="keyword">from</span> <span class="string">'vuex'</span></span></span><br><span class="line"></span><br><span class="line"><span class="javascript"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span></span><br><span class="line">  computed: &#123;</span><br><span class="line"><span class="javascript">    ...mapState(<span class="string">'table'</span>, [</span></span><br><span class="line"><span class="javascript">      <span class="string">'table'</span></span></span><br><span class="line">    ])</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">b-form-group</span> <span class="attr">label</span>=<span class="string">&quot;Table Name:&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">b-form-input</span> <span class="attr">v-model</span>=<span class="string">&quot;table.table_name&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">b-form-group</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"><span class="keyword">import</span> &#123; mapState &#125; <span class="keyword">from</span> <span class="string">&#x27;vuex&#x27;</span></span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span></span><br><span class="line"><span class="language-javascript">  <span class="attr">computed</span>: &#123;</span></span><br><span class="line"><span class="language-javascript">    ...<span class="title function_">mapState</span>(<span class="string">&#x27;table&#x27;</span>, [</span></span><br><span class="line"><span class="language-javascript">      <span class="string">&#x27;table&#x27;</span></span></span><br><span class="line"><span class="language-javascript">    ])</span></span><br><span class="line"><span class="language-javascript">  &#125;</span></span><br><span class="line"><span class="language-javascript">&#125;</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
 <p>When we input something in “Table Name” field, an error will be thrown in browser’s console:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Error: [vuex] Do not mutate vuex store state outside mutation handlers.</span><br><span class="line">    at assert (vuex.esm.js?358c:97)</span><br><span class="line">    at Vue.store._vm.$watch.deep (vuex.esm.js?358c:746)</span><br><span class="line">    at Watcher.run (vue.esm.js?efeb:3233)</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Error: [vuex] Do not mutate vuex store state outside mutation handlers.</span><br><span class="line">    at assert (vuex.esm.js?358c:97)</span><br><span class="line">    at Vue.store._vm.$watch.deep (vuex.esm.js?358c:746)</span><br><span class="line">    at Watcher.run (vue.esm.js?efeb:3233)</span><br></pre></td></tr></table></figure>
+
 <p>Apart from not using strict mode at all, which is fine if you’re ready to lose some benefits of tracking every mutation to the store, there’re several ways to solve this error. In this article, we’ll explore these solutions, and explain how they work.</p>
         
           <p class="article-more-link">
@@ -181,12 +185,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="cl4aua5p3001r9llt4857u5al" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="cl4j3rwl0001racnc2qy8a759" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/">vue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vuex/">vuex</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/" rel="tag">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/" rel="tag">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/" rel="tag">vue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vuex/" rel="tag">vuex</a></li></ul>
 
     </footer>
   </div>
@@ -226,7 +230,7 @@
 <h2 id="Types-of-Errors"><a href="#Types-of-Errors" class="headerlink" title="Types of Errors"></a>Types of Errors</h2><p>I tend to categorize errors into two types, global and local. Global errors include requesting an unknown API url, not being authorized to access this API, or there’s something wrong with the server code, unexpected and fatal. These errors should be caught by the web framework, no customized handling in individual API function.</p>
 <p>Local errors, on the other hand, are closely related to the current API. Examples are form validation, violation of unique constraint, or other expected errors. We need to write specific codes to catch these errors, and raise a global error with message and payload for framework to catch and respond with.</p>
 <p>Flask, for instance, provides a mechanism to catch exceptions globally:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BadRequest</span><span class="params">(Exception)</span>:</span></span><br><span class="line">    <span class="string">"""Custom exception class to be thrown when local error occurs."""</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, message, status=<span class="number">400</span>, payload=None)</span>:</span></span><br><span class="line">        self.message = message</span><br><span class="line">        self.status = status</span><br><span class="line">        self.payload = payload</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.errorhandler(BadRequest)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle_bad_request</span><span class="params">(error)</span>:</span></span><br><span class="line">    <span class="string">"""Catch BadRequest exception globally, serialize into JSON, and respond with 400."""</span></span><br><span class="line">    payload = dict(error.payload <span class="keyword">or</span> ())</span><br><span class="line">    payload[<span class="string">'status'</span>] = error.status</span><br><span class="line">    payload[<span class="string">'message'</span>] = error.message</span><br><span class="line">    <span class="keyword">return</span> jsonify(payload), <span class="number">400</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route('/person', methods=['POST'])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">person_post</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="string">"""Create a new person object and return its ID"""</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> request.form.get(<span class="string">'username'</span>):</span><br><span class="line">        <span class="keyword">raise</span> BadRequest(<span class="string">'username cannot be empty'</span>, <span class="number">40001</span>, &#123; <span class="string">'ext'</span>: <span class="number">1</span> &#125;)</span><br><span class="line">    <span class="keyword">return</span> jsonify(last_insert_id=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">BadRequest</span>(<span class="title class_ inherited__">Exception</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Custom exception class to be thrown when local error occurs.&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, message, status=<span class="number">400</span>, payload=<span class="literal">None</span></span>):</span><br><span class="line">        self.message = message</span><br><span class="line">        self.status = status</span><br><span class="line">        self.payload = payload</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.errorhandler(<span class="params">BadRequest</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">handle_bad_request</span>(<span class="params">error</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Catch BadRequest exception globally, serialize into JSON, and respond with 400.&quot;&quot;&quot;</span></span><br><span class="line">    payload = <span class="built_in">dict</span>(error.payload <span class="keyword">or</span> ())</span><br><span class="line">    payload[<span class="string">&#x27;status&#x27;</span>] = error.status</span><br><span class="line">    payload[<span class="string">&#x27;message&#x27;</span>] = error.message</span><br><span class="line">    <span class="keyword">return</span> jsonify(payload), <span class="number">400</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/person&#x27;</span>, methods=[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">person_post</span>():</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Create a new person object and return its ID&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> request.form.get(<span class="string">&#x27;username&#x27;</span>):</span><br><span class="line">        <span class="keyword">raise</span> BadRequest(<span class="string">&#x27;username cannot be empty&#x27;</span>, <span class="number">40001</span>, &#123; <span class="string">&#x27;ext&#x27;</span>: <span class="number">1</span> &#125;)</span><br><span class="line">    <span class="keyword">return</span> jsonify(last_insert_id=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
         
           <p class="article-more-link">
             <a href="/blog/2018/04/07/error-handling-in-restful-api/#more">Read More</a>
@@ -235,12 +239,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/" data-id="cl4aua5p1001n9llt7bhngnl4" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/" data-id="cl4j3rwkx001nacncf3amgzo1" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/restful/">restful</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/" rel="tag">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/" rel="tag">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/restful/" rel="tag">restful</a></li></ul>
 
     </footer>
   </div>
@@ -275,11 +279,13 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><a href="https://flume.apache.org/" target="_blank" rel="noopener">Apache Flume</a> is a real-time ETL tool for data warehouse platform. It consists of different types of components, and during runtime all of them are managed by Flume’s lifecycle and supervisor mechanism. This article will walk you through the source code of Flume’s component lifecycle management.</p>
+        <p><a target="_blank" rel="noopener" href="https://flume.apache.org/">Apache Flume</a> is a real-time ETL tool for data warehouse platform. It consists of different types of components, and during runtime all of them are managed by Flume’s lifecycle and supervisor mechanism. This article will walk you through the source code of Flume’s component lifecycle management.</p>
 <h2 id="Repository-Structure"><a href="#Repository-Structure" class="headerlink" title="Repository Structure"></a>Repository Structure</h2><p>Flume’s source code can be downloaded from GitHub. It’s a Maven project, so we can import it into an IDE for efficient code reading. The following is the main structure of the project:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/flume-ng-node</span><br><span class="line">/flume-ng-code</span><br><span class="line">/flume-ng-sdk</span><br><span class="line">/flume-ng-sources/flume-kafka-source</span><br><span class="line">/flume-ng-channels/flume-kafka-channel</span><br><span class="line">/flume-ng-sinks/flume-hdfs-sink</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/flume-ng-node</span><br><span class="line">/flume-ng-code</span><br><span class="line">/flume-ng-sdk</span><br><span class="line">/flume-ng-sources/flume-kafka-source</span><br><span class="line">/flume-ng-channels/flume-kafka-channel</span><br><span class="line">/flume-ng-sinks/flume-hdfs-sink</span><br></pre></td></tr></table></figure>
+
 <h2 id="Application-Entrance"><a href="#Application-Entrance" class="headerlink" title="Application Entrance"></a>Application Entrance</h2><p>The <code>main</code> entrance of Flume agent is in the <code>org.apache.flume.node.Application</code> class of <code>flume-ng-node</code> module. Following is an abridged source code:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    CommandLineParser parser = <span class="keyword">new</span> GnuParser();</span><br><span class="line">    <span class="keyword">if</span> (isZkConfigured) &#123;</span><br><span class="line">      <span class="keyword">if</span> (reload) &#123;</span><br><span class="line">        PollingZooKeeperConfigurationProvider zookeeperConfigurationProvider;</span><br><span class="line">        components.add(zookeeperConfigurationProvider);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        StaticZooKeeperConfigurationProvider zookeeperConfigurationProvider;</span><br><span class="line">        application.handleConfigurationEvent();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// PropertiesFileConfigurationProvider</span></span><br><span class="line">    &#125;</span><br><span class="line">    application.start();</span><br><span class="line">    Runtime.getRuntime().addShutdownHook(<span class="keyword">new</span> Thread(<span class="string">"agent-shutdown-hook"</span>) &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        appReference.stop();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Application</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="type">CommandLineParser</span> <span class="variable">parser</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">GnuParser</span>();</span><br><span class="line">    <span class="keyword">if</span> (isZkConfigured) &#123;</span><br><span class="line">      <span class="keyword">if</span> (reload) &#123;</span><br><span class="line">        PollingZooKeeperConfigurationProvider zookeeperConfigurationProvider;</span><br><span class="line">        components.add(zookeeperConfigurationProvider);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        StaticZooKeeperConfigurationProvider zookeeperConfigurationProvider;</span><br><span class="line">        application.handleConfigurationEvent();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// PropertiesFileConfigurationProvider</span></span><br><span class="line">    &#125;</span><br><span class="line">    application.start();</span><br><span class="line">    Runtime.getRuntime().addShutdownHook(<span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="string">&quot;agent-shutdown-hook&quot;</span>) &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        appReference.stop();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>The process can be illustrated as follows:</p>
 <ol>
 <li>Parse command line arguments with <code>commons-cli</code>, including the Flume agent’s name, configuration method and path.</li>
@@ -300,12 +306,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/" data-id="cl4aua5p0001k9llt5jpb5wz3" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/" data-id="cl4j3rwkv001kacnch0u568q4" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flume/">flume</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/source-code/">source code</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flume/" rel="tag">flume</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/source-code/" rel="tag">source code</a></li></ul>
 
     </footer>
   </div>
@@ -340,12 +346,14 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>In the paper <a href="https://www.jstatsoft.org/article/view/v059i10" target="_blank" rel="noopener">Tidy Data</a>, <a href="https://en.wikipedia.org/wiki/Hadley_Wickham" target="_blank" rel="noopener">Dr. Wickham</a> proposed a specific form of data structure: each variable is a column, each observation is a row, and each type of observational unit is a table. He argued that with tidy data, data analysts can manipulate, model, and visualize data more easily and effectively. He lists <em>five common data structures</em> that are untidy, and demonstrates how to use <a href="https://github.com/hadley/tidy-data/" target="_blank" rel="noopener">R language</a> to tidy them. In this article, we’ll use Python and Pandas to achieve the same tidiness.</p>
-<p>Source code and demo data can be found on GitHub (<a href="https://github.com/jizhang/pandas-tidy-data" target="_blank" rel="noopener">link</a>), and readers are supposed to have Python environment installed, preferably with Anaconda and Spyder IDE.</p>
-<h2 id="Column-headers-are-values-not-variable-names"><a href="#Column-headers-are-values-not-variable-names" class="headerlink" title="Column headers are values, not variable names"></a>Column headers are values, not variable names</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line">df = pd.read_csv(<span class="string">'data/pew.csv'</span>)</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+        <p>In the paper <a target="_blank" rel="noopener" href="https://www.jstatsoft.org/article/view/v059i10">Tidy Data</a>, <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Hadley_Wickham">Dr. Wickham</a> proposed a specific form of data structure: each variable is a column, each observation is a row, and each type of observational unit is a table. He argued that with tidy data, data analysts can manipulate, model, and visualize data more easily and effectively. He lists <em>five common data structures</em> that are untidy, and demonstrates how to use <a target="_blank" rel="noopener" href="https://github.com/hadley/tidy-data/">R language</a> to tidy them. In this article, we’ll use Python and Pandas to achieve the same tidiness.</p>
+<p>Source code and demo data can be found on GitHub (<a target="_blank" rel="noopener" href="https://github.com/jizhang/pandas-tidy-data">link</a>), and readers are supposed to have Python environment installed, preferably with Anaconda and Spyder IDE.</p>
+<h2 id="Column-headers-are-values-not-variable-names"><a href="#Column-headers-are-values-not-variable-names" class="headerlink" title="Column headers are values, not variable names"></a>Column headers are values, not variable names</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line">df = pd.read_csv(<span class="string">&#x27;data/pew.csv&#x27;</span>)</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
 <p><img src="/images/tidy-data/pew.png" alt="Religion and Income - Pew Forum"></p>
 <p>Column names “&lt;$10k”, “$10-20k” are really income ranges that constitutes a variable. Variables are measurements of attributes, like height, weight, and in this case, income and religion. The values within the table form another variable, frequency. To make <em>each variable a column</em>, we do the following transformation:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">df = df.set_index(<span class="string">'religion'</span>)</span><br><span class="line">df = df.stack()</span><br><span class="line">df.index = df.index.rename(<span class="string">'income'</span>, level=<span class="number">1</span>)</span><br><span class="line">df.name = <span class="string">'frequency'</span></span><br><span class="line">df = df.reset_index()</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">df = df.set_index(<span class="string">&#x27;religion&#x27;</span>)</span><br><span class="line">df = df.stack()</span><br><span class="line">df.index = df.index.rename(<span class="string">&#x27;income&#x27;</span>, level=<span class="number">1</span>)</span><br><span class="line">df.name = <span class="string">&#x27;frequency&#x27;</span></span><br><span class="line">df = df.reset_index()</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
 <p><img src="/images/tidy-data/pew-tidy.png" alt="Religion and Income - Tidy"></p>
         
           <p class="article-more-link">
@@ -355,12 +363,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/" data-id="cl4aua5oz001h9lltswbdzmyf" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/" data-id="cl4j3rwku001hacncahlx2kzh" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pandas/">pandas</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/" rel="tag">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pandas/" rel="tag">pandas</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
 
     </footer>
   </div>
@@ -395,10 +403,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><a href="https://beam.apache.org/get-started/beam-overview/" target="_blank" rel="noopener">Apache Beam</a> is a big data processing standard created by Google in 2016. It provides unified DSL to process both batch and stream data, and can be executed on popular platforms like Spark, Flink, and of course Google’s commercial product Dataflow. Beam’s model is based on previous works known as <a href="https://web.archive.org/web/20160923141630/https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/35650.pdf" target="_blank" rel="noopener">FlumeJava</a> and <a href="https://web.archive.org/web/20160201091359/http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/41378.pdf" target="_blank" rel="noopener">Millwheel</a>, and addresses solutions for data processing tasks like ETL, analysis, and <a href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101" target="_blank" rel="noopener">stream processing</a>. Currently it provides SDK in two languages, Java and Python. This article will introduce how to use Python to write Beam applications.</p>
+        <p><a target="_blank" rel="noopener" href="https://beam.apache.org/get-started/beam-overview/">Apache Beam</a> is a big data processing standard created by Google in 2016. It provides unified DSL to process both batch and stream data, and can be executed on popular platforms like Spark, Flink, and of course Google’s commercial product Dataflow. Beam’s model is based on previous works known as <a target="_blank" rel="noopener" href="https://web.archive.org/web/20160923141630/https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/35650.pdf">FlumeJava</a> and <a target="_blank" rel="noopener" href="https://web.archive.org/web/20160201091359/http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/41378.pdf">Millwheel</a>, and addresses solutions for data processing tasks like ETL, analysis, and <a target="_blank" rel="noopener" href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101">stream processing</a>. Currently it provides SDK in two languages, Java and Python. This article will introduce how to use Python to write Beam applications.</p>
 <p><img src="/images/beam/arch.jpg" alt="Apache Beam Pipeline"></p>
-<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><p>Apache Beam Python SDK requires Python 2.7.x. You can use <a href="https://github.com/pyenv/pyenv" target="_blank" rel="noopener">pyenv</a> to manage different Python versions, or compile from <a href="https://www.python.org/downloads/source/" target="_blank" rel="noopener">source</a> (make sure you have SSL installed). And then you can install Beam SDK from PyPI, better in a virtual environment:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ virtualenv venv --distribute</span><br><span class="line">$ source venv/bin/activate</span><br><span class="line">(venv) $ pip install apache-beam</span><br></pre></td></tr></table></figure>
+<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><p>Apache Beam Python SDK requires Python 2.7.x. You can use <a target="_blank" rel="noopener" href="https://github.com/pyenv/pyenv">pyenv</a> to manage different Python versions, or compile from <a target="_blank" rel="noopener" href="https://www.python.org/downloads/source/">source</a> (make sure you have SSL installed). And then you can install Beam SDK from PyPI, better in a virtual environment:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ virtualenv venv --distribute</span><br><span class="line">$ source venv/bin/activate</span><br><span class="line">(venv) $ pip install apache-beam</span><br></pre></td></tr></table></figure>
         
           <p class="article-more-link">
             <a href="/blog/2017/09/12/apache-beam-quick-start-with-python/#more">Read More</a>
@@ -407,12 +415,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/" data-id="cl4aua5ow001d9lltdl788msx" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/" data-id="cl4j3rwkt001dacnc28lpgrl0" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache-beam/">apache beam</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mapreduce/">mapreduce</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/stream-processing/">stream processing</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache-beam/" rel="tag">apache beam</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mapreduce/" rel="tag">mapreduce</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/stream-processing/" rel="tag">stream processing</a></li></ul>
 
     </footer>
   </div>
@@ -450,9 +458,10 @@
         <p>SQL is one of the major tools of data analysis. It provides filtering, transforming and aggregation functionalities, and we can use it to process big volume of data with the help of Hive and Hadoop. However, legacy SQL does not support operations like grouped ranking and moving average, because the <code>GROUP BY</code> clause can only produce one aggregation result for each group, but not for each row. Fortunately, with the new SQL standard coming, we can use the <code>WINDOW</code> clause to compute aggregations on a set of rows and return the result for each row.</p>
 <p><img src="/images/hive-window/window-stock.png" alt="Moving Average"></p>
 <p>For instance, if we want to calculate the two-day moving average for each stock, we can write the following query:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">  <span class="string">`date`</span>, <span class="string">`stock`</span>, <span class="string">`close`</span></span><br><span class="line">  ,<span class="keyword">AVG</span>(<span class="string">`close`</span>) <span class="keyword">OVER</span> <span class="string">`w`</span> <span class="keyword">AS</span> <span class="string">`mavg`</span></span><br><span class="line"><span class="keyword">FROM</span> <span class="string">`t_stock`</span></span><br><span class="line"><span class="keyword">WINDOW</span> <span class="string">`w`</span> <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="string">`stock`</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="string">`date`</span></span><br><span class="line">               <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> <span class="number">1</span> <span class="keyword">PRECEDING</span> <span class="keyword">AND</span> <span class="keyword">CURRENT</span> <span class="keyword">ROW</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">  `<span class="type">date</span>`, `stock`, `<span class="keyword">close</span>`</span><br><span class="line">  ,<span class="built_in">AVG</span>(`<span class="keyword">close</span>`) <span class="keyword">OVER</span> `w` <span class="keyword">AS</span> `mavg`</span><br><span class="line"><span class="keyword">FROM</span> `t_stock`</span><br><span class="line"><span class="keyword">WINDOW</span> `w` <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> `stock` <span class="keyword">ORDER</span> <span class="keyword">BY</span> `<span class="type">date</span>`</span><br><span class="line">               <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> <span class="number">1</span> PRECEDING <span class="keyword">AND</span> <span class="keyword">CURRENT</span> <span class="type">ROW</span>)</span><br></pre></td></tr></table></figure>
+
 <p><code>OVER</code>, <code>WINDOW</code> and <code>ROWS BETWEEN AND</code> are all newly added SQL keywords to support windowing operations. In this query, <code>PARTITION BY</code> and <code>ORDER BY</code> works like <code>GROUP BY</code> and <code>ORDER BY</code> after the <code>WHERE</code> clause, except it doesn’t collapse the rows, but only divides them into non-overlapping partitions to work on. <code>ROWS BETWEEN AND</code> here constructs a <strong>window frame</strong>. In this case, each frame contains the previous row and current row. We’ll discuss more on frames later. Finally, <code>AVG</code> is a window function that computes results on each frame. Note that <code>WINDOW</code> clause can also be directly appended to window function:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">AVG</span>(<span class="string">`close`</span>) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="string">`stock`</span>) <span class="keyword">AS</span> <span class="string">`mavg`</span> <span class="keyword">FROM</span> <span class="string">`t_stock`</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="built_in">AVG</span>(`<span class="keyword">close</span>`) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> `stock`) <span class="keyword">AS</span> `mavg` <span class="keyword">FROM</span> `t_stock`;</span><br></pre></td></tr></table></figure>
         
           <p class="article-more-link">
             <a href="/blog/2017/09/04/hive-window-and-analytical-functions/#more">Read More</a>
@@ -461,12 +470,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/" data-id="cl4aua5ov001a9lltosg8upim" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/" data-id="cl4j3rwks001aacnc1kf1deuw" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hive/">hive</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/">sql</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/" rel="tag">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hive/" rel="tag">hive</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/" rel="tag">sql</a></li></ul>
 
     </footer>
   </div>
@@ -501,10 +510,11 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>When processing a large amount of data, certain operations will cost a lot of time and space, such as counting the distinct values, or figuring out the 95th percentile of a sequence of numbers. But sometimes the accuracy is not that important. Maybe you just want a brief summary of the dataset, or it’s a monitoring system, where limited error rate is tolerable. There’re plenty of such algorithms that can trade accuracy with huge saves of time-space. What’s more, most of the data structures can be merged, making it possible to use in stream processing applications. <a href="https://github.com/addthis/stream-lib" target="_blank" rel="noopener"><code>stream-lib</code></a> is a collection of these algorithms. They are Java implementations based on academical research and papers. This artile will give a brief introduction to this utility library.</p>
-<h2 id="Count-Cardinality-with-HyperLogLog"><a href="#Count-Cardinality-with-HyperLogLog" class="headerlink" title="Count Cardinality with HyperLogLog"></a>Count Cardinality with <code>HyperLogLog</code></h2><p>Unique visitors (UV) is the major metric of websites. We usually generate UUIDs for each user and track them by HTTP Cookie, or roughly use the IP address. We can use a <code>HashSet</code> to count the exact value of UV, but that takes a lot of memory. With <code>HyperLogLog</code>, an algorithm for the count-distinct problem, we are able to <a href="https://en.wikipedia.org/wiki/HyperLogLog" target="_blank" rel="noopener">estimate cardinalities of &gt; 10^9 with a typical accuracy of 2%, using 1.5 kB of memory</a>.</p>
+        <p>When processing a large amount of data, certain operations will cost a lot of time and space, such as counting the distinct values, or figuring out the 95th percentile of a sequence of numbers. But sometimes the accuracy is not that important. Maybe you just want a brief summary of the dataset, or it’s a monitoring system, where limited error rate is tolerable. There’re plenty of such algorithms that can trade accuracy with huge saves of time-space. What’s more, most of the data structures can be merged, making it possible to use in stream processing applications. <a target="_blank" rel="noopener" href="https://github.com/addthis/stream-lib"><code>stream-lib</code></a> is a collection of these algorithms. They are Java implementations based on academical research and papers. This artile will give a brief introduction to this utility library.</p>
+<h2 id="Count-Cardinality-with-HyperLogLog"><a href="#Count-Cardinality-with-HyperLogLog" class="headerlink" title="Count Cardinality with HyperLogLog"></a>Count Cardinality with <code>HyperLogLog</code></h2><p>Unique visitors (UV) is the major metric of websites. We usually generate UUIDs for each user and track them by HTTP Cookie, or roughly use the IP address. We can use a <code>HashSet</code> to count the exact value of UV, but that takes a lot of memory. With <code>HyperLogLog</code>, an algorithm for the count-distinct problem, we are able to <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/HyperLogLog">estimate cardinalities of &gt; 10^9 with a typical accuracy of 2%, using 1.5 kB of memory</a>.</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.clearspring.analytics<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>stream<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ICardinality card = <span class="keyword">new</span> HyperLogLog(<span class="number">10</span>);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i : <span class="keyword">new</span> <span class="keyword">int</span>[] &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">3</span> &#125;) &#123;</span><br><span class="line">    card.offer(i);</span><br><span class="line">&#125;</span><br><span class="line">System.out.println(card.cardinality()); <span class="comment">// 4</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ICardinality</span> <span class="variable">card</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HyperLogLog</span>(<span class="number">10</span>);</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i : <span class="keyword">new</span> <span class="title class_">int</span>[] &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">3</span> &#125;) &#123;</span><br><span class="line">    card.offer(i);</span><br><span class="line">&#125;</span><br><span class="line">System.out.println(card.cardinality()); <span class="comment">// 4</span></span><br></pre></td></tr></table></figure>
         
           <p class="article-more-link">
             <a href="/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/#more">Read More</a>
@@ -513,12 +523,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/" data-id="cl4aua5ot00179lltuytxcs5n" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/" data-id="cl4j3rwkq0017acncg3hh6fb8" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/algorithm/">algorithm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/stream-processing/">stream processing</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/stream-processing/" rel="tag">stream processing</a></li></ul>
 
     </footer>
   </div>
@@ -553,7 +563,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Data extraction is the very first step of an ETL process. We need to load data from external data stores like RDMBS or logging file system, and then we can do cleaning, transformation and summary. In modern website stack, MySQL is the most widely used database, and it’s common to extract data from different instances and load into a central MySQL database, or directly into Hive. There’re several query-based techniques that we can use to do the extraction, including the popular open source software <a href="http://sqoop.apache.org/" target="_blank" rel="noopener">Sqoop</a>, but they are not meant for real-time data ingestion. Binlog, on the other hand, is a real-time data stream that is used to do replication between master and slave instances. With the help of Alibaba’s open sourced <a href="https://github.com/alibaba/canal" target="_blank" rel="noopener">Canal</a> project, we can easily utilize the binlog facility to do data extraction from MySQL database to various destinations.</p>
+        <p>Data extraction is the very first step of an ETL process. We need to load data from external data stores like RDMBS or logging file system, and then we can do cleaning, transformation and summary. In modern website stack, MySQL is the most widely used database, and it’s common to extract data from different instances and load into a central MySQL database, or directly into Hive. There’re several query-based techniques that we can use to do the extraction, including the popular open source software <a target="_blank" rel="noopener" href="http://sqoop.apache.org/">Sqoop</a>, but they are not meant for real-time data ingestion. Binlog, on the other hand, is a real-time data stream that is used to do replication between master and slave instances. With the help of Alibaba’s open sourced <a target="_blank" rel="noopener" href="https://github.com/alibaba/canal">Canal</a> project, we can easily utilize the binlog facility to do data extraction from MySQL database to various destinations.</p>
 <p><img src="/images/canal.png" alt="Canal"></p>
 <h2 id="Canal-Components"><a href="#Canal-Components" class="headerlink" title="Canal Components"></a>Canal Components</h2><p>In brief, Canal simulates itself to be a MySQL slave and dump binlog from master, parse it, and send to downstream sinks. Canal consists of two major components, namely Canal server and Canal client. A Canal server can connect to multiple MySQL instances, and maintains an event queue for each instance. Canal clients can then subscribe to theses queues and receive data changes. The following is a quick start guide to get Canal going.</p>
         
@@ -564,12 +574,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/" data-id="cl4aua5os00159lltb5k1n52v" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/" data-id="cl4j3rwkp0015acncc6vebef9" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/canal/">canal</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/etl/">etl</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/canal/" rel="tag">canal</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/etl/" rel="tag">etl</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li></ul>
 
     </footer>
   </div>
@@ -607,7 +617,8 @@
         <p>Extracting data from upstream message queues is a common task in ETL. In a Hadoop based data warehouse, we usually use Flume to import event logs from Kafka into HDFS, and then run MapReduce jobs agaist it, or create Hive external tables partitioned by time. One of the keys of this process is to extract the event time from the logs, since real-time data can have time lags, or your system is temporarily offline and need to perform a catch-up. Flume provides various facilities to help us do this job easily.</p>
 <p><img src="/images/flume.png" alt="Apache Flume"></p>
 <h2 id="HDFS-Sink-and-Timestamp-Header"><a href="#HDFS-Sink-and-Timestamp-Header" class="headerlink" title="HDFS Sink and Timestamp Header"></a>HDFS Sink and Timestamp Header</h2><p>Here is a simple HDFS Sink config:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a1.sinks = k1</span><br><span class="line">a1.sinks.k1.type = hdfs</span><br><span class="line">a1.sinks.k1.hdfs.path = /user/flume/ds_alog/dt=%Y%m%d</span><br></pre></td></tr></table></figure>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">a1.sinks</span> = <span class="string">k1</span></span><br><span class="line"><span class="attr">a1.sinks.k1.type</span> = <span class="string">hdfs</span></span><br><span class="line"><span class="attr">a1.sinks.k1.hdfs.path</span> = <span class="string">/user/flume/ds_alog/dt=%Y%m%d</span></span><br></pre></td></tr></table></figure>
+
 <p><code>%Y%m%d</code> is the placeholders supported by this sink. It will use the milliseconds in <code>timestamp</code> header to replace them. Also, HDFS Sink provides <code>hdfs.useLocalTimeStamp</code> option so that it’ll use the local time to replace these placeholders, but this is not what we intend.</p>
 <p>Another sink we could use is the Hive Sink, which directly communicates with Hive metastore and loads data into HDFS as Hive table. It supports both delimited text and JSON serializers, and also requires a <code>timestamp</code> header. But we don’t choose it for the following reasons:</p>
 <ul>
@@ -622,12 +633,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/" data-id="cl4aua5or00129lltijbgvzgu" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/" data-id="cl4j3rwko0012acnc5hnuauwa" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/etl/">etl</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flume/">flume</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/etl/" rel="tag">etl</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flume/" rel="tag">flume</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
 
     </footer>
   </div>
@@ -639,7 +650,7 @@
 
 
   <nav id="page-nav">
-    <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
+    <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
   </nav>
 </section>
         
@@ -702,7 +713,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
       &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
@@ -738,14 +749,22 @@
 </script>
 
 
+
 <script src="/js/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
 
 
 <script src="/js/script.js"></script>
+
 
   </div>
 </body>

@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.8.0">
+<head>
   <meta charset="utf-8">
   
   <title>How to Extract Event Time in Apache Flume | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Extracting data from upstream message queues is a common task in ETL. In a Hadoop based data warehouse, we usually use Flume to import event logs from Kafka into HDFS, and then run MapReduce jobs agai">
-<meta name="keywords" content="etl,flume,java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="How to Extract Event Time in Apache Flume">
-<meta property="og:url" content="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/index.html">
+<meta property="og:url" content="https://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
 <meta property="og:description" content="Extracting data from upstream message queues is a common task in ETL. In a Hadoop based data warehouse, we usually use Flume to import event logs from Kafka into HDFS, and then run MapReduce jobs agai">
-<meta property="og:locale" content="default">
-<meta property="og:image" content="http://shzhangji.com/images/flume.png">
-<meta property="og:updated_time" content="2022-06-12T05:01:34.279Z">
+<meta property="og:locale">
+<meta property="og:image" content="https://shzhangji.com/images/flume.png">
+<meta property="article:published_time" content="2017-08-05T07:10:47.000Z">
+<meta property="article:modified_time" content="2022-06-17T23:49:19.563Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="etl">
+<meta property="article:tag" content="flume">
+<meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="How to Extract Event Time in Apache Flume">
-<meta name="twitter:description" content="Extracting data from upstream message queues is a common task in ETL. In a Hadoop based data warehouse, we usually use Flume to import event logs from Kafka into HDFS, and then run MapReduce jobs agai">
-<meta name="twitter:image" content="http://shzhangji.com/images/flume.png">
+<meta name="twitter:image" content="https://shzhangji.com/images/flume.png">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -28,9 +30,13 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link rel="stylesheet" href="/css/source-code-pro.css">
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
   
-  <link rel="stylesheet" href="/css/style.css">
+  
+<link rel="stylesheet" href="/css/style.css">
+
   
 
 
@@ -43,8 +49,8 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-</head>
-</html>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -55,10 +61,6 @@
       <h1 id="logo-wrap">
         <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">If I rest, I rust.</a>
-        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -82,7 +84,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -118,42 +120,50 @@
         <p>Extracting data from upstream message queues is a common task in ETL. In a Hadoop based data warehouse, we usually use Flume to import event logs from Kafka into HDFS, and then run MapReduce jobs agaist it, or create Hive external tables partitioned by time. One of the keys of this process is to extract the event time from the logs, since real-time data can have time lags, or your system is temporarily offline and need to perform a catch-up. Flume provides various facilities to help us do this job easily.</p>
 <p><img src="/images/flume.png" alt="Apache Flume"></p>
 <h2 id="HDFS-Sink-and-Timestamp-Header"><a href="#HDFS-Sink-and-Timestamp-Header" class="headerlink" title="HDFS Sink and Timestamp Header"></a>HDFS Sink and Timestamp Header</h2><p>Here is a simple HDFS Sink config:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a1.sinks = k1</span><br><span class="line">a1.sinks.k1.type = hdfs</span><br><span class="line">a1.sinks.k1.hdfs.path = /user/flume/ds_alog/dt=%Y%m%d</span><br></pre></td></tr></table></figure>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">a1.sinks</span> = <span class="string">k1</span></span><br><span class="line"><span class="attr">a1.sinks.k1.type</span> = <span class="string">hdfs</span></span><br><span class="line"><span class="attr">a1.sinks.k1.hdfs.path</span> = <span class="string">/user/flume/ds_alog/dt=%Y%m%d</span></span><br></pre></td></tr></table></figure>
+
 <p><code>%Y%m%d</code> is the placeholders supported by this sink. It will use the milliseconds in <code>timestamp</code> header to replace them. Also, HDFS Sink provides <code>hdfs.useLocalTimeStamp</code> option so that it’ll use the local time to replace these placeholders, but this is not what we intend.</p>
 <p>Another sink we could use is the Hive Sink, which directly communicates with Hive metastore and loads data into HDFS as Hive table. It supports both delimited text and JSON serializers, and also requires a <code>timestamp</code> header. But we don’t choose it for the following reasons:</p>
 <ul>
 <li>It doesn’t support regular expression serializer, so we cannot extract columns from arbitrary data format like access logs;</li>
 <li>The columns to be extracted are defined in Hive metastore. Say the upstream events add some new keys in JSON, they will be dropped until Hive table definition is updated. As in data warehouse, it’s better to preserve the original source data for a period of time.</li>
 </ul>
-<a id="more"></a>
+<span id="more"></span>
+
 <h2 id="Regex-Extractor-Interceptor"><a href="#Regex-Extractor-Interceptor" class="headerlink" title="Regex Extractor Interceptor"></a>Regex Extractor Interceptor</h2><p>Flume has a mechanism called Interceptor, i.e. some optionally chained operations appended to Source, so as to perform various yet primitive transformation. For instance, the <code>TimestampInterceptor</code> is to add current local timestamp to the event header. In this section, I’ll demonstrate how to extract event time from access logs and JSON serialized logs with the help of interceptors.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">0.123 [2017-06-27 09:08:00] GET /</span><br><span class="line">0.234 [2017-06-27 09:08:01] GET /</span><br></pre></td></tr></table></figure>
-<p><a href="http://flume.apache.org/FlumeUserGuide.html#regex-extractor-interceptor" target="_blank" rel="noopener"><code>RegexExtractorInterceptor</code></a> can be used to extract values based on regular expressions. Here’s the config:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">a1.sources.r1.interceptors = i1</span><br><span class="line">a1.sources.r1.interceptors.i1.type = regex_extractor</span><br><span class="line">a1.sources.r1.interceptors.i1.regex = \\[(.*?)\\]</span><br><span class="line">a1.sources.r1.interceptors.i1.serializers = s1</span><br><span class="line">a1.sources.r1.interceptors.i1.serializers.s1.type = org.apache.flume.interceptor.RegexExtractorInterceptorMillisSerializer</span><br><span class="line">a1.sources.r1.interceptors.i1.serializers.s1.name = timestamp</span><br><span class="line">a1.sources.r1.interceptors.i1.serializers.s1.pattern = yyyy-MM-dd HH:mm:ss</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">0.123 [2017-06-27 09:08:00] GET /</span><br><span class="line">0.234 [2017-06-27 09:08:01] GET /</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="http://flume.apache.org/FlumeUserGuide.html#regex-extractor-interceptor"><code>RegexExtractorInterceptor</code></a> can be used to extract values based on regular expressions. Here’s the config:</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">a1.sources.r1.interceptors</span> = <span class="string">i1</span></span><br><span class="line"><span class="attr">a1.sources.r1.interceptors.i1.type</span> = <span class="string">regex_extractor</span></span><br><span class="line"><span class="attr">a1.sources.r1.interceptors.i1.regex</span> = <span class="string">\\[(.*?)\\]</span></span><br><span class="line"><span class="attr">a1.sources.r1.interceptors.i1.serializers</span> = <span class="string">s1</span></span><br><span class="line"><span class="attr">a1.sources.r1.interceptors.i1.serializers.s1.type</span> = <span class="string">org.apache.flume.interceptor.RegexExtractorInterceptorMillisSerializer</span></span><br><span class="line"><span class="attr">a1.sources.r1.interceptors.i1.serializers.s1.name</span> = <span class="string">timestamp</span></span><br><span class="line"><span class="attr">a1.sources.r1.interceptors.i1.serializers.s1.pattern</span> = <span class="string">yyyy-MM-dd HH:mm:ss</span></span><br></pre></td></tr></table></figure>
+
 <p>It searches the string with pattern <code>\[(.*?)\]</code>, capture the first sub-pattern as <code>s1</code>, then parse it as a datetime string, and finally store it into headers with the name <code>timestamp</code>.</p>
 <h3 id="Search-And-Replace-Interceptor"><a href="#Search-And-Replace-Interceptor" class="headerlink" title="Search And Replace Interceptor"></a>Search And Replace Interceptor</h3><p>For JSON strings:</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"actionTime"</span>:<span class="number">1498525680.023</span>,<span class="attr">"actionType"</span>:<span class="string">"pv"</span>&#125;</span><br><span class="line">&#123;<span class="attr">"actionTime"</span>:<span class="number">1498525681.349</span>,<span class="attr">"actionType"</span>:<span class="string">"pv"</span>&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;actionTime&quot;</span><span class="punctuation">:</span><span class="number">1498525680.023</span><span class="punctuation">,</span><span class="attr">&quot;actionType&quot;</span><span class="punctuation">:</span><span class="string">&quot;pv&quot;</span><span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;actionTime&quot;</span><span class="punctuation">:</span><span class="number">1498525681.349</span><span class="punctuation">,</span><span class="attr">&quot;actionType&quot;</span><span class="punctuation">:</span><span class="string">&quot;pv&quot;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
 <p>We can also extract <code>actionTime</code> with a regular expression, but note that HDFS Sink requires the timestamp in milliseconds, so we have to first convert the timestamp with <code>SearchAndReplaceInterceptor</code>.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">a1.sources.r1.interceptors = i1 i2</span><br><span class="line">a1.sources.r1.interceptors.i1.type = search_replace</span><br><span class="line">a1.sources.r1.interceptors.i1.searchPattern = \&quot;actionTime\&quot;:(\\d+)\\.(\\d+)</span><br><span class="line">a1.sources.r1.interceptors.i1.replaceString = \&quot;actionTime\&quot;:$1$2</span><br><span class="line">a1.sources.r1.interceptors.i2.type = regex_extractor</span><br><span class="line">a1.sources.r1.interceptors.i2.regex = \&quot;actionTime\&quot;:(\\d+)</span><br><span class="line">a1.sources.r1.interceptors.i2.serializers = s1</span><br><span class="line">a1.sources.r1.interceptors.i2.serializers.s1.name = timestamp</span><br></pre></td></tr></table></figure>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">a1.sources.r1.interceptors</span> = <span class="string">i1 i2</span></span><br><span class="line"><span class="attr">a1.sources.r1.interceptors.i1.type</span> = <span class="string">search_replace</span></span><br><span class="line"><span class="attr">a1.sources.r1.interceptors.i1.searchPattern</span> = <span class="string">\&quot;actionTime\&quot;:(\\d+)\\.(\\d+)</span></span><br><span class="line"><span class="attr">a1.sources.r1.interceptors.i1.replaceString</span> = <span class="string">\&quot;actionTime\&quot;:$1$2</span></span><br><span class="line"><span class="attr">a1.sources.r1.interceptors.i2.type</span> = <span class="string">regex_extractor</span></span><br><span class="line"><span class="attr">a1.sources.r1.interceptors.i2.regex</span> = <span class="string">\&quot;actionTime\&quot;:(\\d+)</span></span><br><span class="line"><span class="attr">a1.sources.r1.interceptors.i2.serializers</span> = <span class="string">s1</span></span><br><span class="line"><span class="attr">a1.sources.r1.interceptors.i2.serializers.s1.name</span> = <span class="string">timestamp</span></span><br></pre></td></tr></table></figure>
+
 <p>There’re two chained interceptors, first one replaces <code>1498525680.023</code> with <code>1498525680023</code> and second extracts <code>actionTime</code> right into headers.</p>
-<h3 id="Custom-Interceptor"><a href="#Custom-Interceptor" class="headerlink" title="Custom Interceptor"></a>Custom Interceptor</h3><p>It’s also possible to write your own interceptor, thus do the extraction and conversion in one step. Your interceptor should implements <code>org.apache.flume.interceptor.Interceptor</code> and then do the job in <code>intercept</code> method. The source code and unit test can be found on GitHub (<a href="https://github.com/jizhang/java-blog-demo/blob/blog-flume/flume/src/main/java/com/shzhangji/demo/flume/ActionTimeInterceptor.java" target="_blank" rel="noopener">link</a>). Please add <code>flume-ng-core</code> to your project dependencies.</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ActionTimeInterceptor</span> <span class="keyword">implements</span> <span class="title">Interceptor</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> ObjectMapper mapper = <span class="keyword">new</span> ObjectMapper();</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Event <span class="title">intercept</span><span class="params">(Event event)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            JsonNode node = mapper.readTree(<span class="keyword">new</span> ByteArrayInputStream(event.getBody()));</span><br><span class="line">            <span class="keyword">long</span> timestamp = (<span class="keyword">long</span>) (node.get(<span class="string">"actionTime"</span>).getDoubleValue() * <span class="number">1000</span>);</span><br><span class="line">            event.getHeaders().put(<span class="string">"timestamp"</span>, Long.toString(timestamp));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="comment">// no-op</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> event;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Use-Kafka-Channel-Directly"><a href="#Use-Kafka-Channel-Directly" class="headerlink" title="Use Kafka Channel Directly"></a>Use Kafka Channel Directly</h2><p>When the upstream is Kafka, and you have control of the message format, you can further eliminate the Source and directly pass data from Kafka to HDFS. The trick is to write messages in <code>AvroFlumeEvent</code> format, so that <a href="http://flume.apache.org/FlumeUserGuide.html#kafka-channel" target="_blank" rel="noopener">Kafka Channel</a> can deserialize them and use the <code>timestamp</code> header within. Otherwise, Kafka channel will parse messages as plain text with no headers, and HDFS sink will complain missing <code>timestamp</code>.</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// construct an AvroFlumeEvent, this class can be found in flume-ng-sdk artifact</span></span><br><span class="line">Map&lt;CharSequence, CharSequence&gt; headers = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">headers.put(<span class="string">"timestamp"</span>, <span class="string">"1498525680023"</span>);</span><br><span class="line">String body = <span class="string">"some message"</span>;</span><br><span class="line">AvroFlumeEvent event = <span class="keyword">new</span> AvroFlumeEvent(headers, ByteBuffer.wrap(body.getBytes()));</span><br><span class="line"></span><br><span class="line"><span class="comment">// serialize event with Avro encoder</span></span><br><span class="line">ByteArrayOutputStream out = <span class="keyword">new</span> ByteArrayOutputStream();</span><br><span class="line">BinaryEncoder encoder = EncoderFactory.get().directBinaryEncoder(out, <span class="keyword">null</span>);</span><br><span class="line">SpecificDatumWriter&lt;AvroFlumeEvent&gt; writer = <span class="keyword">new</span> SpecificDatumWriter&lt;&gt;(AvroFlumeEvent.class);</span><br><span class="line">writer.write(event, encoder);</span><br><span class="line">encoder.flush();</span><br><span class="line"></span><br><span class="line"><span class="comment">// send bytes to Kafka</span></span><br><span class="line">producer.send(<span class="keyword">new</span> ProducerRecord&lt;String, <span class="keyword">byte</span>[]&gt;(<span class="string">"alog"</span>, out.toByteArray()));</span><br></pre></td></tr></table></figure>
+<h3 id="Custom-Interceptor"><a href="#Custom-Interceptor" class="headerlink" title="Custom Interceptor"></a>Custom Interceptor</h3><p>It’s also possible to write your own interceptor, thus do the extraction and conversion in one step. Your interceptor should implements <code>org.apache.flume.interceptor.Interceptor</code> and then do the job in <code>intercept</code> method. The source code and unit test can be found on GitHub (<a target="_blank" rel="noopener" href="https://github.com/jizhang/java-blog-demo/blob/blog-flume/flume/src/main/java/com/shzhangji/demo/flume/ActionTimeInterceptor.java">link</a>). Please add <code>flume-ng-core</code> to your project dependencies.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ActionTimeInterceptor</span> <span class="keyword">implements</span> <span class="title class_">Interceptor</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">ObjectMapper</span> <span class="variable">mapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectMapper</span>();</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Event <span class="title function_">intercept</span><span class="params">(Event event)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">JsonNode</span> <span class="variable">node</span> <span class="operator">=</span> mapper.readTree(<span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(event.getBody()));</span><br><span class="line">            <span class="type">long</span> <span class="variable">timestamp</span> <span class="operator">=</span> (<span class="type">long</span>) (node.get(<span class="string">&quot;actionTime&quot;</span>).getDoubleValue() * <span class="number">1000</span>);</span><br><span class="line">            event.getHeaders().put(<span class="string">&quot;timestamp&quot;</span>, Long.toString(timestamp));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="comment">// no-op</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> event;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Use-Kafka-Channel-Directly"><a href="#Use-Kafka-Channel-Directly" class="headerlink" title="Use Kafka Channel Directly"></a>Use Kafka Channel Directly</h2><p>When the upstream is Kafka, and you have control of the message format, you can further eliminate the Source and directly pass data from Kafka to HDFS. The trick is to write messages in <code>AvroFlumeEvent</code> format, so that <a target="_blank" rel="noopener" href="http://flume.apache.org/FlumeUserGuide.html#kafka-channel">Kafka Channel</a> can deserialize them and use the <code>timestamp</code> header within. Otherwise, Kafka channel will parse messages as plain text with no headers, and HDFS sink will complain missing <code>timestamp</code>.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// construct an AvroFlumeEvent, this class can be found in flume-ng-sdk artifact</span></span><br><span class="line">Map&lt;CharSequence, CharSequence&gt; headers = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">headers.put(<span class="string">&quot;timestamp&quot;</span>, <span class="string">&quot;1498525680023&quot;</span>);</span><br><span class="line"><span class="type">String</span> <span class="variable">body</span> <span class="operator">=</span> <span class="string">&quot;some message&quot;</span>;</span><br><span class="line"><span class="type">AvroFlumeEvent</span> <span class="variable">event</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AvroFlumeEvent</span>(headers, ByteBuffer.wrap(body.getBytes()));</span><br><span class="line"></span><br><span class="line"><span class="comment">// serialize event with Avro encoder</span></span><br><span class="line"><span class="type">ByteArrayOutputStream</span> <span class="variable">out</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line"><span class="type">BinaryEncoder</span> <span class="variable">encoder</span> <span class="operator">=</span> EncoderFactory.get().directBinaryEncoder(out, <span class="literal">null</span>);</span><br><span class="line">SpecificDatumWriter&lt;AvroFlumeEvent&gt; writer = <span class="keyword">new</span> <span class="title class_">SpecificDatumWriter</span>&lt;&gt;(AvroFlumeEvent.class);</span><br><span class="line">writer.write(event, encoder);</span><br><span class="line">encoder.flush();</span><br><span class="line"></span><br><span class="line"><span class="comment">// send bytes to Kafka</span></span><br><span class="line">producer.send(<span class="keyword">new</span> <span class="title class_">ProducerRecord</span>&lt;String, <span class="type">byte</span>[]&gt;(<span class="string">&quot;alog&quot;</span>, out.toByteArray()));</span><br></pre></td></tr></table></figure>
+
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
-<li><a href="http://flume.apache.org/FlumeUserGuide.html" target="_blank" rel="noopener">http://flume.apache.org/FlumeUserGuide.html</a></li>
-<li><a href="https://github.com/apache/flume" target="_blank" rel="noopener">https://github.com/apache/flume</a></li>
+<li><a target="_blank" rel="noopener" href="http://flume.apache.org/FlumeUserGuide.html">http://flume.apache.org/FlumeUserGuide.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/apache/flume">https://github.com/apache/flume</a></li>
 </ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/" data-id="cl4aua5or00129lltijbgvzgu" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/" data-id="cl4j3rwko0012acnc5hnuauwa" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/etl/">etl</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flume/">flume</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/etl/" rel="tag">etl</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flume/" rel="tag">flume</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
 
     </footer>
   </div>
@@ -184,7 +194,7 @@
 
 <section id="comments">
   <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
 </section>
 </section>
@@ -248,7 +258,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
       &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
@@ -274,7 +284,7 @@
 <script>
   var disqus_shortname = 'jizhang';
   
-  var disqus_url = 'http://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/';
+  var disqus_url = 'https://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/';
   
   (function(){
     var dsq = document.createElement('script');
@@ -286,14 +296,22 @@
 </script>
 
 
+
 <script src="/js/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
 
 
 <script src="/js/script.js"></script>
+
 
   </div>
 </body>

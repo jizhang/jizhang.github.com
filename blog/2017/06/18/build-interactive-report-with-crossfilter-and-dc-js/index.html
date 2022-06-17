@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.8.0">
+<head>
   <meta charset="utf-8">
   
   <title>Build Interactive Report with Crossfilter and dc.js | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on th">
-<meta name="keywords" content="crossfilter,dc.js,analytics">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Build Interactive Report with Crossfilter and dc.js">
-<meta property="og:url" content="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/index.html">
+<meta property="og:url" content="https://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
 <meta property="og:description" content="When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on th">
-<meta property="og:locale" content="default">
-<meta property="og:image" content="http://shzhangji.com/images/airline-ontime-performance.png">
-<meta property="og:updated_time" content="2022-06-12T05:01:34.279Z">
+<meta property="og:locale">
+<meta property="og:image" content="https://shzhangji.com/images/airline-ontime-performance.png">
+<meta property="article:published_time" content="2017-06-18T08:38:01.000Z">
+<meta property="article:modified_time" content="2022-06-17T23:49:19.563Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="crossfilter">
+<meta property="article:tag" content="dc.js">
+<meta property="article:tag" content="analytics">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Build Interactive Report with Crossfilter and dc.js">
-<meta name="twitter:description" content="When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on th">
-<meta name="twitter:image" content="http://shzhangji.com/images/airline-ontime-performance.png">
+<meta name="twitter:image" content="https://shzhangji.com/images/airline-ontime-performance.png">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -28,9 +30,13 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link rel="stylesheet" href="/css/source-code-pro.css">
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
   
-  <link rel="stylesheet" href="/css/style.css">
+  
+<link rel="stylesheet" href="/css/style.css">
+
   
 
 
@@ -43,8 +49,8 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-</head>
-</html>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -55,10 +61,6 @@
       <h1 id="logo-wrap">
         <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">If I rest, I rust.</a>
-        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -82,7 +84,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -116,42 +118,47 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>When visualizing multidimensional datasets, we often want to connect individual charts together, so that one chart’s filter will apply to all the other charts. We can do it manually, filter data on the server side, and update the rendered charts. Or we can filter data on the client side, and let charts update themselves. With Crossfilter and dc.js, this work becomes simple and intuitive.</p>
-<h2 id="Airline-On-time-Performance"><a href="#Airline-On-time-Performance" class="headerlink" title="Airline On-time Performance"></a>Airline On-time Performance</h2><p>Here’s an example taken from Crossfilter’s official website. It’s a flight delay analysis report based on <a href="http://stat-computing.org/dataexpo/2009/" target="_blank" rel="noopener">ASA Data Expo</a> dataset. And this post will introduce how to use dc.js to build the report. A runnable JSFiddle can be found <a href="https://jsfiddle.net/zjerryj/gjao9sws/" target="_blank" rel="noopener">here</a>, though the dataset is reduced to 1,000 records.</p>
-<p><img src="/images/airline-ontime-performance.png" alt></p>
-<a id="more"></a>
-<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p><a href="http://crossfilter.github.io/crossfilter/" target="_blank" rel="noopener">Crossfilter</a> is a JavaScript library to do multidimensional queries on large amount of data in the client’s browser. It can <strong>cross-filter</strong> between different group-by queries, so that query results will be connected and updated automatically. With the help of <a href="https://dc-js.github.io/dc.js/" target="_blank" rel="noopener">dc.js</a>, also a JavaScript library that provides charting capability, together we can develop high-performance, interactive reports.</p>
+<h2 id="Airline-On-time-Performance"><a href="#Airline-On-time-Performance" class="headerlink" title="Airline On-time Performance"></a>Airline On-time Performance</h2><p>Here’s an example taken from Crossfilter’s official website. It’s a flight delay analysis report based on <a target="_blank" rel="noopener" href="http://stat-computing.org/dataexpo/2009/">ASA Data Expo</a> dataset. And this post will introduce how to use dc.js to build the report. A runnable JSFiddle can be found <a target="_blank" rel="noopener" href="https://jsfiddle.net/zjerryj/gjao9sws/">here</a>, though the dataset is reduced to 1,000 records.</p>
+<p><img src="/images/airline-ontime-performance.png"></p>
+<span id="more"></span>
+
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p><a target="_blank" rel="noopener" href="http://crossfilter.github.io/crossfilter/">Crossfilter</a> is a JavaScript library to do multidimensional queries on large amount of data in the client’s browser. It can <strong>cross-filter</strong> between different group-by queries, so that query results will be connected and updated automatically. With the help of <a target="_blank" rel="noopener" href="https://dc-js.github.io/dc.js/">dc.js</a>, also a JavaScript library that provides charting capability, together we can develop high-performance, interactive reports.</p>
 <h2 id="Dataset-Dimension-and-Measure"><a href="#Dataset-Dimension-and-Measure" class="headerlink" title="Dataset, Dimension, and Measure"></a>Dataset, Dimension, and Measure</h2><p>There’re several concepts in Crossfilter, namely dataset, dimension, measure. If you come from a data warehouse or analytics background, these are similar to the terms in OLAP Cube.</p>
 <ul>
 <li>Dataset, or a list of records, is a two dimensional table that contains rows and columns.</li>
 <li>Dimension columns are used to do group-bys. They are either categorical, like dates, gender, or represents a range of values, like age range, etc.</li>
 <li>Measure columns are used to do aggregations, such as sum, standard deviation, so they are mostly numeric. Examples are income, number of children.</li>
 </ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> flights = d3.csv.parse(flightsCsv)</span><br><span class="line"><span class="keyword">let</span> flight = crossfilter(flights)</span><br><span class="line"><span class="keyword">let</span> hour = flight.dimension(<span class="function">(<span class="params">d</span>) =&gt;</span> d.date.getHours() + d.date.getMinutes() / <span class="number">60</span>)</span><br><span class="line"><span class="keyword">let</span> hours = hour.group(<span class="built_in">Math</span>.floor)</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> flights = d3.<span class="property">csv</span>.<span class="title function_">parse</span>(flightsCsv)</span><br><span class="line"><span class="keyword">let</span> flight = <span class="title function_">crossfilter</span>(flights)</span><br><span class="line"><span class="keyword">let</span> hour = flight.<span class="title function_">dimension</span>(<span class="function">(<span class="params">d</span>) =&gt;</span> d.<span class="property">date</span>.<span class="title function_">getHours</span>() + d.<span class="property">date</span>.<span class="title function_">getMinutes</span>() / <span class="number">60</span>)</span><br><span class="line"><span class="keyword">let</span> hours = hour.<span class="title function_">group</span>(<span class="title class_">Math</span>.<span class="property">floor</span>)</span><br></pre></td></tr></table></figure>
+
 <p>Here we create a crossfilter object from a parsed csv data. And we define a dimension that is derived from <code>date</code> column, hour of day represented by float values. Then we group by its integer part. To query the top 3 hours that contains most delays:</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">hours.top(<span class="number">3</span>)</span><br><span class="line"><span class="comment">// output</span></span><br><span class="line">[</span><br><span class="line">  &#123; <span class="attr">key</span>: <span class="number">13</span>, <span class="attr">value</span>: <span class="number">72</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">key</span>: <span class="number">20</span>, <span class="attr">value</span>: <span class="number">72</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">key</span>:  <span class="number">8</span>, <span class="attr">value</span>: <span class="number">71</span> &#125;,</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">hours.<span class="title function_">top</span>(<span class="number">3</span>)</span><br><span class="line"><span class="comment">// output</span></span><br><span class="line">[</span><br><span class="line">  &#123; <span class="attr">key</span>: <span class="number">13</span>, <span class="attr">value</span>: <span class="number">72</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">key</span>: <span class="number">20</span>, <span class="attr">value</span>: <span class="number">72</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">key</span>:  <span class="number">8</span>, <span class="attr">value</span>: <span class="number">71</span> &#125;,</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
 <h2 id="Visualization"><a href="#Visualization" class="headerlink" title="Visualization"></a>Visualization</h2><p>Now we can plot the hour of delays in a bar chart:</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> hourChart = dc.barChart(<span class="string">'#hour-chart'</span>)</span><br><span class="line">hourChart</span><br><span class="line">  .width(<span class="number">350</span>)</span><br><span class="line">  .height(<span class="number">150</span>)</span><br><span class="line">  .dimension(hour)</span><br><span class="line">  .group(hours)</span><br><span class="line">  .x(d3.scale.linear()</span><br><span class="line">    .domain([<span class="number">0</span>, <span class="number">24</span>])</span><br><span class="line">    .rangeRound([<span class="number">0</span>, <span class="number">10</span> * <span class="number">24</span>]))</span><br><span class="line">  .controlsUseVisibility(<span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> hourChart = dc.<span class="title function_">barChart</span>(<span class="string">&#x27;#hour-chart&#x27;</span>)</span><br><span class="line">hourChart</span><br><span class="line">  .<span class="title function_">width</span>(<span class="number">350</span>)</span><br><span class="line">  .<span class="title function_">height</span>(<span class="number">150</span>)</span><br><span class="line">  .<span class="title function_">dimension</span>(hour)</span><br><span class="line">  .<span class="title function_">group</span>(hours)</span><br><span class="line">  .<span class="title function_">x</span>(d3.<span class="property">scale</span>.<span class="title function_">linear</span>()</span><br><span class="line">    .<span class="title function_">domain</span>([<span class="number">0</span>, <span class="number">24</span>])</span><br><span class="line">    .<span class="title function_">rangeRound</span>([<span class="number">0</span>, <span class="number">10</span> * <span class="number">24</span>]))</span><br><span class="line">  .<span class="title function_">controlsUseVisibility</span>(<span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
+
 <p>The corresponding HTML code:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"hour-chart"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"title"</span>&gt;</span>Time of Day</span><br><span class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"reset"</span> <span class="attr">href</span>=<span class="string">"javascript:;"</span> <span class="attr">style</span>=<span class="string">"visibility: hidden;"</span>&gt;</span>reset<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;hour-chart&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;title&quot;</span>&gt;</span>Time of Day</span><br><span class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">&quot;reset&quot;</span> <span class="attr">href</span>=<span class="string">&quot;javascript:;&quot;</span> <span class="attr">style</span>=<span class="string">&quot;visibility: hidden;&quot;</span>&gt;</span>reset<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
 <p>We can see that dc.js is highly integrated with crossfilter. We simply pass the dimension objects and do some setup for chart axes. In this example, x axis is hours of the day, and y axis is the count of delayed flights.</p>
 <p>Note <code>class=&quot;reset&quot;</code> is used with <code>controlUseVisibility</code>, that provides a <code>reset</code> button. Try to drag on the chart to filter a range of data, and you’ll see how this button is used.</p>
 <h2 id="Cross-Filtering"><a href="#Cross-Filtering" class="headerlink" title="Cross Filtering"></a>Cross Filtering</h2><p>We can create other charts, such as a hitogram of arrival delay in minutes. You can find the source code in JSFiddle. When you do some filtering (drag and select), the other charts will be updated simultaneously. It is great when you want to explore the distribution of data combined with filtering conditions. Just declare the relationship, and dc.js will do the rest for you.</p>
 <p>There’re many other components like pie chart, table grid, or even customized HTML. But to master these tools, you also need some knowledge of d3.js.</p>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
-<li><a href="http://crossfilter.github.io/crossfilter/" target="_blank" rel="noopener">Crossfilter - Fast Multidimensional Filtering for Coordinated Views</a></li>
-<li><a href="https://dc-js.github.io/dc.js/" target="_blank" rel="noopener">dc.js - Dimensional Charting Javascript Library</a></li>
-<li><a href="http://blog.rusty.io/2012/09/17/crossfilter-tutorial/" target="_blank" rel="noopener">Crossfiler Tutorial</a></li>
+<li><a target="_blank" rel="noopener" href="http://crossfilter.github.io/crossfilter/">Crossfilter - Fast Multidimensional Filtering for Coordinated Views</a></li>
+<li><a target="_blank" rel="noopener" href="https://dc-js.github.io/dc.js/">dc.js - Dimensional Charting Javascript Library</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.rusty.io/2012/09/17/crossfilter-tutorial/">Crossfiler Tutorial</a></li>
 </ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cl4aua5ol000r9lltfrs8m5eh" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cl4j3rwkj000racncaio29of5" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/crossfilter/">crossfilter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dc-js/">dc.js</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/" rel="tag">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/crossfilter/" rel="tag">crossfilter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dc-js/" rel="tag">dc.js</a></li></ul>
 
     </footer>
   </div>
@@ -182,7 +189,7 @@
 
 <section id="comments">
   <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
 </section>
 </section>
@@ -246,7 +253,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
       &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
@@ -272,7 +279,7 @@
 <script>
   var disqus_shortname = 'jizhang';
   
-  var disqus_url = 'http://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/';
+  var disqus_url = 'https://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/';
   
   (function(){
     var dsq = document.createElement('script');
@@ -284,14 +291,22 @@
 </script>
 
 
+
 <script src="/js/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
 
 
 <script src="/js/script.js"></script>
+
 
   </div>
 </body>

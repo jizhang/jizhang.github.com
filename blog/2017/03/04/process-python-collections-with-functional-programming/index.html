@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.8.0">
+<head>
   <meta charset="utf-8">
   
   <title>Process Python Collections with Functional Programming | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="I develop Spark applications with Scala, and it has a very powerful collection system, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In J">
-<meta name="keywords" content="python,functional programming">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Process Python Collections with Functional Programming">
-<meta property="og:url" content="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/index.html">
+<meta property="og:url" content="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
 <meta property="og:description" content="I develop Spark applications with Scala, and it has a very powerful collection system, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In J">
-<meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2022-06-12T05:01:34.279Z">
+<meta property="og:locale">
+<meta property="article:published_time" content="2017-03-04T14:32:17.000Z">
+<meta property="article:modified_time" content="2022-06-17T23:49:19.563Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="functional programming">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Process Python Collections with Functional Programming">
-<meta name="twitter:description" content="I develop Spark applications with Scala, and it has a very powerful collection system, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In J">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -26,9 +27,13 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link rel="stylesheet" href="/css/source-code-pro.css">
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
   
-  <link rel="stylesheet" href="/css/style.css">
+  
+<link rel="stylesheet" href="/css/style.css">
+
   
 
 
@@ -41,8 +46,8 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-</head>
-</html>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -53,10 +58,6 @@
       <h1 id="logo-wrap">
         <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">If I rest, I rust.</a>
-        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -80,7 +81,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -113,29 +114,39 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>I develop Spark applications with Scala, and it has a very powerful <a href="http://docs.scala-lang.org/overviews/collections/introduction" target="_blank" rel="noopener">collection system</a>, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In JavaScript, there is a <a href="https://lodash.com/" target="_blank" rel="noopener">Lodash</a> library that provides powerful tools to process arrays and objects. When my primary work language changes to Python, I am wondering if it’s possible to manipulate collections in a FP way, and fortunately Python already provides syntax and tools for functional programming. Though list comprehension is the pythonic way to deal with collections, but the idea and concepts of FP is definitely worth learning.</p>
+        <p>I develop Spark applications with Scala, and it has a very powerful <a target="_blank" rel="noopener" href="http://docs.scala-lang.org/overviews/collections/introduction">collection system</a>, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In JavaScript, there is a <a target="_blank" rel="noopener" href="https://lodash.com/">Lodash</a> library that provides powerful tools to process arrays and objects. When my primary work language changes to Python, I am wondering if it’s possible to manipulate collections in a FP way, and fortunately Python already provides syntax and tools for functional programming. Though list comprehension is the pythonic way to deal with collections, but the idea and concepts of FP is definitely worth learning.</p>
 <h2 id="Wordcount-Example"><a href="#Wordcount-Example" class="headerlink" title="Wordcount Example"></a>Wordcount Example</h2><p>Let’s first write a snippet to count the word occurences from a paragraph, in of course a functional way.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> itertools</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">content = <span class="string">"""</span></span><br><span class="line"><span class="string">an apple orange the grape</span></span><br><span class="line"><span class="string">banana an apple melon</span></span><br><span class="line"><span class="string">an orange banana apple</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"></span><br><span class="line">word_matches = re.finditer(<span class="string">r'\S+'</span>, content)</span><br><span class="line">words = map(<span class="keyword">lambda</span> m: m.group(<span class="number">0</span>), word_matches)</span><br><span class="line">fruits = filter(<span class="keyword">lambda</span> s: len(s) &gt; <span class="number">3</span>, words)</span><br><span class="line">grouped_fruits = itertools.groupby(sorted(fruits))</span><br><span class="line">fruit_counts = map(<span class="keyword">lambda</span> t: (t[<span class="number">0</span>], len(list(t[<span class="number">1</span>]))), grouped_fruits)</span><br><span class="line">print(list(fruit_counts))</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> itertools</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">content = <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">an apple orange the grape</span></span><br><span class="line"><span class="string">banana an apple melon</span></span><br><span class="line"><span class="string">an orange banana apple</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">word_matches = re.finditer(<span class="string">r&#x27;\S+&#x27;</span>, content)</span><br><span class="line">words = <span class="built_in">map</span>(<span class="keyword">lambda</span> m: m.group(<span class="number">0</span>), word_matches)</span><br><span class="line">fruits = <span class="built_in">filter</span>(<span class="keyword">lambda</span> s: <span class="built_in">len</span>(s) &gt; <span class="number">3</span>, words)</span><br><span class="line">grouped_fruits = itertools.groupby(<span class="built_in">sorted</span>(fruits))</span><br><span class="line">fruit_counts = <span class="built_in">map</span>(<span class="keyword">lambda</span> t: (t[<span class="number">0</span>], <span class="built_in">len</span>(<span class="built_in">list</span>(t[<span class="number">1</span>]))), grouped_fruits)</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">list</span>(fruit_counts))</span><br></pre></td></tr></table></figure>
+
 <p>Run this example and you’ll get a list of fruits, along with their counts:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[(&apos;apple&apos;, 3), (&apos;banana&apos;, 2), (&apos;grape&apos;, 1), (&apos;melon&apos;, 1), (&apos;orange&apos;, 2)]</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[(&#x27;apple&#x27;, 3), (&#x27;banana&#x27;, 2), (&#x27;grape&#x27;, 1), (&#x27;melon&#x27;, 1), (&#x27;orange&#x27;, 2)]</span><br></pre></td></tr></table></figure>
+
 <p>This example includes most aspects of processing collections with FP style. For instance, <code>re.finditer</code> returns an <code>iterator</code> that is lazily evaluated; <code>map</code> and <code>filter</code> are used to do transformations; <code>itertools</code> module provides various functions to cope with iterables; and last but not least, the <code>lambda</code> expression, an easy way to define inline anonymous function. All of them will be described in the following sections.</p>
-<a id="more"></a>
+<span id="more"></span>
+
 <h2 id="Ingredients-of-Functional-Programming"><a href="#Ingredients-of-Functional-Programming" class="headerlink" title="Ingredients of Functional Programming"></a>Ingredients of Functional Programming</h2><p>Python is far from being a functional language, but it provides some basic syntax and tools so that we can choose to write Python in a functional way.</p>
 <h3 id="Function-as-First-class-Citizen"><a href="#Function-as-First-class-Citizen" class="headerlink" title="Function as First-class Citizen"></a>Function as First-class Citizen</h3><p>Function is data. It can be assigned to a variable, pass as a parameter to another function, or returned by a function. The later two cases also refers to higher order functions. Python makes it quite easy, you can define and pass around the function:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(a, b)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> a + b</span><br><span class="line"></span><br><span class="line">add_two = add</span><br><span class="line">print(add_two(<span class="number">1</span>, <span class="number">2</span>)) <span class="comment"># =&gt; 3</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">calculate</span><span class="params">(a, b, operation)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> operation(a, b)</span><br><span class="line"></span><br><span class="line">print(calculate(<span class="number">1</span>, <span class="number">2</span>, add)) <span class="comment"># =&gt; 3</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">a, b</span>):</span><br><span class="line">    <span class="keyword">return</span> a + b</span><br><span class="line"></span><br><span class="line">add_two = add</span><br><span class="line"><span class="built_in">print</span>(add_two(<span class="number">1</span>, <span class="number">2</span>)) <span class="comment"># =&gt; 3</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">calculate</span>(<span class="params">a, b, operation</span>):</span><br><span class="line">    <span class="keyword">return</span> operation(a, b)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(calculate(<span class="number">1</span>, <span class="number">2</span>, add)) <span class="comment"># =&gt; 3</span></span><br></pre></td></tr></table></figure>
+
 <p>Or generate a new function from a function:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_n</span><span class="params">(n)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(a)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> a + n</span><br><span class="line">    <span class="keyword">return</span> add</span><br><span class="line"></span><br><span class="line">add_1 = add_n(<span class="number">1</span>)</span><br><span class="line">print(add_1(<span class="number">1</span>)) <span class="comment"># =&gt; 2</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">add_n</span>(<span class="params">n</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">a</span>):</span><br><span class="line">        <span class="keyword">return</span> a + n</span><br><span class="line">    <span class="keyword">return</span> add</span><br><span class="line"></span><br><span class="line">add_1 = add_n(<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(add_1(<span class="number">1</span>)) <span class="comment"># =&gt; 2</span></span><br></pre></td></tr></table></figure>
+
 <p>To use function in <code>map</code>, which applies the function to every element of the iterable:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(list(map(add_1, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]))) <span class="comment"># =&gt; [2, 3, 4]</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(<span class="built_in">list</span>(<span class="built_in">map</span>(add_1, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]))) <span class="comment"># =&gt; [2, 3, 4]</span></span><br></pre></td></tr></table></figure>
+
 <p>For very short function, we can use lambda expression:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">map(<span class="keyword">lambda</span> a: a + <span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">map</span>(<span class="keyword">lambda</span> a: a + <span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</span><br></pre></td></tr></table></figure>
+
 <h3 id="Being-Lazy"><a href="#Being-Lazy" class="headerlink" title="Being Lazy"></a>Being Lazy</h3><p>Lazy evaluation means postponing the execution until it’s necessary. It’s a very common optimization strategy in big data transformation, becuase all map-like operations should be chained and assigned to a single task. In Python, there’s iterator, an stateful object that remembers the current element during iteration. Let’s assume <code>calc</code> is a heavy function, and the following two lines differ:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[calc(i) <span class="keyword">for</span> i <span class="keyword">in</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]]</span><br><span class="line">map(calc, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[calc(i) <span class="keyword">for</span> i <span class="keyword">in</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]]</span><br><span class="line"><span class="built_in">map</span>(calc, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</span><br></pre></td></tr></table></figure>
+
 <p>List comprehension is eager-evaluated, while <code>map</code> (from Python 3.x on) returns an iterator. You can use the <code>next</code> global function to fetch the next element, or take the first two results using:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> islice</span><br><span class="line">list(islice(map(calc, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]), <span class="number">2</span>))</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> islice</span><br><span class="line"><span class="built_in">list</span>(islice(<span class="built_in">map</span>(calc, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]), <span class="number">2</span>))</span><br></pre></td></tr></table></figure>
+
 <p>It’s worth mentioning that from Python 3.x on a lot of methods returns iterator instead of concrete list, you can refer to <a href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#Less-Lists-More-Views">this article</a>.</p>
-<h3 id="Purity"><a href="#Purity" class="headerlink" title="Purity"></a>Purity</h3><p>A function is pure if its output only depends on its input, and it has no side-effect, i.e. without changing outer/global variable space. Here’re some examples of pure/non-pure functions:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">inc</span><span class="params">(a)</span>:</span> <span class="comment"># pure</span></span><br><span class="line">    <span class="keyword">return</span> a + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">i = <span class="number">0</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">count</span><span class="params">(a)</span>:</span> <span class="comment"># non-pure</span></span><br><span class="line">    i = len(a)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">greet</span><span class="params">(name)</span>:</span> <span class="comment"># non-pure, change the console</span></span><br><span class="line">    print(<span class="string">'hi'</span>, name)</span><br></pre></td></tr></table></figure>
+<h3 id="Purity"><a href="#Purity" class="headerlink" title="Purity"></a>Purity</h3><p>A function is pure if its output only depends on its input, and it has no side-effect, i.e. without changing outer&#x2F;global variable space. Here’re some examples of pure&#x2F;non-pure functions:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">inc</span>(<span class="params">a</span>): <span class="comment"># pure</span></span><br><span class="line">    <span class="keyword">return</span> a + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">i = <span class="number">0</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">count</span>(<span class="params">a</span>): <span class="comment"># non-pure</span></span><br><span class="line">    i = <span class="built_in">len</span>(a)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">greet</span>(<span class="params">name</span>): <span class="comment"># non-pure, change the console</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;hi&#x27;</span>, name)</span><br></pre></td></tr></table></figure>
+
 <p>Purity is a good functional style because:</p>
 <ul>
 <li>it makes you re-design the functions so that they become shorter;</li>
@@ -143,27 +154,29 @@
 <li>purity also enables parallel execution.</li>
 </ul>
 <p>In concurrency programming, sharing state, lock, and context switch are all performance killers. Pure functions ensures codes can be executed in parallel without coordination of states, and can be re-executed multiple times safely.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> concurrent.futures <span class="keyword">import</span> ThreadPoolExecutor</span><br><span class="line">executor = ThreadPoolExecutor(<span class="number">5</span>)</span><br><span class="line">list(executor.map(add_1, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]))</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> concurrent.futures <span class="keyword">import</span> ThreadPoolExecutor</span><br><span class="line">executor = ThreadPoolExecutor(<span class="number">5</span>)</span><br><span class="line"><span class="built_in">list</span>(executor.<span class="built_in">map</span>(add_1, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]))</span><br></pre></td></tr></table></figure>
+
 <h3 id="Function-Composition"><a href="#Function-Composition" class="headerlink" title="Function Composition"></a>Function Composition</h3><p>There’re also topics on combining, currying, partially applying functions, so we can tackle complex problems with small well-defined functions. Python provides <code>decorator</code>, <code>generator</code> syntax, along with <code>functools</code>, <code>operator</code> modules for such tasks. These can be found in Python official documentation.</p>
-<h2 id="Chaining-Operations"><a href="#Chaining-Operations" class="headerlink" title="Chaining Operations"></a>Chaining Operations</h2><p><code>map</code>, <code>filter</code>, and functions in <code>itertools</code> cannot be easily chained. We have to nest the function calls or introduce intermediate variables. Luckily, there’s an open-sourced <a href="https://github.com/EntilZha/PyFunctional" target="_blank" rel="noopener">PyFunctional</a> package that can help us transform or aggregate collections in a funcional way quite fluently.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functional <span class="keyword">import</span> seq</span><br><span class="line"></span><br><span class="line">seq(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)\</span><br><span class="line">    .map(<span class="keyword">lambda</span> x: x * <span class="number">2</span>)\</span><br><span class="line">    .filter(<span class="keyword">lambda</span> x: x &gt; <span class="number">4</span>)\</span><br><span class="line">    .reduce(<span class="keyword">lambda</span> x, y: x + y)</span><br><span class="line"><span class="comment"># =&gt; 14</span></span><br></pre></td></tr></table></figure>
-<h2 id="List-Comprehension-Or-map"><a href="#List-Comprehension-Or-map" class="headerlink" title="List Comprehension Or map?"></a>List Comprehension Or <code>map</code>?</h2><p>List comprehension and generator expression are the pythonic way of processing collections, and the communiy encourages using list comprehension instead of <code>map</code>, etc. There’s a nice <a href="http://stackoverflow.com/a/6407222/1030720" target="_blank" rel="noopener">answer</a> on StackOverflow that addresses the following principle: use <code>map</code> only when you already have a function defined. Otherwise just stick to listcomps for it’s more widely accepted. Neverthelss, one should still pay attention to the laziness of various methods.</p>
-<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>Processing collections is only one application of functional programming. This program paradigm can be applied to other phases of designing your systems. Further materials like <a href="http://deptinfo.unice.fr/~roy/sicp.pdf" target="_blank" rel="noopener">SICP</a>, <a href="https://www.manning.com/books/functional-programming-in-scala" target="_blank" rel="noopener">Functional Programming in Scala</a> are all very informative. Hope you enjoy.</p>
+<h2 id="Chaining-Operations"><a href="#Chaining-Operations" class="headerlink" title="Chaining Operations"></a>Chaining Operations</h2><p><code>map</code>, <code>filter</code>, and functions in <code>itertools</code> cannot be easily chained. We have to nest the function calls or introduce intermediate variables. Luckily, there’s an open-sourced <a target="_blank" rel="noopener" href="https://github.com/EntilZha/PyFunctional">PyFunctional</a> package that can help us transform or aggregate collections in a funcional way quite fluently.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functional <span class="keyword">import</span> seq</span><br><span class="line"></span><br><span class="line">seq(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)\</span><br><span class="line">    .<span class="built_in">map</span>(<span class="keyword">lambda</span> x: x * <span class="number">2</span>)\</span><br><span class="line">    .<span class="built_in">filter</span>(<span class="keyword">lambda</span> x: x &gt; <span class="number">4</span>)\</span><br><span class="line">    .reduce(<span class="keyword">lambda</span> x, y: x + y)</span><br><span class="line"><span class="comment"># =&gt; 14</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="List-Comprehension-Or-map"><a href="#List-Comprehension-Or-map" class="headerlink" title="List Comprehension Or map?"></a>List Comprehension Or <code>map</code>?</h2><p>List comprehension and generator expression are the pythonic way of processing collections, and the communiy encourages using list comprehension instead of <code>map</code>, etc. There’s a nice <a target="_blank" rel="noopener" href="http://stackoverflow.com/a/6407222/1030720">answer</a> on StackOverflow that addresses the following principle: use <code>map</code> only when you already have a function defined. Otherwise just stick to listcomps for it’s more widely accepted. Neverthelss, one should still pay attention to the laziness of various methods.</p>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>Processing collections is only one application of functional programming. This program paradigm can be applied to other phases of designing your systems. Further materials like <a target="_blank" rel="noopener" href="http://deptinfo.unice.fr/~roy/sicp.pdf">SICP</a>, <a target="_blank" rel="noopener" href="https://www.manning.com/books/functional-programming-in-scala">Functional Programming in Scala</a> are all very informative. Hope you enjoy.</p>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
-<li><a href="https://docs.python.org/3/howto/functional.html" target="_blank" rel="noopener">Functional Programming HOWTO</a></li>
-<li><a href="http://kachayev.github.io/talks/uapycon2012/" target="_blank" rel="noopener">Functional Programming with Python</a></li>
-<li><a href="https://docs.python.org/3/library/itertools.html#itertools-recipes" target="_blank" rel="noopener">Itertools Recipes</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.python.org/3/howto/functional.html">Functional Programming HOWTO</a></li>
+<li><a target="_blank" rel="noopener" href="http://kachayev.github.io/talks/uapycon2012/">Functional Programming with Python</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.python.org/3/library/itertools.html#itertools-recipes">Itertools Recipes</a></li>
 </ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cl4aua5oi000k9lltxxwj0bfm" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cl4j3rwkg000kacnc60ul4aht" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/functional-programming/">functional programming</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/functional-programming/" rel="tag">functional programming</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
 
     </footer>
   </div>
@@ -194,7 +207,7 @@
 
 <section id="comments">
   <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
 </section>
 </section>
@@ -258,7 +271,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
       &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
@@ -284,7 +297,7 @@
 <script>
   var disqus_shortname = 'jizhang';
   
-  var disqus_url = 'http://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/';
+  var disqus_url = 'https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/';
   
   (function(){
     var dsq = document.createElement('script');
@@ -296,14 +309,22 @@
 </script>
 
 
+
 <script src="/js/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
 
 
 <script src="/js/script.js"></script>
+
 
   </div>
 </body>

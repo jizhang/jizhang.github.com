@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.8.0">
+<head>
   <meta charset="utf-8">
   
   <title>View Spark Source in Eclipse | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on GrepCode for it is online and has very nice cross reference features. As for Scala project">
-<meta name="keywords" content="spark">
 <meta property="og:type" content="article">
 <meta property="og:title" content="View Spark Source in Eclipse">
-<meta property="og:url" content="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/index.html">
+<meta property="og:url" content="https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
 <meta property="og:description" content="Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on GrepCode for it is online and has very nice cross reference features. As for Scala project">
-<meta property="og:locale" content="default">
-<meta property="og:image" content="http://shzhangji.com/images/scala-ide.png">
-<meta property="og:updated_time" content="2022-06-12T05:01:34.279Z">
+<meta property="og:locale">
+<meta property="og:image" content="https://shzhangji.com/images/scala-ide.png">
+<meta property="article:published_time" content="2015-09-01T10:38:00.000Z">
+<meta property="article:modified_time" content="2022-06-17T23:49:19.559Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="spark">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="View Spark Source in Eclipse">
-<meta name="twitter:description" content="Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on GrepCode for it is online and has very nice cross reference features. As for Scala project">
-<meta name="twitter:image" content="http://shzhangji.com/images/scala-ide.png">
+<meta name="twitter:image" content="https://shzhangji.com/images/scala-ide.png">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -28,9 +28,13 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link rel="stylesheet" href="/css/source-code-pro.css">
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
   
-  <link rel="stylesheet" href="/css/style.css">
+  
+<link rel="stylesheet" href="/css/style.css">
+
   
 
 
@@ -43,8 +47,8 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-</head>
-</html>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -55,10 +59,6 @@
       <h1 id="logo-wrap">
         <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">If I rest, I rust.</a>
-        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -82,7 +82,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -115,42 +115,49 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a href="http://grepcode.com/" target="_blank" rel="noopener">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a href="http://spark.apache.org" target="_blank" rel="noopener">Apache Spark</a>, though its source code can be found on <a href="https://github.com/apache/spark/" target="_blank" rel="noopener">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
-<h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a href="http://www.eclipse.org/downloads/" target="_blank" rel="noopener">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
-<p><img src="/images/scala-ide.png" alt></p>
-<p>Then go to Scala IDE’s <a href="http://scala-ide.org/download/current.html" target="_blank" rel="noopener">official site</a> and install the plugin through update site or zip archive.</p>
-<h2 id="Generate-Project-File-with-Maven"><a href="#Generate-Project-File-with-Maven" class="headerlink" title="Generate Project File with Maven"></a>Generate Project File with Maven</h2><p>Spark is mainly built with Maven, so make sure you have Maven installed on your box, and download the latest Spark source code from <a href="http://spark.apache.org/downloads.html" target="_blank" rel="noopener">here</a>, unarchive it, and execute the following command:</p>
+        <p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a target="_blank" rel="noopener" href="http://grepcode.com/">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a target="_blank" rel="noopener" href="http://spark.apache.org/">Apache Spark</a>, though its source code can be found on <a target="_blank" rel="noopener" href="https://github.com/apache/spark/">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
+<h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a target="_blank" rel="noopener" href="http://www.eclipse.org/downloads/">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
+<p><img src="/images/scala-ide.png"></p>
+<p>Then go to Scala IDE’s <a target="_blank" rel="noopener" href="http://scala-ide.org/download/current.html">official site</a> and install the plugin through update site or zip archive.</p>
+<h2 id="Generate-Project-File-with-Maven"><a href="#Generate-Project-File-with-Maven" class="headerlink" title="Generate Project File with Maven"></a>Generate Project File with Maven</h2><p>Spark is mainly built with Maven, so make sure you have Maven installed on your box, and download the latest Spark source code from <a target="_blank" rel="noopener" href="http://spark.apache.org/downloads.html">here</a>, unarchive it, and execute the following command:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mvn -am -pl core dependency:resolve eclipse:eclipse</span><br></pre></td></tr></table></figure>
-<a id="more"></a>
+
+<span id="more"></span>
+
 <p>This command does a bunch of things. First, it indicates what modules should be built. Spark is a large project with multiple modules. Currently we’re only interested in its core module, so <code>-pl</code> or <code>--projects</code> is used. <code>-am</code> or <code>--also-make</code> tells Maven to build core module’s dependencies as well. We can see the module list in output:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[INFO] Scanning for projects...</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Reactor Build Order:</span><br><span class="line">[INFO]</span><br><span class="line">[INFO] Spark Project Parent POM</span><br><span class="line">[INFO] Spark Launcher Project</span><br><span class="line">[INFO] Spark Project Networking</span><br><span class="line">[INFO] Spark Project Shuffle Streaming Service</span><br><span class="line">[INFO] Spark Project Unsafe</span><br><span class="line">[INFO] Spark Project Core</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[INFO] Scanning for projects...</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Reactor Build Order:</span><br><span class="line">[INFO]</span><br><span class="line">[INFO] Spark Project Parent POM</span><br><span class="line">[INFO] Spark Launcher Project</span><br><span class="line">[INFO] Spark Project Networking</span><br><span class="line">[INFO] Spark Project Shuffle Streaming Service</span><br><span class="line">[INFO] Spark Project Unsafe</span><br><span class="line">[INFO] Spark Project Core</span><br></pre></td></tr></table></figure>
+
 <p><code>dependency:resolve</code> tells Maven to download all dependencies. <code>eclipse:eclipse</code> will generate the <code>.project</code> and <code>.classpath</code> files for Eclipse. But the result is not perfect, both files need some fixes.</p>
 <p>Edit <code>core/.classpath</code>, change the following two lines:</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">classpathentry</span> <span class="attr">kind</span>=<span class="string">"src"</span> <span class="attr">path</span>=<span class="string">"src/main/scala"</span> <span class="attr">including</span>=<span class="string">"**/*.java"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">classpathentry</span> <span class="attr">kind</span>=<span class="string">"src"</span> <span class="attr">path</span>=<span class="string">"src/test/scala"</span> <span class="attr">output</span>=<span class="string">"target/scala-2.10/test-classes"</span> <span class="attr">including</span>=<span class="string">"**/*.java"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">classpathentry</span> <span class="attr">kind</span>=<span class="string">&quot;src&quot;</span> <span class="attr">path</span>=<span class="string">&quot;src/main/scala&quot;</span> <span class="attr">including</span>=<span class="string">&quot;**/*.java&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">classpathentry</span> <span class="attr">kind</span>=<span class="string">&quot;src&quot;</span> <span class="attr">path</span>=<span class="string">&quot;src/test/scala&quot;</span> <span class="attr">output</span>=<span class="string">&quot;target/scala-2.10/test-classes&quot;</span> <span class="attr">including</span>=<span class="string">&quot;**/*.java&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
 <p>to</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">classpathentry</span> <span class="attr">kind</span>=<span class="string">"src"</span> <span class="attr">path</span>=<span class="string">"src/main/scala"</span> <span class="attr">including</span>=<span class="string">"**/*.java|**/*.scala"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">classpathentry</span> <span class="attr">kind</span>=<span class="string">"src"</span> <span class="attr">path</span>=<span class="string">"src/test/scala"</span> <span class="attr">output</span>=<span class="string">"target/scala-2.10/test-classes"</span> <span class="attr">including</span>=<span class="string">"**/*.java|**/*.scala"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">classpathentry</span> <span class="attr">kind</span>=<span class="string">&quot;src&quot;</span> <span class="attr">path</span>=<span class="string">&quot;src/main/scala&quot;</span> <span class="attr">including</span>=<span class="string">&quot;**/*.java|**/*.scala&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">classpathentry</span> <span class="attr">kind</span>=<span class="string">&quot;src&quot;</span> <span class="attr">path</span>=<span class="string">&quot;src/test/scala&quot;</span> <span class="attr">output</span>=<span class="string">&quot;target/scala-2.10/test-classes&quot;</span> <span class="attr">including</span>=<span class="string">&quot;**/*.java|**/*.scala&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
 <p>Edit <code>core/.project</code>, make it looks like this:</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">buildSpec</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">buildCommand</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>org.scala-ide.sdt.core.scalabuilder<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">buildCommand</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">buildSpec</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">natures</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">nature</span>&gt;</span>org.scala-ide.sdt.core.scalanature<span class="tag">&lt;/<span class="name">nature</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">nature</span>&gt;</span>org.eclipse.jdt.core.javanature<span class="tag">&lt;/<span class="name">nature</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">natures</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
 <p>Now you can import “Existing Projects into Workspace”, including <code>core</code>, <code>launcher</code>, <code>network</code>, and <code>unsafe</code>.</p>
-<h2 id="Miscellaneous"><a href="#Miscellaneous" class="headerlink" title="Miscellaneous"></a>Miscellaneous</h2><h3 id="Access-restriction-The-type-‘Unsafe’-is-not-API"><a href="#Access-restriction-The-type-‘Unsafe’-is-not-API" class="headerlink" title="Access restriction: The type ‘Unsafe’ is not API"></a>Access restriction: The type ‘Unsafe’ is not API</h3><p>For module <code>spark-unsafe</code>, Eclipse will report an error “Access restriction: The type ‘Unsafe’ is not API (restriction on required library /path/to/jre/lib/rt.jar”. To fix this, right click the “JRE System Library” entry in Package Explorer, change it to “Workspace default JRE”.</p>
-<h3 id="Download-Sources-and-Javadocs"><a href="#Download-Sources-and-Javadocs" class="headerlink" title="Download Sources and Javadocs"></a>Download Sources and Javadocs</h3><p>Add the following entry into pom’s project / build / plugins:</p>
+<h2 id="Miscellaneous"><a href="#Miscellaneous" class="headerlink" title="Miscellaneous"></a>Miscellaneous</h2><h3 id="Access-restriction-The-type-‘Unsafe’-is-not-API"><a href="#Access-restriction-The-type-‘Unsafe’-is-not-API" class="headerlink" title="Access restriction: The type ‘Unsafe’ is not API"></a>Access restriction: The type ‘Unsafe’ is not API</h3><p>For module <code>spark-unsafe</code>, Eclipse will report an error “Access restriction: The type ‘Unsafe’ is not API (restriction on required library &#x2F;path&#x2F;to&#x2F;jre&#x2F;lib&#x2F;rt.jar”. To fix this, right click the “JRE System Library” entry in Package Explorer, change it to “Workspace default JRE”.</p>
+<h3 id="Download-Sources-and-Javadocs"><a href="#Download-Sources-and-Javadocs" class="headerlink" title="Download Sources and Javadocs"></a>Download Sources and Javadocs</h3><p>Add the following entry into pom’s project &#x2F; build &#x2F; plugins:</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-eclipse-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">downloadSources</span>&gt;</span>true<span class="tag">&lt;/<span class="name">downloadSources</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">downloadJavadocs</span>&gt;</span>true<span class="tag">&lt;/<span class="name">downloadJavadocs</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h3 id="build-helper-maven-plugin"><a href="#build-helper-maven-plugin" class="headerlink" title="build-helper-maven-plugin"></a>build-helper-maven-plugin</h3><p>Since Spark is a mixture of Java and Scala code, and the maven-eclipse-plugin only knows about Java source files, so we need to use build-helper-maven-plugin to include the Scala sources, as is described <a href="http://docs.scala-lang.org/tutorials/scala-with-maven.html#integration-with-eclipse-scala-ide24" target="_blank" rel="noopener">here</a>. Fortunately, Spark’s pom.xml has already included this setting.</p>
+
+<h3 id="build-helper-maven-plugin"><a href="#build-helper-maven-plugin" class="headerlink" title="build-helper-maven-plugin"></a>build-helper-maven-plugin</h3><p>Since Spark is a mixture of Java and Scala code, and the maven-eclipse-plugin only knows about Java source files, so we need to use build-helper-maven-plugin to include the Scala sources, as is described <a target="_blank" rel="noopener" href="http://docs.scala-lang.org/tutorials/scala-with-maven.html#integration-with-eclipse-scala-ide24">here</a>. Fortunately, Spark’s pom.xml has already included this setting.</p>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
-<li><a href="http://docs.scala-lang.org/tutorials/scala-with-maven.html" target="_blank" rel="noopener">http://docs.scala-lang.org/tutorials/scala-with-maven.html</a></li>
-<li><a href="https://wiki.scala-lang.org/display/SIW/ScalaEclipseMaven" target="_blank" rel="noopener">https://wiki.scala-lang.org/display/SIW/ScalaEclipseMaven</a></li>
-<li><a href="https://cwiki.apache.org/confluence/display/SPARK/Useful+Developer+Tools" target="_blank" rel="noopener">https://cwiki.apache.org/confluence/display/SPARK/Useful+Developer+Tools</a></li>
+<li><a target="_blank" rel="noopener" href="http://docs.scala-lang.org/tutorials/scala-with-maven.html">http://docs.scala-lang.org/tutorials/scala-with-maven.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://wiki.scala-lang.org/display/SIW/ScalaEclipseMaven">https://wiki.scala-lang.org/display/SIW/ScalaEclipseMaven</a></li>
+<li><a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/SPARK/Useful+Developer+Tools">https://cwiki.apache.org/confluence/display/SPARK/Useful+Developer+Tools</a></li>
 </ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="cl4aua5ob000a9lltok3qbwxq" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="cl4j3rwka000aacncfupwfggg" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/">spark</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/" rel="tag">spark</a></li></ul>
 
     </footer>
   </div>
@@ -181,7 +188,7 @@
 
 <section id="comments">
   <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
 </section>
 </section>
@@ -245,7 +252,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
       &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
@@ -271,7 +278,7 @@
 <script>
   var disqus_shortname = 'jizhang';
   
-  var disqus_url = 'http://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/';
+  var disqus_url = 'https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/';
   
   (function(){
     var dsq = document.createElement('script');
@@ -283,14 +290,22 @@
 </script>
 
 
+
 <script src="/js/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
 
 
 <script src="/js/script.js"></script>
+
 
   </div>
 </body>

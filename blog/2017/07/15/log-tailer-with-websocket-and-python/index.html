@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.8.0">
+<head>
   <meta charset="utf-8">
   
   <title>Log Tailer with WebSocket and Python | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and tail -f, it would be nice if we can tail a log file in the browser. W">
-<meta name="keywords" content="python,websocket,ops">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Log Tailer with WebSocket and Python">
-<meta property="og:url" content="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/index.html">
+<meta property="og:url" content="https://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
 <meta property="og:description" content="Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and tail -f, it would be nice if we can tail a log file in the browser. W">
-<meta property="og:locale" content="default">
-<meta property="og:image" content="http://shzhangji.com/images/logviewer-websocket.png">
-<meta property="og:updated_time" content="2022-06-12T05:01:34.279Z">
+<meta property="og:locale">
+<meta property="og:image" content="https://shzhangji.com/images/logviewer-websocket.png">
+<meta property="article:published_time" content="2017-07-15T11:21:03.000Z">
+<meta property="article:modified_time" content="2022-06-17T23:49:19.563Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="websocket">
+<meta property="article:tag" content="ops">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Log Tailer with WebSocket and Python">
-<meta name="twitter:description" content="Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and tail -f, it would be nice if we can tail a log file in the browser. W">
-<meta name="twitter:image" content="http://shzhangji.com/images/logviewer-websocket.png">
+<meta name="twitter:image" content="https://shzhangji.com/images/logviewer-websocket.png">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -28,9 +30,13 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link rel="stylesheet" href="/css/source-code-pro.css">
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
   
-  <link rel="stylesheet" href="/css/style.css">
+  
+<link rel="stylesheet" href="/css/style.css">
+
   
 
 
@@ -43,8 +49,8 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-</head>
-</html>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -55,10 +61,6 @@
       <h1 id="logo-wrap">
         <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">If I rest, I rust.</a>
-        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -82,7 +84,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -115,53 +117,61 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and <code>tail -f</code>, it would be nice if we can tail a log file in the browser. With WebSocket, this can be done easily. In this article, I’ll walk you through a simple <strong>logviewer</strong> (<a href="http://github.com/jizhang/logviewer" target="_blank" rel="noopener">source</a>) utility that is written in Python.</p>
+        <p>Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and <code>tail -f</code>, it would be nice if we can tail a log file in the browser. With WebSocket, this can be done easily. In this article, I’ll walk you through a simple <strong>logviewer</strong> (<a target="_blank" rel="noopener" href="http://github.com/jizhang/logviewer">source</a>) utility that is written in Python.</p>
 <p><img src="/images/logviewer-websocket.png" alt="Logviewer with WebSocket"></p>
 <h2 id="WebSocket-Intro"><a href="#WebSocket-Intro" class="headerlink" title="WebSocket Intro"></a>WebSocket Intro</h2><p>WebSocket is standard protocol over TCP, that provides full-duplex communication between client and server side, usually a browser and a web server. Before WebSocket, when we want to keep an alive browser-server connection, we choose from long polling, forever frame or Comet techniques. Now that WebSocket is widely supported by major browsers, we can use it to implement web chatroom, games, realtime dashboard, etc. Besides, WebSocket connection can be established by an HTTP upgrade request, and communicate over 80 port, so as to bring minimum impact on existing network facility.</p>
-<a id="more"></a>
+<span id="more"></span>
+
 <h2 id="Python’s-websockets-Package"><a href="#Python’s-websockets-Package" class="headerlink" title="Python’s websockets Package"></a>Python’s <code>websockets</code> Package</h2><p><code>websockets</code> is a Python package that utilize Python’s <code>asyncio</code> to develop WebSocket servers and clients. The package can be installed via <code>pip</code>, and it requires Python 3.3+.</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pip install websockets</span><br><span class="line"><span class="comment"># For Python 3.3</span></span><br><span class="line">pip install asyncio</span><br></pre></td></tr></table></figure>
+
 <p>Following is a simple Echo server:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"><span class="keyword">import</span> websockets</span><br><span class="line"></span><br><span class="line"><span class="meta">@asyncio.coroutine</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo</span><span class="params">(websocket, path)</span>:</span></span><br><span class="line">    message = <span class="keyword">yield</span> <span class="keyword">from</span> websocket.recv()</span><br><span class="line">    print(<span class="string">'recv'</span>, message)</span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(message)</span><br><span class="line"></span><br><span class="line">start_server = websockets.serve(echo, <span class="string">'localhost'</span>, <span class="number">8765</span>)</span><br><span class="line"></span><br><span class="line">asyncio.get_event_loop().run_until_complete(start_server)</span><br><span class="line">asyncio.get_event_loop().run_forever()</span><br></pre></td></tr></table></figure>
-<p>Here we use Python’s coroutines to handle client requests. Coroutine enables single-threaded application to run concurrent codes, such as handling socket I/O. Note that Python 3.5 introduced two new keywords for coroutine, <code>async</code> and <code>await</code>, so the Echo server can be rewritten as:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">def</span> <span class="title">echo</span><span class="params">(websocket, path)</span>:</span></span><br><span class="line">    message = <span class="keyword">await</span> websocket.recv()</span><br><span class="line">    <span class="keyword">await</span> websocket.send(message)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"><span class="keyword">import</span> websockets</span><br><span class="line"></span><br><span class="line"><span class="meta">@asyncio.coroutine</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">echo</span>(<span class="params">websocket, path</span>):</span><br><span class="line">    message = <span class="keyword">yield</span> <span class="keyword">from</span> websocket.recv()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;recv&#x27;</span>, message)</span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(message)</span><br><span class="line"></span><br><span class="line">start_server = websockets.serve(echo, <span class="string">&#x27;localhost&#x27;</span>, <span class="number">8765</span>)</span><br><span class="line"></span><br><span class="line">asyncio.get_event_loop().run_until_complete(start_server)</span><br><span class="line">asyncio.get_event_loop().run_forever()</span><br></pre></td></tr></table></figure>
+
+<p>Here we use Python’s coroutines to handle client requests. Coroutine enables single-threaded application to run concurrent codes, such as handling socket I&#x2F;O. Note that Python 3.5 introduced two new keywords for coroutine, <code>async</code> and <code>await</code>, so the Echo server can be rewritten as:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">echo</span>(<span class="params">websocket, path</span>):</span><br><span class="line">    message = <span class="keyword">await</span> websocket.recv()</span><br><span class="line">    <span class="keyword">await</span> websocket.send(message)</span><br></pre></td></tr></table></figure>
+
 <p>For client side, we use the built-in <code>WebSocket</code> class. You can simply paste the following code into Chrome’s JavaScript console:</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> ws = <span class="keyword">new</span> WebSocket(<span class="string">'ws://localhost:8765'</span>)</span><br><span class="line">ws.onmessage = <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(event.data)</span><br><span class="line">&#125;</span><br><span class="line">ws.onopen = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  ws.send(<span class="string">'hello'</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> ws = <span class="keyword">new</span> <span class="title class_">WebSocket</span>(<span class="string">&#x27;ws://localhost:8765&#x27;</span>)</span><br><span class="line">ws.<span class="property">onmessage</span> = <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(event.<span class="property">data</span>)</span><br><span class="line">&#125;</span><br><span class="line">ws.<span class="property">onopen</span> = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  ws.<span class="title function_">send</span>(<span class="string">&#x27;hello&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h2 id="Tail-a-Log-File"><a href="#Tail-a-Log-File" class="headerlink" title="Tail a Log File"></a>Tail a Log File</h2><p>We’ll take the following steps to implement a log viewer:</p>
 <ul>
 <li>Client opens a WebSocket connection, and puts the file path in the url, like <code>ws://localhost:8765/tmp/build.log?tail=1</code>;</li>
 <li>Server parses the file path, along with a flag that indicates whether this is a view once or tail request;</li>
 <li>Open file and start sending contents within a for loop.</li>
 </ul>
-<p>Full code can be found on <a href="https://github.com/jizhang/logviewer" target="_blank" rel="noopener">GitHub</a>, so here I’ll select some important parts:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@asyncio.coroutine</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">view_log</span><span class="params">(websocket, path)</span>:</span></span><br><span class="line">    parse_result = urllib.parse.urlparse(path)</span><br><span class="line">    file_path = os.path.abspath(parse_result.path)</span><br><span class="line">    query = urllib.parse.parse_qs(parse_result.query)</span><br><span class="line">    tail = query <span class="keyword">and</span> query[<span class="string">'tail'</span>] <span class="keyword">and</span> query[<span class="string">'tail'</span>][<span class="number">0</span>] == <span class="string">'1'</span></span><br><span class="line">    <span class="keyword">with</span> open(file_path) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(f.read())</span><br><span class="line">        <span class="keyword">if</span> tail:</span><br><span class="line">            <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">                content = f.read()</span><br><span class="line">                <span class="keyword">if</span> content:</span><br><span class="line">                    <span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(content)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">yield</span> <span class="keyword">from</span> asyncio.sleep(<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">from</span> websocket.close()</span><br></pre></td></tr></table></figure>
+<p>Full code can be found on <a target="_blank" rel="noopener" href="https://github.com/jizhang/logviewer">GitHub</a>, so here I’ll select some important parts:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@asyncio.coroutine</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">view_log</span>(<span class="params">websocket, path</span>):</span><br><span class="line">    parse_result = urllib.parse.urlparse(path)</span><br><span class="line">    file_path = os.path.abspath(parse_result.path)</span><br><span class="line">    query = urllib.parse.parse_qs(parse_result.query)</span><br><span class="line">    tail = query <span class="keyword">and</span> query[<span class="string">&#x27;tail&#x27;</span>] <span class="keyword">and</span> query[<span class="string">&#x27;tail&#x27;</span>][<span class="number">0</span>] == <span class="string">&#x27;1&#x27;</span></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(file_path) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(f.read())</span><br><span class="line">        <span class="keyword">if</span> tail:</span><br><span class="line">            <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">                content = f.read()</span><br><span class="line">                <span class="keyword">if</span> content:</span><br><span class="line">                    <span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(content)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">yield</span> <span class="keyword">from</span> asyncio.sleep(<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">from</span> websocket.close()</span><br></pre></td></tr></table></figure>
+
 <h2 id="Miscellaneous"><a href="#Miscellaneous" class="headerlink" title="Miscellaneous"></a>Miscellaneous</h2><ul>
 <li>Sometimes the client browser will not close the connection properly, so it’s necessary to add some heartbeat mechanism. For instance:</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> time.time() - last_heartbeat &gt; HEARTBEAT_INTERVAL:</span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(<span class="string">'ping'</span>)</span><br><span class="line">    pong = <span class="keyword">yield</span> <span class="keyword">from</span> asyncio.wait_for(websocket.recv(), <span class="number">5</span>)</span><br><span class="line">    <span class="keyword">if</span> pong != <span class="string">'pong'</span>:</span><br><span class="line">        <span class="keyword">raise</span> Exception(<span class="string">'Ping error'</span>))</span><br><span class="line">    last_heartbeat = time.time()</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> time.time() - last_heartbeat &gt; HEARTBEAT_INTERVAL:</span><br><span class="line">    <span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(<span class="string">&#x27;ping&#x27;</span>)</span><br><span class="line">    pong = <span class="keyword">yield</span> <span class="keyword">from</span> asyncio.wait_for(websocket.recv(), <span class="number">5</span>)</span><br><span class="line">    <span class="keyword">if</span> pong != <span class="string">&#x27;pong&#x27;</span>:</span><br><span class="line">        <span class="keyword">raise</span> Exception(<span class="string">&#x27;Ping error&#x27;</span>))</span><br><span class="line">    last_heartbeat = time.time()</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>Log files may contain ANSI color codes (e.g. logging level). We can use <code>ansi2html</code> package to convert them into HTML:</li>
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> ansi2html <span class="keyword">import</span> Ansi2HTMLConverter</span><br><span class="line">conv = Ansi2HTMLConverter(inline=<span class="literal">True</span>)</span><br><span class="line"><span class="keyword">yield</span> <span class="keyword">from</span> websocket.send(conv.convert(content, full=<span class="literal">False</span>))</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>It’s also necessary to do some permission checks on the file path. For example, convert to absolute path and do a simple prefix check.</li>
 </ul>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
-<li><a href="https://en.wikipedia.org/wiki/WebSocket" target="_blank" rel="noopener">WebSocket - Wikipedia</a></li>
-<li><a href="https://websockets.readthedocs.io/en/stable/intro.html" target="_blank" rel="noopener">websockets - Get Started</a></li>
-<li><a href="https://docs.python.org/3/library/asyncio-task.html" target="_blank" rel="noopener">Tasks and coroutines</a></li>
-<li><a href="https://stackoverflow.com/questions/12523044/how-can-i-tail-a-log-file-in-python" target="_blank" rel="noopener">How can I tail a log file in Python?</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/WebSocket">WebSocket - Wikipedia</a></li>
+<li><a target="_blank" rel="noopener" href="https://websockets.readthedocs.io/en/stable/intro.html">websockets - Get Started</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.python.org/3/library/asyncio-task.html">Tasks and coroutines</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/12523044/how-can-i-tail-a-log-file-in-python">How can I tail a log file in Python?</a></li>
 </ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cl4aua5on000u9lltr0352qo3" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cl4j3rwkk000uacnc9zr60nrk" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ops/">ops</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/websocket/">websocket</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ops/" rel="tag">ops</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/websocket/" rel="tag">websocket</a></li></ul>
 
     </footer>
   </div>
@@ -192,7 +202,7 @@
 
 <section id="comments">
   <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
 </section>
 </section>
@@ -256,7 +266,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
       &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
@@ -282,7 +292,7 @@
 <script>
   var disqus_shortname = 'jizhang';
   
-  var disqus_url = 'http://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/';
+  var disqus_url = 'https://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/';
   
   (function(){
     var dsq = document.createElement('script');
@@ -294,14 +304,22 @@
 </script>
 
 
+
 <script src="/js/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
 
 
 <script src="/js/script.js"></script>
+
 
   </div>
 </body>

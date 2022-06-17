@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.8.0">
+<head>
   <meta charset="utf-8">
   
   <title>Hive Window and Analytical Functions | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="SQL is one of the major tools of data analysis. It provides filtering, transforming and aggregation functionalities, and we can use it to process big volume of data with the help of Hive and Hadoop. H">
-<meta name="keywords" content="analytics,sql,hive">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Hive Window and Analytical Functions">
-<meta property="og:url" content="http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/index.html">
+<meta property="og:url" content="https://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
 <meta property="og:description" content="SQL is one of the major tools of data analysis. It provides filtering, transforming and aggregation functionalities, and we can use it to process big volume of data with the help of Hive and Hadoop. H">
-<meta property="og:locale" content="default">
-<meta property="og:image" content="http://shzhangji.com/images/hive-window/window-stock.png">
-<meta property="og:image" content="http://shzhangji.com/images/hive-window/concepts.png">
-<meta property="og:image" content="http://shzhangji.com/images/hive-window/employee-pct.png">
-<meta property="og:image" content="http://shzhangji.com/images/hive-window/clickstream.png">
-<meta property="og:image" content="http://shzhangji.com/images/hive-window/window-sequence.png">
-<meta property="og:updated_time" content="2022-06-12T05:01:34.283Z">
+<meta property="og:locale">
+<meta property="og:image" content="https://shzhangji.com/images/hive-window/window-stock.png">
+<meta property="og:image" content="https://shzhangji.com/images/hive-window/concepts.png">
+<meta property="og:image" content="https://shzhangji.com/images/hive-window/employee-pct.png">
+<meta property="og:image" content="https://shzhangji.com/images/hive-window/clickstream.png">
+<meta property="og:image" content="https://shzhangji.com/images/hive-window/window-sequence.png">
+<meta property="article:published_time" content="2017-09-04T13:55:23.000Z">
+<meta property="article:modified_time" content="2022-06-17T23:49:19.563Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="analytics">
+<meta property="article:tag" content="sql">
+<meta property="article:tag" content="hive">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hive Window and Analytical Functions">
-<meta name="twitter:description" content="SQL is one of the major tools of data analysis. It provides filtering, transforming and aggregation functionalities, and we can use it to process big volume of data with the help of Hive and Hadoop. H">
-<meta name="twitter:image" content="http://shzhangji.com/images/hive-window/window-stock.png">
+<meta name="twitter:image" content="https://shzhangji.com/images/hive-window/window-stock.png">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -32,9 +34,13 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link rel="stylesheet" href="/css/source-code-pro.css">
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
   
-  <link rel="stylesheet" href="/css/style.css">
+  
+<link rel="stylesheet" href="/css/style.css">
+
   
 
 
@@ -47,8 +53,8 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-</head>
-</html>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -59,10 +65,6 @@
       <h1 id="logo-wrap">
         <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">If I rest, I rust.</a>
-        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -86,7 +88,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -122,57 +124,66 @@
         <p>SQL is one of the major tools of data analysis. It provides filtering, transforming and aggregation functionalities, and we can use it to process big volume of data with the help of Hive and Hadoop. However, legacy SQL does not support operations like grouped ranking and moving average, because the <code>GROUP BY</code> clause can only produce one aggregation result for each group, but not for each row. Fortunately, with the new SQL standard coming, we can use the <code>WINDOW</code> clause to compute aggregations on a set of rows and return the result for each row.</p>
 <p><img src="/images/hive-window/window-stock.png" alt="Moving Average"></p>
 <p>For instance, if we want to calculate the two-day moving average for each stock, we can write the following query:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">  <span class="string">`date`</span>, <span class="string">`stock`</span>, <span class="string">`close`</span></span><br><span class="line">  ,<span class="keyword">AVG</span>(<span class="string">`close`</span>) <span class="keyword">OVER</span> <span class="string">`w`</span> <span class="keyword">AS</span> <span class="string">`mavg`</span></span><br><span class="line"><span class="keyword">FROM</span> <span class="string">`t_stock`</span></span><br><span class="line"><span class="keyword">WINDOW</span> <span class="string">`w`</span> <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="string">`stock`</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="string">`date`</span></span><br><span class="line">               <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> <span class="number">1</span> <span class="keyword">PRECEDING</span> <span class="keyword">AND</span> <span class="keyword">CURRENT</span> <span class="keyword">ROW</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">  `<span class="type">date</span>`, `stock`, `<span class="keyword">close</span>`</span><br><span class="line">  ,<span class="built_in">AVG</span>(`<span class="keyword">close</span>`) <span class="keyword">OVER</span> `w` <span class="keyword">AS</span> `mavg`</span><br><span class="line"><span class="keyword">FROM</span> `t_stock`</span><br><span class="line"><span class="keyword">WINDOW</span> `w` <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> `stock` <span class="keyword">ORDER</span> <span class="keyword">BY</span> `<span class="type">date</span>`</span><br><span class="line">               <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> <span class="number">1</span> PRECEDING <span class="keyword">AND</span> <span class="keyword">CURRENT</span> <span class="type">ROW</span>)</span><br></pre></td></tr></table></figure>
+
 <p><code>OVER</code>, <code>WINDOW</code> and <code>ROWS BETWEEN AND</code> are all newly added SQL keywords to support windowing operations. In this query, <code>PARTITION BY</code> and <code>ORDER BY</code> works like <code>GROUP BY</code> and <code>ORDER BY</code> after the <code>WHERE</code> clause, except it doesn’t collapse the rows, but only divides them into non-overlapping partitions to work on. <code>ROWS BETWEEN AND</code> here constructs a <strong>window frame</strong>. In this case, each frame contains the previous row and current row. We’ll discuss more on frames later. Finally, <code>AVG</code> is a window function that computes results on each frame. Note that <code>WINDOW</code> clause can also be directly appended to window function:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">AVG</span>(<span class="string">`close`</span>) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="string">`stock`</span>) <span class="keyword">AS</span> <span class="string">`mavg`</span> <span class="keyword">FROM</span> <span class="string">`t_stock`</span>;</span><br></pre></td></tr></table></figure>
-<a id="more"></a>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="built_in">AVG</span>(`<span class="keyword">close</span>`) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> `stock`) <span class="keyword">AS</span> `mavg` <span class="keyword">FROM</span> `t_stock`;</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
 <h2 id="Window-Query-Concepts"><a href="#Window-Query-Concepts" class="headerlink" title="Window Query Concepts"></a>Window Query Concepts</h2><p><img src="/images/hive-window/concepts.png" alt="Concepts"></p>
-<p><a href="https://en.wikibooks.org/wiki/Structured_Query_Language/Window_functions" target="_blank" rel="noopener">Source</a></p>
+<p><a target="_blank" rel="noopener" href="https://en.wikibooks.org/wiki/Structured_Query_Language/Window_functions">Source</a></p>
 <p>SQL window query introduces three concepts, namely window partition, window frame and window function.</p>
 <p><code>PARTITION</code> clause divides result set into <strong>window partitions</strong> by one or more columns, and the rows within can be optionally sorted by one or more columns. If there’s not <code>PARTITION BY</code>, the entire result set is treated as a single partition; if there’s not <code>ORDER BY</code>, window frames cannot be defined, and all rows within the partition constitutes a single frame.</p>
 <p><strong>Window frame</strong> selects rows from partition for window function to work on. There’re two ways of defining frame in Hive, <code>ROWS</code> AND <code>RANGE</code>. For both types, we define the upper bound and lower bound. For instance, <code>ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code> selects rows from the beginning of the partition to the current row; <code>SUM(close) RANGE BETWEEN 100 PRECEDING AND 200 FOLLOWING</code> selects rows by the <em>distance</em> from the current row’s value. Say current <code>close</code> is <code>200</code>, and this frame will includes rows whose <code>close</code> values range from <code>100</code> to <code>400</code>, within the partition. All possible combinations of frame definitions are listed as follows, and the default definition is <code>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code>.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(ROWS | RANGE) BETWEEN (UNBOUNDED | [num]) PRECEDING AND ([num] PRECEDING | CURRENT ROW | (UNBOUNDED | [num]) FOLLOWING)</span><br><span class="line">(ROWS | RANGE) BETWEEN CURRENT ROW AND (CURRENT ROW | (UNBOUNDED | [num]) FOLLOWING)</span><br><span class="line">(ROWS | RANGE) BETWEEN [num] FOLLOWING AND (UNBOUNDED | [num]) FOLLOWING</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(ROWS | RANGE) BETWEEN (UNBOUNDED | [num]) PRECEDING AND ([num] PRECEDING | CURRENT ROW | (UNBOUNDED | [num]) FOLLOWING)</span><br><span class="line">(ROWS | RANGE) BETWEEN CURRENT ROW AND (CURRENT ROW | (UNBOUNDED | [num]) FOLLOWING)</span><br><span class="line">(ROWS | RANGE) BETWEEN [num] FOLLOWING AND (UNBOUNDED | [num]) FOLLOWING</span><br></pre></td></tr></table></figure>
+
 <p>All <strong>window functions</strong> compute results on the current frame. Hive supports the following functions:</p>
 <ul>
-<li><code>FIRST_VALUE(col)</code>, <code>LAST_VALUE(col)</code> returns the column value of first / last row within the frame;</li>
-<li><code>LEAD(col, n)</code>, <code>LAG(col, n)</code> returns the column value of n-th row before / after current row;</li>
+<li><code>FIRST_VALUE(col)</code>, <code>LAST_VALUE(col)</code> returns the column value of first &#x2F; last row within the frame;</li>
+<li><code>LEAD(col, n)</code>, <code>LAG(col, n)</code> returns the column value of n-th row before &#x2F; after current row;</li>
 <li><code>RANK()</code>, <code>ROW_NUMBER()</code> assigns a sequence of the current row within the frame. The difference is <code>RANK()</code> will contain duplicate if there’re identical values.</li>
 <li><code>COUNT()</code>, <code>SUM(col)</code>, <code>MIN(col)</code> works as usual.</li>
 </ul>
 <h2 id="Hive-Query-Examples"><a href="#Hive-Query-Examples" class="headerlink" title="Hive Query Examples"></a>Hive Query Examples</h2><h3 id="Top-K"><a href="#Top-K" class="headerlink" title="Top K"></a>Top K</h3><p>First, let’s create some test data of employee incomes in Hive:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t_employee (<span class="keyword">id</span> <span class="built_in">INT</span>, emp_name <span class="built_in">VARCHAR</span>(<span class="number">20</span>), dep_name <span class="built_in">VARCHAR</span>(<span class="number">20</span>),</span><br><span class="line">salary <span class="built_in">DECIMAL</span>(<span class="number">7</span>, <span class="number">2</span>), age <span class="built_in">DECIMAL</span>(<span class="number">3</span>, <span class="number">0</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_employee <span class="keyword">VALUES</span></span><br><span class="line">( <span class="number">1</span>,  <span class="string">'Matthew'</span>, <span class="string">'Management'</span>,  <span class="number">4500</span>, <span class="number">55</span>),</span><br><span class="line">( <span class="number">2</span>,  <span class="string">'Olivia'</span>,  <span class="string">'Management'</span>,  <span class="number">4400</span>, <span class="number">61</span>),</span><br><span class="line">( <span class="number">3</span>,  <span class="string">'Grace'</span>,   <span class="string">'Management'</span>,  <span class="number">4000</span>, <span class="number">42</span>),</span><br><span class="line">( <span class="number">4</span>,  <span class="string">'Jim'</span>,     <span class="string">'Production'</span>,  <span class="number">3700</span>, <span class="number">35</span>),</span><br><span class="line">( <span class="number">5</span>,  <span class="string">'Alice'</span>,   <span class="string">'Production'</span>,  <span class="number">3500</span>, <span class="number">24</span>),</span><br><span class="line">( <span class="number">6</span>,  <span class="string">'Michael'</span>, <span class="string">'Production'</span>,  <span class="number">3600</span>, <span class="number">28</span>),</span><br><span class="line">( <span class="number">7</span>,  <span class="string">'Tom'</span>,     <span class="string">'Production'</span>,  <span class="number">3800</span>, <span class="number">35</span>),</span><br><span class="line">( <span class="number">8</span>,  <span class="string">'Kevin'</span>,   <span class="string">'Production'</span>,  <span class="number">4000</span>, <span class="number">52</span>),</span><br><span class="line">( <span class="number">9</span>,  <span class="string">'Elvis'</span>,   <span class="string">'Service'</span>,     <span class="number">4100</span>, <span class="number">40</span>),</span><br><span class="line">(<span class="number">10</span>,  <span class="string">'Sophia'</span>,  <span class="string">'Sales'</span>,       <span class="number">4300</span>, <span class="number">36</span>),</span><br><span class="line">(<span class="number">11</span>,  <span class="string">'Samantha'</span>,<span class="string">'Sales'</span>,       <span class="number">4100</span>, <span class="number">38</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t_employee (id <span class="type">INT</span>, emp_name <span class="type">VARCHAR</span>(<span class="number">20</span>), dep_name <span class="type">VARCHAR</span>(<span class="number">20</span>),</span><br><span class="line">salary <span class="type">DECIMAL</span>(<span class="number">7</span>, <span class="number">2</span>), age <span class="type">DECIMAL</span>(<span class="number">3</span>, <span class="number">0</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_employee <span class="keyword">VALUES</span></span><br><span class="line">( <span class="number">1</span>,  <span class="string">&#x27;Matthew&#x27;</span>, <span class="string">&#x27;Management&#x27;</span>,  <span class="number">4500</span>, <span class="number">55</span>),</span><br><span class="line">( <span class="number">2</span>,  <span class="string">&#x27;Olivia&#x27;</span>,  <span class="string">&#x27;Management&#x27;</span>,  <span class="number">4400</span>, <span class="number">61</span>),</span><br><span class="line">( <span class="number">3</span>,  <span class="string">&#x27;Grace&#x27;</span>,   <span class="string">&#x27;Management&#x27;</span>,  <span class="number">4000</span>, <span class="number">42</span>),</span><br><span class="line">( <span class="number">4</span>,  <span class="string">&#x27;Jim&#x27;</span>,     <span class="string">&#x27;Production&#x27;</span>,  <span class="number">3700</span>, <span class="number">35</span>),</span><br><span class="line">( <span class="number">5</span>,  <span class="string">&#x27;Alice&#x27;</span>,   <span class="string">&#x27;Production&#x27;</span>,  <span class="number">3500</span>, <span class="number">24</span>),</span><br><span class="line">( <span class="number">6</span>,  <span class="string">&#x27;Michael&#x27;</span>, <span class="string">&#x27;Production&#x27;</span>,  <span class="number">3600</span>, <span class="number">28</span>),</span><br><span class="line">( <span class="number">7</span>,  <span class="string">&#x27;Tom&#x27;</span>,     <span class="string">&#x27;Production&#x27;</span>,  <span class="number">3800</span>, <span class="number">35</span>),</span><br><span class="line">( <span class="number">8</span>,  <span class="string">&#x27;Kevin&#x27;</span>,   <span class="string">&#x27;Production&#x27;</span>,  <span class="number">4000</span>, <span class="number">52</span>),</span><br><span class="line">( <span class="number">9</span>,  <span class="string">&#x27;Elvis&#x27;</span>,   <span class="string">&#x27;Service&#x27;</span>,     <span class="number">4100</span>, <span class="number">40</span>),</span><br><span class="line">(<span class="number">10</span>,  <span class="string">&#x27;Sophia&#x27;</span>,  <span class="string">&#x27;Sales&#x27;</span>,       <span class="number">4300</span>, <span class="number">36</span>),</span><br><span class="line">(<span class="number">11</span>,  <span class="string">&#x27;Samantha&#x27;</span>,<span class="string">&#x27;Sales&#x27;</span>,       <span class="number">4100</span>, <span class="number">38</span>);</span><br></pre></td></tr></table></figure>
+
 <p>We can use the <code>RANK()</code> function to find out who earns the most within each department:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> dep_name, emp_name, salary</span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">  <span class="keyword">SELECT</span></span><br><span class="line">    dep_name, emp_name, salary</span><br><span class="line">    ,<span class="keyword">RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> dep_name <span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">AS</span> rnk</span><br><span class="line">  <span class="keyword">FROM</span> t_employee</span><br><span class="line">) a</span><br><span class="line"><span class="keyword">WHERE</span> rnk = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> dep_name, emp_name, salary</span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">  <span class="keyword">SELECT</span></span><br><span class="line">    dep_name, emp_name, salary</span><br><span class="line">    ,<span class="built_in">RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> dep_name <span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">AS</span> rnk</span><br><span class="line">  <span class="keyword">FROM</span> t_employee</span><br><span class="line">) a</span><br><span class="line"><span class="keyword">WHERE</span> rnk <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
 <p>Normally when there’s duplicates, <code>RANK()</code> returns the same value for each row and <em>skip</em> the next sequence number. Use <code>DENSE_RANK()</code> if you want consecutive ranks.</p>
 <h3 id="Cumulative-Distribution"><a href="#Cumulative-Distribution" class="headerlink" title="Cumulative Distribution"></a>Cumulative Distribution</h3><p>We can calculate the cumulative distribution of salaries among all departments. For example, salary <code>4000</code>‘s cumulative distribution is <code>0.55</code>, which means 55% people’s salaries are less or equal to <code>4000</code>. To calculate this, we first count the frequencies of every salary, and do a cumulative summing:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">  salary</span><br><span class="line">  ,<span class="keyword">SUM</span>(cnt) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary)</span><br><span class="line">  / <span class="keyword">SUM</span>(cnt) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> <span class="keyword">UNBOUNDED</span> <span class="keyword">PRECEDING</span></span><br><span class="line">                   <span class="keyword">AND</span> <span class="keyword">UNBOUNDED</span> <span class="keyword">FOLLOWING</span>)</span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">  <span class="keyword">SELECT</span> salary, <span class="keyword">count</span>(*) <span class="keyword">AS</span> cnt</span><br><span class="line">  <span class="keyword">FROM</span> t_employee</span><br><span class="line">  <span class="keyword">GROUP</span> <span class="keyword">BY</span> salary</span><br><span class="line">) a;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">  salary</span><br><span class="line">  ,<span class="built_in">SUM</span>(cnt) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary)</span><br><span class="line">  <span class="operator">/</span> <span class="built_in">SUM</span>(cnt) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> UNBOUNDED PRECEDING</span><br><span class="line">                   <span class="keyword">AND</span> UNBOUNDED FOLLOWING)</span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">  <span class="keyword">SELECT</span> salary, <span class="built_in">count</span>(<span class="operator">*</span>) <span class="keyword">AS</span> cnt</span><br><span class="line">  <span class="keyword">FROM</span> t_employee</span><br><span class="line">  <span class="keyword">GROUP</span> <span class="keyword">BY</span> salary</span><br><span class="line">) a;</span><br></pre></td></tr></table></figure>
+
 <p>This can also be done with Hive’s <code>CUME_DIST()</code> window function. There’s another <code>PERCENT_RANK()</code> function, which computes the rank of the salary as percentage.</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">  salary</span><br><span class="line">  ,<span class="keyword">CUME_DIST</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary) <span class="keyword">AS</span> pct_cum</span><br><span class="line">  ,<span class="keyword">PERCENT_RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary) <span class="keyword">AS</span> pct_rank</span><br><span class="line"><span class="keyword">FROM</span> t_employee;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">  salary</span><br><span class="line">  ,<span class="built_in">CUME_DIST</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary) <span class="keyword">AS</span> pct_cum</span><br><span class="line">  ,<span class="built_in">PERCENT_RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary) <span class="keyword">AS</span> pct_rank</span><br><span class="line"><span class="keyword">FROM</span> t_employee;</span><br></pre></td></tr></table></figure>
+
 <p><img src="/images/hive-window/employee-pct.png" alt="Cumulative Distribution"></p>
 <h3 id="Clickstream-Sessionization"><a href="#Clickstream-Sessionization" class="headerlink" title="Clickstream Sessionization"></a>Clickstream Sessionization</h3><p>We can divide click events into different sessions by setting a <em>timeout</em>, in this case 30 minutes, and assign an id to each session:</p>
 <p><img src="/images/hive-window/clickstream.png" alt="Click Stream"></p>
 <p>First, in subquery <code>b</code>, we use the <code>LAG(col)</code> function to calculate the time difference between current row and previous row, and if it’s more than 30 minutes, a new session is marked. Then we do a cumulative sum of the <code>new_session</code> field so that each session will get an incremental sequence.</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">  ipaddress, clicktime</span><br><span class="line">  ,<span class="keyword">SUM</span>(<span class="keyword">IF</span>(new_session, <span class="number">1</span>, <span class="number">0</span>)) <span class="keyword">OVER</span> x + <span class="number">1</span> <span class="keyword">AS</span> sessionid</span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">  <span class="keyword">SELECT</span></span><br><span class="line">    ipaddress, clicktime, ts</span><br><span class="line">    ,ts - LAG(ts) <span class="keyword">OVER</span> w &gt; <span class="number">1800</span> <span class="keyword">AS</span> new_session</span><br><span class="line">  <span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> *, <span class="keyword">UNIX_TIMESTAMP</span>(clicktime) <span class="keyword">AS</span> ts</span><br><span class="line">    <span class="keyword">FROM</span> t_clickstream</span><br><span class="line">  ) a</span><br><span class="line">  <span class="keyword">WINDOW</span> w <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> ipaddress <span class="keyword">ORDER</span> <span class="keyword">BY</span> ts)</span><br><span class="line">) b</span><br><span class="line"><span class="keyword">WINDOW</span> x <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> ipaddress <span class="keyword">ORDER</span> <span class="keyword">BY</span> ts);</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">  ipaddress, clicktime</span><br><span class="line">  ,<span class="built_in">SUM</span>(IF(new_session, <span class="number">1</span>, <span class="number">0</span>)) <span class="keyword">OVER</span> x <span class="operator">+</span> <span class="number">1</span> <span class="keyword">AS</span> sessionid</span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">  <span class="keyword">SELECT</span></span><br><span class="line">    ipaddress, clicktime, ts</span><br><span class="line">    ,ts <span class="operator">-</span> <span class="built_in">LAG</span>(ts) <span class="keyword">OVER</span> w <span class="operator">&gt;</span> <span class="number">1800</span> <span class="keyword">AS</span> new_session</span><br><span class="line">  <span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="operator">*</span>, UNIX_TIMESTAMP(clicktime) <span class="keyword">AS</span> ts</span><br><span class="line">    <span class="keyword">FROM</span> t_clickstream</span><br><span class="line">  ) a</span><br><span class="line">  <span class="keyword">WINDOW</span> w <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> ipaddress <span class="keyword">ORDER</span> <span class="keyword">BY</span> ts)</span><br><span class="line">) b</span><br><span class="line"><span class="keyword">WINDOW</span> x <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> ipaddress <span class="keyword">ORDER</span> <span class="keyword">BY</span> ts);</span><br></pre></td></tr></table></figure>
+
 <h2 id="Implementation-Detail"><a href="#Implementation-Detail" class="headerlink" title="Implementation Detail"></a>Implementation Detail</h2><p>Briefly speaking, window query consists of two steps: divide records into partitions, and evaluate window functions on each of them. The partitioning process is intuitive in map-reduce paradigm, since Hadoop will take care of the shuffling and sorting. However, ordinary UDAF can only return one row for each group, but in window query, there need to be a <em>table in, table out</em> contract. So the community introduced Partitioned Table Function (PTF) into Hive.</p>
-<p>PTF, as the name suggests, works on partitions, and inputs / outputs a set of table rows. The following sequence diagram lists the major classes of PTF mechanism. <code>PTFOperator</code> reads data from sorted source and create input partitions; <code>WindowTableFunction</code> manages window frames, invokes window functions (UDAF), and writes the results to output partitions.</p>
+<p>PTF, as the name suggests, works on partitions, and inputs &#x2F; outputs a set of table rows. The following sequence diagram lists the major classes of PTF mechanism. <code>PTFOperator</code> reads data from sorted source and create input partitions; <code>WindowTableFunction</code> manages window frames, invokes window functions (UDAF), and writes the results to output partitions.</p>
 <p><img src="/images/hive-window/window-sequence.png" alt="PTF Sequence Diagram"></p>
-<p>The HIVE-896 ticket (<a href="https://issues.apache.org/jira/browse/HIVE-896" target="_blank" rel="noopener">link</a>) contains discussions on introducing analytical window functions into Hive, and this slide (<a href="https://www.slideshare.net/Hadoop_Summit/analytical-queries-with-hive" target="_blank" rel="noopener">link</a>), authored by one of the committers, explains how they implemented and merged PTF into Hive.</p>
+<p>The HIVE-896 ticket (<a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/HIVE-896">link</a>) contains discussions on introducing analytical window functions into Hive, and this slide (<a target="_blank" rel="noopener" href="https://www.slideshare.net/Hadoop_Summit/analytical-queries-with-hive">link</a>), authored by one of the committers, explains how they implemented and merged PTF into Hive.</p>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
-<li><a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+WindowingAndAnalytics" target="_blank" rel="noopener">https://cwiki.apache.org/confluence/display/Hive/LanguageManual+WindowingAndAnalytics</a></li>
-<li><a href="https://github.com/hbutani/SQLWindowing" target="_blank" rel="noopener">https://github.com/hbutani/SQLWindowing</a></li>
-<li><a href="https://content.pivotal.io/blog/time-series-analysis-1-introduction-to-window-functions" target="_blank" rel="noopener">https://content.pivotal.io/blog/time-series-analysis-1-introduction-to-window-functions</a></li>
-<li><a href="https://databricks.com/blog/2015/07/15/introducing-window-functions-in-spark-sql.html" target="_blank" rel="noopener">https://databricks.com/blog/2015/07/15/introducing-window-functions-in-spark-sql.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+WindowingAndAnalytics">https://cwiki.apache.org/confluence/display/Hive/LanguageManual+WindowingAndAnalytics</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/hbutani/SQLWindowing">https://github.com/hbutani/SQLWindowing</a></li>
+<li><a target="_blank" rel="noopener" href="https://content.pivotal.io/blog/time-series-analysis-1-introduction-to-window-functions">https://content.pivotal.io/blog/time-series-analysis-1-introduction-to-window-functions</a></li>
+<li><a target="_blank" rel="noopener" href="https://databricks.com/blog/2015/07/15/introducing-window-functions-in-spark-sql.html">https://databricks.com/blog/2015/07/15/introducing-window-functions-in-spark-sql.html</a></li>
 </ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/" data-id="cl4aua5ov001a9lltosg8upim" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/" data-id="cl4j3rwks001aacnc1kf1deuw" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hive/">hive</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/">sql</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/" rel="tag">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hive/" rel="tag">hive</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/" rel="tag">sql</a></li></ul>
 
     </footer>
   </div>
@@ -203,7 +214,7 @@
 
 <section id="comments">
   <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
 </section>
 </section>
@@ -267,7 +278,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
       &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
@@ -293,7 +304,7 @@
 <script>
   var disqus_shortname = 'jizhang';
   
-  var disqus_url = 'http://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/';
+  var disqus_url = 'https://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/';
   
   (function(){
     var dsq = document.createElement('script');
@@ -305,14 +316,22 @@
 </script>
 
 
+
 <script src="/js/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
 
 
 <script src="/js/script.js"></script>
+
 
   </div>
 </body>

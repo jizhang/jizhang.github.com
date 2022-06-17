@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.8.0">
+<head>
   <meta charset="utf-8">
   
   <title>Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
 <meta property="og:title" content="Ji ZHANG&#39;s Blog">
-<meta property="og:url" content="http://shzhangji.com/page/4/index.html">
+<meta property="og:url" content="https://shzhangji.com/page/4/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
-<meta property="og:locale" content="default">
+<meta property="og:locale">
+<meta property="article:author" content="Ji ZHANG">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Ji ZHANG&#39;s Blog">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -21,9 +21,13 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link rel="stylesheet" href="/css/source-code-pro.css">
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
   
-  <link rel="stylesheet" href="/css/style.css">
+  
+<link rel="stylesheet" href="/css/style.css">
+
   
 
 
@@ -36,8 +40,8 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-</head>
-</html>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -48,10 +52,6 @@
       <h1 id="logo-wrap">
         <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">If I rest, I rust.</a>
-        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -75,7 +75,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -111,10 +111,10 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
-<h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard" target="_blank" rel="noopener">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing" target="_blank" rel="noopener">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
+<h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
 <p>Shards have two roles, primary shard and replica shard. Replica shard serves as a backup to the primary shard. When primary goes down, the replica takes its job. It also helps improving the search and get performance, for these requests can be executed on either primary or replica shard.</p>
-<p>Shards can be visualized by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard" target="_blank" rel="noopener">elasticsearch-head</a> plugin:</p>
-<p><img src="/images/elasticsearch/shards-head.png" alt></p>
+<p>Shards can be visualized by <a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">elasticsearch-head</a> plugin:</p>
+<p><img src="/images/elasticsearch/shards-head.png"></p>
 <p>The <code>cu_docs</code> index has two shards <code>0</code> and <code>1</code>, with <code>number_of_replicas</code> set to 1. Primary shard <code>0</code> (bold bordered) resides in server <code>Leon</code>, and its replica in <code>Pris</code>. They are green becuase all primary shards have enough repicas sitting in different servers, so the cluster is healthy.</p>
 <p>Since <code>number_of_shards</code> of an index cannot be changed after creation (while <code>number_of_replicas</code> can), one should choose this config wisely. Here are some suggestions:</p>
 <ol>
@@ -130,12 +130,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cl4aua5o800069llt3e9zn76g" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cl4j3rwk70006acnc9tn6geon" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li></ul>
 
     </footer>
   </div>
@@ -170,9 +170,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>As I’m working with my first <a href="http://www.scalatra.org/" target="_blank" rel="noopener">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/" target="_blank" rel="noopener">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation" target="_blank" rel="noopener">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
-<h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/" target="_blank" rel="noopener">Dojo</a> for example.</p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">DwExplorerBuild</span> <span class="keyword">extends</span> <span class="title">Build</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">lazy</span> <span class="keyword">val</span> project = <span class="type">Project</span> (</span><br><span class="line">    ...</span><br><span class="line">    settings = <span class="type">Defaults</span>.defaultSettings ++ <span class="type">ScalatraPlugin</span>.scalatraWithJRebel ++ scalateSettings ++ <span class="type">Seq</span>(</span><br><span class="line">      ...</span><br><span class="line">      libraryDependencies ++= <span class="type">Seq</span>(</span><br><span class="line">        ...</span><br><span class="line">        <span class="string">"org.webjars"</span> % <span class="string">"dojo"</span> % <span class="string">"1.9.3"</span></span><br><span class="line">      ),</span><br><span class="line">      ...</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <p>As I’m working with my first <a target="_blank" rel="noopener" href="http://www.scalatra.org/">Scalatra</a> project, I automatically think of using <a target="_blank" rel="noopener" href="http://www.webjars.org/">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a target="_blank" rel="noopener" href="http://www.webjars.org/documentation">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
+<h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a target="_blank" rel="noopener" href="http://dojotoolkit.org/">Dojo</a> for example.</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">DwExplorerBuild</span> <span class="keyword">extends</span> <span class="title">Build</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">lazy</span> <span class="keyword">val</span> project = <span class="type">Project</span> (</span><br><span class="line">    ...</span><br><span class="line">    settings = <span class="type">Defaults</span>.defaultSettings ++ <span class="type">ScalatraPlugin</span>.scalatraWithJRebel ++ scalateSettings ++ <span class="type">Seq</span>(</span><br><span class="line">      ...</span><br><span class="line">      libraryDependencies ++= <span class="type">Seq</span>(</span><br><span class="line">        ...</span><br><span class="line">        <span class="string">&quot;org.webjars&quot;</span> % <span class="string">&quot;dojo&quot;</span> % <span class="string">&quot;1.9.3&quot;</span></span><br><span class="line">      ),</span><br><span class="line">      ...</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>To view this dependency in Eclipse, you need to run <code>sbt eclipse</code> again. In the <em>Referenced Libraries</em> section, you can see a <code>dojo-1.9.3.jar</code>, and the library lies in <code>META-INF/resources/webjars/</code>.</p>
         
           <p class="article-more-link">
@@ -182,12 +183,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="cl4aua5o700059lltxp9z4uj2" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="cl4j3rwk60005acnca6bpeqvl" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scala/">scala</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scalatra/">scalatra</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webjars/">webjars</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scala/" rel="tag">scala</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scalatra/" rel="tag">scalatra</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webjars/" rel="tag">webjars</a></li></ul>
 
     </footer>
   </div>
@@ -222,9 +223,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>In DBMS world, it’s easy to generate a unique, auto-increment id, using MySQL’s <a href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html" target="_blank" rel="noopener">AUTO_INCREMENT attribute</a> on a primary key or MongoDB’s <a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/" target="_blank" rel="noopener">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it’ll take some steps.</p>
+        <p>In DBMS world, it’s easy to generate a unique, auto-increment id, using MySQL’s <a target="_blank" rel="noopener" href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html">AUTO_INCREMENT attribute</a> on a primary key or MongoDB’s <a target="_blank" rel="noopener" href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it’ll take some steps.</p>
 <h2 id="Solution-A-Single-Reducer"><a href="#Solution-A-Single-Reducer" class="headerlink" title="Solution A: Single Reducer"></a>Solution A: Single Reducer</h2><p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">job.setNumReduceTasks(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
 <p>And also obvious, there are several demerits:</p>
 <ol>
 <li>All mappers output will be copied to one task tracker.</li>
@@ -240,9 +242,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="cl4aua5o500049lltr8ww5dkj" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="cl4j3rwk50004acnc9rkz8hp3" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/#disqus_thread" class="article-comment-link">Comments</a>
       
       
     </footer>
@@ -279,8 +281,10 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># database.properties</span><br><span class="line">mydb.jdbcUrl=$&#123;mydb.jdbcUrl&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># database.properties</span><br><span class="line">mydb.jdbcUrl=$&#123;mydb.jdbcUrl&#125;</span><br></pre></td></tr></table></figure>
+
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- pom.xml --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">profiles</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">profile</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">id</span>&gt;</span>development<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">activation</span>&gt;</span><span class="tag">&lt;<span class="name">activeByDefault</span>&gt;</span>true<span class="tag">&lt;/<span class="name">activeByDefault</span>&gt;</span><span class="tag">&lt;/<span class="name">activation</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">mydb.jdbcUrl</span>&gt;</span>jdbc:mysql://127.0.0.1:3306/mydb<span class="tag">&lt;/<span class="name">mydb.jdbcUrl</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">profile</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">profile</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">id</span>&gt;</span>production<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- This profile could be moved to ~/.m2/settings.xml to increase security. --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">mydb.jdbcUrl</span>&gt;</span>jdbc:mysql://10.0.2.15:3306/mydb<span class="tag">&lt;/<span class="name">mydb.jdbcUrl</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">profile</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">profiles</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
 <p>As for Leiningen projects, there’s no variable substitution in profile facility, and although in profiles we could use <code>:resources</code> to compact production-wise files into Jar, these files are actually replacing the original ones, instead of being merged. One solution is to strictly seperate environment specific configs from the others, so the replacement will be ok. But here I take another approach, to manually load files from difference locations, and then merge them.</p>
         
           <p class="article-more-link">
@@ -290,12 +294,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="cl4aua5o100019llt3aygqenm" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="cl4j3rwk20001acnca4xv4qdn" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/clojure/">clojure</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/clojure/" rel="tag">clojure</a></li></ul>
 
     </footer>
   </div>
@@ -307,7 +311,7 @@
 
 
   <nav id="page-nav">
-    <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+    <a class="extend prev" rel="prev" href="/page/3/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
   </nav>
 </section>
         
@@ -370,7 +374,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
       &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
@@ -406,14 +410,22 @@
 </script>
 
 
+
 <script src="/js/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
 
 
 <script src="/js/script.js"></script>
+
 
   </div>
 </body>

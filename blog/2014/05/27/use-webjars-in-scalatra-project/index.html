@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.8.0">
+<head>
   <meta charset="utf-8">
   
   <title>Use WebJars in Scalatra Project | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="As I’m working with my first Scalatra project, I automatically think of using WebJars to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there">
-<meta name="keywords" content="scala,scalatra,webjars">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Use WebJars in Scalatra Project">
-<meta property="og:url" content="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/index.html">
+<meta property="og:url" content="https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
 <meta property="og:description" content="As I’m working with my first Scalatra project, I automatically think of using WebJars to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there">
-<meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2022-06-12T05:01:34.279Z">
+<meta property="og:locale">
+<meta property="article:published_time" content="2014-05-27T09:44:00.000Z">
+<meta property="article:modified_time" content="2022-06-17T23:49:19.559Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="scala">
+<meta property="article:tag" content="scalatra">
+<meta property="article:tag" content="webjars">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Use WebJars in Scalatra Project">
-<meta name="twitter:description" content="As I’m working with my first Scalatra project, I automatically think of using WebJars to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -26,9 +28,13 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link rel="stylesheet" href="/css/source-code-pro.css">
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
   
-  <link rel="stylesheet" href="/css/style.css">
+  
+<link rel="stylesheet" href="/css/style.css">
+
   
 
 
@@ -41,8 +47,8 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-</head>
-</html>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -53,10 +59,6 @@
       <h1 id="logo-wrap">
         <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">If I rest, I rust.</a>
-        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -80,7 +82,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -113,33 +115,37 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>As I’m working with my first <a href="http://www.scalatra.org/" target="_blank" rel="noopener">Scalatra</a> project, I automatically think of using <a href="http://www.webjars.org/" target="_blank" rel="noopener">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a href="http://www.webjars.org/documentation" target="_blank" rel="noopener">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
-<h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a href="http://dojotoolkit.org/" target="_blank" rel="noopener">Dojo</a> for example.</p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">DwExplorerBuild</span> <span class="keyword">extends</span> <span class="title">Build</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">lazy</span> <span class="keyword">val</span> project = <span class="type">Project</span> (</span><br><span class="line">    ...</span><br><span class="line">    settings = <span class="type">Defaults</span>.defaultSettings ++ <span class="type">ScalatraPlugin</span>.scalatraWithJRebel ++ scalateSettings ++ <span class="type">Seq</span>(</span><br><span class="line">      ...</span><br><span class="line">      libraryDependencies ++= <span class="type">Seq</span>(</span><br><span class="line">        ...</span><br><span class="line">        <span class="string">"org.webjars"</span> % <span class="string">"dojo"</span> % <span class="string">"1.9.3"</span></span><br><span class="line">      ),</span><br><span class="line">      ...</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <p>As I’m working with my first <a target="_blank" rel="noopener" href="http://www.scalatra.org/">Scalatra</a> project, I automatically think of using <a target="_blank" rel="noopener" href="http://www.webjars.org/">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a target="_blank" rel="noopener" href="http://www.webjars.org/documentation">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
+<h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a target="_blank" rel="noopener" href="http://dojotoolkit.org/">Dojo</a> for example.</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">DwExplorerBuild</span> <span class="keyword">extends</span> <span class="title">Build</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">lazy</span> <span class="keyword">val</span> project = <span class="type">Project</span> (</span><br><span class="line">    ...</span><br><span class="line">    settings = <span class="type">Defaults</span>.defaultSettings ++ <span class="type">ScalatraPlugin</span>.scalatraWithJRebel ++ scalateSettings ++ <span class="type">Seq</span>(</span><br><span class="line">      ...</span><br><span class="line">      libraryDependencies ++= <span class="type">Seq</span>(</span><br><span class="line">        ...</span><br><span class="line">        <span class="string">&quot;org.webjars&quot;</span> % <span class="string">&quot;dojo&quot;</span> % <span class="string">&quot;1.9.3&quot;</span></span><br><span class="line">      ),</span><br><span class="line">      ...</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>To view this dependency in Eclipse, you need to run <code>sbt eclipse</code> again. In the <em>Referenced Libraries</em> section, you can see a <code>dojo-1.9.3.jar</code>, and the library lies in <code>META-INF/resources/webjars/</code>.</p>
-<a id="more"></a>
+<span id="more"></span>
+
 <h2 id="Add-a-Route-for-WebJars-Resources"><a href="#Add-a-Route-for-WebJars-Resources" class="headerlink" title="Add a Route for WebJars Resources"></a>Add a Route for WebJars Resources</h2><p>Find the <code>ProjectNameStack.scala</code> file and add the following lines at the bottom of the trait:</p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">ProjectNameStack</span> <span class="keyword">extends</span> <span class="title">ScalatraServlet</span> <span class="keyword">with</span> <span class="title">ScalateSupport</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  get(<span class="string">"/webjars/*"</span>) &#123;</span><br><span class="line">    <span class="keyword">val</span> resourcePath = <span class="string">"/META-INF/resources/webjars/"</span> + params(<span class="string">"splat"</span>)</span><br><span class="line">    <span class="type">Option</span>(getClass.getResourceAsStream(resourcePath)) <span class="keyword">match</span> &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="type">Some</span>(inputStream) =&gt; &#123;</span><br><span class="line">        contentType = servletContext.getMimeType(resourcePath)</span><br><span class="line">        <span class="type">IOUtil</span>.loadBytes(inputStream)</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">case</span> <span class="type">None</span> =&gt; resourceNotFound()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">ProjectNameStack</span> <span class="keyword">extends</span> <span class="title">ScalatraServlet</span> <span class="keyword">with</span> <span class="title">ScalateSupport</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  get(<span class="string">&quot;/webjars/*&quot;</span>) &#123;</span><br><span class="line">    <span class="keyword">val</span> resourcePath = <span class="string">&quot;/META-INF/resources/webjars/&quot;</span> + params(<span class="string">&quot;splat&quot;</span>)</span><br><span class="line">    <span class="type">Option</span>(getClass.getResourceAsStream(resourcePath)) <span class="keyword">match</span> &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="type">Some</span>(inputStream) =&gt; &#123;</span><br><span class="line">        contentType = servletContext.getMimeType(resourcePath)</span><br><span class="line">        <span class="type">IOUtil</span>.loadBytes(inputStream)</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">case</span> <span class="type">None</span> =&gt; resourceNotFound()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p><strong>That’s it!</strong> Now you can refer to the WebJars resources in views, like this:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#set (title)</span><br><span class="line">Hello, Dojo!</span><br><span class="line">#end</span><br><span class="line"></span><br><span class="line">&lt;div id=&quot;greeting&quot;&gt;&lt;/div&gt;</span><br><span class="line"></span><br><span class="line">&lt;script type=&quot;text/javascript&quot; src=&quot;$&#123;uri(&quot;/webjars/dojo/1.9.3/dojo/dojo.js&quot;)&#125;&quot; data-dojo-config=&quot;async: true&quot;&gt;&lt;/script&gt;</span><br><span class="line">&lt;script type=&quot;text/javascript&quot;&gt;</span><br><span class="line">require([</span><br><span class="line">    &apos;dojo/dom&apos;,</span><br><span class="line">    &apos;dojo/dom-construct&apos;</span><br><span class="line">], function (dom, domConstruct) &#123;</span><br><span class="line">    var greetingNode = dom.byId(&apos;greeting&apos;);</span><br><span class="line">    domConstruct.place(&apos;&lt;i&gt;Dojo!&lt;/i&gt;&apos;, greetingNode);</span><br><span class="line">&#125;);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#set (title)</span><br><span class="line">Hello, Dojo!</span><br><span class="line">#end</span><br><span class="line"></span><br><span class="line">&lt;div id=&quot;greeting&quot;&gt;&lt;/div&gt;</span><br><span class="line"></span><br><span class="line">&lt;script type=&quot;text/javascript&quot; src=&quot;$&#123;uri(&quot;/webjars/dojo/1.9.3/dojo/dojo.js&quot;)&#125;&quot; data-dojo-config=&quot;async: true&quot;&gt;&lt;/script&gt;</span><br><span class="line">&lt;script type=&quot;text/javascript&quot;&gt;</span><br><span class="line">require([</span><br><span class="line">    &#x27;dojo/dom&#x27;,</span><br><span class="line">    &#x27;dojo/dom-construct&#x27;</span><br><span class="line">], function (dom, domConstruct) &#123;</span><br><span class="line">    var greetingNode = dom.byId(&#x27;greeting&#x27;);</span><br><span class="line">    domConstruct.place(&#x27;&lt;i&gt;Dojo!&lt;/i&gt;&#x27;, greetingNode);</span><br><span class="line">&#125;);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
 <h3 id="Some-Explanations-on-This-Route"><a href="#Some-Explanations-on-This-Route" class="headerlink" title="Some Explanations on This Route"></a>Some Explanations on This Route</h3><ul>
-<li><code>/webjars/*</code> is a <a href="http://www.scalatra.org/2.2/guides/http/routes.html#toc_233" target="_blank" rel="noopener">Wildcards</a> and <code>params(&quot;splat&quot;)</code> is to extract the asterisk part.</li>
+<li><code>/webjars/*</code> is a <a target="_blank" rel="noopener" href="http://www.scalatra.org/2.2/guides/http/routes.html#toc_233">Wildcards</a> and <code>params(&quot;splat&quot;)</code> is to extract the asterisk part.</li>
 <li><code>resourcePath</code> points to the WebJars resources in the jar file, as we saw in Eclipse. It is then fetched as an <code>InputStream</code> with <code>getResourceAsStream()</code>.</li>
-<li><code>servletContext.getMimeType()</code> is a handy method to determine the content type of the requested resource, instead of parsing it by ourselves. I find this in SpringMVC’s <a href="http://grepcode.com/file/repo1.maven.org/maven2/org.springframework/spring-webmvc/3.2.7.RELEASE/org/springframework/web/servlet/resource/ResourceHttpRequestHandler.java#ResourceHttpRequestHandler.handleRequest%28javax.servlet.http.HttpServletRequest%2Cjavax.servlet.http.HttpServletResponse%29" target="_blank" rel="noopener">ResourceHttpRequestHandler</a>.</li>
-<li><code>IOUtil</code> is a utiliy class that comes with <a href="http://scalate.fusesource.org/" target="_blank" rel="noopener">Scalate</a>, so don’t forget to import it first.</li>
+<li><code>servletContext.getMimeType()</code> is a handy method to determine the content type of the requested resource, instead of parsing it by ourselves. I find this in SpringMVC’s <a target="_blank" rel="noopener" href="http://grepcode.com/file/repo1.maven.org/maven2/org.springframework/spring-webmvc/3.2.7.RELEASE/org/springframework/web/servlet/resource/ResourceHttpRequestHandler.java#ResourceHttpRequestHandler.handleRequest%28javax.servlet.http.HttpServletRequest%2Cjavax.servlet.http.HttpServletResponse%29">ResourceHttpRequestHandler</a>.</li>
+<li><code>IOUtil</code> is a utiliy class that comes with <a target="_blank" rel="noopener" href="http://scalate.fusesource.org/">Scalate</a>, so don’t forget to import it first.</li>
 </ul>
-<p>At first I tried to figure out whether Scalatra provides a conveniet way to serve static files in classpath, I failed. So I decided to serve them by my own, and <a href="https://gist.github.com/laurilehmijoki/4483113" target="_blank" rel="noopener">this gist</a> was very helpful.</p>
+<p>At first I tried to figure out whether Scalatra provides a conveniet way to serve static files in classpath, I failed. So I decided to serve them by my own, and <a target="_blank" rel="noopener" href="https://gist.github.com/laurilehmijoki/4483113">this gist</a> was very helpful.</p>
 <p>Anyway, I’ve spent more than half a day to solve this problem, and it turned out to be a very challenging yet interesting way to learn a new language, new framework, and new tools. Keep moving!</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="cl4aua5o700059lltxp9z4uj2" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="cl4j3rwk60005acnca6bpeqvl" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scala/">scala</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scalatra/">scalatra</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webjars/">webjars</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scala/" rel="tag">scala</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scalatra/" rel="tag">scalatra</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webjars/" rel="tag">webjars</a></li></ul>
 
     </footer>
   </div>
@@ -170,7 +176,7 @@
 
 <section id="comments">
   <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
 </section>
 </section>
@@ -234,7 +240,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
       &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
@@ -260,7 +266,7 @@
 <script>
   var disqus_shortname = 'jizhang';
   
-  var disqus_url = 'http://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/';
+  var disqus_url = 'https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/';
   
   (function(){
     var dsq = document.createElement('script');
@@ -272,14 +278,22 @@
 </script>
 
 
+
 <script src="/js/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
 
 
 <script src="/js/script.js"></script>
+
 
   </div>
 </body>

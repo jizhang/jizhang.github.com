@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.8.0">
+<head>
   <meta charset="utf-8">
   
   <title>Apache Beam Quick Start with Python | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Apache Beam is a big data processing standard created by Google in 2016. It provides unified DSL to process both batch and stream data, and can be executed on popular platforms like Spark, Flink, and">
-<meta name="keywords" content="python,stream processing,apache beam,mapreduce">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Apache Beam Quick Start with Python">
-<meta property="og:url" content="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/index.html">
+<meta property="og:url" content="https://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
 <meta property="og:description" content="Apache Beam is a big data processing standard created by Google in 2016. It provides unified DSL to process both batch and stream data, and can be executed on popular platforms like Spark, Flink, and">
-<meta property="og:locale" content="default">
-<meta property="og:image" content="http://shzhangji.com/images/beam/arch.jpg">
-<meta property="og:image" content="http://shzhangji.com/images/beam/matrix.png">
-<meta property="og:updated_time" content="2022-06-12T05:01:34.283Z">
+<meta property="og:locale">
+<meta property="og:image" content="https://shzhangji.com/images/beam/arch.jpg">
+<meta property="og:image" content="https://shzhangji.com/images/beam/matrix.png">
+<meta property="article:published_time" content="2017-09-12T13:08:25.000Z">
+<meta property="article:modified_time" content="2022-06-17T23:49:19.563Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="stream processing">
+<meta property="article:tag" content="apache beam">
+<meta property="article:tag" content="mapreduce">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Apache Beam Quick Start with Python">
-<meta name="twitter:description" content="Apache Beam is a big data processing standard created by Google in 2016. It provides unified DSL to process both batch and stream data, and can be executed on popular platforms like Spark, Flink, and">
-<meta name="twitter:image" content="http://shzhangji.com/images/beam/arch.jpg">
+<meta name="twitter:image" content="https://shzhangji.com/images/beam/arch.jpg">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -29,9 +32,13 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link rel="stylesheet" href="/css/source-code-pro.css">
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
   
-  <link rel="stylesheet" href="/css/style.css">
+  
+<link rel="stylesheet" href="/css/style.css">
+
   
 
 
@@ -44,8 +51,8 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-</head>
-</html>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -56,10 +63,6 @@
       <h1 id="logo-wrap">
         <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">If I rest, I rust.</a>
-        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -83,7 +86,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -116,15 +119,19 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><a href="https://beam.apache.org/get-started/beam-overview/" target="_blank" rel="noopener">Apache Beam</a> is a big data processing standard created by Google in 2016. It provides unified DSL to process both batch and stream data, and can be executed on popular platforms like Spark, Flink, and of course Google’s commercial product Dataflow. Beam’s model is based on previous works known as <a href="https://web.archive.org/web/20160923141630/https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/35650.pdf" target="_blank" rel="noopener">FlumeJava</a> and <a href="https://web.archive.org/web/20160201091359/http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/41378.pdf" target="_blank" rel="noopener">Millwheel</a>, and addresses solutions for data processing tasks like ETL, analysis, and <a href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101" target="_blank" rel="noopener">stream processing</a>. Currently it provides SDK in two languages, Java and Python. This article will introduce how to use Python to write Beam applications.</p>
+        <p><a target="_blank" rel="noopener" href="https://beam.apache.org/get-started/beam-overview/">Apache Beam</a> is a big data processing standard created by Google in 2016. It provides unified DSL to process both batch and stream data, and can be executed on popular platforms like Spark, Flink, and of course Google’s commercial product Dataflow. Beam’s model is based on previous works known as <a target="_blank" rel="noopener" href="https://web.archive.org/web/20160923141630/https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/35650.pdf">FlumeJava</a> and <a target="_blank" rel="noopener" href="https://web.archive.org/web/20160201091359/http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/41378.pdf">Millwheel</a>, and addresses solutions for data processing tasks like ETL, analysis, and <a target="_blank" rel="noopener" href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101">stream processing</a>. Currently it provides SDK in two languages, Java and Python. This article will introduce how to use Python to write Beam applications.</p>
 <p><img src="/images/beam/arch.jpg" alt="Apache Beam Pipeline"></p>
-<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><p>Apache Beam Python SDK requires Python 2.7.x. You can use <a href="https://github.com/pyenv/pyenv" target="_blank" rel="noopener">pyenv</a> to manage different Python versions, or compile from <a href="https://www.python.org/downloads/source/" target="_blank" rel="noopener">source</a> (make sure you have SSL installed). And then you can install Beam SDK from PyPI, better in a virtual environment:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ virtualenv venv --distribute</span><br><span class="line">$ source venv/bin/activate</span><br><span class="line">(venv) $ pip install apache-beam</span><br></pre></td></tr></table></figure>
-<a id="more"></a>
+<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><p>Apache Beam Python SDK requires Python 2.7.x. You can use <a target="_blank" rel="noopener" href="https://github.com/pyenv/pyenv">pyenv</a> to manage different Python versions, or compile from <a target="_blank" rel="noopener" href="https://www.python.org/downloads/source/">source</a> (make sure you have SSL installed). And then you can install Beam SDK from PyPI, better in a virtual environment:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ virtualenv venv --distribute</span><br><span class="line">$ source venv/bin/activate</span><br><span class="line">(venv) $ pip install apache-beam</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
 <h2 id="Wordcount-Example"><a href="#Wordcount-Example" class="headerlink" title="Wordcount Example"></a>Wordcount Example</h2><p>Wordcount is the de-facto “Hello World” in big data field, so let’s take a look at how it’s done with Beam:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">import</span> apache_beam <span class="keyword">as</span> beam</span><br><span class="line"><span class="keyword">from</span> apache_beam.options.pipeline_options <span class="keyword">import</span> PipelineOptions</span><br><span class="line"><span class="keyword">with</span> beam.Pipeline(options=PipelineOptions()) <span class="keyword">as</span> p:</span><br><span class="line">    lines = p | <span class="string">'Create'</span> &gt;&gt; beam.Create([<span class="string">'cat dog'</span>, <span class="string">'snake cat'</span>, <span class="string">'dog'</span>])</span><br><span class="line">    counts = (</span><br><span class="line">        lines</span><br><span class="line">        | <span class="string">'Split'</span> &gt;&gt; (beam.FlatMap(<span class="keyword">lambda</span> x: x.split(<span class="string">' '</span>))</span><br><span class="line">                      .with_output_types(unicode))</span><br><span class="line">        | <span class="string">'PairWithOne'</span> &gt;&gt; beam.Map(<span class="keyword">lambda</span> x: (x, <span class="number">1</span>))</span><br><span class="line">        | <span class="string">'GroupAndSum'</span> &gt;&gt; beam.CombinePerKey(sum)</span><br><span class="line">    )</span><br><span class="line">    counts | <span class="string">'Print'</span> &gt;&gt; beam.ParDo(<span class="keyword">lambda</span> (w, c): print(<span class="string">'%s: %s'</span> % (w, c)))</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">import</span> apache_beam <span class="keyword">as</span> beam</span><br><span class="line"><span class="keyword">from</span> apache_beam.options.pipeline_options <span class="keyword">import</span> PipelineOptions</span><br><span class="line"><span class="keyword">with</span> beam.Pipeline(options=PipelineOptions()) <span class="keyword">as</span> p:</span><br><span class="line">    lines = p | <span class="string">&#x27;Create&#x27;</span> &gt;&gt; beam.Create([<span class="string">&#x27;cat dog&#x27;</span>, <span class="string">&#x27;snake cat&#x27;</span>, <span class="string">&#x27;dog&#x27;</span>])</span><br><span class="line">    counts = (</span><br><span class="line">        lines</span><br><span class="line">        | <span class="string">&#x27;Split&#x27;</span> &gt;&gt; (beam.FlatMap(<span class="keyword">lambda</span> x: x.split(<span class="string">&#x27; &#x27;</span>))</span><br><span class="line">                      .with_output_types(unicode))</span><br><span class="line">        | <span class="string">&#x27;PairWithOne&#x27;</span> &gt;&gt; beam.Map(<span class="keyword">lambda</span> x: (x, <span class="number">1</span>))</span><br><span class="line">        | <span class="string">&#x27;GroupAndSum&#x27;</span> &gt;&gt; beam.CombinePerKey(<span class="built_in">sum</span>)</span><br><span class="line">    )</span><br><span class="line">    counts | <span class="string">&#x27;Print&#x27;</span> &gt;&gt; beam.ParDo(<span class="keyword">lambda</span> (w, c): <span class="built_in">print</span>(<span class="string">&#x27;%s: %s&#x27;</span> % (w, c)))</span><br></pre></td></tr></table></figure>
+
 <p>Run the script, you’ll get the counts of difference words:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(venv) $ python wordcount.py</span><br><span class="line">cat: 2</span><br><span class="line">snake: 1</span><br><span class="line">dog: 2</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(venv) $ python wordcount.py</span><br><span class="line">cat: 2</span><br><span class="line">snake: 1</span><br><span class="line">dog: 2</span><br></pre></td></tr></table></figure>
+
 <p>There’re three fundamental concepts in Apache Beam, namely Pipeline, PCollection, and Transform.</p>
 <ul>
 <li><strong>Pipeline</strong> holds the DAG (Directed Acyclic Graph) of data and process tasks. It’s analogous to MapReduce <code>Job</code> and Storm <code>Topology</code>.</li>
@@ -132,12 +139,13 @@
 <li>And <strong>Transform</strong> is where your main logic goes. Each transform will take a PCollection in and produce a new PCollection. Beam provides many built-in Transforms, and we’ll cover them later.</li>
 </ul>
 <p>As in this example, <code>Pipeline</code> and <code>PipelineOptions</code> are used to construct a pipeline. Use the <code>with</code> statement so that context manager will invoke <code>Pipeline.run</code> and <code>wait_until_finish</code> automatically.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Output PCollection] = [Input PCollection] | [Label] &gt;&gt; [Transform]</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Output PCollection] = [Input PCollection] | [Label] &gt;&gt; [Transform]</span><br></pre></td></tr></table></figure>
+
 <p><code>|</code> is the operator to apply transforms, and each transform can be optionally supplied with a unique label. Transforms can be chained, and we can compose arbitrary shapes of transforms, and at runtime they’ll be represented as DAG.</p>
 <p><code>beam.Create</code> is a transform that creates PCollection from memory data, mainly for testing. Beam has built-in sources and sinks to read and write bounded or unbounded data, and it’s possible to implement our own.</p>
 <p><code>beam.Map</code> is a <em>one-to-one</em> transform, and in this example we convert a word string to a <code>(word, 1)</code> tuple. <code>beam.FlatMap</code> is a combination of <code>Map</code> and <code>Flatten</code>, i.e. we split each line into an array of words, and then flatten these sequences into a single one.</p>
 <p><code>CombinePerKey</code> works on two-element tuples. It groups the tuples by the first element (the key), and apply the provided function to the list of second elements (values). Finally, we use <code>beam.ParDo</code> to print out the counts. This is a rather basic transform, and we’ll discuss it in the following section.</p>
-<h2 id="Input-and-Output"><a href="#Input-and-Output" class="headerlink" title="Input and Output"></a>Input and Output</h2><p>Currently, Beam’s Python SDK has very limited supports for IO. This table (<a href="https://beam.apache.org/documentation/io/built-in/" target="_blank" rel="noopener">source</a>) gives an overview of the available built-in transforms:</p>
+<h2 id="Input-and-Output"><a href="#Input-and-Output" class="headerlink" title="Input and Output"></a>Input and Output</h2><p>Currently, Beam’s Python SDK has very limited supports for IO. This table (<a target="_blank" rel="noopener" href="https://beam.apache.org/documentation/io/built-in/">source</a>) gives an overview of the available built-in transforms:</p>
 <table>
 <thead>
 <tr>
@@ -147,8 +155,7 @@
 <th>Database</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>Java</td>
 <td>HDFS<br>TextIO<br>XML</td>
 <td>AMQP<br>Kafka<br>JMS</td>
@@ -160,10 +167,10 @@
 <td>-</td>
 <td>Google Big Query<br>Google Cloud Datastore</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p>The following snippet demonstrates the usage of <code>textio</code>:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lines = p | <span class="string">'Read'</span> &gt;&gt; beam.io.ReadFromText(<span class="string">'/path/to/input-*.csv'</span>)</span><br><span class="line">lines | <span class="string">'Write'</span> &gt;&gt; beam.io.WriteToText(<span class="string">'/path/to/output'</span>, file_name_suffix=<span class="string">'.csv'</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lines = p | <span class="string">&#x27;Read&#x27;</span> &gt;&gt; beam.io.ReadFromText(<span class="string">&#x27;/path/to/input-*.csv&#x27;</span>)</span><br><span class="line">lines | <span class="string">&#x27;Write&#x27;</span> &gt;&gt; beam.io.WriteToText(<span class="string">&#x27;/path/to/output&#x27;</span>, file_name_suffix=<span class="string">&#x27;.csv&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
 <p><code>textio</code> is able to read multiple input files by using wildcard or you can flatten PCollections created from difference sources. The outputs are also split into several files due to pipeline’s parallel processing nature.</p>
 <h2 id="Transforms"><a href="#Transforms" class="headerlink" title="Transforms"></a>Transforms</h2><p>There’re basic transforms and higher-level built-ins. In general, we prefer to use the later so that we can focus on the application logic. The following table lists some commonly used higher-level transforms:</p>
 <table>
@@ -173,8 +180,7 @@
 <th>Meaning</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>Create(value)</td>
 <td>Creates a PCollection from an iterable.</td>
 </tr>
@@ -200,7 +206,7 @@
 </tr>
 <tr>
 <td>GroupByKey()</td>
-<td>Works on a PCollection of key/value pairs (two-element tuples), groups by common key, and returns <code>(key, iter&lt;value&gt;)</code> pairs.</td>
+<td>Works on a PCollection of key&#x2F;value pairs (two-element tuples), groups by common key, and returns <code>(key, iter&lt;value&gt;)</code> pairs.</td>
 </tr>
 <tr>
 <td>CoGroupByKey()</td>
@@ -218,21 +224,25 @@
 <td>CombineGlobally(fn)</td>
 <td>Reduces a PCollection to a single value by applying <code>fn</code>.</td>
 </tr>
-</tbody>
-</table>
-<h3 id="Callable-DoFn-and-ParDo"><a href="#Callable-DoFn-and-ParDo" class="headerlink" title="Callable, DoFn, and ParDo"></a>Callable, DoFn, and ParDo</h3><p>Most transforms accepts a callable as argument. In Python, <a href="https://docs.python.org/2/library/functions.html#callable" target="_blank" rel="noopener">callable</a> can be a function, method, lambda expression, or class instance that has <code>__call__</code> method. Under the hood, Beam will wrap the callable as a <code>DoFn</code>, and all these transforms will invoke <code>ParDo</code>, the lower-level transform, with the <code>DoFn</code>.</p>
+</tbody></table>
+<h3 id="Callable-DoFn-and-ParDo"><a href="#Callable-DoFn-and-ParDo" class="headerlink" title="Callable, DoFn, and ParDo"></a>Callable, DoFn, and ParDo</h3><p>Most transforms accepts a callable as argument. In Python, <a target="_blank" rel="noopener" href="https://docs.python.org/2/library/functions.html#callable">callable</a> can be a function, method, lambda expression, or class instance that has <code>__call__</code> method. Under the hood, Beam will wrap the callable as a <code>DoFn</code>, and all these transforms will invoke <code>ParDo</code>, the lower-level transform, with the <code>DoFn</code>.</p>
 <p>Let’s replace the expression <code>lambda x: x.split(&#39; &#39;)</code> with a <code>DoFn</code> class:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SplitFn</span><span class="params">(beam.DoFn)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">process</span><span class="params">(self, element)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> element.split(<span class="string">' '</span>)</span><br><span class="line"></span><br><span class="line">lines | beam.ParDo(SplitFn())</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SplitFn</span>(beam.DoFn):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, element</span>):</span><br><span class="line">        <span class="keyword">return</span> element.split(<span class="string">&#x27; &#x27;</span>)</span><br><span class="line"></span><br><span class="line">lines | beam.ParDo(SplitFn())</span><br></pre></td></tr></table></figure>
+
 <p>The <code>ParDo</code> transform works like <code>FlatMap</code>, except that it only accepts <code>DoFn</code>. In addition to <code>return</code>, we can <code>yield</code> element from <code>process</code> method:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SplitAndPairWithOneFn</span><span class="params">(beam.DoFn)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">process</span><span class="params">(self, element)</span>:</span></span><br><span class="line">        <span class="keyword">for</span> word <span class="keyword">in</span> element.split(<span class="string">' '</span>):</span><br><span class="line">            <span class="keyword">yield</span> (word, <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-<h3 id="Combiner-Functions"><a href="#Combiner-Functions" class="headerlink" title="Combiner Functions"></a>Combiner Functions</h3><p>Combiner functions, or <code>CombineFn</code>, are used to reduce a collection of elements into a single value. You can either perform on the entire PCollection (<code>CombineGlobally</code>), or combine the values for each key (<code>CombinePerKey</code>). Beam is capable of wrapping callables into <code>CombinFn</code>. The callable should take an iterable and returns a single value. Since Beam distributes computation to multiple nodes, the combiner function will be invoked multiple times to get partial results, so they ought to be <a href="https://en.wikipedia.org/wiki/Commutative_property" target="_blank" rel="noopener">commutative</a> and <a href="https://en.wikipedia.org/wiki/Associative_property" target="_blank" rel="noopener">associative</a>. <code>sum</code>, <code>min</code>, <code>max</code> are good examples.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SplitAndPairWithOneFn</span>(beam.DoFn):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, element</span>):</span><br><span class="line">        <span class="keyword">for</span> word <span class="keyword">in</span> element.split(<span class="string">&#x27; &#x27;</span>):</span><br><span class="line">            <span class="keyword">yield</span> (word, <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Combiner-Functions"><a href="#Combiner-Functions" class="headerlink" title="Combiner Functions"></a>Combiner Functions</h3><p>Combiner functions, or <code>CombineFn</code>, are used to reduce a collection of elements into a single value. You can either perform on the entire PCollection (<code>CombineGlobally</code>), or combine the values for each key (<code>CombinePerKey</code>). Beam is capable of wrapping callables into <code>CombinFn</code>. The callable should take an iterable and returns a single value. Since Beam distributes computation to multiple nodes, the combiner function will be invoked multiple times to get partial results, so they ought to be <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Commutative_property">commutative</a> and <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Associative_property">associative</a>. <code>sum</code>, <code>min</code>, <code>max</code> are good examples.</p>
 <p>Beam provides some built-in combiners like count, mean, top. Take count for instance, the following two lines are equivalent, they return the total count of lines.</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lines | beam.combiners.Count.Globally()</span><br><span class="line">lines | beam.CombineGlobally(beam.combiners.CountCombineFn())</span><br></pre></td></tr></table></figure>
-<p>Other combiners can be found in Beam Python SDK Documentation (<a href="https://beam.apache.org/documentation/sdks/pydoc/2.1.0/apache_beam.transforms.html#module-apache_beam.transforms.combiners" target="_blank" rel="noopener">link</a>). For more complex combiners, we need to subclass the <code>CombinFn</code> and implement four methods. Take the built-in <code>Mean</code> for an example:</p>
-<p><a href="https://github.com/apache/beam/blob/v2.1.0/sdks/python/apache_beam/transforms/combiners.py#L75" target="_blank" rel="noopener"><code>apache_beam/transforms/combiners.py</code></a></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MeanCombineFn</span><span class="params">(core.CombineFn)</span>:</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">create_accumulator</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="string">"""Create a "local" accumulator to track sum and count."""</span></span><br><span class="line">    <span class="keyword">return</span> (<span class="number">0</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">add_input</span><span class="params">(self, <span class="params">(sum_, count)</span>, element)</span>:</span></span><br><span class="line">    <span class="string">"""Process the incoming value."""</span></span><br><span class="line">    <span class="keyword">return</span> sum_ + element, count + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">merge_accumulators</span><span class="params">(self, accumulators)</span>:</span></span><br><span class="line">    <span class="string">"""Merge several accumulators into a single one."""</span></span><br><span class="line">    sums, counts = zip(*accumulators)</span><br><span class="line">    <span class="keyword">return</span> sum(sums), sum(counts)</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">extract_output</span><span class="params">(self, <span class="params">(sum_, count)</span>)</span>:</span></span><br><span class="line">    <span class="string">"""Compute the mean average."""</span></span><br><span class="line">    <span class="keyword">if</span> count == <span class="number">0</span>:</span><br><span class="line">      <span class="keyword">return</span> float(<span class="string">'NaN'</span>)</span><br><span class="line">    <span class="keyword">return</span> sum_ / float(count)</span><br></pre></td></tr></table></figure>
-<h3 id="Composite-Transform"><a href="#Composite-Transform" class="headerlink" title="Composite Transform"></a>Composite Transform</h3><p>Take a look at the <a href="https://github.com/apache/beam/blob/v2.1.0/sdks/python/apache_beam/transforms/combiners.py#L101" target="_blank" rel="noopener">source code</a> of <code>beam.combiners.Count.Globally</code> we used before. It subclasses <code>PTransform</code> and applies some transforms to the PCollection. This forms a sub-graph of DAG, and we call it composite transform. Composite transforms are used to gather relative codes into logical modules, making them easy to understand and maintain.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Count</span><span class="params">(object)</span>:</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Globally</span><span class="params">(ptransform.PTransform)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">expand</span><span class="params">(self, pcoll)</span>:</span></span><br><span class="line">      <span class="keyword">return</span> pcoll | core.CombineGlobally(CountCombineFn())</span><br></pre></td></tr></table></figure>
+
+<p>Other combiners can be found in Beam Python SDK Documentation (<a target="_blank" rel="noopener" href="https://beam.apache.org/documentation/sdks/pydoc/2.1.0/apache_beam.transforms.html#module-apache_beam.transforms.combiners">link</a>). For more complex combiners, we need to subclass the <code>CombinFn</code> and implement four methods. Take the built-in <code>Mean</code> for an example:</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/apache/beam/blob/v2.1.0/sdks/python/apache_beam/transforms/combiners.py#L75"><code>apache_beam/transforms/combiners.py</code></a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MeanCombineFn</span>(core.CombineFn):</span><br><span class="line">  <span class="keyword">def</span> <span class="title function_">create_accumulator</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Create a &quot;local&quot; accumulator to track sum and count.&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> (<span class="number">0</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">def</span> <span class="title function_">add_input</span>(<span class="params">self, (<span class="params">sum_, count</span>), element</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Process the incoming value.&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> sum_ + element, count + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">def</span> <span class="title function_">merge_accumulators</span>(<span class="params">self, accumulators</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Merge several accumulators into a single one.&quot;&quot;&quot;</span></span><br><span class="line">    sums, counts = <span class="built_in">zip</span>(*accumulators)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">sum</span>(sums), <span class="built_in">sum</span>(counts)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">def</span> <span class="title function_">extract_output</span>(<span class="params">self, (<span class="params">sum_, count</span>)</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Compute the mean average.&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> count == <span class="number">0</span>:</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">float</span>(<span class="string">&#x27;NaN&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> sum_ / <span class="built_in">float</span>(count)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Composite-Transform"><a href="#Composite-Transform" class="headerlink" title="Composite Transform"></a>Composite Transform</h3><p>Take a look at the <a target="_blank" rel="noopener" href="https://github.com/apache/beam/blob/v2.1.0/sdks/python/apache_beam/transforms/combiners.py#L101">source code</a> of <code>beam.combiners.Count.Globally</code> we used before. It subclasses <code>PTransform</code> and applies some transforms to the PCollection. This forms a sub-graph of DAG, and we call it composite transform. Composite transforms are used to gather relative codes into logical modules, making them easy to understand and maintain.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Count</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">Globally</span>(ptransform.PTransform):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">expand</span>(<span class="params">self, pcoll</span>):</span><br><span class="line">      <span class="keyword">return</span> pcoll | core.CombineGlobally(CountCombineFn())</span><br></pre></td></tr></table></figure>
+
 <p>More built-in transforms are listed below:</p>
 <table>
 <thead>
@@ -241,8 +251,7 @@
 <th>Meaning</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>Count.Globally()</td>
 <td>Count the total number of elements.</td>
 </tr>
@@ -286,33 +295,35 @@
 <td>ToDict()</td>
 <td>Combine to a single dict. Works on 2-element tuples.</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h2 id="Windowing"><a href="#Windowing" class="headerlink" title="Windowing"></a>Windowing</h2><p>When processing event data, such as access log or click stream, there’s an <em>event time</em> property attached to every item, and it’s common to perform aggregation on a per-time-window basis. With Beam, we can define different kinds of windows to divide event data into groups. Windowing can be used in both bounded and unbounded data source. Since current Python SDK only supports bounded source, the following example will work on an offline access log file, but the process can be applied to unbounded source as is.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">64.242.88.10 - - [07/Mar/2004:16:05:49 -0800] &quot;GET /edit HTTP/1.1&quot; 401 12846</span><br><span class="line">64.242.88.10 - - [07/Mar/2004:16:06:51 -0800] &quot;GET /rdiff HTTP/1.1&quot; 200 4523</span><br><span class="line">64.242.88.10 - - [07/Mar/2004:16:10:02 -0800] &quot;GET /hsdivision HTTP/1.1&quot; 200 6291</span><br><span class="line">64.242.88.10 - - [07/Mar/2004:16:11:58 -0800] &quot;GET /view HTTP/1.1&quot; 200 7352</span><br><span class="line">64.242.88.10 - - [07/Mar/2004:16:20:55 -0800] &quot;GET /view HTTP/1.1&quot; 200 5253</span><br></pre></td></tr></table></figure>
-<p><code>logmining.py</code>, full source code can be found on GitHub (<a href="https://github.com/jizhang/hello-beam/blob/master/logmining.py" target="_blank" rel="noopener">link</a>).</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">lines = p | <span class="string">'Create'</span> &gt;&gt; beam.io.ReadFromText(<span class="string">'access.log'</span>)</span><br><span class="line">windowed_counts = (</span><br><span class="line">    lines</span><br><span class="line">    | <span class="string">'Timestamp'</span> &gt;&gt; beam.Map(<span class="keyword">lambda</span> x: beam.window.TimestampedValue(</span><br><span class="line">                              x, extract_timestamp(x)))</span><br><span class="line">    | <span class="string">'Window'</span> &gt;&gt; beam.WindowInto(beam.window.SlidingWindows(<span class="number">600</span>, <span class="number">300</span>))</span><br><span class="line">    | <span class="string">'Count'</span> &gt;&gt; (beam.CombineGlobally(beam.combiners.CountCombineFn())</span><br><span class="line">                  .without_defaults())</span><br><span class="line">)</span><br><span class="line">windowed_counts =  windowed_counts | beam.ParDo(PrintWindowFn())</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">64.242.88.10 - - [07/Mar/2004:16:05:49 -0800] &quot;GET /edit HTTP/1.1&quot; 401 12846</span><br><span class="line">64.242.88.10 - - [07/Mar/2004:16:06:51 -0800] &quot;GET /rdiff HTTP/1.1&quot; 200 4523</span><br><span class="line">64.242.88.10 - - [07/Mar/2004:16:10:02 -0800] &quot;GET /hsdivision HTTP/1.1&quot; 200 6291</span><br><span class="line">64.242.88.10 - - [07/Mar/2004:16:11:58 -0800] &quot;GET /view HTTP/1.1&quot; 200 7352</span><br><span class="line">64.242.88.10 - - [07/Mar/2004:16:20:55 -0800] &quot;GET /view HTTP/1.1&quot; 200 5253</span><br></pre></td></tr></table></figure>
+
+<p><code>logmining.py</code>, full source code can be found on GitHub (<a target="_blank" rel="noopener" href="https://github.com/jizhang/hello-beam/blob/master/logmining.py">link</a>).</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">lines = p | <span class="string">&#x27;Create&#x27;</span> &gt;&gt; beam.io.ReadFromText(<span class="string">&#x27;access.log&#x27;</span>)</span><br><span class="line">windowed_counts = (</span><br><span class="line">    lines</span><br><span class="line">    | <span class="string">&#x27;Timestamp&#x27;</span> &gt;&gt; beam.Map(<span class="keyword">lambda</span> x: beam.window.TimestampedValue(</span><br><span class="line">                              x, extract_timestamp(x)))</span><br><span class="line">    | <span class="string">&#x27;Window&#x27;</span> &gt;&gt; beam.WindowInto(beam.window.SlidingWindows(<span class="number">600</span>, <span class="number">300</span>))</span><br><span class="line">    | <span class="string">&#x27;Count&#x27;</span> &gt;&gt; (beam.CombineGlobally(beam.combiners.CountCombineFn())</span><br><span class="line">                  .without_defaults())</span><br><span class="line">)</span><br><span class="line">windowed_counts =  windowed_counts | beam.ParDo(PrintWindowFn())</span><br></pre></td></tr></table></figure>
+
 <p>First of all, we need to add a timestamp to each record. <code>extract_timestamp</code> is a custom function to parse <code>[07/Mar/2004:16:05:49 -0800]</code> as a unix timestamp. <code>TimestampedValue</code> links this timestamp to the record. Then we define a sliding window with the size <em>10 minutes</em> and period <em>5 minutes</em>, which means the first window is <code>[00:00, 00:10)</code>, second window is <code>[00:05, 00:15)</code>, and so forth. All windows have a <em>10 minutes</em> duration, and adjacent windows have a <em>5 minutes</em> shift. Sliding window is different from fixed window, in that the same elements could appear in different windows. The combiner function is a simple count, so the pipeline result of the first five logs will be:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[2004-03-08T00:00:00Z, 2004-03-08T00:10:00Z) @ 2</span><br><span class="line">[2004-03-08T00:05:00Z, 2004-03-08T00:15:00Z) @ 4</span><br><span class="line">[2004-03-08T00:10:00Z, 2004-03-08T00:20:00Z) @ 2</span><br><span class="line">[2004-03-08T00:15:00Z, 2004-03-08T00:25:00Z) @ 1</span><br><span class="line">[2004-03-08T00:20:00Z, 2004-03-08T00:30:00Z) @ 1</span><br></pre></td></tr></table></figure>
-<p>In stream processing for unbounded source, event data will arrive in different order, so we need to deal with late data with Beam’s watermark and trigger facility. This is a rather advanced topic, and the Python SDK has not yet implemented this feature. If you’re interested, please refer to Stream <a href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101" target="_blank" rel="noopener">101</a> and <a href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-102" target="_blank" rel="noopener">102</a> articles.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[2004-03-08T00:00:00Z, 2004-03-08T00:10:00Z) @ 2</span><br><span class="line">[2004-03-08T00:05:00Z, 2004-03-08T00:15:00Z) @ 4</span><br><span class="line">[2004-03-08T00:10:00Z, 2004-03-08T00:20:00Z) @ 2</span><br><span class="line">[2004-03-08T00:15:00Z, 2004-03-08T00:25:00Z) @ 1</span><br><span class="line">[2004-03-08T00:20:00Z, 2004-03-08T00:30:00Z) @ 1</span><br></pre></td></tr></table></figure>
+
+<p>In stream processing for unbounded source, event data will arrive in different order, so we need to deal with late data with Beam’s watermark and trigger facility. This is a rather advanced topic, and the Python SDK has not yet implemented this feature. If you’re interested, please refer to Stream <a target="_blank" rel="noopener" href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101">101</a> and <a target="_blank" rel="noopener" href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-102">102</a> articles.</p>
 <h2 id="Pipeline-Runner"><a href="#Pipeline-Runner" class="headerlink" title="Pipeline Runner"></a>Pipeline Runner</h2><p>As mentioned above, Apache Beam is just a standard that provides SDK and APIs. It’s the pipeline runner that is responsible to execute the workflow graph. The following matrix lists all available runners and their capabilities compared to Beam Model.</p>
 <p><img src="/images/beam/matrix.png" alt="Beam Capability Matrix"></p>
-<p><a href="https://beam.apache.org/documentation/runners/capability-matrix/" target="_blank" rel="noopener">Source</a></p>
+<p><a target="_blank" rel="noopener" href="https://beam.apache.org/documentation/runners/capability-matrix/">Source</a></p>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
-<li><a href="https://beam.apache.org/documentation/programming-guide/" target="_blank" rel="noopener">https://beam.apache.org/documentation/programming-guide/</a></li>
-<li><a href="https://beam.apache.org/documentation/sdks/pydoc/2.1.0/" target="_blank" rel="noopener">https://beam.apache.org/documentation/sdks/pydoc/2.1.0/</a></li>
-<li><a href="https://sookocheff.com/post/dataflow/get-to-know-dataflow/" target="_blank" rel="noopener">https://sookocheff.com/post/dataflow/get-to-know-dataflow/</a></li>
+<li><a target="_blank" rel="noopener" href="https://beam.apache.org/documentation/programming-guide/">https://beam.apache.org/documentation/programming-guide/</a></li>
+<li><a target="_blank" rel="noopener" href="https://beam.apache.org/documentation/sdks/pydoc/2.1.0/">https://beam.apache.org/documentation/sdks/pydoc/2.1.0/</a></li>
+<li><a target="_blank" rel="noopener" href="https://sookocheff.com/post/dataflow/get-to-know-dataflow/">https://sookocheff.com/post/dataflow/get-to-know-dataflow/</a></li>
 </ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/" data-id="cl4aua5ow001d9lltdl788msx" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/" data-id="cl4j3rwkt001dacnc28lpgrl0" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache-beam/">apache beam</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mapreduce/">mapreduce</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/stream-processing/">stream processing</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache-beam/" rel="tag">apache beam</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mapreduce/" rel="tag">mapreduce</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/stream-processing/" rel="tag">stream processing</a></li></ul>
 
     </footer>
   </div>
@@ -343,7 +354,7 @@
 
 <section id="comments">
   <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
 </section>
 </section>
@@ -407,7 +418,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
       &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
@@ -433,7 +444,7 @@
 <script>
   var disqus_shortname = 'jizhang';
   
-  var disqus_url = 'http://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/';
+  var disqus_url = 'https://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/';
   
   (function(){
     var dsq = document.createElement('script');
@@ -445,14 +456,22 @@
 </script>
 
 
+
 <script src="/js/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
 
 
 <script src="/js/script.js"></script>
+
 
   </div>
 </body>

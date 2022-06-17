@@ -1,33 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.8.0">
+<head>
   <meta charset="utf-8">
   
   <title>Pandas and Tidy Data | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="In the paper Tidy Data, Dr. Wickham proposed a specific form of data structure: each variable is a column, each observation is a row, and each type of observational unit is a table. He argued that wit">
-<meta name="keywords" content="python,analytics,pandas">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Pandas and Tidy Data">
-<meta property="og:url" content="http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/index.html">
+<meta property="og:url" content="https://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
 <meta property="og:description" content="In the paper Tidy Data, Dr. Wickham proposed a specific form of data structure: each variable is a column, each observation is a row, and each type of observational unit is a table. He argued that wit">
-<meta property="og:locale" content="default">
-<meta property="og:image" content="http://shzhangji.com/images/tidy-data/pew.png">
-<meta property="og:image" content="http://shzhangji.com/images/tidy-data/pew-tidy.png">
-<meta property="og:image" content="http://shzhangji.com/images/tidy-data/billboard.png">
-<meta property="og:image" content="http://shzhangji.com/images/tidy-data/billboard-intermediate.png">
-<meta property="og:image" content="http://shzhangji.com/images/tidy-data/tb.png">
-<meta property="og:image" content="http://shzhangji.com/images/tidy-data/tb-tidy.png">
-<meta property="og:image" content="http://shzhangji.com/images/tidy-data/weather.png">
-<meta property="og:image" content="http://shzhangji.com/images/tidy-data/weather-tidy.png">
-<meta property="og:image" content="http://shzhangji.com/images/tidy-data/billboard-track.png">
-<meta property="og:image" content="http://shzhangji.com/images/tidy-data/billboard-rank.png">
-<meta property="og:updated_time" content="2022-06-12T05:01:34.283Z">
+<meta property="og:locale">
+<meta property="og:image" content="https://shzhangji.com/images/tidy-data/pew.png">
+<meta property="og:image" content="https://shzhangji.com/images/tidy-data/pew-tidy.png">
+<meta property="og:image" content="https://shzhangji.com/images/tidy-data/billboard.png">
+<meta property="og:image" content="https://shzhangji.com/images/tidy-data/billboard-intermediate.png">
+<meta property="og:image" content="https://shzhangji.com/images/tidy-data/tb.png">
+<meta property="og:image" content="https://shzhangji.com/images/tidy-data/tb-tidy.png">
+<meta property="og:image" content="https://shzhangji.com/images/tidy-data/weather.png">
+<meta property="og:image" content="https://shzhangji.com/images/tidy-data/weather-tidy.png">
+<meta property="og:image" content="https://shzhangji.com/images/tidy-data/billboard-track.png">
+<meta property="og:image" content="https://shzhangji.com/images/tidy-data/billboard-rank.png">
+<meta property="article:published_time" content="2017-09-30T04:24:32.000Z">
+<meta property="article:modified_time" content="2022-06-17T23:49:19.563Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="analytics">
+<meta property="article:tag" content="pandas">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Pandas and Tidy Data">
-<meta name="twitter:description" content="In the paper Tidy Data, Dr. Wickham proposed a specific form of data structure: each variable is a column, each observation is a row, and each type of observational unit is a table. He argued that wit">
-<meta name="twitter:image" content="http://shzhangji.com/images/tidy-data/pew.png">
+<meta name="twitter:image" content="https://shzhangji.com/images/tidy-data/pew.png">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -37,9 +39,13 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link rel="stylesheet" href="/css/source-code-pro.css">
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
   
-  <link rel="stylesheet" href="/css/style.css">
+  
+<link rel="stylesheet" href="/css/style.css">
+
   
 
 
@@ -52,8 +58,8 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-</head>
-</html>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -64,10 +70,6 @@
       <h1 id="logo-wrap">
         <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">If I rest, I rust.</a>
-        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -91,7 +93,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -124,16 +126,19 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>In the paper <a href="https://www.jstatsoft.org/article/view/v059i10" target="_blank" rel="noopener">Tidy Data</a>, <a href="https://en.wikipedia.org/wiki/Hadley_Wickham" target="_blank" rel="noopener">Dr. Wickham</a> proposed a specific form of data structure: each variable is a column, each observation is a row, and each type of observational unit is a table. He argued that with tidy data, data analysts can manipulate, model, and visualize data more easily and effectively. He lists <em>five common data structures</em> that are untidy, and demonstrates how to use <a href="https://github.com/hadley/tidy-data/" target="_blank" rel="noopener">R language</a> to tidy them. In this article, we’ll use Python and Pandas to achieve the same tidiness.</p>
-<p>Source code and demo data can be found on GitHub (<a href="https://github.com/jizhang/pandas-tidy-data" target="_blank" rel="noopener">link</a>), and readers are supposed to have Python environment installed, preferably with Anaconda and Spyder IDE.</p>
-<h2 id="Column-headers-are-values-not-variable-names"><a href="#Column-headers-are-values-not-variable-names" class="headerlink" title="Column headers are values, not variable names"></a>Column headers are values, not variable names</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line">df = pd.read_csv(<span class="string">'data/pew.csv'</span>)</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+        <p>In the paper <a target="_blank" rel="noopener" href="https://www.jstatsoft.org/article/view/v059i10">Tidy Data</a>, <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Hadley_Wickham">Dr. Wickham</a> proposed a specific form of data structure: each variable is a column, each observation is a row, and each type of observational unit is a table. He argued that with tidy data, data analysts can manipulate, model, and visualize data more easily and effectively. He lists <em>five common data structures</em> that are untidy, and demonstrates how to use <a target="_blank" rel="noopener" href="https://github.com/hadley/tidy-data/">R language</a> to tidy them. In this article, we’ll use Python and Pandas to achieve the same tidiness.</p>
+<p>Source code and demo data can be found on GitHub (<a target="_blank" rel="noopener" href="https://github.com/jizhang/pandas-tidy-data">link</a>), and readers are supposed to have Python environment installed, preferably with Anaconda and Spyder IDE.</p>
+<h2 id="Column-headers-are-values-not-variable-names"><a href="#Column-headers-are-values-not-variable-names" class="headerlink" title="Column headers are values, not variable names"></a>Column headers are values, not variable names</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line">df = pd.read_csv(<span class="string">&#x27;data/pew.csv&#x27;</span>)</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
 <p><img src="/images/tidy-data/pew.png" alt="Religion and Income - Pew Forum"></p>
 <p>Column names “&lt;$10k”, “$10-20k” are really income ranges that constitutes a variable. Variables are measurements of attributes, like height, weight, and in this case, income and religion. The values within the table form another variable, frequency. To make <em>each variable a column</em>, we do the following transformation:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">df = df.set_index(<span class="string">'religion'</span>)</span><br><span class="line">df = df.stack()</span><br><span class="line">df.index = df.index.rename(<span class="string">'income'</span>, level=<span class="number">1</span>)</span><br><span class="line">df.name = <span class="string">'frequency'</span></span><br><span class="line">df = df.reset_index()</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">df = df.set_index(<span class="string">&#x27;religion&#x27;</span>)</span><br><span class="line">df = df.stack()</span><br><span class="line">df.index = df.index.rename(<span class="string">&#x27;income&#x27;</span>, level=<span class="number">1</span>)</span><br><span class="line">df.name = <span class="string">&#x27;frequency&#x27;</span></span><br><span class="line">df = df.reset_index()</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
 <p><img src="/images/tidy-data/pew-tidy.png" alt="Religion and Income - Tidy"></p>
-<a id="more"></a>
-<p>Here we use the <a href="https://pandas.pydata.org/pandas-docs/stable/reshaping.html" target="_blank" rel="noopener">stack / unstack</a> feature of Pandas MultiIndex objects. <code>stack()</code> will use the column names to form a second level of index, then we do some proper naming and use <code>reset_index()</code> to flatten the table. In line 4 <code>df</code> is actually a Series, since Pandas will automatically convert from a single-column DataFrame.</p>
-<p>Pandas provides another more commonly used method to do the transformation, <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.melt.html" target="_blank" rel="noopener"><code>melt()</code></a>. It accepts the following arguments:</p>
+<span id="more"></span>
+
+<p>Here we use the <a target="_blank" rel="noopener" href="https://pandas.pydata.org/pandas-docs/stable/reshaping.html">stack &#x2F; unstack</a> feature of Pandas MultiIndex objects. <code>stack()</code> will use the column names to form a second level of index, then we do some proper naming and use <code>reset_index()</code> to flatten the table. In line 4 <code>df</code> is actually a Series, since Pandas will automatically convert from a single-column DataFrame.</p>
+<p>Pandas provides another more commonly used method to do the transformation, <a target="_blank" rel="noopener" href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.melt.html"><code>melt()</code></a>. It accepts the following arguments:</p>
 <ul>
 <li><code>frame</code>: the DataFrame to manipulate.</li>
 <li><code>id_vars</code>: columns that stay put.</li>
@@ -141,43 +146,48 @@
 <li><code>var_name</code>: name the newly added variable column.</li>
 <li><code>value_name</code>: name the value column.</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">df = pd.read_csv(<span class="string">'data/pew.csv'</span>)</span><br><span class="line">df = pd.melt(df, id_vars=[<span class="string">'religion'</span>], value_vars=list(df.columns)[<span class="number">1</span>:],</span><br><span class="line">             var_name=<span class="string">'income'</span>, value_name=<span class="string">'frequency'</span>)</span><br><span class="line">df = df.sort_values(by=<span class="string">'religion'</span>)</span><br><span class="line">df.to_csv(<span class="string">'data/pew-tidy.csv'</span>, index=<span class="literal">False</span>)</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">df = pd.read_csv(<span class="string">&#x27;data/pew.csv&#x27;</span>)</span><br><span class="line">df = pd.melt(df, id_vars=[<span class="string">&#x27;religion&#x27;</span>], value_vars=<span class="built_in">list</span>(df.columns)[<span class="number">1</span>:],</span><br><span class="line">             var_name=<span class="string">&#x27;income&#x27;</span>, value_name=<span class="string">&#x27;frequency&#x27;</span>)</span><br><span class="line">df = df.sort_values(by=<span class="string">&#x27;religion&#x27;</span>)</span><br><span class="line">df.to_csv(<span class="string">&#x27;data/pew-tidy.csv&#x27;</span>, index=<span class="literal">False</span>)</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
 <p>This will give the same result. We’ll use <code>melt()</code> method a lot in the following sections.</p>
 <p>Let’s take a look at another form of untidiness that falls in this section:</p>
 <p><img src="/images/tidy-data/billboard.png" alt="Billboard 2000"></p>
 <p>In this dataset, weekly ranks are recorded in separate columns. To answer the question “what’s the rank of ‘Dancing Queen’ in 2000-07-15”, we need to do some calculations with <code>date.entered</code> and the week columns. Let’s transform it into a tidy form:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">df = pd.read_csv(<span class="string">'data/billboard.csv'</span>)</span><br><span class="line">df = pd.melt(df, id_vars=list(df.columns)[:<span class="number">5</span>], value_vars=list(df.columns)[<span class="number">5</span>:],</span><br><span class="line">             var_name=<span class="string">'week'</span>, value_name=<span class="string">'rank'</span>)</span><br><span class="line">df[<span class="string">'week'</span>] = df[<span class="string">'week'</span>].str[<span class="number">2</span>:].astype(int)</span><br><span class="line">df[<span class="string">'date.entered'</span>] = pd.to_datetime(df[<span class="string">'date.entered'</span>]) + pd.to_timedelta((df[<span class="string">'week'</span>] - <span class="number">1</span>) * <span class="number">7</span>, <span class="string">'d'</span>)</span><br><span class="line">df = df.rename(columns=&#123;<span class="string">'date.entered'</span>: <span class="string">'date'</span>&#125;)</span><br><span class="line">df = df.sort_values(by=[<span class="string">'track'</span>, <span class="string">'date'</span>])</span><br><span class="line">df.to_csv(<span class="string">'data/billboard-intermediate.csv'</span>, index=<span class="literal">False</span>)</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">df = pd.read_csv(<span class="string">&#x27;data/billboard.csv&#x27;</span>)</span><br><span class="line">df = pd.melt(df, id_vars=<span class="built_in">list</span>(df.columns)[:<span class="number">5</span>], value_vars=<span class="built_in">list</span>(df.columns)[<span class="number">5</span>:],</span><br><span class="line">             var_name=<span class="string">&#x27;week&#x27;</span>, value_name=<span class="string">&#x27;rank&#x27;</span>)</span><br><span class="line">df[<span class="string">&#x27;week&#x27;</span>] = df[<span class="string">&#x27;week&#x27;</span>].<span class="built_in">str</span>[<span class="number">2</span>:].astype(<span class="built_in">int</span>)</span><br><span class="line">df[<span class="string">&#x27;date.entered&#x27;</span>] = pd.to_datetime(df[<span class="string">&#x27;date.entered&#x27;</span>]) + pd.to_timedelta((df[<span class="string">&#x27;week&#x27;</span>] - <span class="number">1</span>) * <span class="number">7</span>, <span class="string">&#x27;d&#x27;</span>)</span><br><span class="line">df = df.rename(columns=&#123;<span class="string">&#x27;date.entered&#x27;</span>: <span class="string">&#x27;date&#x27;</span>&#125;)</span><br><span class="line">df = df.sort_values(by=[<span class="string">&#x27;track&#x27;</span>, <span class="string">&#x27;date&#x27;</span>])</span><br><span class="line">df.to_csv(<span class="string">&#x27;data/billboard-intermediate.csv&#x27;</span>, index=<span class="literal">False</span>)</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
 <p><img src="/images/tidy-data/billboard-intermediate.png" alt="Billboard 2000 - Intermediate Tidy"></p>
 <p>We’ve also transformed the <code>date.entered</code> variable into the exact date of that week. Now <code>week</code> becomes a single column that represents a variable. But we can see a lot of duplications in this table, like artist and track. We’ll solve this problem in the fourth section.</p>
 <h2 id="Multiple-variables-stored-in-one-column"><a href="#Multiple-variables-stored-in-one-column" class="headerlink" title="Multiple variables stored in one column"></a>Multiple variables stored in one column</h2><p>Storing variable values in columns is quite common because it makes the data table more compact, and easier to do analysis like cross validation, etc. The following dataset even manages to store two variables in the column, sex and age.</p>
 <p><img src="/images/tidy-data/tb.png" alt="Tuberculosis (TB)"></p>
 <p><code>m</code> stands for <code>male</code>, <code>f</code> for <code>female</code>, and age ranges are <code>0-14</code>, <code>15-24</code>, and so forth. To tidy it, we first melt the columns, use Pandas’ string operation to extract <code>sex</code>, and do a value mapping for the <code>age</code> ranges.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">df = pd.read_csv(<span class="string">'data/tb.csv'</span>)</span><br><span class="line">df = pd.melt(df, id_vars=[<span class="string">'country'</span>, <span class="string">'year'</span>], value_vars=list(df.columns)[<span class="number">2</span>:],</span><br><span class="line">             var_name=<span class="string">'column'</span>, value_name=<span class="string">'cases'</span>)</span><br><span class="line">df = df[df[<span class="string">'cases'</span>] != <span class="string">'---'</span>]</span><br><span class="line">df[<span class="string">'cases'</span>] = df[<span class="string">'cases'</span>].astype(int)</span><br><span class="line">df[<span class="string">'sex'</span>] = df[<span class="string">'column'</span>].str[<span class="number">0</span>]</span><br><span class="line">df[<span class="string">'age'</span>] = df[<span class="string">'column'</span>].str[<span class="number">1</span>:].map(&#123;</span><br><span class="line">    <span class="string">'014'</span>: <span class="string">'0-14'</span>,</span><br><span class="line">    <span class="string">'1524'</span>: <span class="string">'15-24'</span>,</span><br><span class="line">    <span class="string">'2534'</span>: <span class="string">'25-34'</span>,</span><br><span class="line">    <span class="string">'3544'</span>: <span class="string">'35-44'</span>,</span><br><span class="line">    <span class="string">'4554'</span>: <span class="string">'45-54'</span>,</span><br><span class="line">    <span class="string">'5564'</span>: <span class="string">'55-64'</span>,</span><br><span class="line">    <span class="string">'65'</span>: <span class="string">'65+'</span></span><br><span class="line">&#125;)</span><br><span class="line">df = df[[<span class="string">'country'</span>, <span class="string">'year'</span>, <span class="string">'sex'</span>, <span class="string">'age'</span>, <span class="string">'cases'</span>]]</span><br><span class="line">df.to_csv(<span class="string">'data/tb-tidy.csv'</span>, index=<span class="literal">False</span>)</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">df = pd.read_csv(<span class="string">&#x27;data/tb.csv&#x27;</span>)</span><br><span class="line">df = pd.melt(df, id_vars=[<span class="string">&#x27;country&#x27;</span>, <span class="string">&#x27;year&#x27;</span>], value_vars=<span class="built_in">list</span>(df.columns)[<span class="number">2</span>:],</span><br><span class="line">             var_name=<span class="string">&#x27;column&#x27;</span>, value_name=<span class="string">&#x27;cases&#x27;</span>)</span><br><span class="line">df = df[df[<span class="string">&#x27;cases&#x27;</span>] != <span class="string">&#x27;---&#x27;</span>]</span><br><span class="line">df[<span class="string">&#x27;cases&#x27;</span>] = df[<span class="string">&#x27;cases&#x27;</span>].astype(<span class="built_in">int</span>)</span><br><span class="line">df[<span class="string">&#x27;sex&#x27;</span>] = df[<span class="string">&#x27;column&#x27;</span>].<span class="built_in">str</span>[<span class="number">0</span>]</span><br><span class="line">df[<span class="string">&#x27;age&#x27;</span>] = df[<span class="string">&#x27;column&#x27;</span>].<span class="built_in">str</span>[<span class="number">1</span>:].<span class="built_in">map</span>(&#123;</span><br><span class="line">    <span class="string">&#x27;014&#x27;</span>: <span class="string">&#x27;0-14&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;1524&#x27;</span>: <span class="string">&#x27;15-24&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;2534&#x27;</span>: <span class="string">&#x27;25-34&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;3544&#x27;</span>: <span class="string">&#x27;35-44&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;4554&#x27;</span>: <span class="string">&#x27;45-54&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;5564&#x27;</span>: <span class="string">&#x27;55-64&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;65&#x27;</span>: <span class="string">&#x27;65+&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line">df = df[[<span class="string">&#x27;country&#x27;</span>, <span class="string">&#x27;year&#x27;</span>, <span class="string">&#x27;sex&#x27;</span>, <span class="string">&#x27;age&#x27;</span>, <span class="string">&#x27;cases&#x27;</span>]]</span><br><span class="line">df.to_csv(<span class="string">&#x27;data/tb-tidy.csv&#x27;</span>, index=<span class="literal">False</span>)</span><br><span class="line">df.head(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
 <p><img src="/images/tidy-data/tb-tidy.png" alt="Tuberculosis (TB) - Tidy"></p>
 <h2 id="Variables-are-stored-in-both-rows-and-columns"><a href="#Variables-are-stored-in-both-rows-and-columns" class="headerlink" title="Variables are stored in both rows and columns"></a>Variables are stored in both rows and columns</h2><p>This is a temperature dataset collection by a Weather Station named MX17004. Dates are spread in columns which can be melted into one column. <code>tmax</code> and <code>tmin</code> stand for highest and lowest temperatures, and they are really variables of each observational unit, in this case, each day, so we should <code>unstack</code> them into different columns.</p>
 <p><img src="/images/tidy-data/weather.png" alt="Weather Station"></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">df = pd.read_csv(<span class="string">'data/weather.csv'</span>)</span><br><span class="line">df = pd.melt(df, id_vars=[<span class="string">'id'</span>, <span class="string">'year'</span>, <span class="string">'month'</span>, <span class="string">'element'</span>],</span><br><span class="line">             value_vars=list(df.columns)[<span class="number">4</span>:],</span><br><span class="line">             var_name=<span class="string">'date'</span>, value_name=<span class="string">'value'</span>)</span><br><span class="line">df[<span class="string">'date'</span>] = df[<span class="string">'date'</span>].str[<span class="number">1</span>:].astype(<span class="string">'int'</span>)</span><br><span class="line">df[<span class="string">'date'</span>] = df[[<span class="string">'year'</span>, <span class="string">'month'</span>, <span class="string">'date'</span>]].apply(</span><br><span class="line">    <span class="keyword">lambda</span> row: <span class="string">'&#123;:4d&#125;-&#123;:02d&#125;-&#123;:02d&#125;'</span>.format(*row),</span><br><span class="line">    axis=<span class="number">1</span>)</span><br><span class="line">df = df.loc[df[<span class="string">'value'</span>] != <span class="string">'---'</span>, [<span class="string">'id'</span>, <span class="string">'date'</span>, <span class="string">'element'</span>, <span class="string">'value'</span>]]</span><br><span class="line">df = df.set_index([<span class="string">'id'</span>, <span class="string">'date'</span>, <span class="string">'element'</span>])</span><br><span class="line">df = df.unstack()</span><br><span class="line">df.columns = list(df.columns.get_level_values(<span class="string">'element'</span>))</span><br><span class="line">df = df.reset_index()</span><br><span class="line">df.to_csv(<span class="string">'data/weather-tidy.csv'</span>, index=<span class="literal">False</span>)</span><br><span class="line">df</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">df = pd.read_csv(<span class="string">&#x27;data/weather.csv&#x27;</span>)</span><br><span class="line">df = pd.melt(df, id_vars=[<span class="string">&#x27;id&#x27;</span>, <span class="string">&#x27;year&#x27;</span>, <span class="string">&#x27;month&#x27;</span>, <span class="string">&#x27;element&#x27;</span>],</span><br><span class="line">             value_vars=<span class="built_in">list</span>(df.columns)[<span class="number">4</span>:],</span><br><span class="line">             var_name=<span class="string">&#x27;date&#x27;</span>, value_name=<span class="string">&#x27;value&#x27;</span>)</span><br><span class="line">df[<span class="string">&#x27;date&#x27;</span>] = df[<span class="string">&#x27;date&#x27;</span>].<span class="built_in">str</span>[<span class="number">1</span>:].astype(<span class="string">&#x27;int&#x27;</span>)</span><br><span class="line">df[<span class="string">&#x27;date&#x27;</span>] = df[[<span class="string">&#x27;year&#x27;</span>, <span class="string">&#x27;month&#x27;</span>, <span class="string">&#x27;date&#x27;</span>]].apply(</span><br><span class="line">    <span class="keyword">lambda</span> row: <span class="string">&#x27;&#123;:4d&#125;-&#123;:02d&#125;-&#123;:02d&#125;&#x27;</span>.<span class="built_in">format</span>(*row),</span><br><span class="line">    axis=<span class="number">1</span>)</span><br><span class="line">df = df.loc[df[<span class="string">&#x27;value&#x27;</span>] != <span class="string">&#x27;---&#x27;</span>, [<span class="string">&#x27;id&#x27;</span>, <span class="string">&#x27;date&#x27;</span>, <span class="string">&#x27;element&#x27;</span>, <span class="string">&#x27;value&#x27;</span>]]</span><br><span class="line">df = df.set_index([<span class="string">&#x27;id&#x27;</span>, <span class="string">&#x27;date&#x27;</span>, <span class="string">&#x27;element&#x27;</span>])</span><br><span class="line">df = df.unstack()</span><br><span class="line">df.columns = <span class="built_in">list</span>(df.columns.get_level_values(<span class="string">&#x27;element&#x27;</span>))</span><br><span class="line">df = df.reset_index()</span><br><span class="line">df.to_csv(<span class="string">&#x27;data/weather-tidy.csv&#x27;</span>, index=<span class="literal">False</span>)</span><br><span class="line">df</span><br></pre></td></tr></table></figure>
+
 <p><img src="/images/tidy-data/weather-tidy.png" alt="Weather Station - Tidy"></p>
 <h2 id="Multiple-types-in-one-table"><a href="#Multiple-types-in-one-table" class="headerlink" title="Multiple types in one table"></a>Multiple types in one table</h2><p>In the processed Billboard dataset, we can see duplicates of song tracks, it’s because this table actually contains two types of observational units, song tracks and weekly ranks. To tidy it, we first generate identities for each song track, i.e. <code>id</code>, and then separate them into different tables.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">df = pd.read_csv(<span class="string">'data/billboard-intermediate.csv'</span>)</span><br><span class="line">df_track = df[[<span class="string">'artist'</span>, <span class="string">'track'</span>, <span class="string">'time'</span>]].drop_duplicates()</span><br><span class="line">df_track.insert(<span class="number">0</span>, <span class="string">'id'</span>, range(<span class="number">1</span>, len(df_track) + <span class="number">1</span>))</span><br><span class="line">df = pd.merge(df, df_track, on=[<span class="string">'artist'</span>, <span class="string">'track'</span>, <span class="string">'time'</span>])</span><br><span class="line">df = df[[<span class="string">'id'</span>, <span class="string">'date'</span>, <span class="string">'rank'</span>]]</span><br><span class="line">df_track.to_csv(<span class="string">'data/billboard-track.csv'</span>, index=<span class="literal">False</span>)</span><br><span class="line">df.to_csv(<span class="string">'data/billboard-rank.csv'</span>, index=<span class="literal">False</span>)</span><br><span class="line">print(df_track, <span class="string">'\n\n'</span>, df)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">df = pd.read_csv(<span class="string">&#x27;data/billboard-intermediate.csv&#x27;</span>)</span><br><span class="line">df_track = df[[<span class="string">&#x27;artist&#x27;</span>, <span class="string">&#x27;track&#x27;</span>, <span class="string">&#x27;time&#x27;</span>]].drop_duplicates()</span><br><span class="line">df_track.insert(<span class="number">0</span>, <span class="string">&#x27;id&#x27;</span>, <span class="built_in">range</span>(<span class="number">1</span>, <span class="built_in">len</span>(df_track) + <span class="number">1</span>))</span><br><span class="line">df = pd.merge(df, df_track, on=[<span class="string">&#x27;artist&#x27;</span>, <span class="string">&#x27;track&#x27;</span>, <span class="string">&#x27;time&#x27;</span>])</span><br><span class="line">df = df[[<span class="string">&#x27;id&#x27;</span>, <span class="string">&#x27;date&#x27;</span>, <span class="string">&#x27;rank&#x27;</span>]]</span><br><span class="line">df_track.to_csv(<span class="string">&#x27;data/billboard-track.csv&#x27;</span>, index=<span class="literal">False</span>)</span><br><span class="line">df.to_csv(<span class="string">&#x27;data/billboard-rank.csv&#x27;</span>, index=<span class="literal">False</span>)</span><br><span class="line"><span class="built_in">print</span>(df_track, <span class="string">&#x27;\n\n&#x27;</span>, df)</span><br></pre></td></tr></table></figure>
+
 <p><img src="/images/tidy-data/billboard-track.png" alt="Billboard 2000 - Track"></p>
 <p><img src="/images/tidy-data/billboard-rank.png" alt="Billboard 2000 - Rank"></p>
-<h2 id="One-type-in-multiple-tables"><a href="#One-type-in-multiple-tables" class="headerlink" title="One type in multiple tables"></a>One type in multiple tables</h2><p>Datasets can be separated in two ways, by different values of an variable like year 2000, 2001, location China, Britain, or by different attributes like temperature from one sensor, humidity from another. In the first case, we can write a utility function that walks through the data directory, reads each file, and assigns the filename to a dedicated column. In the end we can combine these DataFrames with <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.concat.html" target="_blank" rel="noopener"><code>pd.concat</code></a>. In the latter case, there should be some attribute that can identify the same units, like date, personal ID, etc. We can use <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.merge.html" target="_blank" rel="noopener"><code>pd.merge</code></a> to join datasets by common keys.</p>
+<h2 id="One-type-in-multiple-tables"><a href="#One-type-in-multiple-tables" class="headerlink" title="One type in multiple tables"></a>One type in multiple tables</h2><p>Datasets can be separated in two ways, by different values of an variable like year 2000, 2001, location China, Britain, or by different attributes like temperature from one sensor, humidity from another. In the first case, we can write a utility function that walks through the data directory, reads each file, and assigns the filename to a dedicated column. In the end we can combine these DataFrames with <a target="_blank" rel="noopener" href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.concat.html"><code>pd.concat</code></a>. In the latter case, there should be some attribute that can identify the same units, like date, personal ID, etc. We can use <a target="_blank" rel="noopener" href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.merge.html"><code>pd.merge</code></a> to join datasets by common keys.</p>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
-<li><a href="https://tomaugspurger.github.io/modern-5-tidy.html" target="_blank" rel="noopener">https://tomaugspurger.github.io/modern-5-tidy.html</a></li>
-<li><a href="https://hackernoon.com/reshaping-data-in-python-fa27dda2ff77" target="_blank" rel="noopener">https://hackernoon.com/reshaping-data-in-python-fa27dda2ff77</a></li>
-<li><a href="http://www.jeannicholashould.com/tidy-data-in-python.html" target="_blank" rel="noopener">http://www.jeannicholashould.com/tidy-data-in-python.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://tomaugspurger.github.io/modern-5-tidy.html">https://tomaugspurger.github.io/modern-5-tidy.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://hackernoon.com/reshaping-data-in-python-fa27dda2ff77">https://hackernoon.com/reshaping-data-in-python-fa27dda2ff77</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.jeannicholashould.com/tidy-data-in-python.html">http://www.jeannicholashould.com/tidy-data-in-python.html</a></li>
 </ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/" data-id="cl4aua5oz001h9lltswbdzmyf" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/" data-id="cl4j3rwku001hacncahlx2kzh" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pandas/">pandas</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/" rel="tag">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pandas/" rel="tag">pandas</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
 
     </footer>
   </div>
@@ -208,7 +218,7 @@
 
 <section id="comments">
   <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
 </section>
 </section>
@@ -272,7 +282,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
       &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
@@ -298,7 +308,7 @@
 <script>
   var disqus_shortname = 'jizhang';
   
-  var disqus_url = 'http://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/';
+  var disqus_url = 'https://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/';
   
   (function(){
     var dsq = document.createElement('script');
@@ -310,14 +320,22 @@
 </script>
 
 
+
 <script src="/js/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
 
 
 <script src="/js/script.js"></script>
+
 
   </div>
 </body>

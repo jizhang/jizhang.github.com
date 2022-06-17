@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.8.0">
+<head>
   <meta charset="utf-8">
   
   <title>ElasticSearch Performance Tips | Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality">
-<meta name="keywords" content="elasticsearch">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ElasticSearch Performance Tips">
-<meta property="og:url" content="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/index.html">
+<meta property="og:url" content="https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
 <meta property="og:description" content="Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality">
-<meta property="og:locale" content="default">
-<meta property="og:image" content="http://shzhangji.com/images/elasticsearch/shards-head.png">
-<meta property="og:updated_time" content="2022-06-12T05:01:34.279Z">
+<meta property="og:locale">
+<meta property="og:image" content="https://shzhangji.com/images/elasticsearch/shards-head.png">
+<meta property="article:published_time" content="2015-04-28T15:08:00.000Z">
+<meta property="article:modified_time" content="2022-06-17T23:49:19.559Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="elasticsearch">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ElasticSearch Performance Tips">
-<meta name="twitter:description" content="Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality">
-<meta name="twitter:image" content="http://shzhangji.com/images/elasticsearch/shards-head.png">
+<meta name="twitter:image" content="https://shzhangji.com/images/elasticsearch/shards-head.png">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -28,9 +28,13 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link rel="stylesheet" href="/css/source-code-pro.css">
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
   
-  <link rel="stylesheet" href="/css/style.css">
+  
+<link rel="stylesheet" href="/css/style.css">
+
   
 
 
@@ -43,8 +47,8 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-</head>
-</html>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -55,10 +59,6 @@
       <h1 id="logo-wrap">
         <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">If I rest, I rust.</a>
-        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -82,7 +82,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -116,10 +116,10 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
-<h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard" target="_blank" rel="noopener">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing" target="_blank" rel="noopener">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
+<h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
 <p>Shards have two roles, primary shard and replica shard. Replica shard serves as a backup to the primary shard. When primary goes down, the replica takes its job. It also helps improving the search and get performance, for these requests can be executed on either primary or replica shard.</p>
-<p>Shards can be visualized by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard" target="_blank" rel="noopener">elasticsearch-head</a> plugin:</p>
-<p><img src="/images/elasticsearch/shards-head.png" alt></p>
+<p>Shards can be visualized by <a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">elasticsearch-head</a> plugin:</p>
+<p><img src="/images/elasticsearch/shards-head.png"></p>
 <p>The <code>cu_docs</code> index has two shards <code>0</code> and <code>1</code>, with <code>number_of_replicas</code> set to 1. Primary shard <code>0</code> (bold bordered) resides in server <code>Leon</code>, and its replica in <code>Pris</code>. They are green becuase all primary shards have enough repicas sitting in different servers, so the cluster is healthy.</p>
 <p>Since <code>number_of_shards</code> of an index cannot be changed after creation (while <code>number_of_replicas</code> can), one should choose this config wisely. Here are some suggestions:</p>
 <ol>
@@ -127,11 +127,12 @@
 <li>How big is your index? If it’s small, one shard with one replica will due.</li>
 <li>How is the read and write frequency, respectively? If it’s search heavy, setup more relicas.</li>
 </ol>
-<a id="more"></a>
-<h2 id="Tip-2-Tuning-Memory-Usage"><a href="#Tip-2-Tuning-Memory-Usage" class="headerlink" title="Tip 2 Tuning Memory Usage"></a>Tip 2 Tuning Memory Usage</h2><p>ElasticSearch and its backend <a href="http://lucene.apache.org/" target="_blank" rel="noopener">Lucene</a> are both Java application. There’re various memory tuning settings related to heap and native memory.</p>
+<span id="more"></span>
+
+<h2 id="Tip-2-Tuning-Memory-Usage"><a href="#Tip-2-Tuning-Memory-Usage" class="headerlink" title="Tip 2 Tuning Memory Usage"></a>Tip 2 Tuning Memory Usage</h2><p>ElasticSearch and its backend <a target="_blank" rel="noopener" href="http://lucene.apache.org/">Lucene</a> are both Java application. There’re various memory tuning settings related to heap and native memory.</p>
 <h3 id="Set-Max-Heap-Size-to-Half-of-Total-Memory"><a href="#Set-Max-Heap-Size-to-Half-of-Total-Memory" class="headerlink" title="Set Max Heap Size to Half of Total Memory"></a>Set Max Heap Size to Half of Total Memory</h3><p>Generally speaking, more heap memory leads to better performance. But in ElasticSearch’s case, Lucene also requires a lot of native memory (or off-heap memory), to store index segments and provide fast search performance. But it does not load the files by itself. Instead, it relies on the operating system to cache the segement files in memory.</p>
 <p>Say we have 16G memory and set -Xmx to 8G, it doesn’t mean the remaining 8G is wasted. Except for the memory OS preserves for itself, it will cache the frequently accessed disk files in memory automatically, which results in a huge performance gain.</p>
-<p>Do not set heap size over 32G though, even you have more than 64G memory. The reason is described in <a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html#compressed_oops" target="_blank" rel="noopener">this link</a>.</p>
+<p>Do not set heap size over 32G though, even you have more than 64G memory. The reason is described in <a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html#compressed_oops">this link</a>.</p>
 <p>Also, you should probably set -Xms to 8G as well, to avoid the overhead of heap memory growth.</p>
 <h3 id="Disable-Swapping"><a href="#Disable-Swapping" class="headerlink" title="Disable Swapping"></a>Disable Swapping</h3><p>Swapping is a way to move unused program code and data to disk so as to provide more space for running applications and file caching. It also provides a buffer for the system to recover from memory exhaustion. But for critical application like ElasticSearch, being swapped is definitely a performance killer.</p>
 <p>There’re several ways to disable swapping, and our choice is setting <code>bootstrap.mlockall</code> to true. This tells ElasticSearch to lock its memory space in RAM so that OS will not swap it out. One can confirm this setting via <code>http://localhost:9200/_nodes/process?pretty</code>.</p>
@@ -139,8 +140,9 @@
 <h3 id="Increase-mmap-Counts"><a href="#Increase-mmap-Counts" class="headerlink" title="Increase mmap Counts"></a>Increase <code>mmap</code> Counts</h3><p>ElasticSearch uses memory mapped files, and the default <code>mmap</code> counts is low. Add <code>vm.max_map_count=262144</code> to <code>/etc/sysctl.conf</code>, run <code>sysctl -p /etc/sysctl.conf</code> as root, and then restart ElasticSearch.</p>
 <h2 id="Tip-3-Setup-a-Cluster-with-Unicast"><a href="#Tip-3-Setup-a-Cluster-with-Unicast" class="headerlink" title="Tip 3 Setup a Cluster with Unicast"></a>Tip 3 Setup a Cluster with Unicast</h2><p>ElasticSearch has two options to form a cluster, multicast and unicast. The former is suitable when you have a large group of servers and a well configured network. But we found unicast more concise and less error-prone.</p>
 <p>Here’s an example of using unicast:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">node.name: &quot;NODE-1&quot;</span><br><span class="line">discovery.zen.ping.multicast.enabled: false</span><br><span class="line">discovery.zen.ping.unicast.hosts: [&quot;node-1.example.com&quot;, &quot;node-2.example.com&quot;, &quot;node-3.example.com&quot;]</span><br><span class="line">discovery.zen.minimum_master_nodes: 2</span><br></pre></td></tr></table></figure>
-<p>The <code>discovery.zen.minimum_master_nodes</code> setting is a way to prevent split-brain symptom, i.e. more than one node thinks itself the master of the cluster. And for this setting to work, you should have an odd number of nodes, and set this config to <code>ceil(num_of_nodes / 2)</code>. In the above cluster, you can lose at most one node. It’s much like a quorum in <a href="http://zookeeper.apache.org" target="_blank" rel="noopener">Zookeeper</a>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">node.name: &quot;NODE-1&quot;</span><br><span class="line">discovery.zen.ping.multicast.enabled: false</span><br><span class="line">discovery.zen.ping.unicast.hosts: [&quot;node-1.example.com&quot;, &quot;node-2.example.com&quot;, &quot;node-3.example.com&quot;]</span><br><span class="line">discovery.zen.minimum_master_nodes: 2</span><br></pre></td></tr></table></figure>
+
+<p>The <code>discovery.zen.minimum_master_nodes</code> setting is a way to prevent split-brain symptom, i.e. more than one node thinks itself the master of the cluster. And for this setting to work, you should have an odd number of nodes, and set this config to <code>ceil(num_of_nodes / 2)</code>. In the above cluster, you can lose at most one node. It’s much like a quorum in <a target="_blank" rel="noopener" href="http://zookeeper.apache.org/">Zookeeper</a>.</p>
 <h2 id="Tip-4-Disable-Unnecessary-Features"><a href="#Tip-4-Disable-Unnecessary-Features" class="headerlink" title="Tip 4 Disable Unnecessary Features"></a>Tip 4 Disable Unnecessary Features</h2><p>ElasticSearch is a full-featured search engine, but you should always tailor it to your own needs. Here’s a brief list:</p>
 <ul>
 <li>Use corrent index type. There’re <code>index</code>, <code>not_analyzed</code>, and <code>no</code>. If you don’t need to search the field, set it to <code>no</code>; if you only search for full match, use <code>not_analyzed</code>.</li>
@@ -150,17 +152,17 @@
 <li>If you have a document key, set this field in <code>_id</code> - <code>path</code>, instead of index the field twice.</li>
 <li>Set <code>index.refresh_interval</code> to a larger number (default 1s), if you don’t need near-realtime search. It’s also an important option in bulk-load operation described below.</li>
 </ul>
-<h2 id="Tip-5-Use-Bulk-Operations"><a href="#Tip-5-Use-Bulk-Operations" class="headerlink" title="Tip 5 Use Bulk Operations"></a>Tip 5 Use Bulk Operations</h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/bulk.html" target="_blank" rel="noopener">Bulk is cheaper</a></p>
+<h2 id="Tip-5-Use-Bulk-Operations"><a href="#Tip-5-Use-Bulk-Operations" class="headerlink" title="Tip 5 Use Bulk Operations"></a>Tip 5 Use Bulk Operations</h2><p><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/guide/current/bulk.html">Bulk is cheaper</a></p>
 <ul>
 <li>Bulk Read<ul>
-<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html" target="_blank" rel="noopener">Multi Get</a> to retrieve multiple documents by a list of ids.</li>
-<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html" target="_blank" rel="noopener">Scroll</a> to search a large number of documents.</li>
-<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/msearch.html" target="_blank" rel="noopener">MultiSearch api</a> to run search requests in parallel.</li>
+<li>Use <a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html">Multi Get</a> to retrieve multiple documents by a list of ids.</li>
+<li>Use <a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html">Scroll</a> to search a large number of documents.</li>
+<li>Use <a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/msearch.html">MultiSearch api</a> to run search requests in parallel.</li>
 </ul>
 </li>
 <li>Bulk Write<ul>
-<li>Use <a href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/bulk.html" target="_blank" rel="noopener">Bulk API</a> to index, update, delete multiple documents.</li>
-<li>Alter <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html" target="_blank" rel="noopener">index aliases</a> simultaneously.</li>
+<li>Use <a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.4/bulk.html">Bulk API</a> to index, update, delete multiple documents.</li>
+<li>Alter <a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html">index aliases</a> simultaneously.</li>
 </ul>
 </li>
 <li>Bulk Load: when initially building a large index, do the following,<ul>
@@ -176,24 +178,25 @@
 <li>File descriptors: system default is too small for ES, set it to 64K will be OK. If <code>ulimit -n 64000</code> does not work, you need to add <code>&lt;user&gt; hard nofile 64000</code> to <code>/etc/security/limits.conf</code>, just like the <code>memlock</code> setting mentioned above.</li>
 <li>When using ES client library, it will create a lot of worker threads according to the number of processors. Sometimes it’s not necessary. This behaviour can be changed by setting <code>processors</code> to a lower value like 2:</li>
 </ul>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> settings = <span class="type">ImmutableSettings</span>.settingsBuilder()</span><br><span class="line">    .put(<span class="string">"cluster.name"</span>, <span class="string">"elasticsearch"</span>)</span><br><span class="line">    .put(<span class="string">"processors"</span>, <span class="number">2</span>)</span><br><span class="line">    .build()</span><br><span class="line"><span class="keyword">val</span> uri = <span class="type">ElasticsearchClientUri</span>(<span class="string">"elasticsearch://127.0.0.1:9300"</span>)</span><br><span class="line"><span class="type">ElasticClient</span>.remote(settings, uri)</span><br></pre></td></tr></table></figure>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> settings = <span class="type">ImmutableSettings</span>.settingsBuilder()</span><br><span class="line">    .put(<span class="string">&quot;cluster.name&quot;</span>, <span class="string">&quot;elasticsearch&quot;</span>)</span><br><span class="line">    .put(<span class="string">&quot;processors&quot;</span>, <span class="number">2</span>)</span><br><span class="line">    .build()</span><br><span class="line"><span class="keyword">val</span> uri = <span class="type">ElasticsearchClientUri</span>(<span class="string">&quot;elasticsearch://127.0.0.1:9300&quot;</span>)</span><br><span class="line"><span class="type">ElasticClient</span>.remote(settings, uri)</span><br></pre></td></tr></table></figure>
+
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html</a></li>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html</a></li>
-<li><a href="http://cpratt.co/how-many-shards-should-elasticsearch-indexes-have/" target="_blank" rel="noopener">http://cpratt.co/how-many-shards-should-elasticsearch-indexes-have/</a></li>
-<li><a href="https://www.elastic.co/blog/performance-considerations-elasticsearch-indexing" target="_blank" rel="noopener">https://www.elastic.co/blog/performance-considerations-elasticsearch-indexing</a></li>
-<li><a href="https://www.loggly.com/blog/nine-tips-configuring-elasticsearch-for-high-performance/" target="_blank" rel="noopener">https://www.loggly.com/blog/nine-tips-configuring-elasticsearch-for-high-performance/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html">https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html">https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html</a></li>
+<li><a target="_blank" rel="noopener" href="http://cpratt.co/how-many-shards-should-elasticsearch-indexes-have/">http://cpratt.co/how-many-shards-should-elasticsearch-indexes-have/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.elastic.co/blog/performance-considerations-elasticsearch-indexing">https://www.elastic.co/blog/performance-considerations-elasticsearch-indexing</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.loggly.com/blog/nine-tips-configuring-elasticsearch-for-high-performance/">https://www.loggly.com/blog/nine-tips-configuring-elasticsearch-for-high-performance/</a></li>
 </ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cl4aua5o800069llt3e9zn76g" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="cl4j3rwk70006acnc9tn6geon" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li></ul>
 
     </footer>
   </div>
@@ -224,7 +227,7 @@
 
 <section id="comments">
   <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
 </section>
 </section>
@@ -288,7 +291,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
       &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
@@ -314,7 +317,7 @@
 <script>
   var disqus_shortname = 'jizhang';
   
-  var disqus_url = 'http://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/';
+  var disqus_url = 'https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/';
   
   (function(){
     var dsq = document.createElement('script');
@@ -326,14 +329,22 @@
 </script>
 
 
+
 <script src="/js/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
 
 
 <script src="/js/script.js"></script>
+
 
   </div>
 </body>

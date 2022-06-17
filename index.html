@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.8.0">
+<head>
   <meta charset="utf-8">
   
   <title>Ji ZHANG&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
 <meta property="og:title" content="Ji ZHANG&#39;s Blog">
-<meta property="og:url" content="http://shzhangji.com/index.html">
+<meta property="og:url" content="https://shzhangji.com/index.html">
 <meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
-<meta property="og:locale" content="default">
+<meta property="og:locale">
+<meta property="article:author" content="Ji ZHANG">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Ji ZHANG&#39;s Blog">
 <meta name="twitter:creator" content="@zjerryj">
 <link rel="publisher" href="zhangji87@gmail.com">
   
@@ -21,9 +21,13 @@
     <link rel="icon" href="/favicon.png">
   
   
-    <link rel="stylesheet" href="/css/source-code-pro.css">
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
   
-  <link rel="stylesheet" href="/css/style.css">
+  
+<link rel="stylesheet" href="/css/style.css">
+
   
 
 
@@ -36,8 +40,8 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-</head>
-</html>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
 <body>
   <div id="container">
     <div id="wrap">
@@ -48,10 +52,6 @@
       <h1 id="logo-wrap">
         <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
       </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">If I rest, I rust.</a>
-        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -75,7 +75,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
       </div>
     </div>
   </div>
@@ -110,16 +110,20 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Bootstrap V5 and Vue 3.x have been released for a while, but the widely used BootstrapVue library is still based on Bootstrap V4 and Vue 2.x. A <a href="https://github.com/bootstrap-vue/bootstrap-vue/issues/5196" target="_blank" rel="noopener">new version</a> of BootstrapVue is under development, and there is an alternative project <a href="https://cdmoro.github.io/bootstrap-vue-3/" target="_blank" rel="noopener">BootstrapVue 3</a> in alpha version. However, since Bootstrap is mainly a CSS framework, and it has dropped jQuery dependency in V5, it is not that difficult to integrate into a Vue 3.x project on your own. In this article, we will go through the steps of creating such a project.</p>
+        <p>Bootstrap V5 and Vue 3.x have been released for a while, but the widely used BootstrapVue library is still based on Bootstrap V4 and Vue 2.x. A <a target="_blank" rel="noopener" href="https://github.com/bootstrap-vue/bootstrap-vue/issues/5196">new version</a> of BootstrapVue is under development, and there is an alternative project <a target="_blank" rel="noopener" href="https://cdmoro.github.io/bootstrap-vue-3/">BootstrapVue 3</a> in alpha version. However, since Bootstrap is mainly a CSS framework, and it has dropped jQuery dependency in V5, it is not that difficult to integrate into a Vue 3.x project on your own. In this article, we will go through the steps of creating such a project.</p>
 <h2 id="Create-Vite-project"><a href="#Create-Vite-project" class="headerlink" title="Create Vite project"></a>Create Vite project</h2><p>The recommended way of using Vue 3.x is with Vite. Install <code>yarn</code> and create from the <code>vue-ts</code> template:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yarn create vite bootstrap-vue3 --template vue-ts</span><br><span class="line">cd bootstrap-vue3</span><br><span class="line">yarn install</span><br><span class="line">yarn dev</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yarn create vite bootstrap-vue3 --template vue-ts</span><br><span class="line">cd bootstrap-vue3</span><br><span class="line">yarn install</span><br><span class="line">yarn dev</span><br></pre></td></tr></table></figure>
+
 <h2 id="Add-Bootstrap-dependencies"><a href="#Add-Bootstrap-dependencies" class="headerlink" title="Add Bootstrap dependencies"></a>Add Bootstrap dependencies</h2><p>Bootstrap is published on npm, and it has an extra dependency Popper, so let’s install them both:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add bootstrap @popperjs/core</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add bootstrap @popperjs/core</span><br></pre></td></tr></table></figure>
+
 <p>You may also need the type definitions:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add -D @types/bootstrap</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add -D @types/bootstrap</span><br></pre></td></tr></table></figure>
+
 <h2 id="Use-Bootstrap-CSS"><a href="#Use-Bootstrap-CSS" class="headerlink" title="Use Bootstrap CSS"></a>Use Bootstrap CSS</h2><p>Just add a line to your <code>App.vue</code> file and you are free to use Bootstrap CSS:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;script setup lang=&quot;ts&quot;&gt;</span><br><span class="line">import &apos;bootstrap/dist/css/bootstrap.min.css&apos;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line"></span><br><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;button type=&quot;button&quot; class=&quot;btn btn-primary&quot;&gt;Primary&lt;/button&gt;</span><br><span class="line">&lt;/template&gt;</span><br></pre></td></tr></table></figure>
-<p>You can also use Sass for further <a href="https://getbootstrap.com/docs/5.2/customize/sass/" target="_blank" rel="noopener">customization</a>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;script setup lang=&quot;ts&quot;&gt;</span><br><span class="line">import &#x27;bootstrap/dist/css/bootstrap.min.css&#x27;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line"></span><br><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;button type=&quot;button&quot; class=&quot;btn btn-primary&quot;&gt;Primary&lt;/button&gt;</span><br><span class="line">&lt;/template&gt;</span><br></pre></td></tr></table></figure>
+
+<p>You can also use Sass for further <a target="_blank" rel="noopener" href="https://getbootstrap.com/docs/5.2/customize/sass/">customization</a>.</p>
         
           <p class="article-more-link">
             <a href="/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/#more">Read More</a>
@@ -128,12 +132,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/" data-id="cl4aua5ph002m9lltf02jpuud" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/" data-id="cl4j3rwla002gacncdjqb1brj" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bootstrap/">bootstrap</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vite/">vite</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/">vue</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bootstrap/" rel="tag">bootstrap</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vite/" rel="tag">vite</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/" rel="tag">vue</a></li></ul>
 
     </footer>
   </div>
@@ -169,7 +173,8 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h2><p>Create <code>.github/workflows/pages.yml</code> in your <code>master</code> branch:</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">Update</span> <span class="string">gh-pages</span></span><br><span class="line"></span><br><span class="line"><span class="attr">on:</span></span><br><span class="line"><span class="attr">  push:</span></span><br><span class="line"><span class="attr">    branches:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">master</span></span><br><span class="line"></span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line"><span class="attr">  deploy:</span></span><br><span class="line"><span class="attr">    runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line"><span class="attr">    steps:</span></span><br><span class="line"><span class="attr">      - uses:</span> <span class="string">actions/checkout@v3</span></span><br><span class="line"><span class="attr">      - uses:</span> <span class="string">actions/setup-node@v3</span></span><br><span class="line"><span class="attr">        with:</span></span><br><span class="line"><span class="attr">          node-version:</span> <span class="string">"12.22"</span></span><br><span class="line"><span class="attr">          cache:</span> <span class="string">yarn</span></span><br><span class="line"><span class="attr">      - run:</span> <span class="string">yarn</span> <span class="string">install</span></span><br><span class="line"><span class="attr">      - run:</span> <span class="string">yarn</span> <span class="string">build</span></span><br><span class="line"><span class="attr">      - uses:</span> <span class="string">peaceiris/actions-gh-pages@v3</span></span><br><span class="line"><span class="attr">        with:</span></span><br><span class="line"><span class="attr">          github_token:</span> <span class="string">$&#123;&#123;</span> <span class="string">secrets.GITHUB_TOKEN</span> <span class="string">&#125;&#125;</span></span><br><span class="line"><span class="attr">          publish_dir:</span> <span class="string">./public</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">Update</span> <span class="string">gh-pages</span></span><br><span class="line"></span><br><span class="line"><span class="attr">on:</span></span><br><span class="line">  <span class="attr">push:</span></span><br><span class="line">    <span class="attr">branches:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">master</span></span><br><span class="line"></span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">deploy:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/checkout@v3</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/setup-node@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">node-version:</span> <span class="string">&quot;12.22&quot;</span></span><br><span class="line">          <span class="attr">cache:</span> <span class="string">yarn</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">yarn</span> <span class="string">install</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">yarn</span> <span class="string">build</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">peaceiris/actions-gh-pages@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">github_token:</span> <span class="string">$&#123;&#123;</span> <span class="string">secrets.GITHUB_TOKEN</span> <span class="string">&#125;&#125;</span></span><br><span class="line">          <span class="attr">publish_dir:</span> <span class="string">./public</span></span><br></pre></td></tr></table></figure>
+
 <p>Go to GitHub repo’s Settings &gt; Pages, change source branch to <code>gh-pages</code>.</p>
 <h2 id="How-it-works"><a href="#How-it-works" class="headerlink" title="How it works"></a>How it works</h2>
         
@@ -180,12 +185,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/" data-id="cl4aua5pf002i9llticrlduwr" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/" data-id="cl4j3rwl9002eacnc41e42s0x" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/github/">github</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/github/" rel="tag">github</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/" rel="tag">hexo</a></li></ul>
 
     </footer>
   </div>
@@ -220,7 +225,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><a href="https://kubernetes.io/" target="_blank" rel="noopener">Kubernetes</a> is the trending container orchestration system that can be used to host various applications from web services to data processing jobs. Applications are packaged in self-contained, yet light-weight containers, and we declare how they should be deployed, how they scale, and how they expose as services. <a href="https://flink.apache.org/" target="_blank" rel="noopener">Flink</a> is also a trending distributed computing framework that can run on a variety of platforms, including Kubernetes. Combining them will bring us robust and scalable deployments of data processing jobs, and more safely Flink can share a Kubernetes cluster with other services.</p>
+        <p><a target="_blank" rel="noopener" href="https://kubernetes.io/">Kubernetes</a> is the trending container orchestration system that can be used to host various applications from web services to data processing jobs. Applications are packaged in self-contained, yet light-weight containers, and we declare how they should be deployed, how they scale, and how they expose as services. <a target="_blank" rel="noopener" href="https://flink.apache.org/">Flink</a> is also a trending distributed computing framework that can run on a variety of platforms, including Kubernetes. Combining them will bring us robust and scalable deployments of data processing jobs, and more safely Flink can share a Kubernetes cluster with other services.</p>
 <p><img src="/images/flink-on-kubernetes.png" alt="Flink on Kubernetes"></p>
 <p>When deploying Flink on Kubernetes, there are two options, session cluster and job cluster. Session cluster is like running a standalone Flink cluster on k8s that can accept multiple jobs and is suitable for short running tasks or ad-hoc queries. Job cluster, on the other hand, deploys a full set of Flink cluster for each individual job. We build container image for each job, and provide it with dedicated resources, so that jobs have less chance interfering with other, and can scale out independently. So this article will illustrate how to run a Flink job cluster on Kubernetes, the steps are:</p>
 <ul>
@@ -240,12 +245,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/" data-id="cl4aua5pe002g9llt1dtv1ky1" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/" data-id="cl4j3rwmi006wacnc2pfsfpv0" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flink/">flink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kubernetes/">kubernetes</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flink/" rel="tag">flink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li></ul>
 
     </footer>
   </div>
@@ -280,10 +285,12 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><a href="http://hive.apache.org/" target="_blank" rel="noopener">Apache Hive</a> introduced transactions since version 0.13 to fully support ACID semantics on Hive table, including INSERT/UPDATE/DELETE/MERGE statements, streaming data ingestion, etc. In Hive 3.0, this feature is further improved by optimizing the underlying data file structure, reducing constraints on table scheme, and supporting predicate push down and vectorized query. Examples and setup can be found on <a href="https://cwiki.apache.org/confluence/display/Hive/Hive+Transactions" target="_blank" rel="noopener">Hive wiki</a> and other <a href="https://hortonworks.com/tutorial/using-hive-acid-transactions-to-insert-update-and-delete-data/" target="_blank" rel="noopener">tutorials</a>, while this article will focus on how transactional table is saved on HDFS, and take a closer look at the read-write process.</p>
-<h2 id="File-Structure"><a href="#File-Structure" class="headerlink" title="File Structure"></a>File Structure</h2><h3 id="Insert-Data"><a href="#Insert-Data" class="headerlink" title="Insert Data"></a>Insert Data</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> employee (<span class="keyword">id</span> <span class="built_in">int</span>, <span class="keyword">name</span> <span class="keyword">string</span>, salary <span class="built_in">int</span>)</span><br><span class="line"><span class="keyword">STORED</span> <span class="keyword">AS</span> ORC TBLPROPERTIES (<span class="string">'transactional'</span> = <span class="string">'true'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> employee <span class="keyword">VALUES</span></span><br><span class="line">(<span class="number">1</span>, <span class="string">'Jerry'</span>, <span class="number">5000</span>),</span><br><span class="line">(<span class="number">2</span>, <span class="string">'Tom'</span>,   <span class="number">8000</span>),</span><br><span class="line">(<span class="number">3</span>, <span class="string">'Kate'</span>,  <span class="number">6000</span>);</span><br></pre></td></tr></table></figure>
+        <p><a target="_blank" rel="noopener" href="http://hive.apache.org/">Apache Hive</a> introduced transactions since version 0.13 to fully support ACID semantics on Hive table, including INSERT&#x2F;UPDATE&#x2F;DELETE&#x2F;MERGE statements, streaming data ingestion, etc. In Hive 3.0, this feature is further improved by optimizing the underlying data file structure, reducing constraints on table scheme, and supporting predicate push down and vectorized query. Examples and setup can be found on <a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/Hive/Hive+Transactions">Hive wiki</a> and other <a target="_blank" rel="noopener" href="https://hortonworks.com/tutorial/using-hive-acid-transactions-to-insert-update-and-delete-data/">tutorials</a>, while this article will focus on how transactional table is saved on HDFS, and take a closer look at the read-write process.</p>
+<h2 id="File-Structure"><a href="#File-Structure" class="headerlink" title="File Structure"></a>File Structure</h2><h3 id="Insert-Data"><a href="#Insert-Data" class="headerlink" title="Insert Data"></a>Insert Data</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> employee (id <span class="type">int</span>, name string, salary <span class="type">int</span>)</span><br><span class="line">STORED <span class="keyword">AS</span> ORC TBLPROPERTIES (<span class="string">&#x27;transactional&#x27;</span> <span class="operator">=</span> <span class="string">&#x27;true&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> employee <span class="keyword">VALUES</span></span><br><span class="line">(<span class="number">1</span>, <span class="string">&#x27;Jerry&#x27;</span>, <span class="number">5000</span>),</span><br><span class="line">(<span class="number">2</span>, <span class="string">&#x27;Tom&#x27;</span>,   <span class="number">8000</span>),</span><br><span class="line">(<span class="number">3</span>, <span class="string">&#x27;Kate&#x27;</span>,  <span class="number">6000</span>);</span><br></pre></td></tr></table></figure>
+
 <p>An INSERT statement is executed in a single transaction. It will create a <code>delta</code> directory containing information about this transaction and its data.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/user/hive/warehouse/employee/delta_0000001_0000001_0000</span><br><span class="line">/user/hive/warehouse/employee/delta_0000001_0000001_0000/_orc_acid_version</span><br><span class="line">/user/hive/warehouse/employee/delta_0000001_0000001_0000/bucket_00000</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/user/hive/warehouse/employee/delta_0000001_0000001_0000</span><br><span class="line">/user/hive/warehouse/employee/delta_0000001_0000001_0000/_orc_acid_version</span><br><span class="line">/user/hive/warehouse/employee/delta_0000001_0000001_0000/bucket_00000</span><br></pre></td></tr></table></figure>
+
 <p>The schema of this folder’s name is <code>delta_minWID_maxWID_stmtID</code>, i.e. “delta” prefix, transactional writes’ range (minimum and maximum write ID), and statement ID. In detail:</p>
 <ul>
 <li>All INSERT statements will create a <code>delta</code> directory. UPDATE statement will also create <code>delta</code> directory right after a <code>delete</code> directory. <code>delete</code> directory is prefixed with “delete_delta”.</li>
@@ -298,12 +305,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/" data-id="cl4aua5pd002e9lltmlkw3kc1" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/" data-id="cl4j3rwmi006vacnchgd47djk" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hive/">hive</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hadoop/" rel="tag">hadoop</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hive/" rel="tag">hive</a></li></ul>
 
     </footer>
   </div>
@@ -341,9 +348,10 @@
         <p>Apache Flink is another popular big data processing framework, which differs from Apache Spark in that Flink uses stream processing to mimic batch processing and provides sub-second latency along with exactly-once semantics. One of its use cases is to build a real-time data pipeline, move and transform data between different stores. This article will show you how to build such an application, and explain how Flink guarantees its correctness.</p>
 <p><img src="/images/flink/arch.png" alt="Apache Flink"></p>
 <h2 id="Demo-ETL-Application"><a href="#Demo-ETL-Application" class="headerlink" title="Demo ETL Application"></a>Demo ETL Application</h2><p>Let us build a project that extracts data from Kafka and loads them into HDFS. The result files should be stored in bucketed directories according to event time. Source messages are encoded in JSON, and the event time is stored as timestamp. Samples are:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;timestamp&quot;:1545184226.432,&quot;event&quot;:&quot;page_view&quot;,&quot;uuid&quot;:&quot;ac0e50bf-944c-4e2f-bbf5-a34b22718e0c&quot;&#125;</span><br><span class="line">&#123;&quot;timestamp&quot;:1545184602.640,&quot;event&quot;:&quot;adv_click&quot;,&quot;uuid&quot;:&quot;9b220808-2193-44d1-a0e9-09b9743dec55&quot;&#125;</span><br><span class="line">&#123;&quot;timestamp&quot;:1545184608.969,&quot;event&quot;:&quot;thumbs_up&quot;,&quot;uuid&quot;:&quot;b44c3137-4c91-4f36-96fb-80f56561c914&quot;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;timestamp&quot;:1545184226.432,&quot;event&quot;:&quot;page_view&quot;,&quot;uuid&quot;:&quot;ac0e50bf-944c-4e2f-bbf5-a34b22718e0c&quot;&#125;</span><br><span class="line">&#123;&quot;timestamp&quot;:1545184602.640,&quot;event&quot;:&quot;adv_click&quot;,&quot;uuid&quot;:&quot;9b220808-2193-44d1-a0e9-09b9743dec55&quot;&#125;</span><br><span class="line">&#123;&quot;timestamp&quot;:1545184608.969,&quot;event&quot;:&quot;thumbs_up&quot;,&quot;uuid&quot;:&quot;b44c3137-4c91-4f36-96fb-80f56561c914&quot;&#125;</span><br></pre></td></tr></table></figure>
+
 <p>The result directory structure should be:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/user/flink/event_log/dt=20181219/part-0-1</span><br><span class="line">/user/flink/event_log/dt=20181220/part-1-9</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/user/flink/event_log/dt=20181219/part-0-1</span><br><span class="line">/user/flink/event_log/dt=20181220/part-1-9</span><br></pre></td></tr></table></figure>
         
           <p class="article-more-link">
             <a href="/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/#more">Read More</a>
@@ -352,12 +360,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="cl4aua5pc002a9llthxrzb20h" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="cl4j3rwl8002aacnc64r40qa7" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/etl/">etl</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flink/">flink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hdfs/">hdfs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/etl/" rel="tag">etl</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flink/" rel="tag">flink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hdfs/" rel="tag">hdfs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li></ul>
 
     </footer>
   </div>
@@ -393,8 +401,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>From Spark 1.3, the team introduced a data source API to help quickly integrating various input formats with Spark SQL. But eventually this version of API became insufficient and the team needed to add a lot of internal codes to provide more efficient solutions for Spark SQL data sources. So in Spark 2.3, the second version of data source API is out, which is supposed to overcome the limitations of the previous version. In this article, I will demonstrate how to implement custom data source for Spark SQL in both V1 and V2 API, to help understanding their differences and the new API’s advantages.</p>
-<h2 id="DataSource-V1-API"><a href="#DataSource-V1-API" class="headerlink" title="DataSource V1 API"></a>DataSource V1 API</h2><p>V1 API provides a set of abstract classes and traits. They are located in <a href="https://github.com/apache/spark/blob/v2.3.2/sql/core/src/main/scala/org/apache/spark/sql/sources/interfaces.scala" target="_blank" rel="noopener">spark/sql/sources/interfaces.scala</a>. Some basic APIs are:</p>
+<h2 id="DataSource-V1-API"><a href="#DataSource-V1-API" class="headerlink" title="DataSource V1 API"></a>DataSource V1 API</h2><p>V1 API provides a set of abstract classes and traits. They are located in <a target="_blank" rel="noopener" href="https://github.com/apache/spark/blob/v2.3.2/sql/core/src/main/scala/org/apache/spark/sql/sources/interfaces.scala">spark&#x2F;sql&#x2F;sources&#x2F;interfaces.scala</a>. Some basic APIs are:</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">RelationProvider</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">createRelation</span></span>(sqlContext: <span class="type">SQLContext</span>, parameters: <span class="type">Map</span>[<span class="type">String</span>, <span class="type">String</span>]): <span class="type">BaseRelation</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseRelation</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">sqlContext</span></span>: <span class="type">SQLContext</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">schema</span></span>: <span class="type">StructType</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">TableScan</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">buildScan</span></span>(): <span class="type">RDD</span>[<span class="type">Row</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>A <code>RelationProvider</code> defines a class that can create a relational data source for Spark SQL to manipulate with. It can initialize itself with provided options, such as file path or authentication. <code>BaseRelation</code> is used to define the data schema, which can be loaded from database, Parquet file, or specified by the user. This class also needs to mix-in one of the <code>Scan</code> traits, implements the <code>buildScan</code> method, and returns an RDD.</p>
         
           <p class="article-more-link">
@@ -404,12 +413,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="cl4aua5pb00289lltgvnropb0" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="cl4j3rwl70028acnccyoe5jt8" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/">spark</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/" rel="tag">spark</a></li></ul>
 
     </footer>
   </div>
@@ -445,7 +454,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>Sink is the last component of Apache Flume data flow, and it is used to output data into storages like local files, HDFS, ElasticSearch, etc. In this article, I will illustrate how Flume’s HDFS sink works, by analyzing its source code with diagrams.</p>
-<h2 id="Sink-Component-Lifecycle"><a href="#Sink-Component-Lifecycle" class="headerlink" title="Sink Component Lifecycle"></a>Sink Component Lifecycle</h2><p>In the <a href="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/">previous article</a>, we learnt that every Flume component implements <code>LifecycleAware</code> interface, and is started and monitored by <code>LifecycleSupervisor</code>. Sink component is not directly invoked by this supervisor, but wrapped in <code>SinkRunner</code> and <code>SinkProcessor</code> classes. Flume supports three different <a href="https://flume.apache.org/FlumeUserGuide.html#flume-sink-processors" target="_blank" rel="noopener">sink processors</a>, to connect channel and sinks in different semantics. But here we only consider the <code>DefaultSinkProcessor</code>, that accepts only one sink, and we will skip the concept of sink group as well.</p>
+<h2 id="Sink-Component-Lifecycle"><a href="#Sink-Component-Lifecycle" class="headerlink" title="Sink Component Lifecycle"></a>Sink Component Lifecycle</h2><p>In the <a href="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/">previous article</a>, we learnt that every Flume component implements <code>LifecycleAware</code> interface, and is started and monitored by <code>LifecycleSupervisor</code>. Sink component is not directly invoked by this supervisor, but wrapped in <code>SinkRunner</code> and <code>SinkProcessor</code> classes. Flume supports three different <a target="_blank" rel="noopener" href="https://flume.apache.org/FlumeUserGuide.html#flume-sink-processors">sink processors</a>, to connect channel and sinks in different semantics. But here we only consider the <code>DefaultSinkProcessor</code>, that accepts only one sink, and we will skip the concept of sink group as well.</p>
 <p><img src="/images/flume/sink-component-lifecycle.png" alt="Sink Component LifeCycle"></p>
         
           <p class="article-more-link">
@@ -455,12 +464,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="cl4aua5p900259lltcz7816m9" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="cl4j3rwl60025acnchwmj2gmk" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flume/">flume</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hdfs/">hdfs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flume/" rel="tag">flume</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hdfs/" rel="tag">hdfs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
 
     </footer>
   </div>
@@ -496,14 +505,18 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p><code>NullPointerException</code> happens when you dereference a possible <code>null</code> object without checking it. It’s a common exception that every Java programmer may encounter in daily work. There’re several strategies that can help us avoid this exception, making our codes more robust. In this article, I will list both traditional ways and those with tools and new features introduced by recent version of Java.</p>
-<h2 id="Runtime-Check"><a href="#Runtime-Check" class="headerlink" title="Runtime Check"></a>Runtime Check</h2><p>The most obvious way is to use <code>if (obj == null)</code> to check every variable you need to use, either from function argument, return value, or instance field. When you receive a <code>null</code> object, you can throw a different, more informative exception like <code>IllegalArgumentException</code>. There are some library functions that can make this process easier, like <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Objects.html" target="_blank" rel="noopener"><code>Objects#requireNonNull</code></a>:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testObjects</span><span class="params">(Object arg)</span> </span>&#123;</span><br><span class="line">  Object checked = Objects.requireNonNull(arg, <span class="string">"arg must not be null"</span>);</span><br><span class="line">  checked.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Or use Guava’s <a href="https://github.com/google/guava/wiki/PreconditionsExplained" target="_blank" rel="noopener"><code>Preconditions</code></a> package, which provides all kinds of arguments checking facilities:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testGuava</span><span class="params">(Object arg)</span> </span>&#123;</span><br><span class="line">  Object checked = Preconditions.checkNotNull(arg, <span class="string">"%s must not be null"</span>, <span class="string">"arg"</span>);</span><br><span class="line">  checked.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>We can also let <a href="https://projectlombok.org/features/NonNull" target="_blank" rel="noopener">Lombok</a> generate the check for us, which will throw a more meaningful <code>NullPointerException</code>:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testLombok</span><span class="params">(@NonNull Object arg)</span> </span>&#123;</span><br><span class="line">  arg.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Runtime-Check"><a href="#Runtime-Check" class="headerlink" title="Runtime Check"></a>Runtime Check</h2><p>The most obvious way is to use <code>if (obj == null)</code> to check every variable you need to use, either from function argument, return value, or instance field. When you receive a <code>null</code> object, you can throw a different, more informative exception like <code>IllegalArgumentException</code>. There are some library functions that can make this process easier, like <a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/7/docs/api/java/util/Objects.html"><code>Objects#requireNonNull</code></a>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testObjects</span><span class="params">(Object arg)</span> &#123;</span><br><span class="line">  <span class="type">Object</span> <span class="variable">checked</span> <span class="operator">=</span> Objects.requireNonNull(arg, <span class="string">&quot;arg must not be null&quot;</span>);</span><br><span class="line">  checked.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Or use Guava’s <a target="_blank" rel="noopener" href="https://github.com/google/guava/wiki/PreconditionsExplained"><code>Preconditions</code></a> package, which provides all kinds of arguments checking facilities:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testGuava</span><span class="params">(Object arg)</span> &#123;</span><br><span class="line">  <span class="type">Object</span> <span class="variable">checked</span> <span class="operator">=</span> Preconditions.checkNotNull(arg, <span class="string">&quot;%s must not be null&quot;</span>, <span class="string">&quot;arg&quot;</span>);</span><br><span class="line">  checked.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>We can also let <a target="_blank" rel="noopener" href="https://projectlombok.org/features/NonNull">Lombok</a> generate the check for us, which will throw a more meaningful <code>NullPointerException</code>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testLombok</span><span class="params">(<span class="meta">@NonNull</span> Object arg)</span> &#123;</span><br><span class="line">  arg.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>The generated code and exception message are as follows:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testLombokGenerated</span><span class="params">(Object arg)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (arg == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">"arg is marked @NonNull but is null"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  arg.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testLombokGenerated</span><span class="params">(Object arg)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (arg == <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>(<span class="string">&quot;arg is marked @NonNull but is null&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  arg.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>This annotation can also be added to a class field, and Lombok will check nullness for every assignment.</p>
         
           <p class="article-more-link">
@@ -513,12 +526,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cl4aua5p800229lltme0o1r1k" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cl4j3rwl50022acncc2t417yv" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/eclipse/" rel="tag">eclipse</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/" rel="tag">spring</a></li></ul>
 
     </footer>
   </div>
@@ -553,10 +566,11 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>When using <a href="https://github.com/yannickcr/eslint-plugin-react" target="_blank" rel="noopener">ESLint React plugin</a>, you may find a rule called <a href="https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md" target="_blank" rel="noopener"><code>jsx-no-bind</code></a>. It prevents you from using <code>.bind</code> or arrow function in a JSX prop. For instance, ESLint will complain about the arrow function in the <code>onClick</code> prop.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ListArrow</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;ul&gt;</span><br><span class="line">        &#123;<span class="keyword">this</span>.state.items.map(<span class="function"><span class="params">item</span> =&gt;</span> (</span><br><span class="line">          &lt;li key=&#123;item.id&#125; onClick=&#123;() =&gt; &#123; alert(item.id) &#125;&#125;&gt;&#123;item.text&#125;&lt;<span class="regexp">/li&gt;</span></span><br><span class="line"><span class="regexp">        ))&#125;</span></span><br><span class="line"><span class="regexp">      &lt;/u</span>l&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <p>When using <a target="_blank" rel="noopener" href="https://github.com/yannickcr/eslint-plugin-react">ESLint React plugin</a>, you may find a rule called <a target="_blank" rel="noopener" href="https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md"><code>jsx-no-bind</code></a>. It prevents you from using <code>.bind</code> or arrow function in a JSX prop. For instance, ESLint will complain about the arrow function in the <code>onClick</code> prop.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ListArrow</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.Component</span> &#123;</span><br><span class="line">  <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      <span class="language-xml"><span class="tag">&lt;<span class="name">ul</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        &#123;this.state.items.map(item =&gt; (</span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">&#123;item.id&#125;</span> <span class="attr">onClick</span>=<span class="string">&#123;()</span> =&gt;</span> &#123; alert(item.id) &#125;&#125;&gt;&#123;item.text&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        ))&#125;</span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span></span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>There’re two reasons why this rule is introduced. First, a new function will be created on every <code>render</code> call, which may increase the frequency of garbage collection. Second, it will disable the pure rendering process, i.e. when you’re using a <code>PureComponent</code>, or implement the <code>shouldComponentUpdate</code> method by yourself with identity comparison, a new function object in the props will cause unnecessary re-render of the component.</p>
-<p>But some people argue that these two reasons are not solid enough to enforce this rule on all projects, especially when the solutions will introduce more codes and decrease readability. In <a href="https://github.com/airbnb/javascript/blob/eslint-config-airbnb-v17.1.0/packages/eslint-config-airbnb/rules/react.js#L93" target="_blank" rel="noopener">Airbnb ESLint preset</a>, the team only bans the usage of <code>.bind</code>, but allows arrow function in both props and refs. I did some googling, and was convinced that this rule is not quite necessary. Someone says it’s premature optimization, and you should measure before you optimize. I agree with that. In the following sections, I will illustrate how arrow function would affect the pure component, what solutions we can use, and talk a little bit about React rendering internals.</p>
+<p>But some people argue that these two reasons are not solid enough to enforce this rule on all projects, especially when the solutions will introduce more codes and decrease readability. In <a target="_blank" rel="noopener" href="https://github.com/airbnb/javascript/blob/eslint-config-airbnb-v17.1.0/packages/eslint-config-airbnb/rules/react.js#L93">Airbnb ESLint preset</a>, the team only bans the usage of <code>.bind</code>, but allows arrow function in both props and refs. I did some googling, and was convinced that this rule is not quite necessary. Someone says it’s premature optimization, and you should measure before you optimize. I agree with that. In the following sections, I will illustrate how arrow function would affect the pure component, what solutions we can use, and talk a little bit about React rendering internals.</p>
         
           <p class="article-more-link">
             <a href="/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/#more">Read More</a>
@@ -565,12 +579,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="cl4aua5p7001z9llt6qkyv068" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="cl4j3rwl3001zacncgmku0lkg" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/eslint/">eslint</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/react/">react</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/eslint/" rel="tag">eslint</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/" rel="tag">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/react/" rel="tag">react</a></li></ul>
 
     </footer>
   </div>
@@ -605,9 +619,9 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><a href="https://www.tensorflow.org/" target="_blank" rel="noopener">TensorFlow</a> is one of the most popular machine learning frameworks that allow us to build various models with minor efforts. There are several ways to utilize these models in production like web service API, and this article will introduce how to make model prediction APIs with TensorFlow’s SavedModel mechanism.</p>
-<p><img src="/images/tf-logo.png" alt></p>
-<h2 id="Iris-DNN-Estimator"><a href="#Iris-DNN-Estimator" class="headerlink" title="Iris DNN Estimator"></a>Iris DNN Estimator</h2><p>First let’s build the famous iris classifier with TensorFlow’s pre-made DNN estimator. Full illustration can be found on TensorFlow’s website (<a href="https://www.tensorflow.org/get_started/premade_estimators" target="_blank" rel="noopener">Premade Estimators</a>), and I create a repository on GitHub (<a href="https://github.com/jizhang/tf-serve/blob/master/iris_dnn.py" target="_blank" rel="noopener"><code>iris_dnn.py</code></a>) for you to fork and work with. Here’s the gist of training the model:</p>
+        <p><a target="_blank" rel="noopener" href="https://www.tensorflow.org/">TensorFlow</a> is one of the most popular machine learning frameworks that allow us to build various models with minor efforts. There are several ways to utilize these models in production like web service API, and this article will introduce how to make model prediction APIs with TensorFlow’s SavedModel mechanism.</p>
+<p><img src="/images/tf-logo.png"></p>
+<h2 id="Iris-DNN-Estimator"><a href="#Iris-DNN-Estimator" class="headerlink" title="Iris DNN Estimator"></a>Iris DNN Estimator</h2><p>First let’s build the famous iris classifier with TensorFlow’s pre-made DNN estimator. Full illustration can be found on TensorFlow’s website (<a target="_blank" rel="noopener" href="https://www.tensorflow.org/get_started/premade_estimators">Premade Estimators</a>), and I create a repository on GitHub (<a target="_blank" rel="noopener" href="https://github.com/jizhang/tf-serve/blob/master/iris_dnn.py"><code>iris_dnn.py</code></a>) for you to fork and work with. Here’s the gist of training the model:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">feature_columns = [tf.feature_column.numeric_column(key=key)</span><br><span class="line">                   <span class="keyword">for</span> key <span class="keyword">in</span> train_x.keys()]</span><br><span class="line">classifier = tf.estimator.DNNClassifier(</span><br><span class="line">    feature_columns=feature_columns,</span><br><span class="line">    hidden_units=[<span class="number">10</span>, <span class="number">10</span>],</span><br><span class="line">    n_classes=<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">classifier.train(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: train_input_fn(train_x, train_y, batch_size=BATCH_SIZE),</span><br><span class="line">    steps=STEPS)</span><br><span class="line"></span><br><span class="line">predictions = classifier.predict(</span><br><span class="line">    input_fn=<span class="keyword">lambda</span>: eval_input_fn(predict_x, labels=<span class="literal">None</span>, batch_size=BATCH_SIZE))</span><br></pre></td></tr></table></figure>
         
           <p class="article-more-link">
@@ -617,12 +631,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cl4aua5p6001x9lltze98e7eq" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cl4j3rwl2001xacncax36c0yi" class="article-share-link">Share</a>
       
-        <a href="http://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/#disqus_thread" class="article-comment-link">Comments</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/machine-learning/">machine learning</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tensorflow/">tensorflow</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/machine-learning/" rel="tag">machine learning</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tensorflow/" rel="tag">tensorflow</a></li></ul>
 
     </footer>
   </div>
@@ -634,7 +648,7 @@
 
 
   <nav id="page-nav">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
   </nav>
 </section>
         
@@ -697,7 +711,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
       &copy; 2022 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
@@ -733,14 +747,22 @@
 </script>
 
 
+
 <script src="/js/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
 
 
 <script src="/js/script.js"></script>
+
 
   </div>
 </body>
