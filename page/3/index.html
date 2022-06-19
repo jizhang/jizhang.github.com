@@ -88,6 +88,65 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-how-to-extract-event-time-in-apache-flume" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/" class="article-date">
+  <time datetime="2017-08-05T07:10:47.000Z" itemprop="datePublished">2017-08-05</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/">How to Extract Event Time in Apache Flume</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Extracting data from upstream message queues is a common task in ETL. In a Hadoop based data warehouse, we usually use Flume to import event logs from Kafka into HDFS, and then run MapReduce jobs agaist it, or create Hive external tables partitioned by time. One of the keys of this process is to extract the event time from the logs, since real-time data can have time lags, or your system is temporarily offline and need to perform a catch-up. Flume provides various facilities to help us do this job easily.</p>
+<p><img src="/images/flume.png" alt="Apache Flume"></p>
+<h2 id="HDFS-Sink-and-Timestamp-Header"><a href="#HDFS-Sink-and-Timestamp-Header" class="headerlink" title="HDFS Sink and Timestamp Header"></a>HDFS Sink and Timestamp Header</h2><p>Here is a simple HDFS Sink config:</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">a1.sinks</span> = <span class="string">k1</span></span><br><span class="line"><span class="attr">a1.sinks.k1.type</span> = <span class="string">hdfs</span></span><br><span class="line"><span class="attr">a1.sinks.k1.hdfs.path</span> = <span class="string">/user/flume/ds_alog/dt=%Y%m%d</span></span><br></pre></td></tr></table></figure>
+
+<p><code>%Y%m%d</code> is the placeholders supported by this sink. It will use the milliseconds in <code>timestamp</code> header to replace them. Also, HDFS Sink provides <code>hdfs.useLocalTimeStamp</code> option so that it’ll use the local time to replace these placeholders, but this is not what we intend.</p>
+<p>Another sink we could use is the Hive Sink, which directly communicates with Hive metastore and loads data into HDFS as Hive table. It supports both delimited text and JSON serializers, and also requires a <code>timestamp</code> header. But we don’t choose it for the following reasons:</p>
+<ul>
+<li>It doesn’t support regular expression serializer, so we cannot extract columns from arbitrary data format like access logs;</li>
+<li>The columns to be extracted are defined in Hive metastore. Say the upstream events add some new keys in JSON, they will be dropped until Hive table definition is updated. As in data warehouse, it’s better to preserve the original source data for a period of time.</li>
+</ul>
+        
+          <p class="article-more-link">
+            <a href="/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/" data-id="cl4kyi5zs0012cgowh3l131m2" class="article-share-link">Share</a>
+      
+        <a href="https://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/etl/" rel="tag">etl</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flume/" rel="tag">flume</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-how-to-achieve-exactly-once-semantics-in-spark-streaming" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/" class="article-date">
@@ -130,7 +189,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/" data-id="cl4jhvqvy00108wp18pmsargt" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/" data-id="cl4kyi5zr0010cgow98leesc1" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -189,7 +248,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/" data-id="cl4jhvqvx000x8wp143a8c624" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/" data-id="cl4kyi5zq000xcgowh67hfnsx" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -240,7 +299,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cl4jhvqvv000u8wp108fnbcwx" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cl4kyi5zp000ucgowbtlb6h1j" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -291,7 +350,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cl4jhvqvu000r8wp1fo5u4di3" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cl4kyi5zo000rcgow60sz35yk" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -344,7 +403,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="cl4jhvqvs000n8wp1hrt14ugh" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="cl4kyi5zm000ncgowd7y92xav" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -400,7 +459,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cl4jhvqvq000k8wp1eeg74smn" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cl4kyi5zl000kcgowc7eqbz7z" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -451,7 +510,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" data-id="cl4jhvqvn000g8wp19u2p9wol" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" data-id="cl4kyi5zj000gcgow98jeflc9" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -523,7 +582,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cl4jhvqvm000e8wp16m6o3iae" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="cl4kyi5zh000ecgow4ngkcyst" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -577,62 +636,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="cl4jhvqvj000a8wp13wbh2704" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="cl4kyi5zf000acgow8j6zd7ua" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/" rel="tag">spark</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-spark-streaming-logging-configuration" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2015/05/31/spark-streaming-logging-configuration/" class="article-date">
-  <time datetime="2015-05-31T10:18:00.000Z" itemprop="datePublished">2015-05-31</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
-<h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
-<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">log4j.rootLogger</span>=<span class="string">INFO, rolling</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log4j.appender.rolling</span>=<span class="string">org.apache.log4j.RollingFileAppender</span></span><br><span class="line"><span class="attr">log4j.appender.rolling.layout</span>=<span class="string">org.apache.log4j.PatternLayout</span></span><br><span class="line"><span class="attr">log4j.appender.rolling.layout.conversionPattern</span>=<span class="string">[%d] %p %m (%c)%n</span></span><br><span class="line"><span class="attr">log4j.appender.rolling.maxFileSize</span>=<span class="string">50MB</span></span><br><span class="line"><span class="attr">log4j.appender.rolling.maxBackupIndex</span>=<span class="string">5</span></span><br><span class="line"><span class="attr">log4j.appender.rolling.file</span>=<span class="string">/var/log/spark/$&#123;dm.logging.name&#125;.log</span></span><br><span class="line"><span class="attr">log4j.appender.rolling.encoding</span>=<span class="string">UTF-8</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log4j.logger.org.apache.spark</span>=<span class="string">WARN</span></span><br><span class="line"><span class="attr">log4j.logger.org.eclipse.jetty</span>=<span class="string">WARN</span></span><br><span class="line"></span><br><span class="line"><span class="attr">log4j.logger.com.shzhangji.dm</span>=<span class="string">$&#123;dm.logging.level&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>This means log4j will roll the log file by 50MB and keep only 5 recent files. These files are saved in <code>/var/log/spark</code> directory, with filename picked from system property <code>dm.logging.name</code>. We also set the logging level of our package <code>com.shzhangji.dm</code> according to <code>dm.logging.level</code> property. Another thing to mention is that we set <code>org.apache.spark</code> to level <code>WARN</code>, so as to ignore verbose logs from spark.</p>
-        
-          <p class="article-more-link">
-            <a href="/blog/2015/05/31/spark-streaming-logging-configuration/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="cl4jhvqvi00098wp1biffezat" class="article-share-link">Share</a>
-      
-        <a href="https://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/" rel="tag">spark</a></li></ul>
@@ -657,7 +663,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 15px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 10px;">eslint</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flink/" style="font-size: 11.67px;">flink</a> <a href="/tags/flume/" style="font-size: 13.33px;">flume</a> <a href="/tags/frontend/" style="font-size: 15px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.67px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.67px;">hive</a> <a href="/tags/java/" style="font-size: 18.33px;">java</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.67px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 10px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.67px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.67px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.67px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/sql/" style="font-size: 11.67px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 11.67px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 15px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 10px;">eslint</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flask/" style="font-size: 10px;">flask</a> <a href="/tags/flink/" style="font-size: 11.67px;">flink</a> <a href="/tags/flume/" style="font-size: 13.33px;">flume</a> <a href="/tags/frontend/" style="font-size: 15px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.67px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.67px;">hive</a> <a href="/tags/java/" style="font-size: 18.33px;">java</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.67px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 10px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.67px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.67px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.67px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/sql/" style="font-size: 11.67px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 10px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 13.33px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -679,6 +685,10 @@
       <ul>
         
           <li>
+            <a href="/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/">OpenAPI Workflow with Flask and TypeScript</a>
+          </li>
+        
+          <li>
             <a href="/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/">Use Bootstrap V5 in Vue 3 Project</a>
           </li>
         
@@ -692,10 +702,6 @@
         
           <li>
             <a href="/blog/2019/06/10/understanding-hive-acid-transactional-table/">Understanding Hive ACID Transactional Table</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/">Real-time Exactly-once ETL with Apache Flink</a>
           </li>
         
       </ul>

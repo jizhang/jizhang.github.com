@@ -30,6 +30,7 @@ https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/
 https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/
 https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/
 https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/
+https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/
 https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/
 https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/
 https://shzhangji.com/
@@ -82,6 +83,9 @@ https://shzhangji.com/tags/hexo/
 https://shzhangji.com/tags/github/
 https://shzhangji.com/tags/bootstrap/
 https://shzhangji.com/tags/vite/
+https://shzhangji.com/tags/openapi/
+https://shzhangji.com/tags/flask/
+https://shzhangji.com/tags/typescript/
 https://shzhangji.com/tags/hadoop/
 https://shzhangji.com/tags/kubernetes/
 https://shzhangji.com/categories/Big-Data/

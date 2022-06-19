@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>OpenAPI Workflow with Flask and TypeScript | Ji ZHANG&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="OpenAPI has become the de facto standard of designing web APIs, and there are numerous tools developed around its ecosystem. In this article, I will demonstrate the workflow of using OpenAPI in both b">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenAPI Workflow with Flask and TypeScript">
+<meta property="og:url" content="https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/index.html">
+<meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
+<meta property="og:description" content="OpenAPI has become the de facto standard of designing web APIs, and there are numerous tools developed around its ecosystem. In this article, I will demonstrate the workflow of using OpenAPI in both b">
+<meta property="og:locale">
+<meta property="og:image" content="https://shzhangji.com/images/openapi-workflow/openapi-3.0.png">
+<meta property="og:image" content="https://shzhangji.com/images/openapi-workflow/blog-post-list.png">
+<meta property="og:image" content="https://shzhangji.com/images/openapi-workflow/vscode-openapi.png">
+<meta property="article:published_time" content="2022-06-19T06:48:27.000Z">
+<meta property="article:modified_time" content="2022-06-19T06:57:28.604Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="vue">
+<meta property="article:tag" content="openapi">
+<meta property="article:tag" content="flask">
+<meta property="article:tag" content="typescript">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shzhangji.com/images/openapi-workflow/openapi-3.0.png">
+<meta name="twitter:creator" content="@zjerryj">
+<link rel="publisher" href="zhangji87@gmail.com">
+  
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XGPVRTV36D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XGPVRTV36D');
+  </script>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">If I rest, I rust.</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/categories/Big-Data">Big Data</a>
+        
+          <a class="main-nav-link" href="/categories/Programming">Programming</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+        <a class="main-nav-link" href="http://shzhangji.com/cnblogs"><img src="/images/cnblogs.png"></a>
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-openapi-workflow-with-flask-and-typescript" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/" class="article-date">
+  <time datetime="2022-06-19T06:48:27.000Z" itemprop="datePublished">2022-06-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      OpenAPI Workflow with Flask and TypeScript
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a target="_blank" rel="noopener" href="https://www.openapis.org/">OpenAPI</a> has become the de facto standard of designing web APIs, and there are numerous tools developed around its ecosystem. In this article, I will demonstrate the workflow of using OpenAPI in both backend and frontend projects.</p>
+<p><img src="/images/openapi-workflow/openapi-3.0.png" alt="OpenAPI 3.0"></p>
+<h2 id="API-Server"><a href="#API-Server" class="headerlink" title="API Server"></a>API Server</h2><p>There are <a target="_blank" rel="noopener" href="https://swagger.io/blog/api-design/design-first-or-code-first-api-development/">code first and design first</a> approaches when using OpenAPI, and here we go with code first approach, i.e. writing the API server first, add specification to the method docs, then generate the final OpenAPI specification. The API server will be developed with Python <a target="_blank" rel="noopener" href="https://flask.palletsprojects.com/">Flask</a> framework and <a target="_blank" rel="noopener" href="https://apispec.readthedocs.io/">apispec</a> library with <a target="_blank" rel="noopener" href="https://marshmallow.readthedocs.io/">marshmallow</a> extension. Let’s first install the dependencies:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Flask==2.1.2</span><br><span class="line">Flask-Cors==3.0.10</span><br><span class="line">Flask-SQLAlchemy==2.5.1</span><br><span class="line">SQLAlchemy==1.4.36</span><br><span class="line">python-dotenv==0.20.0</span><br><span class="line">apispec[marshmallow]==5.2.2</span><br><span class="line">apispec-webframeworks==0.5.2</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h3 id="Get-post-list"><a href="#Get-post-list" class="headerlink" title="Get post list"></a>Get post list</h3><p>We will develop a simple blog post list page like this:</p>
+<p><img src="/images/openapi-workflow/blog-post-list.png" alt="Blog post list"></p>
+<p>The first API we implement is <code>get_post_list</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&#x27;/api/post/list&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_post_list</span>() -&gt; Response:</span><br><span class="line">    page = <span class="built_in">int</span>(request.args.get(<span class="string">&#x27;page&#x27;</span>, <span class="string">&#x27;1&#x27;</span>))</span><br><span class="line">    sort = request.args.get(<span class="string">&#x27;sort&#x27;</span>, <span class="string">&#x27;desc&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    query = db.session.query(Post)</span><br><span class="line">    <span class="keyword">if</span> sort == <span class="string">&#x27;desc&#x27;</span>:</span><br><span class="line">        query = query.order_by(Post.updated_at.desc())</span><br><span class="line"></span><br><span class="line">    query = query.offset((page - <span class="number">1</span>) * PAGE_SIZE).limit(PAGE_SIZE)</span><br><span class="line">    posts = query.<span class="built_in">all</span>()</span><br><span class="line">    <span class="keyword">return</span> jsonify(posts=post_schema.dump(posts, many=<span class="literal">True</span>))</span><br></pre></td></tr></table></figure>
+
+<p>It is a regular web API, that parses the GET parameters, construct a SQLAlchemy query with pagination, and return the post list. The only thing special here is <code>post_schema</code>, which uses the marshmallow library to serialize post items. The schema is defined as:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PostSchema</span>(<span class="title class_ inherited__">Schema</span>):</span><br><span class="line">    <span class="built_in">id</span> = fields.Integer()</span><br><span class="line">    title = fields.String(required=<span class="literal">True</span>, validate=validate.Length(<span class="built_in">min</span>=<span class="number">1</span>))</span><br><span class="line">    content = fields.String(required=<span class="literal">True</span>, validate=validate.Length(<span class="built_in">min</span>=<span class="number">1</span>))</span><br><span class="line">    updated_at = fields.DateTime(<span class="built_in">format</span>=<span class="string">&#x27;%Y-%m-%d %H:%M:%S&#x27;</span>, dump_only=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">post_schema = PostSchema()</span><br></pre></td></tr></table></figure>
+
+<p>The schema is not that different from the SQLAlchemy model, but with extra information about validation, format, and whether some field should be dumped to the output. We will see how to use the schema to deserialize and validate the form data, later in <code>save_post</code> API.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Post</span>(db.Model):</span><br><span class="line">    <span class="built_in">id</span> = db.Column(db.Integer, primary_key=<span class="literal">True</span>)</span><br><span class="line">    title = db.Column(db.String)</span><br><span class="line">    content = db.Column(db.String)</span><br><span class="line">    updated_at = db.Column(db.DateTime)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Add-spec-to-docstring"><a href="#Add-spec-to-docstring" class="headerlink" title="Add spec to docstring"></a>Add spec to docstring</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&#x27;/api/post/list&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_post_list</span>() -&gt; Response:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    ---</span></span><br><span class="line"><span class="string">    get:</span></span><br><span class="line"><span class="string">      summary: Get post list.</span></span><br><span class="line"><span class="string">      tags: [post]</span></span><br><span class="line"><span class="string">      x-swagger-router-controller: oasis.views</span></span><br><span class="line"><span class="string">      operationId: get_post_list</span></span><br><span class="line"><span class="string">      parameters:</span></span><br><span class="line"><span class="string">        - in: query</span></span><br><span class="line"><span class="string">          name: page</span></span><br><span class="line"><span class="string">          schema:</span></span><br><span class="line"><span class="string">            type: integer</span></span><br><span class="line"><span class="string">            minimum: 1</span></span><br><span class="line"><span class="string">        - in: query</span></span><br><span class="line"><span class="string">          name: sort</span></span><br><span class="line"><span class="string">          schema:</span></span><br><span class="line"><span class="string">            type: string</span></span><br><span class="line"><span class="string">            enum: [asc, desc]</span></span><br><span class="line"><span class="string">      responses:</span></span><br><span class="line"><span class="string">        &#x27;200&#x27;:</span></span><br><span class="line"><span class="string">          description: OK</span></span><br><span class="line"><span class="string">          content:</span></span><br><span class="line"><span class="string">            application/json:</span></span><br><span class="line"><span class="string">              schema:</span></span><br><span class="line"><span class="string">                type: object</span></span><br><span class="line"><span class="string">                properties:</span></span><br><span class="line"><span class="string">                  posts:</span></span><br><span class="line"><span class="string">                    type: array</span></span><br><span class="line"><span class="string">                    items:</span></span><br><span class="line"><span class="string">                      $ref: &#x27;#/components/schemas/Post&#x27;</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>The YAML is exactly the same as OpenAPI specification states, except the apispec library will use the route and schema to generate the complete spec file.</p>
+<h3 id="Generate-specification-file"><a href="#Generate-specification-file" class="headerlink" title="Generate specification file"></a>Generate specification file</h3><p>To wire these routes and schemas, we create an <code>openapi.py</code> file:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> apispec <span class="keyword">import</span> APISpec</span><br><span class="line"><span class="keyword">from</span> apispec.ext.marshmallow <span class="keyword">import</span> MarshmallowPlugin</span><br><span class="line"><span class="keyword">from</span> apispec_webframeworks.flask <span class="keyword">import</span> FlaskPlugin</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> oasis <span class="keyword">import</span> app, views, schemas</span><br><span class="line"></span><br><span class="line">spec = APISpec(</span><br><span class="line">    title=<span class="string">&#x27;Oasis&#x27;</span>,</span><br><span class="line">    version=<span class="string">&#x27;0.1.0&#x27;</span>,</span><br><span class="line">    openapi_version=<span class="string">&#x27;3.0.2&#x27;</span>,</span><br><span class="line">    info=&#123;<span class="string">&#x27;description&#x27;</span>: <span class="string">&#x27;Demo project for OpenAPI workflow.&#x27;</span>&#125;,</span><br><span class="line">    plugins=[FlaskPlugin(), MarshmallowPlugin()],</span><br><span class="line">    servers=[&#123;<span class="string">&#x27;url&#x27;</span>: <span class="string">&#x27;http://127.0.0.1:5000&#x27;</span>&#125;]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">spec.components.schema(<span class="string">&#x27;Post&#x27;</span>, schema=schemas.PostSchema)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> app.test_request_context():</span><br><span class="line">    spec.path(view=views.get_post_list)</span><br></pre></td></tr></table></figure>
+
+<p>And then a CLI command tool to generate the specification:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pathlib <span class="keyword">import</span> Path</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> oasis <span class="keyword">import</span> app</span><br><span class="line"><span class="keyword">from</span> oasis.openapi <span class="keyword">import</span> spec</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.cli.command()</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">gen</span>():</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Generate OpenAPI specification.&quot;&quot;&quot;</span></span><br><span class="line">    spec_path = Path(__file__).parent.joinpath(<span class="string">&#x27;../openapi.yaml&#x27;</span>).resolve()</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(spec_path, <span class="string">&#x27;w&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        f.write(<span class="string">&#x27;# DO NOT EDIT\n&#x27;</span>)</span><br><span class="line">        f.write(<span class="string">&#x27;# Auto generated by &quot;flask gen&quot;\n&#x27;</span>)</span><br><span class="line">        f.write(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">        f.write(spec.to_yaml())</span><br><span class="line"></span><br><span class="line">    app.logger.info(<span class="string">f&#x27;Generated <span class="subst">&#123;spec_path&#125;</span>&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>The output file <code>openapi.yaml</code> looks like this:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">info:</span></span><br><span class="line">  <span class="attr">description:</span> <span class="string">Demo</span> <span class="string">project</span> <span class="string">for</span> <span class="string">OpenAPI</span> <span class="string">workflow.</span></span><br><span class="line">  <span class="attr">title:</span> <span class="string">Oasis</span></span><br><span class="line">  <span class="attr">version:</span> <span class="number">0.1</span><span class="number">.0</span></span><br><span class="line"><span class="attr">servers:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">url:</span> <span class="string">http://127.0.0.1:5000</span></span><br><span class="line"><span class="attr">paths:</span></span><br><span class="line">  <span class="string">/api/post/list:</span></span><br><span class="line">    <span class="attr">get:</span></span><br><span class="line">      <span class="attr">summary:</span> <span class="string">Get</span> <span class="string">post</span> <span class="string">list.</span></span><br><span class="line">      <span class="attr">x-swagger-router-controller:</span> <span class="string">oasis.views</span></span><br><span class="line">      <span class="attr">operationId:</span> <span class="string">get_post_list</span></span><br><span class="line">      <span class="attr">parameters:</span> [<span class="string">...</span>]</span><br><span class="line">      <span class="attr">responses:</span> &#123;<span class="string">...</span>&#125;</span><br><span class="line"><span class="attr">openapi:</span> <span class="number">3.0</span><span class="number">.2</span></span><br><span class="line"><span class="attr">components:</span></span><br><span class="line">  <span class="attr">schemas:</span></span><br><span class="line">    <span class="attr">Post:</span></span><br><span class="line">      <span class="attr">type:</span> <span class="string">object</span></span><br><span class="line">      <span class="attr">properties:</span></span><br><span class="line">        <span class="attr">id:</span></span><br><span class="line">          <span class="attr">type:</span> <span class="string">integer</span></span><br><span class="line">        <span class="attr">title:</span></span><br><span class="line">          <span class="attr">type:</span> <span class="string">string</span></span><br><span class="line">          <span class="attr">minLength:</span> <span class="number">1</span></span><br><span class="line">        <span class="attr">content:</span></span><br><span class="line">          <span class="attr">type:</span> <span class="string">string</span></span><br><span class="line">          <span class="attr">minLength:</span> <span class="number">1</span></span><br><span class="line">        <span class="attr">updated_at:</span></span><br><span class="line">          <span class="attr">type:</span> <span class="string">string</span></span><br><span class="line">          <span class="attr">format:</span> <span class="string">date-time</span></span><br><span class="line">          <span class="attr">readOnly:</span> <span class="literal">true</span></span><br><span class="line">      <span class="attr">required:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">content</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">title</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="More-on-post-API"><a href="#More-on-post-API" class="headerlink" title="More on post API"></a>More on post API</h3><p>Let’s create another API that accepts form data, validate them, and save to database.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&#x27;/api/post/save&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">save_post</span>() -&gt; Response:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    ---</span></span><br><span class="line"><span class="string">    post:</span></span><br><span class="line"><span class="string">      summary: Save post.</span></span><br><span class="line"><span class="string">      tags: [post]</span></span><br><span class="line"><span class="string">      x-swagger-router-controller: oasis.views</span></span><br><span class="line"><span class="string">      operationId: save_post</span></span><br><span class="line"><span class="string">      requestBody:</span></span><br><span class="line"><span class="string">        required: true</span></span><br><span class="line"><span class="string">        content:</span></span><br><span class="line"><span class="string">          application/x-www-form-urlencoded:</span></span><br><span class="line"><span class="string">            schema:</span></span><br><span class="line"><span class="string">              $ref: &#x27;#/components/schemas/Post&#x27;</span></span><br><span class="line"><span class="string">      responses:</span></span><br><span class="line"><span class="string">        &#x27;200&#x27;:</span></span><br><span class="line"><span class="string">          description: OK</span></span><br><span class="line"><span class="string">          content:</span></span><br><span class="line"><span class="string">            application/json:</span></span><br><span class="line"><span class="string">              schema:</span></span><br><span class="line"><span class="string">                type: object</span></span><br><span class="line"><span class="string">                properties:</span></span><br><span class="line"><span class="string">                  id:</span></span><br><span class="line"><span class="string">                    type: integer</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        post_form = post_schema.load(request.form)</span><br><span class="line">    <span class="keyword">except</span> ValidationError <span class="keyword">as</span> e:</span><br><span class="line">        <span class="keyword">raise</span> AppError(e.messages)</span><br><span class="line"></span><br><span class="line">    post = Post(**post_form)</span><br><span class="line">    post = db.session.merge(post)</span><br><span class="line">    db.session.commit()</span><br><span class="line">    <span class="keyword">return</span> jsonify(&#123;<span class="string">&#x27;id&#x27;</span>: post.<span class="built_in">id</span>&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>We can write custom validation in the schema file. It is also a good way to separate concerns.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PostSchema</span>(<span class="title class_ inherited__">Schema</span>):</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="meta">    @validates(<span class="params"><span class="string">&#x27;id&#x27;</span></span>)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">validate_id</span>(<span class="params">self, value: <span class="type">Optional</span>[<span class="built_in">int</span>]</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> value:</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        post = db.session.query(Post).get(value)</span><br><span class="line">        <span class="keyword">if</span> post <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">raise</span> ValidationError(<span class="string">&#x27;Post ID not found.&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Preview-API-docs"><a href="#Preview-API-docs" class="headerlink" title="Preview API docs"></a>Preview API docs</h3><p>OpenAPI enjoys a nice documentation UI that you can preview in VS Code. Install the OpenAPI (Swagger) Editor extension, and turn on the preview alongside <code>openapi.yaml</code>:</p>
+<p><img src="/images/openapi-workflow/vscode-openapi.png" alt="VS Code OpenAPI"></p>
+<p>If you want to run <em>Try it out</em>, make sure you enable the CORS of the API server. For Flask, there is an extension for this task:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask_cors <span class="keyword">import</span> CORS</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> app.debug:</span><br><span class="line">    CORS(app)</span><br></pre></td></tr></table></figure>
+
+<h2 id="API-Client"><a href="#API-Client" class="headerlink" title="API Client"></a>API Client</h2><p>Now we have a complete OpenAPI specification file, we can generate all forms of clients and stubs from it. Here we use the <a target="_blank" rel="noopener" href="https://github.com/OpenAPITools/openapi-generator">OpenAPI Generator</a> to create a TypeScript-Fetch client, and use it in a Vue project.</p>
+<h3 id="Generate-client-codes"><a href="#Generate-client-codes" class="headerlink" title="Generate client codes"></a>Generate client codes</h3><p>First add the development tool via package manager like <code>yarn</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add -D @openapitools/openapi-generator-cli</span><br></pre></td></tr></table></figure>
+
+<p>And create a configuration file <code>openapitools.json</code> for OpenAPI generator:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;$schema&quot;</span><span class="punctuation">:</span> <span class="string">&quot;node_modules/@openapitools/openapi-generator-cli/config.schema.json&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;spaces&quot;</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;generator-cli&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;5.4.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;repository&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;downloadUrl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://maven.aliyun.com/nexus/content/groups/public/$&#123;groupId&#125;/$&#123;artifactId&#125;/$&#123;versionName&#125;/$&#123;artifactId&#125;-$&#123;versionName&#125;.jar&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;generators&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;v1&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;inputSpec&quot;</span><span class="punctuation">:</span> <span class="string">&quot;../openapi-server/openapi.yaml&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;generatorName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;typescript-fetch&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;output&quot;</span><span class="punctuation">:</span> <span class="string">&quot;src/openapi&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>downloadUrl</code> can be used when you have trouble reaching the Maven central. <code>generators</code> section indicates the path of <code>openapi.yaml</code>, which generator we use, and the output path. For convenience, we create a script in <code>package.json</code>:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;gen&quot;</span><span class="punctuation">:</span> <span class="string">&quot;openapi-generator-cli generate&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>After running <code>yarn gen</code>, we get a fully functional client in <code>src/openapi</code> folder.</p>
+<h3 id="Use-the-generated-client"><a href="#Use-the-generated-client" class="headerlink" title="Use the generated client"></a>Use the generated client</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">PostApi</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./openapi&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> postApi = <span class="keyword">new</span> <span class="title class_">PostApi</span>()</span><br><span class="line">postApi.<span class="title function_">getPostList</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">response</span>) =&gt;</span> &#123; <span class="variable language_">console</span>.<span class="title function_">log</span>(response.<span class="property">posts</span>) &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>Note the base path of the API request is <code>http://127.0.0.1:5000</code>, as we defined in <code>openapi.py</code>, which should be overridden in production. Since typically the frontend code and API server are deployed under the same domain, we can set the base path to an empty string. Create an <code>api.ts</code> file:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Configuration</span>, <span class="title class_">PostApi</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./openapi&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> conf = <span class="keyword">new</span> <span class="title class_">Configuration</span>(&#123;</span><br><span class="line">  <span class="attr">basePath</span>: <span class="string">&#x27;&#x27;</span>,</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> postApi = <span class="keyword">new</span> <span class="title class_">PostApi</span>(conf)</span><br></pre></td></tr></table></figure>
+
+<p>And use it in your web application:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; postApi &#125; <span class="keyword">from</span> <span class="string">&#x27;./api&#x27;</span></span><br><span class="line"></span><br><span class="line">postApi.<span class="title function_">getPostList</span>()</span><br></pre></td></tr></table></figure>
+
+<h3 id="Display-post-list"><a href="#Display-post-list" class="headerlink" title="Display post list"></a>Display post list</h3><p>Let’s request for the posts when page is loaded, and display them via Vue and Bootstrap:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&lt;script setup lang=&quot;ts&quot;&gt;</span><br><span class="line">import &#123; onMounted, ref &#125; from &#x27;vue&#x27;</span><br><span class="line">import &#123; postApi &#125; from &#x27;./api&#x27;</span><br><span class="line">import type &#123; Post &#125; from &#x27;./openapi&#x27;</span><br><span class="line"></span><br><span class="line">const posts = ref&lt;Post[]&gt;([])</span><br><span class="line"></span><br><span class="line">onMounted(() =&gt; &#123;</span><br><span class="line">  postApi.getPostList().then((response) =&gt; &#123;</span><br><span class="line">    if (response.posts) &#123;</span><br><span class="line">      posts.value = response.posts</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br><span class="line">&lt;/script&gt;</span><br><span class="line"></span><br><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;div class=&quot;container&quot;&gt;</span><br><span class="line">    &lt;div class=&quot;d-grid gap-3 my-3&quot;&gt;</span><br><span class="line">      &lt;div class=&quot;card&quot; v-for=&quot;post in posts&quot; :key=&quot;post.id&quot;&gt;</span><br><span class="line">        &lt;div class=&quot;card-body&quot;&gt;</span><br><span class="line">          &lt;h5 class=&quot;card-title&quot;&gt;&#123;&#123;post.title&#125;&#125;&lt;/h5&gt;</span><br><span class="line">          &lt;p class=&quot;card-text&quot;&gt;&#123;&#123;post.content&#125;&#125;&lt;/p&gt;</span><br><span class="line">          &lt;p class=&quot;card-text&quot;&gt;&lt;small class=&quot;text-muted&quot;&gt;Updated at &#123;&#123;post.updatedAt&#125;&#125;&lt;/small&gt;&lt;/p&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">  &lt;/div&gt;</span><br><span class="line">&lt;/template&gt;</span><br></pre></td></tr></table></figure>
+
+<p>The full source code can be found on GitHub: <a target="_blank" rel="noopener" href="https://github.com/jizhang/blog-demo/tree/master/openapi-server">openapi-server</a>, <a target="_blank" rel="noopener" href="https://github.com/jizhang/blog-demo/tree/master/openapi-fe">openapi-fe</a>.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/" data-id="cl4kyi60g002icgow2qy7c2yx" class="article-share-link">Share</a>
+      
+        <a href="https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flask/" rel="tag">flask</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/openapi/" rel="tag">openapi</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/typescript/" rel="tag">typescript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/" rel="tag">vue</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Use Bootstrap V5 in Vue 3 Project</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 15px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 10px;">eslint</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flask/" style="font-size: 10px;">flask</a> <a href="/tags/flink/" style="font-size: 11.67px;">flink</a> <a href="/tags/flume/" style="font-size: 13.33px;">flume</a> <a href="/tags/frontend/" style="font-size: 15px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.67px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.67px;">hive</a> <a href="/tags/java/" style="font-size: 18.33px;">java</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.67px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 10px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.67px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.67px;">pandas</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.67px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/sql/" style="font-size: 11.67px;">sql</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 10px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 13.33px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/">OpenAPI Workflow with Flask and TypeScript</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/">Use Bootstrap V5 in Vue 3 Project</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/">Migrate from hexo-deployer-git to GitHub Actions</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/">Deploy Flink Job Cluster on Kubernetes</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2019/06/10/understanding-hive-acid-transactional-table/">Understanding Hive ACID Transactional Table</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <br>
+      &copy; 2022 Ji ZHANG<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/categories/Big-Data" class="mobile-nav-link">Big Data</a>
+  
+    <a href="/categories/Programming" class="mobile-nav-link">Programming</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+  <a href="http://shzhangji.com/cnblogs" class="mobile-nav-link">中文</a>
+</nav>
+
+    
+<script>
+  var disqus_shortname = 'jizhang';
+  
+  var disqus_url = 'https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>
