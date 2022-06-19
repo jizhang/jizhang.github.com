@@ -2,69 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/</loc>
-    
-    <lastmod>2022-06-19</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</loc>
-    
-    <lastmod>2022-06-19</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</loc>
-    
-    <lastmod>2022-06-19</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</loc>
-    
-    <lastmod>2022-06-19</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</loc>
-    
-    <lastmod>2022-06-19</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</loc>
-    
-    <lastmod>2022-06-19</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</loc>
-    
-    <lastmod>2022-06-19</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</loc>
     
     <lastmod>2022-06-19</lastmod>
@@ -309,6 +246,69 @@
   
   <url>
     <loc>https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/</loc>
+    
+    <lastmod>2022-06-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/</loc>
+    
+    <lastmod>2022-06-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</loc>
+    
+    <lastmod>2022-06-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</loc>
+    
+    <lastmod>2022-06-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</loc>
+    
+    <lastmod>2022-06-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</loc>
+    
+    <lastmod>2022-06-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</loc>
+    
+    <lastmod>2022-06-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</loc>
     
     <lastmod>2022-06-19</lastmod>
     
