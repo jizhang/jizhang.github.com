@@ -322,9 +322,76 @@ After running `yarn gen`, we get a fully functional client in `src/openapi` fold
 
 ### Use the generated client
 
+```typescript
+import { PostApi } from './openapi'
+
+const postApi = new PostApi()
+postApi.getPostList().then((response) => { console.log(response.posts) })
+```
+
+Note the base path of the API request is `http://127.0.0.1:5000`, as we defined in `openapi.py`, which should be overridden in production. Since typically the frontend code and API server are deployed under the same domain, we can set the base path to an empty string. Create an `api.ts` file:
+
+```typescript
+import { Configuration, PostApi } from './openapi'
+
+const conf = new Configuration({
+  basePath: '',
+})
+
+export const postApi = new PostApi(conf)
+```
+
+And use it in your web application:
+
+```typescript
+import { postApi } from './api'
+
+postApi.getPostList()
+```
+
+### Display post list
+
+Let's request for the posts when page is loaded, and display them via Vue and Bootstrap:
+
+```vue
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { postApi } from './api'
+import type { Post } from './openapi'
+
+const posts = ref<Post[]>([])
+
+onMounted(() => {
+  postApi.getPostList().then((response) => {
+    if (response.posts) {
+      posts.value = response.posts
+    }
+  })
+})
+</script>
+
+<template>
+  <div class="container">
+    <div class="d-grid gap-3 my-3">
+      <div class="card" v-for="post in posts" :key="post.id">
+        <div class="card-body">
+          <h5 class="card-title">{{post.title}}</h5>
+          <p class="card-text">{{post.content}}</p>
+          <p class="card-text"><small class="text-muted">Updated at {{post.updatedAt}}</small></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+```
+
+The full source code can be found on GitHub: [openapi-server][7], [openapi-fe][8].
+
 [1]: https://www.openapis.org/
 [2]: https://swagger.io/blog/api-design/design-first-or-code-first-api-development/
 [3]: https://flask.palletsprojects.com/
 [4]: https://apispec.readthedocs.io/
 [5]: https://marshmallow.readthedocs.io/
 [6]: https://github.com/OpenAPITools/openapi-generator
+[7]: https://github.com/jizhang/blog-demo/openapi-server
+[8]: https://github.com/jizhang/blog-demo/openapi-fe
