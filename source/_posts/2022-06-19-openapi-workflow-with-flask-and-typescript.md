@@ -1,8 +1,15 @@
 ---
 title: OpenAPI Workflow with Flask and TypeScript
+tags:
+  - openapi
+  - python
+  - flask
+  - typescript
+  - vue
 categories: Programming
-tags: [openapi, python, flask, typescript, vue]
+date: 2022-06-19 14:48:27
 ---
+
 
 [OpenAPI][1] has become the de facto standard of designing web APIs, and there are numerous tools developed around its ecosystem. In this article, I will demonstrate the workflow of using OpenAPI in both backend and frontend projects.
 
@@ -47,7 +54,7 @@ def get_post_list() -> Response:
     return jsonify(posts=post_schema.dump(posts, many=True))
 ```
 
-It is a regular web API, that parses the GET parameters, construct a SQLAlchemy query with pagination and return the post list. The only thing special here is `post_schema`, which uses the marshmallow library to serialize post items. The schema is defined as:
+It is a regular web API, that parses the GET parameters, construct a SQLAlchemy query with pagination, and return the post list. The only thing special here is `post_schema`, which uses the marshmallow library to serialize post items. The schema is defined as:
 
 ```python
 class PostSchema(Schema):
@@ -60,7 +67,7 @@ class PostSchema(Schema):
 post_schema = PostSchema()
 ```
 
-The schema is not that different from the SQLAlchemy model, but with extra information about validation, format, and whether some field should be dumped to the output. We'll see how to use the schema to deserialize and validate the form data later in `save_post` API.
+The schema is not that different from the SQLAlchemy model, but with extra information about validation, format, and whether some field should be dumped to the output. We will see how to use the schema to deserialize and validate the form data, later in `save_post` API.
 
 ```python
 class Post(db.Model):
@@ -393,5 +400,5 @@ The full source code can be found on GitHub: [openapi-server][7], [openapi-fe][8
 [4]: https://apispec.readthedocs.io/
 [5]: https://marshmallow.readthedocs.io/
 [6]: https://github.com/OpenAPITools/openapi-generator
-[7]: https://github.com/jizhang/blog-demo/openapi-server
-[8]: https://github.com/jizhang/blog-demo/openapi-fe
+[7]: https://github.com/jizhang/blog-demo/tree/master/openapi-server
+[8]: https://github.com/jizhang/blog-demo/tree/master/openapi-fe
