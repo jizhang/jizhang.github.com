@@ -107,7 +107,35 @@ def session(self) -> Session:
     return ctx.sqlalchemy_session
 ```
 
-To use session in a view:
+You may wonder why we don't use [`scoped_session`][6], which is the recommended way to use sessions in a multi-thread environment. The answer is simple: an application context will not be shared by different workers, so it is safe to use the same session throughout the request. And, since session is a light-weight object, it is OK to create it on every request. Check Werkzeug [Context Locals][7] for more information.
+
+## Define models in a native way
+
+Now that we have a simple but fully functional flask-sqlalchemy extension, we can start writing models in a native way.
+
+```python
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
+
+
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    username = Column(String)
+```
+
+There is not `db.Model` or `db.Integer`. The model base class need to be declared explicitly, as well as the table name of each model. Add a CLI that creates the tables:
+
+```python
+@app.cli.command()
+def init_db() -> None:
+    """Initialize database."""
+    Base.metadata.create_all(db.session.get_bind())
+```
+
+And execute query in a view:
 
 ```python
 @app.get('/api/user/list')
@@ -116,13 +144,19 @@ def get_user_list() -> Response:
     return jsonify(users=users)
 ```
 
-You may wonder why we don't use [`scoped_session`][6], which is the recommended way to use sessions in a multi-thread environment. The answer is simple: an application context will not be shared by different workers, so it is safe to use the same session throughout the request. And, since session is a light-weight object, it is OK to create it on every request. Check Werkzeug [Context Locals][7] for more information.
+To enable type hints for SQLAlchemy models, install `sqlalchemy2-stubs` and enable the plugin in `mypy.ini`:
 
-## Define models in a native way
+```ini
+[mypy]
+warn_unused_configs = True
+plugins = sqlalchemy.ext.mypy.plugin
+```
 
+Now `user.id` will have the type `Column[Integer]`. This will continue to work in SQLAlchemy 2.x, except no extra dependency is needed. You may want to read the document [Mypy Support for ORM Mappings][8].
 
+Source code in this article can be found on [GitHub][9].
 
-## Appendix I: Serialize SQLAlchmey models to JSON
+## Appendix I: Serialize SQLAlchemy models to JSON
 
 ## Appendix II: Support multiple database binds
 
@@ -134,3 +168,5 @@ You may wonder why we don't use [`scoped_session`][6], which is the recommended 
 [5]: https://docs.sqlalchemy.org/en/14/core/connections.html
 [6]: https://docs.sqlalchemy.org/en/14/orm/contextual.html
 [7]: https://werkzeug.palletsprojects.com/en/2.1.x/local/
+[8]: https://docs.sqlalchemy.org/en/14/orm/extensions/mypy.html
+[9]: https://github.com/jizhang/blog-demo/tree/master/native-sqlalchemy
