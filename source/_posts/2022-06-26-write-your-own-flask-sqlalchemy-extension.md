@@ -1,8 +1,13 @@
 ---
 title: Write Your Own Flask SQLAlchemy Extension
+tags:
+  - python
+  - flask
+  - sqlalchemy
 categories: Programming
-tags: [python, flask, sqlalchemy]
+date: 2022-06-26 12:53:16
 ---
+
 
 When it comes to connecting to database in Flask project, we tend to use the [Flask-SQLAlchemy][1] extension that handles the lifecycle of database connection, add a certain of utilities for defining models and executing queries, and integrate well with the Flask framework. However, if you are developing a rather simple project with Flask and SQLAlchemy, and do not want to depend on another third-party library, or you prefer using SQLAlchemy directly, making the model layer agnostic of web frameworks, you can write your own extension. Besides, you will gain better type hints for SQLAlchemy model, and possibly easier migration to SQLAlchemy 2.x. This article will show you how to integrate SQLAlchemy 1.4 with Flask 2.1.
 
@@ -49,7 +54,7 @@ class SQLAlchemyAlpha:
 
 <!-- more -->
 
-Several notes on our alpha version. First, it plays well with the [Application Factories][3], that means the extension can be used to initialize with multiple application instances, with different configurations for web server, testing, etc. The key point is to provide an `init_app` method for different apps, and use the `current_app` proxy during work. To initialize the app:
+Several notes on our alpha version. First, it plays well with the [Application Factories][3], that means the extension can be used to initialize multiple application instances, with different configurations for web server, testing, etc. The key point is to provide an `init_app` method for different apps, and use the `current_app` proxy during work. To initialize the app:
 
 ```python
 app = Flask(__name__)
@@ -126,7 +131,7 @@ class User(Base):
     username = Column(String)
 ```
 
-There is not `db.Model` or `db.Integer`. The model base class need to be declared explicitly, as well as the table name of each model. Add a CLI that creates the tables:
+There is no `db.Model` or `db.Integer`. The model base class need to be declared explicitly, as well as the table name of each model. Add a CLI that creates the tables:
 
 ```python
 @app.cli.command()
@@ -194,7 +199,7 @@ app.json_encoder = CustomEncoder
 
 ## Appendix II: Support multiple database binds
 
-If you are interested in supporting multiple binds like Flask-SQLAlchmey does, here is a proof of concept. But for such complex scenario, I suggest use the opensource extension instead, for it is more mature, feature-complete, and fully tested.
+If you are interested in supporting multiple binds like Flask-SQLAlchemy does, here is a proof of concept. But for such complex scenario, I suggest use the opensource extension instead, for it is more mature, feature-complete, and fully tested.
 
 This time we do not create engine on app startup. We create scoped sessions on demand.
 
@@ -248,7 +253,7 @@ def teardown(self, exception) -> None:
 
 `scoped_session.remove` will invoke `close` on the session and remove it from its registry. Next request will get a brand new session object.
 
-We can verify that it uses the desired connection:
+We can verify if it uses the desired connection:
 
 ```python
 @app.cli.command()
