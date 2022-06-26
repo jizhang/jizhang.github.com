@@ -158,7 +158,113 @@ Source code in this article can be found on [GitHub][9].
 
 ## Appendix I: Serialize SQLAlchemy models to JSON
 
+Flask's built-in JSON serializer does not recoganize SQLAlchemy models, neither the frequently used `Decimal` and `datetime` objects. But we can easily enhance it with a custom encoder:
+
+```python
+from decimal import Decimal
+from datetime import datetime
+
+from flask.json import JSONEncoder
+from sqlalchemy.engine.row import Row
+from sqlalchemy.orm.decl_api import DeclarativeMeta
+
+
+class CustomEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+
+        if isinstance(obj, datetime):
+            return obj.strftime('%Y-%m-%d %H:%M:%S')
+
+        if isinstance(obj, Row):
+            return dict(obj)
+
+        if isinstance(obj.__class__, DeclarativeMeta):
+            return {c.name: getattr(obj, c.name) for c in obj.__table__.columns}
+
+        return super().default(obj)
+```
+
+`Row` is for core engine use case, and `DeclarativeMeta` for ORM. Add a line when creating the app:
+
+```python
+app.json_encoder = CustomEncoder
+```
+
 ## Appendix II: Support multiple database binds
+
+If you are interested in supporting multiple binds like Flask-SQLAlchmey does, here is a proof of concept. But for such complex scenario, I suggest use the opensource extension instead, for it is more mature, feature-complete, and fully tested.
+
+This time we do not create engine on app startup. We create scoped sessions on demand.
+
+```python
+def connect(self, name: str) -> scoped_session:
+    if name == 'default':
+        url = current_app.config['SQLALCHEMY_DATABASE_URI']
+    else:
+        url = current_app.config['SQLALCHEMY_BINDS'][name]
+
+    engine = create_engine(url, echo=echo)
+    session_factory = sessionmaker(bind=engine)
+    return scoped_session(session_factory)
+```
+
+The configuration style mimics Flask-SQLAlchemy. This version of `connect` will return a properly configured `scoped_session` object, and it will be shared among different workers, so we store it in the app's `extensions` dict.
+
+```python
+class Holder:
+    sessions: Dict[str, scoped_session]
+    lock: Lock
+
+    def __init__(self):
+        self.sessions = {}
+        self.lock = Lock()
+
+
+class SQLAlchemyMulti:
+    def init_app(self, app: Flask):
+        app.extensions['sqlalchemy_multi'] = Holder()
+        app.teardown_appcontext(self.teardown)
+
+    def get_session(self, name: str = 'default') -> Session:
+        holder: Holder = current_app.extensions['sqlalchemy_multi']
+        with holder.lock:
+            if name not in holder.sessions:
+                holder.sessions[name] = self.connect(name)
+            return holder.sessions[name]()
+```
+
+Note the creation of the `scoped_session` object is not thread-safe, so we guard it with a lock. Again, this lock should not be stored as extension instance's attribute, we create a `Holder` class to hold both the lock and scoped sessions.
+
+Do not forget to do the cleanup work:
+
+```python
+def teardown(self, exception) -> None:
+    holder: Holder = current_app.extensions['sqlalchemy_multi']
+    for session in holder.sessions.values():
+        session.remove()
+```
+
+`scoped_session.remove` will invoke `close` on the session and remove it from its registry. Next request will get a brand new session object.
+
+We can verify that it uses the desired connection:
+
+```python
+@app.cli.command()
+def product_db() -> None:
+    """Access product database."""
+    db_file = db_multi.get_session('product_db').execute(
+        text("""
+        SELECT `file` FROM pragma_database_list
+        WHERE `name` = :name
+        """),
+        {
+            'name': 'main',
+        }
+    ).scalar()
+    app.logger.info(f'Database file: {db_file}')
+```
 
 
 [1]: https://flask-sqlalchemy.palletsprojects.com/
