@@ -1,3 +1,4 @@
+https://shzhangji.com/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/
 https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/
 https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/
 https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/
@@ -34,8 +35,6 @@ https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/
 https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/
 https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/
 https://shzhangji.com/
-https://shzhangji.com/tags/flink/
-https://shzhangji.com/tags/etl/
 https://shzhangji.com/tags/clojure/
 https://shzhangji.com/tags/scala/
 https://shzhangji.com/tags/scalatra/
@@ -59,6 +58,7 @@ https://shzhangji.com/tags/spark-streaming/
 https://shzhangji.com/tags/kafka/
 https://shzhangji.com/tags/stream-processing/
 https://shzhangji.com/tags/flume/
+https://shzhangji.com/tags/etl/
 https://shzhangji.com/tags/java/
 https://shzhangji.com/tags/mysql/
 https://shzhangji.com/tags/canal/
@@ -79,6 +79,7 @@ https://shzhangji.com/tags/eslint/
 https://shzhangji.com/tags/spring/
 https://shzhangji.com/tags/eclipse/
 https://shzhangji.com/tags/hdfs/
+https://shzhangji.com/tags/flink/
 https://shzhangji.com/tags/hexo/
 https://shzhangji.com/tags/github/
 https://shzhangji.com/tags/bootstrap/
@@ -86,7 +87,8 @@ https://shzhangji.com/tags/vite/
 https://shzhangji.com/tags/openapi/
 https://shzhangji.com/tags/flask/
 https://shzhangji.com/tags/typescript/
+https://shzhangji.com/tags/sqlalchemy/
 https://shzhangji.com/tags/hadoop/
 https://shzhangji.com/tags/kubernetes/
-https://shzhangji.com/categories/Big-Data/
 https://shzhangji.com/categories/Programming/
+https://shzhangji.com/categories/Big-Data/
