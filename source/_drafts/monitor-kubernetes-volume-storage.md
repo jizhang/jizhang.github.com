@@ -4,11 +4,11 @@ tags: [kubernetes, prometheus]
 categories: DevOps
 ---
 
-Pods running on Kubernetes may claim a Persistent Volume to store data that last between pod restarts. This volume is usually of limited size, so we need to monitor its storage and alert for high usage. For stateless pods, it is also necessary to monitor its disk usage, since the application within may write logs or other contents directly onto the Docker writable layer. In Kubernetes terms, this space is called ephemeral storage. Another way to prevent ephemeral storge from filling up is to monitor the nodes' disk space directly. This article will demonstrate how to monitor volume storage with Prometheus.
+Pods running on Kubernetes may claim a Persistent Volume to store data that last between pod restarts. This volume is usually of limited size, so we need to monitor its storage and alert for low free space. For stateless pods, it is also necessary to monitor its disk usage, since the application within may write logs or other contents directly onto the Docker writable layer. In Kubernetes terms, this space is called ephemeral storage. Another way to prevent ephemeral storge from filling up is to monitor the nodes' disk space directly. This article will demonstrate how to monitor volume storage with Prometheus.
 
 ## Monitor Persistent Volume
 
-`kubelet` exposes the following metrics for Persistem Volumes:
+`kubelet` exposes the following metrics for Persistent Volumes:
 
 ```
 $ curl http://10.0.0.1:10255/metrics
@@ -23,7 +23,7 @@ kubelet_volume_stats_used_bytes{namespace="airflow",persistentvolumeclaim="data-
 kubelet_volume_stats_used_bytes{namespace="default",persistentvolumeclaim="grafana"} 4.9381376e+07
 ```
 
-After you setup the [Prometheus Stack][1] with [Helm chart][2], you will get a Service and ServiceMonitor that help scraping these metrics. Then they can be queried by Prometheus UI:
+After you setup the [Prometheus Stack][1] with [Helm chart][2], you will get a Service and ServiceMonitor that help scraping these metrics. Then they can be queried in Prometheus UI:
 
 ![Prometheus UI](/images/k8s-volume/prometheus-ui.png)
 
@@ -49,42 +49,65 @@ Here is a simple alert rule that warns on disk usage:
 
 ## Monitor Ephemeral Storage
 
+According to [Kubernetes documentation][3], ephemeral storage consists of `emptyDir`, logs, and the above-mentioned [writable container layer][7]. One can limit the use of ephemeral storage by configuring `resources` in container spec:
+
+```yaml
+kind: Pod
+spec:
+  containers:
+  - name: app
+    resources:
+      requests:
+        ephemeral-storage: "2Gi"
+      limits:
+        ephemeral-storage: "4Gi"
+    volumeMounts:
+    - name: ephemeral
+      mountPath: "/tmp"
+  volumes:
+    - name: ephemeral
+      emptyDir: {}
+```
+
+`kubelet` integrates the [cAdvisor][4] (Container Advisor) utility, which exposes a series of container metrics:
+
+| Metric name | Type | Description | Unit |
+| --- | --- | --- | --- |
+| **container_fs_usage_bytes** | Gauge | Number of bytes that are consumed by the container on this filesystem | bytes |
+| container_memory_working_set_bytes | Gauge | Current working set | bytes |
+| container_cpu_usage_seconds_total | Counter | Cumulative cpu time consumed | seconds |
+| container_network_transmit_bytes_total | Counter | Cumulative count of bytes transmitted | bytes |
+
+To get the `limits` we specified in pod spec, we need the help of [`kube-state-metrics`][5] that exposes a metric named `kube_pod_container_resource_limits`:
+
+| Metric name | Value |
+| --- | --- |
+| kube_pod_container_resource_limits{exported_pod="nginx-57bf55c5b5-n7vzp", resource="memory", unit="byte"} | 67108864 |
+| kube_pod_container_resource_limits{exported_pod="nginx-57bf55c5b5-n7vzp", resource="cpu", unit="core"} | 0.1 |
+| kube_pod_container_resource_limits{exported_pod="nginx-57bf55c5b5-n7vzp", resource="ephemeral_storage", unit="byte"} | 1073741824 |
+
+If a pod is using more disk space than expected, it is usually because of application logs. One can adjust the log level, mount a dedicated PV for logging, or clear log files periodically. To temporarily solve the alert, just restart the Deployment or StatefulSet.
+
 ## Monitor Node Disk Space
 
+Though all cloud infrastructure providers have out-of-the-box warnings for virtual machines' disk space, we can still setup our own graphs and alerts. Prometheus has built-in [`node-exporter`][6] metrics:
+
+```
+sum(
+    max by (device) (
+        node_filesystem_size_bytes{job="node-exporter", instance="10.0.0.1:9100", fstype!=""}
+    -
+        node_filesystem_avail_bytes{job="node-exporter", instance="10.0.0.1:9100", fstype!=""}
+    )
+)
+```
+
+![Node filesystem size](/images/k8s-volume/node-filesystem-size.png)
 
 [1]: https://github.com/prometheus-operator/kube-prometheus
 [2]: https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack
-
-
-prometheus-operator-prometheus-node-exporter
-prometheus-kubelet
-cadvisor
-metrics-server vs kube-state-metrics
-
-Node
-    sum(
-        max by (device) (
-            node_filesystem_size_bytes{job="node-exporter", instance="10.111.8.12:9100", fstype!=""}
-        -
-            node_filesystem_avail_bytes{job="node-exporter", instance="10.111.8.12:9100", fstype!=""}
-        )
-    )
-
-PV
-    sum(kubelet_volume_stats_used_bytes{persistentvolumeclaim="prometheus-prometheus-kube-prometheus-prometheus-db-prometheus-prometheus-kube-prometheus-prometheus-0"})
-        / sum(kubelet_volume_stats_capacity_bytes{persistentvolumeclaim="prometheus-prometheus-kube-prometheus-prometheus-db-prometheus-prometheus-kube-prometheus-prometheus-0"})
-        > 0.8
-    kube_persistentvolume_capacity_bytes?
-
-Ephemeral
-    container_fs_usage_bytes{pod!=""} > 5000000000
-
-
-https://kubernetes.io/docs/concepts/storage/volumes/
-https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#local-ephemeral-storage
-    emptyDir volumes, except tmpfs emptyDir volumes
-    directories holding node-level logs
-    writeable container layers
-https://github.com/google/cadvisor/blob/master/docs/storage/prometheus.md
-
-k8s 启动一个容器的时候，如果没有挂任何的 pv，那容器在往文件系统里写东西的时候其实是写在一个叫 writable layer 的地方，也就是宿主机的磁盘上。如果不加限制，可能会把宿主机磁盘写满。限制的方式是用 resources.limits.ephemeral-storage 来指定能用多少空间，并且可以用 container_fs_usage_bytes 和 kube_pod_container_resource_limits 来监控使用率？
+[3]: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-emphemeralstorage-consumption
+[4]: https://github.com/google/cadvisor/blob/master/docs/storage/prometheus.md
+[5]: https://github.com/kubernetes/kube-state-metrics/tree/master/docs
+[6]: https://github.com/prometheus/node_exporter
+[7]: https://docs.docker.com/storage/storagedriver/
