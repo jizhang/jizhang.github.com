@@ -1,3 +1,4 @@
+https://shzhangji.com/blog/2022/07/01/monitor-kubernetes-volume-storage/
 https://shzhangji.com/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/
 https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/
 https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/
@@ -88,7 +89,9 @@ https://shzhangji.com/tags/openapi/
 https://shzhangji.com/tags/flask/
 https://shzhangji.com/tags/typescript/
 https://shzhangji.com/tags/sqlalchemy/
-https://shzhangji.com/tags/hadoop/
 https://shzhangji.com/tags/kubernetes/
+https://shzhangji.com/tags/prometheus/
+https://shzhangji.com/tags/devops/
+https://shzhangji.com/tags/hadoop/
 https://shzhangji.com/categories/Programming/
 https://shzhangji.com/categories/Big-Data/
