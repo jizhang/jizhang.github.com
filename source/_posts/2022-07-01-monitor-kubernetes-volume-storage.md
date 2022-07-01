@@ -1,8 +1,13 @@
 ---
 title: Monitor Kubernetes Volume Storage
-tags: [kubernetes, prometheus]
-categories: DevOps
+tags:
+  - kubernetes
+  - prometheus
+  - devops
+categories: Programming
+date: 2022-07-01 08:21:39
 ---
+
 
 Pods running on Kubernetes may claim a Persistent Volume to store data that last between pod restarts. This volume is usually of limited size, so we need to monitor its storage and alert for low free space. For stateless pods, it is also necessary to monitor its disk usage, since the application within may write logs or other contents directly onto the Docker writable layer. In Kubernetes terms, this space is called ephemeral storage. Another way to prevent ephemeral storge from filling up is to monitor the nodes' disk space directly. This article will demonstrate how to monitor volume storage with Prometheus.
 
