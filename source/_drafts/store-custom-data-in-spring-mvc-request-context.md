@@ -101,6 +101,91 @@ public class UserService {
 
 Now the service has a typed context object, and it is not coupled with the HTTP layer.
 
+## RequestContextHolder static method
+
+There is a utility class `RequestContextHolder` from which we can get the `currentRequestAttributes`, latter is an implementation of `RequestAttributes` interface with `getAttribute` and `setAttribute` methods. The difference is this interface can be used to extract request-scoped attributes (stored in `HttpServletRequest`) *and* session-scoped attributes (in `HttpSession`). The `WebRequest` instance is actually backed by `RequestAttributes`, so is the `@RequestScope` annotation.
+
+```java
+public User getFromRequestContextHolder() {
+  var user = (User) RequestContextHolder.currentRequestAttributes()
+      .getAttribute("user", RequestAttributes.SCOPE_REQUEST);
+  log.info("Get from RequestContextHolder: {}", user);
+  return user;
+}
+```
+
+Since `RequestContextHolder` is used via static methods, it is necessary to tackle the multithreading problems. The answer is obvious: `ThreadLocal`.
+
+```java
+public abstract class RequestContextHolder  {
+  private static final ThreadLocal<RequestAttributes> requestAttributesHolder =
+      new NamedThreadLocal<>("Request attributes");
+
+  @Nullable
+  public static RequestAttributes getRequestAttributes() {
+    RequestAttributes attributes = requestAttributesHolder.get();
+    return attributes;
+  }
+}
+```
+
+This gives us an idea of implementing the fourth approach, i.e. write our own thread-local request context.
+
+## Thread-local request context
+
+Each servlet request is handled in a separate thread, so we can use a thread-local object to hold the request-scoped context.
+
+```java
+@Component
+public class CustomContextHolder {
+  private static final ThreadLocal<CustomContext> holder = new ThreadLocal<>();
+
+  public void set(CustomContext context) {
+    holder.set(context);
+  }
+
+  public CustomContext get() {
+    return holder.get();
+  }
+
+  public void remove() {
+    holder.remove();
+  }
+}
+```
+
+Beware the thread that processes your request is borrowed from a thread pool, and you don't want your previous request info leaking into the next, so let's clean it up in the `Filter`.
+
+```java
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class UserFilter extends OncePerRequestFilter {
+  private final CustomContextHolder holder;
+
+  @Override
+  protected void doFilterInternal(
+      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException {
+
+    var user = new User("Jerry");
+    var threadLocalContext = new CustomContext();
+    threadLocalContext.setUser(user);
+    holder.set(threadLocalContext);
+
+    try {
+      filterChain.doFilter(request, response);
+    } finally {
+      holder.remove();
+      log.info("Remove custom context from thread local.");
+    }
+  }
+}
+```
+
+Example code can be found on [GitHub][3].
+
 
 [1]: https://projectlombok.org/
 [2]: https://docs.spring.io/spring-framework/docs/5.3.x/reference/html/core.html#beans-factory-scopes
+[3]: https://github.com/jizhang/java-blog-demo/tree/master/request-context
