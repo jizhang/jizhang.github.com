@@ -66,6 +66,41 @@ public class UserService {
 }
 ```
 
-You may need some knowledge of Project Lombok to understand the code. In short, when Spring initializes this service bean, it passes in a **proxy** object of `HttpServletRequest`. When `getFromRequest` is invoked, the `request` variable within will point to the current servlet request instance.
+You may need some knowledge of [Project Lombok][1] to understand the code. In short, when Spring initializes this service bean, it passes in a **proxy** object of `HttpServletRequest`. When `getFromRequest` is invoked, the `request` variable within will point to the current servlet request instance.
 
 As we can see, using `HttpServletRequest` is straightforward, but it has two disadvantages. First, it is not type safe, we need to cast the return value. Second, the service layer should not know of the HTTP request. The context information we pass to lower layers should be decoupled. These two problems can be solved by the next approach.
+
+## Annotate context bean with @RequestScope
+
+The default Spring [bean scope][2] is `singleton`, and there are other scopes like `prototype`, `request`, and `session`. When marked with `@RequestScope`, a new instance will be created for every HTTP request, and get destroyed accordingly.
+
+```java
+@Data
+@Component
+@RequestScope
+public class CustomContext {
+  private User user;
+}
+```
+
+When injected as a dependency, Spring also wraps it with a proxy object.
+
+```java
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class UserService {
+  private final CustomContext context;
+
+  public User getFromScoped() {
+    log.info("Get from request-scoped context: {}", context.getUser());
+    return context.getUser();
+  }
+}
+```
+
+Now the service has a typed context object, and it is not coupled with the HTTP layer.
+
+
+[1]: https://projectlombok.org/
+[2]: https://docs.spring.io/spring-framework/docs/5.3.x/reference/html/core.html#beans-factory-scopes
