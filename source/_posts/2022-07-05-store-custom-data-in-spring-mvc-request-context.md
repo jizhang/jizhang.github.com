@@ -1,8 +1,12 @@
 ---
 title: Store Custom Data in Spring MVC Request Context
-tags: [spring, java]
+tags:
+  - spring
+  - java
 categories: Programming
+date: 2022-07-05 08:04:41
 ---
+
 
 When developing a web application with Spring MVC, you want to make some data available throughout the current request, like authentication information, request identifier, etc. These data are injected into a request-scoped context, and destroyed after the request ends. There are several ways to achieve that, and this article will demonstrate how.
 
