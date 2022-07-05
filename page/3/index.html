@@ -88,6 +88,61 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-hive-window-and-analytical-functions" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2017/09/04/hive-window-and-analytical-functions/" class="article-date">
+  <time datetime="2017-09-04T13:55:23.000Z" itemprop="datePublished">2017-09-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2017/09/04/hive-window-and-analytical-functions/">Hive Window and Analytical Functions</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>SQL is one of the major tools of data analysis. It provides filtering, transforming and aggregation functionalities, and we can use it to process big volume of data with the help of Hive and Hadoop. However, legacy SQL does not support operations like grouped ranking and moving average, because the <code>GROUP BY</code> clause can only produce one aggregation result for each group, but not for each row. Fortunately, with the new SQL standard coming, we can use the <code>WINDOW</code> clause to compute aggregations on a set of rows and return the result for each row.</p>
+<p><img src="/images/hive-window/window-stock.png" alt="Moving Average"></p>
+<p>For instance, if we want to calculate the two-day moving average for each stock, we can write the following query:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">  `<span class="type">date</span>`, `stock`, `<span class="keyword">close</span>`</span><br><span class="line">  ,<span class="built_in">AVG</span>(`<span class="keyword">close</span>`) <span class="keyword">OVER</span> `w` <span class="keyword">AS</span> `mavg`</span><br><span class="line"><span class="keyword">FROM</span> `t_stock`</span><br><span class="line"><span class="keyword">WINDOW</span> `w` <span class="keyword">AS</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> `stock` <span class="keyword">ORDER</span> <span class="keyword">BY</span> `<span class="type">date</span>`</span><br><span class="line">               <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> <span class="number">1</span> PRECEDING <span class="keyword">AND</span> <span class="keyword">CURRENT</span> <span class="type">ROW</span>)</span><br></pre></td></tr></table></figure>
+
+<p><code>OVER</code>, <code>WINDOW</code> and <code>ROWS BETWEEN AND</code> are all newly added SQL keywords to support windowing operations. In this query, <code>PARTITION BY</code> and <code>ORDER BY</code> works like <code>GROUP BY</code> and <code>ORDER BY</code> after the <code>WHERE</code> clause, except it doesn’t collapse the rows, but only divides them into non-overlapping partitions to work on. <code>ROWS BETWEEN AND</code> here constructs a <strong>window frame</strong>. In this case, each frame contains the previous row and current row. We’ll discuss more on frames later. Finally, <code>AVG</code> is a window function that computes results on each frame. Note that <code>WINDOW</code> clause can also be directly appended to window function:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="built_in">AVG</span>(`<span class="keyword">close</span>`) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> `stock`) <span class="keyword">AS</span> `mavg` <span class="keyword">FROM</span> `t_stock`;</span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/blog/2017/09/04/hive-window-and-analytical-functions/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/" data-id="cl57f0lce00199cog7jjf09w9" class="article-share-link">Share</a>
+      
+        <a href="https://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/analytics/" rel="tag">analytics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hive/" rel="tag">hive</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/" rel="tag">sql</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-an-introduction-to-stream-lib-the-stream-processing-utilities" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/" class="article-date">
@@ -127,7 +182,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/" data-id="cl53l7zqg0016auoshsur7g9q" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/" data-id="cl57f0lcd00169cog8pdv5cpe" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -178,7 +233,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/" data-id="cl53l7zqe0013auosd8yc0dcd" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/" data-id="cl57f0lcc00139cog63se0h32" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -237,7 +292,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/" data-id="cl53l7zqd0010auos9kx00xa1" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/" data-id="cl57f0lcb00109cog0b9gfiqa" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -293,7 +348,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/" data-id="cl53l7zqc000wauos517933lq" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/" data-id="cl57f0lc9000w9cog7kcx6ga8" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -352,7 +407,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/" data-id="cl53l7zqb000tauos1mm9anqp" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/" data-id="cl57f0lc8000t9cog5tw6fisr" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -403,7 +458,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cl53l7zqa000qauos6i95ddtq" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/" data-id="cl57f0lc7000q9cog1uklbzxb" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -454,7 +509,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cl53l7zq9000mauos2ozegc60" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/" data-id="cl57f0lc6000m9cog2qytbe14" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -507,7 +562,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="cl53l7zq7000kauos2i5ca6tp" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="cl57f0lc4000k9cogcpora6hs" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -563,63 +618,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cl53l7zq6000gauos4me4aetn" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cl57f0lc3000g9cog50gpb7tw" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/functional-programming/" rel="tag">functional programming</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-difference-between-lodash-assign-and-assignin" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" class="article-date">
-  <time datetime="2017-01-29T06:18:29.000Z" itemprop="datePublished">2017-01-29</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Programming/">Programming</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2017/01/29/difference-between-lodash-assign-and-assignin/">Difference Between Lodash _.assign and _.assignIn</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>In Lodash, both <code>_.assign</code> and <code>_.assignIn</code> are ways to copy source objects’ properties into target object. According the <a target="_blank" rel="noopener" href="https://lodash.com/docs/">documentation</a>, <code>_.assign</code> processes <strong>own enumerable string keyed properties</strong>, while <code>_.assignIn</code> processes both <strong>own and inherited source properties</strong>. There’re also other companion functions like <code>_.forOwn</code> and <code>_.forIn</code>, <code>_.has</code> and <code>_.hasIn</code>. So what’s the difference between them?</p>
-<p>In brief, the <code>In</code> in latter methods implies the way <code>for...in</code> loop behaves, which <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in">iterates all enumerable properties of the object itself and those the object inherits from its constructor’s prototype</a>. JavaScript has an inheritance mechanism called prototype chain. When iterating an object’s properties with <code>for...in</code> or <code>_.forIn</code>, all properties appeared in the object and its prototype are processed, until the prototype resolves to <code>null</code>. Here’s the example code taken from Lodash’s doc:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Foo</span>(<span class="params"></span>) &#123; <span class="variable language_">this</span>.<span class="property">a</span> = <span class="number">1</span>; &#125;</span><br><span class="line"><span class="title class_">Foo</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">b</span> = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">Bar</span>(<span class="params"></span>) &#123; <span class="variable language_">this</span>.<span class="property">c</span> = <span class="number">3</span>; &#125;</span><br><span class="line"><span class="title class_">Bar</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">d</span> = <span class="number">4</span>;</span><br><span class="line">_.<span class="title function_">assign</span>(&#123;<span class="attr">a</span>: <span class="number">0</span>&#125;, <span class="keyword">new</span> <span class="title class_">Foo</span>, <span class="keyword">new</span> <span class="title class_">Bar</span>); <span class="comment">// =&gt; &#123;a: 1, c: 3&#125;</span></span><br><span class="line">_.<span class="title function_">assignIn</span>(&#123;<span class="attr">a</span>: <span class="number">0</span>&#125;, <span class="keyword">new</span> <span class="title class_">Foo</span>, <span class="keyword">new</span> <span class="title class_">Bar</span>); <span class="comment">// =&gt; &#123;a:1, b:2, c:3, d:4&#125;</span></span><br></pre></td></tr></table></figure>
-        
-          <p class="article-more-link">
-            <a href="/blog/2017/01/29/difference-between-lodash-assign-and-assignin/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" data-id="cl53l7zq4000fauos49rkdv0x" class="article-share-link">Share</a>
-      
-        <a href="https://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/" rel="tag">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/" rel="tag">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lodash/" rel="tag">lodash</a></li></ul>
 
     </footer>
   </div>
@@ -641,7 +645,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 15px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 10px;">eslint</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flask/" style="font-size: 11.67px;">flask</a> <a href="/tags/flink/" style="font-size: 11.67px;">flink</a> <a href="/tags/flume/" style="font-size: 13.33px;">flume</a> <a href="/tags/frontend/" style="font-size: 15px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.67px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.67px;">hive</a> <a href="/tags/java/" style="font-size: 18.33px;">java</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.67px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.67px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.67px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.67px;">pandas</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.67px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/sql/" style="font-size: 11.67px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 10px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 10px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 13.33px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 15px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 10px;">eslint</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flask/" style="font-size: 11.67px;">flask</a> <a href="/tags/flink/" style="font-size: 11.67px;">flink</a> <a href="/tags/flume/" style="font-size: 13.33px;">flume</a> <a href="/tags/frontend/" style="font-size: 15px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.67px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.67px;">hive</a> <a href="/tags/java/" style="font-size: 18.33px;">java</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.67px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.67px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.67px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.67px;">pandas</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.67px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 11.67px;">spring</a> <a href="/tags/sql/" style="font-size: 11.67px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 10px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 10px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 13.33px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -663,6 +667,10 @@
       <ul>
         
           <li>
+            <a href="/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/">Store Custom Data in Spring MVC Request Context</a>
+          </li>
+        
+          <li>
             <a href="/blog/2022/07/01/monitor-kubernetes-volume-storage/">Monitor Kubernetes Volume Storage</a>
           </li>
         
@@ -676,10 +684,6 @@
         
           <li>
             <a href="/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/">Use Bootstrap V5 in Vue 3 Project</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/">Migrate from hexo-deployer-git to GitHub Actions</a>
           </li>
         
       </ul>
