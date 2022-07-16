@@ -109,9 +109,51 @@ You can either activate the profile in command line arguments or environment var
 
 ![IDEA Config - Profile](/images/command-line/profile.png)
 
+## Write a JobDispatcher
+
+Lastly, we can always add a middle layer to solve the problem, i.e. a `JobDispatcher` that decides which `Runnable` to run. Only this time, we use the `ApplicationRunner` instead, because it will help us parsing the command line arguments.
+
+```java
+@Component
+@RequiredArgsConstructor
+public class JobDispatcher implements ApplicationRunner {
+  private final AutowireCapableBeanFactory factory;
+
+  @Override
+  public void run(ApplicationArguments args) throws Exception {
+    var jobArgs = args.getOptionValues("job");
+    if (jobArgs == null || jobArgs.size() != 1) {
+      throw new IllegalArgumentException("Invalid argument --job");
+    }
+
+    var jobClass = Class.forName("com.shzhangji.demo.commandline.dispatcher." + jobArgs.get(0));
+    var job = (Runnable) factory.createBean(jobClass);
+    job.run();
+  }
+}
+```
+
+When we pass `--job=JobDispatcherA` on the command line, the dispatcher will try to locate the job class, and initialize it with beans defined in context.
+
+```java
+@Slf4j
+@RequiredArgsConstructor
+public class JobDispatcherA implements Runnable {
+  private final ApplicationContext context;
+
+  @Override
+  public void run() {
+    log.info("Run JobDispatcherA in application context {}", context);
+  }
+}
+```
+
+Example code can be found on [GitHub][6].
+
 
 [1]: https://docs.spring.io/spring-boot/docs/2.7.x/reference/htmlsingle/#features.spring-application.command-line-runner
 [2]: https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/Conditional.html
 [3]: https://docs.spring.io/spring-boot/docs/2.7.x/reference/htmlsingle/#features.developing-auto-configuration.understanding-auto-configured-beans
 [4]: https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/autoconfigure/condition/ConditionalOnProperty.html
 [5]: https://docs.spring.io/spring-boot/docs/2.7.x/reference/htmlsingle/#features.profiles
+[6]: https://github.com/jizhang/java-blog-demo/tree/master/command-line
