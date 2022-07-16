@@ -1,10 +1,15 @@
 ---
 title: Manage Multiple CommandLineRunner in Spring Boot
+tags:
+  - spring
+  - spring boot
+  - java
 categories: Programming
-tags: [spring, spring boot, java]
+date: 2022-07-16 18:17:30
 ---
 
-In Spring Boot, the [`CommandLineRunner`][1] and `ApplicationRunner` are two utility interfaces that we can use to execute code when application is started. However, all beans that implement these interfaces will be invoked by Spring Boot, and it takes some effort to execute only a portion of them. This is especially important when you are developing a console application with Spring Boot. In this article, we will use several techniques to achieve this goal.
+
+In Spring Boot, the [`CommandLineRunner`][1] and `ApplicationRunner` are two utility interfaces that we can use to execute code when application is started. However, all beans that implement these interfaces will be invoked by Spring Boot, and it takes some effort to execute only a portion of them. This is especially important when you are developing a console application with multiple entry points. In this article, we will use several techniques to achieve this goal.
 
 ## Put CommandLineRunner in different packages
 
