@@ -82,6 +82,59 @@ A TypeScript project should have a `tsconfig.json` in the project root. A minimu
 
 Options like `baseUrl` and `moduleResolution` tells TypeScript how to find and import a module. `allowJs` allows you to import JavaScript modules in `.ts` files. `skipLibCheck` tells TypeScript to ignore type errors in `node_modules` folder. `strict` turns on extra type checks, such as no implict `any` or `this`.
 
+## Write Vue component with TypeScript
+
+In Vue 2.7, we can use `defineComponent` with Options API to get better type inference. The following example is taken directly from [Vue 3 document][9]. To enable type check in VS Code, install the [Volar][8] extension.
+
+![Vue component in VS Code](/images/typescript/vue-component-in-vs-code.png)
+
+The `count` variable in template is correctly inferred as number type. We can add more type hints to component properties, emits, and event handlers. Please refer to the [document][10] for further details.
+
+Another example would be typing the API request and response data. Take Axios for an instance. This library is currently written in JavaScript, but comes with a [type declaration file][11] that adds type hints to the public API. We can combine it with our custom request/response types.
+
+```ts
+interface LoginRequest {
+  username: string
+  password: string
+}
+
+interface LoginResponse {
+  userId: number
+}
+
+export async function login(data: LoginRequest) {
+  return api.post<LoginResponse>('/login', data)
+}
+
+// Invoke the API in an async function
+const response = await login({ username: 'Jerry', password: '' })
+console.log(response.data.userId)
+```
+
+If you are using OpenAPI, you can generate typed clients from the specification file. I have written a blog on this topic: *[OpenAPI Workflow with Flask and TypeScript][12]*.
+
+We can also add delaration file to our legacy JavaScript modules. Say there is a `utils.js` module with some function:
+
+```js
+export function formatBytes(bytes) {
+  if (bytes > 1024) return (bytes / 1024).toFixed(1) + 'K'
+  return String(bytes)
+}
+```
+
+Add the following line to `utils.d.ts` file:
+
+```ts
+export function formatBytes(bytes: number): string
+```
+
+Now TypeScript will be able to analyze the code:
+
+```ts
+import { formatBytes } from '@/utils'
+
+formatBytes('256') // Argument of type 'string' is not assignable to parameter of type 'number'.
+```
 
 
 [1]: https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html
@@ -91,3 +144,8 @@ Options like `baseUrl` and `moduleResolution` tells TypeScript how to find and i
 [5]: https://vue-loader.vuejs.org/guide/pre-processors.html#typescript
 [6]: https://webpack.js.org/guides/typescript/
 [7]: https://github.com/vuejs/vue-loader/issues/1919
+[8]: https://marketplace.visualstudio.com/items?itemName=Vue.volar
+[9]: https://vuejs.org/guide/typescript/overview.html#definecomponent
+[10]: https://vuejs.org/guide/typescript/options-api.html
+[11]: https://github.com/axios/axios/blob/v0.27.2/index.d.ts
+[12]: https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/
