@@ -136,6 +136,60 @@ import { formatBytes } from '@/utils'
 formatBytes('256') // Argument of type 'string' is not assignable to parameter of type 'number'.
 ```
 
+## Check types during development and build
+
+As mentioned above, the `transpileOnly` option tells `ts-loader` to skip type check so as to speed up the packing process, but obviously drops the benifit of static types. Though IDEs like VS Code + Volar will identify the problems during development, we still need to check types when someone is not using an IDE, or before a pull request is merged. For this purpose, we shall add other two tools:
+
+```
+yarn add -D fork-ts-checker-webpack-plugin@^7.2.13 vue-tsc@^0.39.0
+```
+
+The [ForkTsCheckerWebpackPlugin][13], as its name suggests, forks a separate process from webpack and do the heavy lifting type check.
+
+```
+webpack 5.73.0 compiled successfully in 4177 ms
+Type-checking in progress...
+ERROR in ./src/services/user.ts:28:13
+TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+    26 | }
+    27 |
+  > 28 | formatBytes('256')
+       |             ^^^^^
+    29 |
+
+Found 1 error in 11671 ms.
+```
+
+After `yarn start`, local dev server will be available in 4s, and type check takes 11s to finish. The error message will also be displayed on the web page.
+
+![ForkTsCheckerWebpackPlugin](/images/typescript/fork-ts-checker-webpack-plugin.png)
+
+Add this plugin to webpack config, and turn on its support for Vue SFC.
+
+```js
+const { VueLoaderPlugin } = require('vue-loader')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+
+const config = {
+  plugins: [
+    new VueLoaderPlugin(),
+    new ForkTsCheckerWebpackPlugin({
+      typescript: {
+        extensions: {
+          vue: true,
+        },
+      },
+    }),
+  ],
+}
+```
+
+vue-tsc
+
+Appendix I: eslint & prettier
+
+Appendix II: babel, esbuild, swc
+
 
 [1]: https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html
 [2]: https://www.typescriptlang.org/cheatsheets
@@ -149,3 +203,4 @@ formatBytes('256') // Argument of type 'string' is not assignable to parameter o
 [10]: https://vuejs.org/guide/typescript/options-api.html
 [11]: https://github.com/axios/axios/blob/v0.27.2/index.d.ts
 [12]: https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/
+[13]: https://github.com/TypeStrong/fork-ts-checker-webpack-plugin
