@@ -138,7 +138,7 @@ formatBytes('256') // Argument of type 'string' is not assignable to parameter o
 
 ## Check types during development and build
 
-As mentioned above, the `transpileOnly` option tells `ts-loader` to skip type check so as to speed up the packing process, but obviously drops the benifit of static types. Though IDEs like VS Code + Volar will identify the problems during development, we still need to check types when someone is not using an IDE, or before a pull request is merged. For this purpose, we shall add other two tools:
+As mentioned above, the `transpileOnly` option tells `ts-loader` to skip type check so as to speed up the bundling process, but obviously drops the benifit of static types. Though IDEs like VS Code + Volar will identify the problems during development, we still need to check types when someone is not using an IDE, or before a pull request is merged. For this purpose, we shall add other two tools:
 
 ```
 yarn add -D fork-ts-checker-webpack-plugin@^7.2.13 vue-tsc@^0.39.0
@@ -231,6 +231,38 @@ Prettier also has built-in support for TypeScript. The `prettier` plugin in `ext
 
 And do not forget to add [`husky`][16] and [`lint-staged`][17] to your toolchain, that helps auto linting and formatting your code before it is committed.
 
+## Appendix: TypeScript transpilers
+
+`tsc` is the official compiler but it slows down the bundling. So we enable `transpileOnly` option in `ts-loader` and add `ForkTsCheckerWebpackPlugin` to tackle this problem. There are other transpilers that *understand* TypeScript syntax, like [`@babel/preset-typescript`][18], [esbuild][19], and [SWC][20], but apparently none of them does type check so the checker plugin is still necessary.
+
+Another note on [TypeScript ESLint][21] project. It does have some *type-aware* linting rules, but they are rather strict and will cause a lot of warnings. Use it judiciously.
+
+```js
+module.exports = {
+  extends: [
+    'standard',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+  ],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: ['./tsconfig.json'],
+    extraFileExtensions: ['.vue'],
+  },
+}
+```
+
+Some warnings on an existing project:
+
+```
+/morph-fe/src/App.vue
+ 6:7   error  Unsafe assignment of an `any` value          @typescript-eslint/no-unsafe-assignment
+10:9   error  Unsafe assignment of an `any` value          @typescript-eslint/no-unsafe-assignment
+10:18  error  Unsafe member access .get on an `any` value  @typescript-eslint/no-unsafe-member-access
+10:18  error  Unsafe call of an `any` typed value          @typescript-eslint/no-unsafe-call
+12:5   error  Unsafe assignment of an `any` value          @typescript-eslint/no-unsafe-assignment
+```
+
 
 [1]: https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html
 [2]: https://www.typescriptlang.org/cheatsheets
@@ -249,3 +281,7 @@ And do not forget to add [`husky`][16] and [`lint-staged`][17] to your toolchain
 [15]: https://eslint.vuejs.org/user-guide/#how-to-use-a-custom-parser
 [16]: https://typicode.github.io/husky/#/?id=install
 [17]: https://github.com/okonet/lint-staged
+[18]: https://babeljs.io/docs/en/babel-preset-typescript
+[19]: https://esbuild.github.io/content-types/#typescript
+[20]: https://swc.rs/blog/swc-1#typescript-support
+[21]: https://typescript-eslint.io/docs/linting/typed-linting
