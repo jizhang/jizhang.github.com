@@ -1,3 +1,4 @@
+https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/
 https://shzhangji.com/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/
 https://shzhangji.com/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/
 https://shzhangji.com/blog/2022/07/01/monitor-kubernetes-volume-storage/
@@ -95,6 +96,7 @@ https://shzhangji.com/tags/kubernetes/
 https://shzhangji.com/tags/prometheus/
 https://shzhangji.com/tags/devops/
 https://shzhangji.com/tags/spring-boot/
+https://shzhangji.com/tags/webpack/
 https://shzhangji.com/tags/hadoop/
 https://shzhangji.com/categories/Programming/
 https://shzhangji.com/categories/Big-Data/

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Add TypeScript Support to Vue 2 Project | Ji ZHANG&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Now that TypeScript has become the de facto standard in frontend development, new projects and third-party libraries are mostly built on its ecosystem. For existing projects, TypeScript can also be ap">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Add TypeScript Support to Vue 2 Project">
+<meta property="og:url" content="https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/index.html">
+<meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
+<meta property="og:description" content="Now that TypeScript has become the de facto standard in frontend development, new projects and third-party libraries are mostly built on its ecosystem. For existing projects, TypeScript can also be ap">
+<meta property="og:locale">
+<meta property="og:image" content="https://shzhangji.com/images/typescript/cheat-sheet-interface.png">
+<meta property="og:image" content="https://shzhangji.com/images/typescript/vue-component-in-vs-code.png">
+<meta property="og:image" content="https://shzhangji.com/images/typescript/fork-ts-checker-webpack-plugin.png">
+<meta property="article:published_time" content="2022-07-24T09:13:40.000Z">
+<meta property="article:modified_time" content="2022-07-24T09:13:40.000Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="frontend">
+<meta property="article:tag" content="vue">
+<meta property="article:tag" content="eslint">
+<meta property="article:tag" content="typescript">
+<meta property="article:tag" content="webpack">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shzhangji.com/images/typescript/cheat-sheet-interface.png">
+<meta name="twitter:creator" content="@zjerryj">
+<link rel="publisher" href="zhangji87@gmail.com">
+  
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XGPVRTV36D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XGPVRTV36D');
+  </script>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">If I rest, I rust.</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/categories/Big-Data">Big Data</a>
+        
+          <a class="main-nav-link" href="/categories/Programming">Programming</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+        <a class="main-nav-link" href="https://shzhangji.com/cnblogs"><img src="/images/cnblogs.png"></a>
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-add-typescript-support-to-vue-2-project" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2022/07/24/add-typescript-support-to-vue-2-project/" class="article-date">
+  <time datetime="2022-07-24T09:13:40.000Z" itemprop="datePublished">2022-07-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Add TypeScript Support to Vue 2 Project
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Now that TypeScript has become the de facto standard in frontend development, new projects and third-party libraries are mostly built on its ecosystem. For existing projects, TypeScript can also be applied gradually. Just add the toolchain, and start writing or rewriting part of your application. In this article, I will walk you through the steps of adding TypeScript to a Vue 2 project, since I myself is working on a legacy project, and TypeScript has brought a lot of benefits.</p>
+<h2 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h2><p>For those who are new to TypeScript, I recommend you read the guide <em><a target="_blank" rel="noopener" href="https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html">TypeScript for JavaScript Programmers</a></em>. In short, TypeScript is a superset of JavaScript. It adds type hints to variables, as well as other syntax like class, interface, decorator, and some of them are already merged into ECMAScript. When compiling, TypeScript can do static type check. It will try to infer the variable type as much as possible, or you need to define the type explicitly. Here is the official <a target="_blank" rel="noopener" href="https://www.typescriptlang.org/cheatsheets">TypeScript Cheat Sheet</a>.</p>
+<p><img src="/images/typescript/cheat-sheet-interface.png" alt="TypeScript Cheat Sheet - Interface"></p>
+<span id="more"></span>
+
+<p>You should also be familiar with <a target="_blank" rel="noopener" href="https://v2.vuejs.org/v2/guide/typescript.html">Vue</a>, <a target="_blank" rel="noopener" href="https://vue-loader.vuejs.org/guide/pre-processors.html#typescript">vue-loader</a>, and <a target="_blank" rel="noopener" href="https://webpack.js.org/guides/typescript/">webpack</a>. Vue 2 already has good support for TypeScript, and the recently published <a target="_blank" rel="noopener" href="https://blog.vuejs.org/posts/vue-2-7-naruto.html">Vue 2.7</a> backported a lot of useful features from Vue 3, like composition API, <code>&lt;script setup&gt;</code>, and <code>defineComponent</code>, further improving the developer experience of TypeScript in Vue.</p>
+<p>Before you start, upgrade the existing tools to their latest version. <code>vue-loader</code> v15 is the <a target="_blank" rel="noopener" href="https://github.com/vuejs/vue-loader/issues/1919">last version</a> that supports Vue 2. Consult the official documents if you encounter migration issues.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yarn add vue@^2.7.8</span><br><span class="line">yarn add -D vue-template-compiler@^2.7.8 vue-loader@^15.10.0 webpack@^5.73.0</span><br></pre></td></tr></table></figure>
+
+<h2 id="Install-TypeScript-and-ts-loader"><a href="#Install-TypeScript-and-ts-loader" class="headerlink" title="Install TypeScript and ts-loader"></a>Install TypeScript and <code>ts-loader</code></h2><p>First, add <code>typescript</code> and <code>ts-loader</code> as development dependencies:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add -D typescript ts-loader</span><br></pre></td></tr></table></figure>
+
+<p>Add <code>ts-loader</code> to webpack config:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> config = &#123;</span><br><span class="line">  <span class="attr">resolve</span>: &#123;</span><br><span class="line">    <span class="attr">extensions</span>: [<span class="string">&#x27;.ts&#x27;</span>, <span class="string">&#x27;.js&#x27;</span>],</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">module</span>: &#123;</span><br><span class="line">    <span class="attr">rules</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">test</span>: <span class="regexp">/\.vue$/</span>,</span><br><span class="line">        <span class="attr">loader</span>: <span class="string">&#x27;vue-loader&#x27;</span>,</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">test</span>: <span class="regexp">/\.ts$/</span>,</span><br><span class="line">        <span class="attr">loader</span>: <span class="string">&#x27;ts-loader&#x27;</span>,</span><br><span class="line">        <span class="attr">options</span>: &#123;</span><br><span class="line">          <span class="attr">appendTsSuffixTo</span>: [<span class="regexp">/\.vue$/</span>],</span><br><span class="line">          <span class="attr">transpileOnly</span>: <span class="literal">true</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">      &#125;,</span><br><span class="line">    ],</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Now <code>.ts</code> files will go through <code>ts-loader</code> to get compiled. <code>vue-loader</code> will extract <code>&lt;script lang=&quot;ts&quot;&gt;</code> blocks from SFC (Single-File Components) and they also get compiled. The <code>resolve</code> and <code>appendTsSuffixTo</code> options allow TypeScript to import <code>.vue</code> files as modules. <code>transpileOnly</code> tells TypeScript compiler <em>not</em> to do type checks during compiling. This is for performance reasons, and we will cover it later.</p>
+<p>A TypeScript project should have a <code>tsconfig.json</code> in the project root. A minimum example would be:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;allowJs&quot;</span><span class="punctuation">:</span> <span class="keyword">true</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;baseUrl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;.&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;jsx&quot;</span><span class="punctuation">:</span> <span class="string">&quot;preserve&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;module&quot;</span><span class="punctuation">:</span> <span class="string">&quot;es2015&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;moduleResolution&quot;</span><span class="punctuation">:</span> <span class="string">&quot;node&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;paths&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;@/*&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;src/*&quot;</span><span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;skipLibCheck&quot;</span><span class="punctuation">:</span> <span class="keyword">true</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;sourceMap&quot;</span><span class="punctuation">:</span> <span class="keyword">true</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strict&quot;</span><span class="punctuation">:</span> <span class="keyword">true</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;target&quot;</span><span class="punctuation">:</span> <span class="string">&quot;es5&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>Options like <code>baseUrl</code> and <code>moduleResolution</code> tells TypeScript how to find and import a module. <code>allowJs</code> allows you to import JavaScript modules in <code>.ts</code> files. <code>skipLibCheck</code> tells TypeScript to ignore type errors in <code>node_modules</code> folder. <code>strict</code> turns on extra type checks, such as no implict <code>any</code> or <code>this</code>.</p>
+<h2 id="Write-Vue-component-with-TypeScript"><a href="#Write-Vue-component-with-TypeScript" class="headerlink" title="Write Vue component with TypeScript"></a>Write Vue component with TypeScript</h2><p>In Vue 2.7, we can use <code>defineComponent</code> with Options API to get better type inference. The following example is taken directly from <a target="_blank" rel="noopener" href="https://vuejs.org/guide/typescript/overview.html#definecomponent">Vue 3 document</a>. To enable type check in VS Code, install the <a target="_blank" rel="noopener" href="https://marketplace.visualstudio.com/items?itemName=Vue.volar">Volar</a> extension.</p>
+<p><img src="/images/typescript/vue-component-in-vs-code.png" alt="Vue component in VS Code"></p>
+<p>The <code>count</code> variable in template is correctly inferred as number type. We can add more type hints to component properties, emits, and event handlers. Please refer to the <a target="_blank" rel="noopener" href="https://vuejs.org/guide/typescript/options-api.html">document</a> for further details.</p>
+<p>Another example would be typing the API request and response data. Take Axios for an instance. This library is currently written in JavaScript, but comes with a <a target="_blank" rel="noopener" href="https://github.com/axios/axios/blob/v0.27.2/index.d.ts">type declaration file</a> that adds type hints to the public API. We can combine it with our custom request&#x2F;response types.</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">LoginRequest</span> &#123;</span><br><span class="line">  <span class="attr">username</span>: <span class="built_in">string</span></span><br><span class="line">  <span class="attr">password</span>: <span class="built_in">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">LoginResponse</span> &#123;</span><br><span class="line">  <span class="attr">userId</span>: <span class="built_in">number</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">login</span>(<span class="params">data: LoginRequest</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> api.<span class="property">post</span>&lt;<span class="title class_">LoginResponse</span>&gt;(<span class="string">&#x27;/login&#x27;</span>, data)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Invoke the API in an async function</span></span><br><span class="line"><span class="keyword">const</span> response = <span class="keyword">await</span> <span class="title function_">login</span>(&#123; <span class="attr">username</span>: <span class="string">&#x27;Jerry&#x27;</span>, <span class="attr">password</span>: <span class="string">&#x27;&#x27;</span> &#125;)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(response.<span class="property">data</span>.<span class="property">userId</span>)</span><br></pre></td></tr></table></figure>
+
+<p>If you are using OpenAPI, you can generate typed clients from the specification file. I have written a blog on this topic: <em><a href="https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/">OpenAPI Workflow with Flask and TypeScript</a></em>.</p>
+<p>We can also add delaration file to our legacy JavaScript modules. Say there is a <code>utils.js</code> module with some function:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">formatBytes</span>(<span class="params">bytes</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (bytes &gt; <span class="number">1024</span>) <span class="keyword">return</span> (bytes / <span class="number">1024</span>).<span class="title function_">toFixed</span>(<span class="number">1</span>) + <span class="string">&#x27;K&#x27;</span></span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">String</span>(bytes)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Create a <code>utils.d.ts</code> file with the following content:</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">formatBytes</span>(<span class="params">bytes: <span class="built_in">number</span></span>): <span class="built_in">string</span></span><br></pre></td></tr></table></figure>
+
+<p>Now TypeScript will be able to analyze the code:</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; formatBytes &#125; <span class="keyword">from</span> <span class="string">&#x27;@/utils&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">formatBytes</span>(<span class="string">&#x27;256&#x27;</span>) <span class="comment">// Argument of type &#x27;string&#x27; is not assignable to parameter of type &#x27;number&#x27;.</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Check-types-during-development-and-build"><a href="#Check-types-during-development-and-build" class="headerlink" title="Check types during development and build"></a>Check types during development and build</h2><p>As mentioned above, the <code>transpileOnly</code> option tells <code>ts-loader</code> to skip type check so as to speed up the bundling process, but obviously drops the benifit of static typing. Though IDEs like VS Code + Volar will identify the problems during development, we still need to check types when someone is not using an IDE, or before a pull request is merged. For this purpose, we shall add other two tools:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add -D fork-ts-checker-webpack-plugin@^7.2.13 vue-tsc@^0.39.0</span><br></pre></td></tr></table></figure>
+
+<p>The <a target="_blank" rel="noopener" href="https://github.com/TypeStrong/fork-ts-checker-webpack-plugin">ForkTsCheckerWebpackPlugin</a>, as its name suggests, forks a separate process from webpack and do the heavy lifting type check.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">webpack 5.73.0 compiled successfully in 4177 ms</span><br><span class="line">Type-checking in progress...</span><br><span class="line">ERROR in ./src/services/user.ts:28:13</span><br><span class="line">TS2345: Argument of type &#x27;string&#x27; is not assignable to parameter of type &#x27;number&#x27;.</span><br><span class="line">    26 | &#125;</span><br><span class="line">    27 |</span><br><span class="line">  &gt; 28 | formatBytes(&#x27;256&#x27;)</span><br><span class="line">       |             ^^^^^</span><br><span class="line">    29 |</span><br><span class="line"></span><br><span class="line">Found 1 error in 11671 ms.</span><br></pre></td></tr></table></figure>
+
+<p>After <code>yarn start</code>, local dev server will be available in 4s, and type check takes 11s to finish. The error message will also be displayed on the web page.</p>
+<p><img src="/images/typescript/fork-ts-checker-webpack-plugin.png" alt="ForkTsCheckerWebpackPlugin"></p>
+<p>Add this plugin to webpack config, and turn on its support for Vue SFC.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; <span class="title class_">VueLoaderPlugin</span> &#125; = <span class="built_in">require</span>(<span class="string">&#x27;vue-loader&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> <span class="title class_">ForkTsCheckerWebpackPlugin</span> = <span class="built_in">require</span>(<span class="string">&#x27;fork-ts-checker-webpack-plugin&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> config = &#123;</span><br><span class="line">  <span class="attr">plugins</span>: [</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">VueLoaderPlugin</span>(),</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">ForkTsCheckerWebpackPlugin</span>(&#123;</span><br><span class="line">      <span class="attr">typescript</span>: &#123;</span><br><span class="line">        <span class="attr">extensions</span>: &#123;</span><br><span class="line">          <span class="attr">vue</span>: <span class="literal">true</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;),</span><br><span class="line">  ],</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>However, this plugin only solves the problem during development, we still need a way to do type check before someone merges his code. The solution is to put <a target="_blank" rel="noopener" href="https://github.com/johnsoncodehk/volar/tree/master/packages/vue-tsc"><code>vue-tsc</code></a> in the lint phase of your project. <code>tsc</code> is the TypeScript Compiler, and <code>vue-tsc</code> is a wrapper of that to support compiling TS code block in SFC. Modify the <code>lint</code> script in your <code>package.json</code> and setup a proper CI pipeline.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;lint&quot;</span><span class="punctuation">:</span> <span class="string">&quot;eslint --ext .vue,.ts,.js . &amp;&amp; vue-tsc --noEmit&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="More-on-code-style-and-linting"><a href="#More-on-code-style-and-linting" class="headerlink" title="More on code style and linting"></a>More on code style and linting</h2><p>We usually use <code>eslint</code> to enforce various rules of coding convention, and <code>prettier</code> for auto formatting. TypeScript also has dedicated lint rules and style guide. Install the necessary eslint plugins:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add -D @typescript-eslint/parser @typescript-eslint/eslint-plugin</span><br></pre></td></tr></table></figure>
+
+<p>To make it work with <a target="_blank" rel="noopener" href="https://eslint.vuejs.org/user-guide/#how-to-use-a-custom-parser"><code>esling-plugin-vue</code></a>, use the following <code>.eslintrc.js</code> config:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="attr">extends</span>: [</span><br><span class="line">    <span class="string">&#x27;standard&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;plugin:vue/essential&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;plugin:@typescript-eslint/recommended&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;prettier&#x27;</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">parser</span>: <span class="string">&#x27;vue-eslint-parser&#x27;</span>,</span><br><span class="line">  <span class="attr">parserOptions</span>: &#123;</span><br><span class="line">    <span class="attr">parser</span>: <span class="string">&#x27;@typescript-eslint/parser&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Prettier also has built-in support for TypeScript. The <code>prettier</code> plugin in <code>extends</code> helps disabling some of the formatting rules. Here is an example of <code>.prettierrc.json</code>:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;htmlWhitespaceSensitivity&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ignore&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;semi&quot;</span><span class="punctuation">:</span> <span class="keyword">false</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;singleQuote&quot;</span><span class="punctuation">:</span> <span class="keyword">true</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>And do not forget to add <a target="_blank" rel="noopener" href="https://typicode.github.io/husky/#/?id=install"><code>husky</code></a> and <a target="_blank" rel="noopener" href="https://github.com/okonet/lint-staged"><code>lint-staged</code></a> to your toolchain, that helps auto linting and formatting your code before it is committed.</p>
+<h2 id="Appendix-TypeScript-transpilers"><a href="#Appendix-TypeScript-transpilers" class="headerlink" title="Appendix: TypeScript transpilers"></a>Appendix: TypeScript transpilers</h2><p><code>tsc</code> is the official compiler but it slows down the bundling. So we enable <code>transpileOnly</code> option in <code>ts-loader</code> and add <code>ForkTsCheckerWebpackPlugin</code> to tackle this problem. There are other transpilers that <em>understand</em> TypeScript syntax, like <a target="_blank" rel="noopener" href="https://babeljs.io/docs/en/babel-preset-typescript"><code>@babel/preset-typescript</code></a>, <a target="_blank" rel="noopener" href="https://esbuild.github.io/content-types/#typescript">esbuild</a>, and <a target="_blank" rel="noopener" href="https://swc.rs/blog/swc-1#typescript-support">SWC</a>, but apparently none of them does type check so the checker plugin is still necessary.</p>
+<p>Another note on <a target="_blank" rel="noopener" href="https://typescript-eslint.io/docs/linting/typed-linting">TypeScript ESLint</a> project. It does have some <em>type-aware</em> linting rules, but they are rather strict and will cause a lot of warnings. Use it judiciously.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="attr">extends</span>: [</span><br><span class="line">    <span class="string">&#x27;standard&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;plugin:@typescript-eslint/recommended&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;plugin:@typescript-eslint/recommended-requiring-type-checking&#x27;</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">parser</span>: <span class="string">&#x27;@typescript-eslint/parser&#x27;</span>,</span><br><span class="line">  <span class="attr">parserOptions</span>: &#123;</span><br><span class="line">    <span class="attr">project</span>: [<span class="string">&#x27;./tsconfig.json&#x27;</span>],</span><br><span class="line">    <span class="attr">extraFileExtensions</span>: [<span class="string">&#x27;.vue&#x27;</span>],</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Some warnings on an existing project:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/morph-fe/src/App.vue</span><br><span class="line"> 6:7   error  Unsafe assignment of an `any` value          @typescript-eslint/no-unsafe-assignment</span><br><span class="line">10:9   error  Unsafe assignment of an `any` value          @typescript-eslint/no-unsafe-assignment</span><br><span class="line">10:18  error  Unsafe member access .get on an `any` value  @typescript-eslint/no-unsafe-member-access</span><br><span class="line">10:18  error  Unsafe call of an `any` typed value          @typescript-eslint/no-unsafe-call</span><br><span class="line">12:5   error  Unsafe assignment of an `any` value          @typescript-eslint/no-unsafe-assignment</span><br></pre></td></tr></table></figure>
+
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/" data-id="cl5z485w2007rp9oif1zz72hg" class="article-share-link">Share</a>
+      
+        <a href="https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/eslint/" rel="tag">eslint</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/" rel="tag">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/typescript/" rel="tag">typescript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/" rel="tag">vue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webpack/" rel="tag">webpack</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Manage Multiple CommandLineRunner in Spring Boot</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 15px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.67px;">eslint</a> <a href="/tags/etl/" style="font-size: 13.33px;">etl</a> <a href="/tags/flask/" style="font-size: 11.67px;">flask</a> <a href="/tags/flink/" style="font-size: 11.67px;">flink</a> <a href="/tags/flume/" style="font-size: 13.33px;">flume</a> <a href="/tags/frontend/" style="font-size: 16.67px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.67px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.67px;">hive</a> <a href="/tags/java/" style="font-size: 18.33px;">java</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.67px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.67px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.67px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.67px;">pandas</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.67px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 13.33px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 10px;">spring boot</a> <a href="/tags/sql/" style="font-size: 11.67px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 10px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 13.33px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 11.67px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2022/07/24/add-typescript-support-to-vue-2-project/">Add TypeScript Support to Vue 2 Project</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/">Manage Multiple CommandLineRunner in Spring Boot</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/">Store Custom Data in Spring MVC Request Context</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2022/07/01/monitor-kubernetes-volume-storage/">Monitor Kubernetes Volume Storage</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/">Write Your Own Flask SQLAlchemy Extension</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <br>
+      &copy; 2022 Ji ZHANG<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/categories/Big-Data" class="mobile-nav-link">Big Data</a>
+  
+    <a href="/categories/Programming" class="mobile-nav-link">Programming</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+  <a href="https://shzhangji.com/cnblogs" class="mobile-nav-link">中文</a>
+</nav>
+
+    
+<script>
+  var disqus_shortname = 'jizhang';
+  
+  var disqus_url = 'https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>
