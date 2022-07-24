@@ -1,8 +1,15 @@
 ---
 title: Add TypeScript Support to Vue 2 Project
-tags: [frontend, typescript, vue, webpack, eslint]
+tags:
+  - frontend
+  - typescript
+  - vue
+  - webpack
+  - eslint
 categories: Programming
+date: 2022-07-24 17:13:40
 ---
+
 
 Now that TypeScript has become the de facto standard in frontend development, new projects and third-party libraries are mostly built on its ecosystem. For existing projects, TypeScript can also be applied gradually. Just add the toolchain, and start writing or rewriting part of your application. In this article, I will walk you through the steps of adding TypeScript to a Vue 2 project, since I myself is working on a legacy project, and TypeScript has brought a lot of benefits.
 
@@ -122,7 +129,7 @@ export function formatBytes(bytes) {
 }
 ```
 
-Add the following line to `utils.d.ts` file:
+Create a `utils.d.ts` file with the following content:
 
 ```ts
 export function formatBytes(bytes: number): string
@@ -138,7 +145,7 @@ formatBytes('256') // Argument of type 'string' is not assignable to parameter o
 
 ## Check types during development and build
 
-As mentioned above, the `transpileOnly` option tells `ts-loader` to skip type check so as to speed up the bundling process, but obviously drops the benifit of static types. Though IDEs like VS Code + Volar will identify the problems during development, we still need to check types when someone is not using an IDE, or before a pull request is merged. For this purpose, we shall add other two tools:
+As mentioned above, the `transpileOnly` option tells `ts-loader` to skip type check so as to speed up the bundling process, but obviously drops the benifit of static typing. Though IDEs like VS Code + Volar will identify the problems during development, we still need to check types when someone is not using an IDE, or before a pull request is merged. For this purpose, we shall add other two tools:
 
 ```
 yarn add -D fork-ts-checker-webpack-plugin@^7.2.13 vue-tsc@^0.39.0
