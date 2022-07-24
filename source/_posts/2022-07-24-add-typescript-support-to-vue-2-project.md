@@ -195,7 +195,7 @@ However, this plugin only solves the problem during development, we still need a
 
 ```json
 {
-  scripts: {
+  "scripts": {
     "lint": "eslint --ext .vue,.ts,.js . && vue-tsc --noEmit"
   }
 }
