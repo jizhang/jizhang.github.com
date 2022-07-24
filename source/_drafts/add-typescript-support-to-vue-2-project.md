@@ -184,11 +184,52 @@ const config = {
 }
 ```
 
-vue-tsc
+However, this plugin only solves the problem during development, we still need a way to do type check before someone merges his code. The solution is to put [`vue-tsc`][14] in the lint phase of your project. `tsc` is the TypeScript Compiler, and `vue-tsc` is a wrapper of that to support compiling TS code block in SFC. Modify the `lint` script in your `package.json` and setup a proper CI pipeline.
 
-Appendix I: eslint & prettier
+```json
+{
+  scripts: {
+    "lint": "eslint --ext .vue,.ts,.js . && vue-tsc --noEmit"
+  }
+}
+```
 
-Appendix II: babel, esbuild, swc
+## More on code style and linting
+
+We usually use `eslint` to enforce various rules of coding convention, and `prettier` for auto formatting. TypeScript also has dedicated lint rules and style guide. Install the necessary eslint plugins:
+
+```
+yarn add -D @typescript-eslint/parser @typescript-eslint/eslint-plugin
+```
+
+To make it work with [`esling-plugin-vue`][15], use the following `.eslintrc.js` config:
+
+```js
+module.exports = {
+  extends: [
+    'standard',
+    'plugin:vue/essential',
+    'plugin:@typescript-eslint/recommended',
+    'prettier',
+  ],
+  parser: 'vue-eslint-parser',
+  parserOptions: {
+    parser: '@typescript-eslint/parser',
+  },
+}
+```
+
+Prettier also has built-in support for TypeScript. The `prettier` plugin in `extends` helps disabling some of the formatting rules. Here is an example of `.prettierrc.json`:
+
+```json
+{
+  "htmlWhitespaceSensitivity": "ignore",
+  "semi": false,
+  "singleQuote": true
+}
+```
+
+And do not forget to add [`husky`][16] and [`lint-staged`][17] to your toolchain, that helps auto linting and formatting your code before it is committed.
 
 
 [1]: https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html
@@ -204,3 +245,7 @@ Appendix II: babel, esbuild, swc
 [11]: https://github.com/axios/axios/blob/v0.27.2/index.d.ts
 [12]: https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/
 [13]: https://github.com/TypeStrong/fork-ts-checker-webpack-plugin
+[14]: https://github.com/johnsoncodehk/volar/tree/master/packages/vue-tsc
+[15]: https://eslint.vuejs.org/user-guide/#how-to-use-a-custom-parser
+[16]: https://typicode.github.io/husky/#/?id=install
+[17]: https://github.com/okonet/lint-staged
