@@ -4,6 +4,7 @@ menu:
   Big Data: /categories/Big-Data
   Programming: /categories/Programming
   Archives: /archives
+  '中文': 'https://shzhangji.com/cnblogs/'
 rss: /atom.xml
 
 # Content
