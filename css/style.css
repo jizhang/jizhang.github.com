@@ -439,6 +439,9 @@ body {
 #nav-rss-link:before {
   content: "\f09e";
 }
+#nav-github:before {
+  content: "\f09b";
+}
 #nav-search-btn:before {
   content: "\f002";
 }
