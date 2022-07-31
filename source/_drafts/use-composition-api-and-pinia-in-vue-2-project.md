@@ -97,6 +97,87 @@ function increment() {
 </script>
 ```
 
+## More on states
+
+`ref` is used to define a single state variable, and we have to use `.value` to get and set its value. You can pass an object or array to `ref`, but it is not convenient to change only one member of the state, like changing a field value in a form. So `reactive` would be a better choice here.
+
+```html
+<template>
+  <div>
+    <form @submit.prevent="login()">
+      <input v-model="form.username" placeholder="Username" />
+      <input v-model="form.password" placeholder="Password" type="password" />
+      <button type="submit">Login</button>
+    </form>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { reactive } from 'vue'
+
+const form = reactive({
+  username: '',
+  password: '',
+})
+
+function login() {
+  console.log({ ...form })
+}
+</script>
+```
+
+`reactive` looks much more like the `data` section in Options API. The difference is you can define multiple `ref` and `reactive`s in one component, place them nearer to where they are used. There are other topics on component state, like `computed` and `watch`, please take a look at the official document [*Reactivity API: Core*][8].
+
+## Define component's `props` and `emits`
+
+Let's wrap login form into a component, to see how `props` and `emits` are defined:
+
+```html
+<template><!-- Not changed --></template>
+
+<script setup lang="ts">
+import { reactive, defineProps, defineEmits } from 'vue'
+
+export interface Props {
+  username: string
+  password: string
+}
+
+const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  (e: 'login', form: Props): void
+}>()
+
+const form = reactive({ ...props })
+
+function login() {
+  emit('login', { ...form })
+}
+</script>
+```
+
+This component takes `props` as the initial values of form fields, and when the form is submitted, it emits the `login` event to parent component:
+
+```html
+<template>
+  <LoginForm username="admin" password="admin" @login="login" />
+</template>
+
+<script setup lang="ts">
+import LoginForm, { type Props } from './LoginForm.vue'
+
+function login(form: Props) {
+  console.log(form)
+}
+</script>
+```
+
+We can see `props` and `emits` are both strongly typed, so TS will highlight any violation of the component interface.
+
+Template refs are also supported in Composition API with TS. I wrote a post about wrapping Bootstrap 5 modal into a Vue component, with template ref and `v-model`. Please check out [*Use Bootstrap V5 in Vue 3 Project*][9].
+
+
 [1]: https://github.com/vuejs/composition-api
 [2]: https://github.com/antfu/unplugin-vue2-script-setup
 [3]: https://github.com/vueuse/vue-demi
@@ -104,3 +185,5 @@ function increment() {
 [5]: https://vuejs.org/guide/extras/composition-api-faq.html
 [6]: https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/
 [7]: https://github.com/vuejs/vue-class-component
+[8]: https://vuejs.org/api/reactivity-core.html
+[9]: https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/
