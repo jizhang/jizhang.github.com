@@ -1,8 +1,14 @@
 ---
 title: Use Composition API and Pinia in Vue 2 Project
-tags: [frontend, vue, pinia, typescript]
+tags:
+  - frontend
+  - vue
+  - pinia
+  - typescript
 categories: Programming
+date: 2022-07-31 14:07:27
 ---
+
 
 Composition API is one of the major features of Vue 3, and it greatly changes how we organize code. Vue 3 also introduces Pinia as the recommended state management library, superceding Vuex that now enters maintenance mode. It would be nice if we can use these cool features in Vue 2 project, since migration of legacy project could be difficult and costly. Fortunately, the community has tried hard to bring Vue 3 features back to Vue 2, like [`@vue/composition-api`][1], [`unplugin-vue2-script-setup`][2] and [`vue-demi`][3]. Recently, [Vue 2.7][4] is released and backports features like Composition API, `<script setup>`, `defineComponent`, etc. This article will show you how to change your code from Options API to Composition API, from Vuex to Pinia.
 
