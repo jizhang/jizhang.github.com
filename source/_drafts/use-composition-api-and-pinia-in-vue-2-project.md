@@ -177,6 +177,75 @@ We can see `props` and `emits` are both strongly typed, so TS will highlight any
 
 Template refs are also supported in Composition API with TS. I wrote a post about wrapping Bootstrap 5 modal into a Vue component, with template ref and `v-model`. Please check out [*Use Bootstrap V5 in Vue 3 Project*][9].
 
+## From Vuex to Pinia
+
+State management library is often used when you want to share states between different components. Rather than *lifting the state up*, we use a dedicated global state store that results in cleaner code and good separation of concerns. A store is also used to interact with backend APIs, and it gives better integration with DevTools. In fact, using a state store has become a standard approach in frontend development.
+
+In Vue 2, the default state management library is Vuex, and that is changing in Vue 3, because you can either use Reactivity API (`ref`, `reactive`, etc.) or Pinia to replace it with. I am not covering every aspect of Vuex or Pinia, just showing you how to convert a daily used Vuex store into new forms. Like this simple user store in Vuex 3.x:
+
+```js
+import * as service from '@/services/user'
+
+const types = {
+  SAVE: 'save',
+}
+
+export default {
+  state: {
+    username: '',
+  },
+  actions: {
+    async login({ commit }, payload) {
+      const response = await service.login(payload)
+      commit(types.SAVE, {
+        username: response.data.payload.username,
+      })
+    },
+  },
+  mutations: {
+    [types.SAVE](state, payload) {
+      Object.assign(state, payload)
+    },
+  },
+}
+```
+
+The `login` method sends username and password to remote API and if login successfully, save the username to its state. Then the state can be shared among components like nav bar, a dropdown of user list, etc. The Pinia version removes the mutation part, thus making the store a little bit simpler:
+
+```ts
+import { defineStore } from 'pinia'
+import * as service from '@/services/user'
+
+export default defineStore('user', {
+  state: () => ({
+    username: '',
+  }),
+  actions: {
+    async login(data: object) {
+      const response = await service.login(data)
+      this.username = response.data.payload.username
+    },
+  },
+})
+```
+
+Removing mutation may be the biggest improvement. Pinia also has better type inference out of the box, while in Vuex we need to define complex wrappers around store. Both integrates well with Composition API, because Vuex 4.x is built for Vue 3.x. Detailed comparison can be found on Pinia's [official document][10]. To use the store:
+
+```html
+<template>
+  <div>Username: {{ store.username }}</div>
+</template>
+
+<script setup lang="ts">
+import useStore from '@/stores/user'
+
+const store = useStore()
+
+function login() {
+  store.login({ username: '', password: '' })
+}
+</script>
+```
 
 [1]: https://github.com/vuejs/composition-api
 [2]: https://github.com/antfu/unplugin-vue2-script-setup
@@ -187,3 +256,4 @@ Template refs are also supported in Composition API with TS. I wrote a post abou
 [7]: https://github.com/vuejs/vue-class-component
 [8]: https://vuejs.org/api/reactivity-core.html
 [9]: https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/
+[10]: https://pinia.vuejs.org/introduction.html#comparison-with-vuex-3-x-4-x
