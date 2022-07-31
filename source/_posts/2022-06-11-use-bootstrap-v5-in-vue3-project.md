@@ -40,7 +40,7 @@ yarn add -D @types/bootstrap
 
 Just add a line to your `App.vue` file and you are free to use Bootstrap CSS:
 
-```vue
+```html
 <script setup lang="ts">
 import 'bootstrap/dist/css/bootstrap.min.css'
 </script>
@@ -62,7 +62,7 @@ Bootstrap provides JS plugins to enable interactive components, such as Modal, T
 
 First, you need to import the Bootstrap JS. In the following example, we import the individual Modal plugin. You can also import the full Bootstrap JS using `import 'bootstrap'`.
 
-```vue
+```html
 <script setup lang="ts">
 import 'bootstrap/js/dist/modal'
 </script>
@@ -104,7 +104,7 @@ const myModalAlternative = new bootstrap.Modal('#myModal', options)
 
 It creates a `Modal` instance on a DOM element with the ID `myModal`, and then we can call the `show` or `hide` methods on it. In Vue, we need to replace the element ID with a [Template Ref][5]:
 
-```vue
+```html
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Modal } from 'bootstrap'
@@ -153,7 +153,7 @@ The `modalRef` will be set by Vue when component is mounted, at that time we cre
 
 If you need to use Modal in different places, it is better to wrap it in a component. Create a `components/Modal.vue` file and put the following code in it:
 
-```vue
+```html
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { Modal } from 'bootstrap'
@@ -212,7 +212,7 @@ We use `v-model` to control the visibility of the modal dialog. By watching the 
 
 Use this component in a demo view:
 
-```vue
+```html
 <script setup lang="ts">
 import { ref } from 'vue'
 import Modal from '../components/Modal.vue'

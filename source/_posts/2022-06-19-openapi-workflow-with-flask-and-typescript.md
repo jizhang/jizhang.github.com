@@ -362,7 +362,7 @@ postApi.getPostList()
 
 Let's request for the posts when page is loaded, and display them via Vue and Bootstrap:
 
-```vue
+```html
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { postApi } from './api'

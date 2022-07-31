@@ -14,13 +14,13 @@ Composition API is one of the major features of Vue 3, and it greatly changes ho
 
 ## Why Composition API
 
-The main advantage of Composition API is that you can organize your code in a more flexiable way. Previously with Options API, we can only group codes by `data`, `methods`, and hooks, while with Composition API, codes constituting one feature can be put together. There is a nice figure in the official document *[Composition API FAQ][5]* that illustrates how code blocks look differently after applying Composition API.
+The main advantage of Composition API is that you can organize your code in a more flexible way. Previously with Options API, we can only group codes by `data`, `methods`, and hooks, while with Composition API, codes constituting one feature can be put together. There is a nice figure in the official document *[Composition API FAQ][5]* that illustrates how code blocks look differently after applying Composition API.
 
 ![Options API vs. Composition API](/images/typescript/composition-api-after.png)
 
 <!-- more -->
 
-Another important advantage is better type inference. With Vue 2, TypeScript has a difficulty in inferring types from Options API, so we have to use `Vue.extend` or [class-based components][7]. Though Vue 2.7 backports `defineComponent` that improves this situation, Composition API still provides a more natural and consice way to define types, for it only consists of plain variables and functions. So in this article, I will use TypeScript as the demo language. If your legacy project hasn't adopted TypeScript yet, you can check out my previous post *[Add TypeScript Support to Vue 2 Project][6]*.
+Another important advantage is better type inference. With Vue 2, TypeScript has a difficulty in inferring types from Options API, so we have to use `Vue.extend` or [class-based components][7]. Though Vue 2.7 backports `defineComponent` that improves this situation, Composition API still provides a more natural and concise way to define types, for it only consists of plain variables and functions. So in this article, I will use TypeScript as the demo language. If your legacy project hasn't adopted TypeScript yet, you can check out my previous post *[Add TypeScript Support to Vue 2 Project][6]*.
 
 For maintainers of larger projects, Composition API also brings better code reuse through custom composable functions, as well as smaller JS bundle and better performance. And last but not least, you can always use both APIs in one project. The Vue team has no plan to remove Options API.
 
