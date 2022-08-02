@@ -46,10 +46,10 @@ https://shzhangji.com/tags/scalatra/
 https://shzhangji.com/tags/webjars/
 https://shzhangji.com/tags/elasticsearch/
 https://shzhangji.com/tags/spark/
-https://shzhangji.com/tags/python/
 https://shzhangji.com/tags/lodash/
 https://shzhangji.com/tags/javascript/
 https://shzhangji.com/tags/frontend/
+https://shzhangji.com/tags/python/
 https://shzhangji.com/tags/functional-programming/
 https://shzhangji.com/tags/es6/
 https://shzhangji.com/tags/crossfilter/
