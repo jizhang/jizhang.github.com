@@ -33,7 +33,91 @@ In production, the root logger is set to `WARNING` level by default, so only war
 
 <!-- more -->
 
+## Customize application logging
+
+There are several things we can improve in application logging:
+
+* Print the full module name in logs, i.e. INFO in modern.views.user. This also enable us to configure logging for parent modules.
+* Change the log level to INFO in production, so that we may print some useful information for debugging.
+* Simplify the use of logger when applying the Flask [Application Factories][4] pattern.
+
+In order to give the logger the full module name, we need to create it on our own. Then configuring level will be very easy.
+
+```python
+def create_app() -> Flask:
+    app = Flask(__name__)
+    configure_logging(app)
+    return app
+
+
+def configure_logging(app: Flask):
+    logging.basicConfig(format='[%(asctime)s] %(levelname)s %(name)s: %(message)s')
+    logging.getLogger().setLevel(logging.INFO)
+
+    if app.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+```
+
+Here we use the Flask app factory pattern, and configure logging right after we create the app instance. This is necessary because once `app.logger` is accessed, default behaviour will be set up. The log format is similar to the default, except we use `%(name)s` instead of `%(module)s`. Then we set the root logger level to `INFO`, and if we are in debug mode, `DEBUG` level is used. Besides, `basicConfig` adds a default handler that logs into standard error.
+
+To use logger in modules:
+
+```python
+import logging
+
+from flask import current_app, jsonify, Response
+
+logger = logging.getLogger(__name__)
+
+
+@current_app.get('/api/user/list')
+def get_user_list() -> Response:
+    logger.info('Get user list in view.')
+    return jsonify(users=[])
+```
+
+Output:
+
+```
+[2022-08-09 18:12:12,420] INFO modern.views.user: Get user list in view.
+```
+
+Without this logger, we need to use `current_app.logger.info()` and it is a bit verbose.
+
+### Fix Werkzeug logging
+
+In debug mode, [Werkzeug][5] will output access logs twice:
+
+```
+[2022-08-09 18:17:28,530] INFO werkzeug:  * Restarting with stat
+ * Debugger is active!
+
+127.0.0.1 - - [09/Aug/2022 18:17:30] "GET /api/user/list HTTP/1.1" 200 -
+[2022-08-09 18:17:30,355] INFO werkzeug: 127.0.0.1 - - [09/Aug/2022 18:17:30] "GET /api/user/list HTTP/1.1" 200 -
+```
+
+To fix it, we remove the extra handler under `werkzeug` logger:
+
+```python
+if app.debug:
+    # Fix werkzeug handler in debug mode
+    logging.getLogger('werkzeug').handlers = []
+```
+
+In production mode, the access log is controlled by WSGI server:
+
+```
+gunicorn -b 127.0.0.1:5000 --access-logfile - 'modern:create_app()'
+```
+
+## Log SQLAlchemy queries in debug mode
+
+
+
+
 
 [1]: https://docs.python.org/3/library/logging.html
 [2]: https://flask.palletsprojects.com/en/2.1.x/logging/
 [3]: https://docs.sqlalchemy.org/en/14/core/engines.html#configuring-logging
+[4]: https://flask.palletsprojects.com/en/2.1.x/patterns/appfactories/
+[5]: https://werkzeug.palletsprojects.com/
