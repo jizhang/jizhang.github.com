@@ -90,6 +90,66 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-deploy-flink-job-cluster-on-kubernetes" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/" class="article-date">
+  <time datetime="2019-08-24T11:33:22.000Z" itemprop="datePublished">2019-08-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/">Deploy Flink Job Cluster on Kubernetes</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a target="_blank" rel="noopener" href="https://kubernetes.io/">Kubernetes</a> is the trending container orchestration system that can be used to host various applications from web services to data processing jobs. Applications are packaged in self-contained, yet light-weight containers, and we declare how they should be deployed, how they scale, and how they expose as services. <a target="_blank" rel="noopener" href="https://flink.apache.org/">Flink</a> is also a trending distributed computing framework that can run on a variety of platforms, including Kubernetes. Combining them will bring us robust and scalable deployments of data processing jobs, and more safely Flink can share a Kubernetes cluster with other services.</p>
+<p><img src="/images/flink-on-kubernetes.png" alt="Flink on Kubernetes"></p>
+<p>When deploying Flink on Kubernetes, there are two options, session cluster and job cluster. Session cluster is like running a standalone Flink cluster on k8s that can accept multiple jobs and is suitable for short running tasks or ad-hoc queries. Job cluster, on the other hand, deploys a full set of Flink cluster for each individual job. We build container image for each job, and provide it with dedicated resources, so that jobs have less chance interfering with other, and can scale out independently. So this article will illustrate how to run a Flink job cluster on Kubernetes, the steps are:</p>
+<ul>
+<li>Compile and package the Flink job jar.</li>
+<li>Build a Docker image containing the Flink runtime and the job jar.</li>
+<li>Create a Kubernetes Job for Flink JobManager.</li>
+<li>Create a Kubernetes Service for this Job.</li>
+<li>Create a Kubernetes Deployment for Flink TaskManagers.</li>
+<li>Enable Flink JobManager HA with ZooKeeper.</li>
+<li>Correctly stop and resume Flink job with SavePoint facility.</li>
+</ul>
+        
+          <p class="article-more-link">
+            <a href="/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/" data-id="cl6n16tc3008ebwop2kbngav1" class="article-share-link">Share</a>
+      
+        <a href="https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flink/" rel="tag">flink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-understanding-hive-acid-transactional-table" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2019/06/10/understanding-hive-acid-transactional-table/" class="article-date">
@@ -136,7 +196,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/" data-id="cl6bi660k0085bwor8tt21cih" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/" data-id="cl6n16tc2008cbwop7zfcengf" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -191,7 +251,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="cl6bi65z2002dbword4bthbsg" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="cl6n16taj0027bwop1x39bm6j" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -244,7 +304,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="cl6bi65z1002abworh3h00lyo" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="cl6n16tai0023bwopfebn8b9w" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -295,7 +355,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="cl6bi65z00028bworc8nw6gz8" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="cl6n16tah0020bwopb3zvf5k8" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -357,7 +417,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cl6bi65yz0025bwor7e8o9kzh" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cl6n16tag001xbwopfh51fhsf" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -410,7 +470,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="cl6bi65yy0023bwor89xo1wvq" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="cl6n16taf001vbwop4tqe0b27" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -462,7 +522,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cl6bi65yx001zbwor8efc6mzq" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cl6n16tae001sbwoph8d678i4" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -517,7 +577,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cl6bi65yw001wbwor7bvth61y" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cl6n16tad001qbwopaafc0jm4" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -577,66 +637,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="cl6bi65yu001tbworddnpargv" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="cl6n16taa001obwop59fehb5o" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/" rel="tag">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/" rel="tag">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/" rel="tag">vue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vuex/" rel="tag">vuex</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-error-handling-in-restful-api" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2018/04/07/error-handling-in-restful-api/" class="article-date">
-  <time datetime="2018-04-07T06:49:19.000Z" itemprop="datePublished">2018-04-07</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Programming/">Programming</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2018/04/07/error-handling-in-restful-api/">Error Handling in RESTful API</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><img src="/images/restful-api.png" alt="RESTful API"></p>
-<p>RESTful API is a common tool of building web services, especially in front and back-end separated application. It is based on HTTP protocol, which is simple, text-oriented, and well supported by various languages, browsers or clients. However, REST is not yet standardized, so that the developers need to decide how to design their APIs. One of the decisions is error handling. Should I use HTTP status code? How to handle form validation errors, etc. This article will propose an error handling mechanism for RESTful API, based on my daily work and understanding of this technique.</p>
-<h2 id="Types-of-Errors"><a href="#Types-of-Errors" class="headerlink" title="Types of Errors"></a>Types of Errors</h2><p>I tend to categorize errors into two types, global and local. Global errors include requesting an unknown API url, not being authorized to access this API, or there’s something wrong with the server code, unexpected and fatal. These errors should be caught by the web framework, no customized handling in individual API function.</p>
-<p>Local errors, on the other hand, are closely related to the current API. Examples are form validation, violation of unique constraint, or other expected errors. We need to write specific codes to catch these errors, and raise a global error with message and payload for framework to catch and respond with.</p>
-<p>Flask, for instance, provides a mechanism to catch exceptions globally:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">BadRequest</span>(<span class="title class_ inherited__">Exception</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Custom exception class to be thrown when local error occurs.&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, message, status=<span class="number">400</span>, payload=<span class="literal">None</span></span>):</span><br><span class="line">        self.message = message</span><br><span class="line">        self.status = status</span><br><span class="line">        self.payload = payload</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.errorhandler(<span class="params">BadRequest</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">handle_bad_request</span>(<span class="params">error</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Catch BadRequest exception globally, serialize into JSON, and respond with 400.&quot;&quot;&quot;</span></span><br><span class="line">    payload = <span class="built_in">dict</span>(error.payload <span class="keyword">or</span> ())</span><br><span class="line">    payload[<span class="string">&#x27;status&#x27;</span>] = error.status</span><br><span class="line">    payload[<span class="string">&#x27;message&#x27;</span>] = error.message</span><br><span class="line">    <span class="keyword">return</span> jsonify(payload), <span class="number">400</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/person&#x27;</span>, methods=[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">person_post</span>():</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Create a new person object and return its ID&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> request.form.get(<span class="string">&#x27;username&#x27;</span>):</span><br><span class="line">        <span class="keyword">raise</span> BadRequest(<span class="string">&#x27;username cannot be empty&#x27;</span>, <span class="number">40001</span>, &#123; <span class="string">&#x27;ext&#x27;</span>: <span class="number">1</span> &#125;)</span><br><span class="line">    <span class="keyword">return</span> jsonify(last_insert_id=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-        
-          <p class="article-more-link">
-            <a href="/blog/2018/04/07/error-handling-in-restful-api/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/" data-id="cl6bi65yr001rbwor2fnfa9ua" class="article-share-link">Share</a>
-      
-        <a href="https://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/" rel="tag">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/" rel="tag">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/restful/" rel="tag">restful</a></li></ul>
 
     </footer>
   </div>
@@ -658,7 +664,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 11.43px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 10px;">spring boot</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 10px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 12.86px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 10px;">spring boot</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -667,7 +673,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
     </div>
   </div>
 
@@ -678,6 +684,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/">Configure Logging for Flask SQLAlchemy Project</a>
+          </li>
         
           <li>
             <a href="/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/">Use Composition API and Pinia in Vue 2 Project</a>
@@ -693,10 +703,6 @@
         
           <li>
             <a href="/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/">Store Custom Data in Spring MVC Request Context</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2022/07/01/monitor-kubernetes-volume-storage/">Monitor Kubernetes Volume Storage</a>
           </li>
         
       </ul>
