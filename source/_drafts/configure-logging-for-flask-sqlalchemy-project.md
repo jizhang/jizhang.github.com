@@ -112,8 +112,32 @@ gunicorn -b 127.0.0.1:5000 --access-logfile - 'modern:create_app()'
 
 ## Log SQLAlchemy queries in debug mode
 
+To log queries, SQLAlchemy gives us two options: create engine with `echo=True`, or configure the logger ourselves. Only use one approach or we will get duplicate logs. For [Flask-SQLAlchemy][6] users, use the following config:
 
+```python
+SQLALCHEMY_ECHO = True
+```
 
+I prefer using the standard logging module. All SQLAlchmey loggers are under the name `sqlalchemy`, and they are by default in `WARNING` level. To enable query logs, change the level of `sqlalchemy.engine` logger to `INFO`. If you also want to get the result printed, set to `DEBUG`.
+
+```python
+if app.debug:
+    # Make sure engine.echo is set to False
+    logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+```
+
+Output:
+
+```
+[2022-08-10 10:41:57,089] INFO sqlalchemy.engine.Engine: BEGIN (implicit)
+[2022-08-10 10:41:57,090] INFO sqlalchemy.engine.Engine: SELECT user.id AS user_id, user.username AS user_username FROM user
+[2022-08-10 10:41:57,090] INFO sqlalchemy.engine.Engine: [generated in 0.00015s] {}
+[2022-08-10 10:41:57,091] INFO sqlalchemy.engine.Engine: ROLLBACK
+```
+
+## Conclusion
+
+Flask's built-in `app.logger` is easy to use. But instead, we create our own loggers to fine-tune the configs, with Python standard logging module. It is also true for SQLAlchemy logs. The loggers are well defined in `sqlalchmey.engine`, `sqlalchmey.orm`, so that we can change the configs easily. Demo code can be found on [GitHub][7].
 
 
 [1]: https://docs.python.org/3/library/logging.html
@@ -121,3 +145,5 @@ gunicorn -b 127.0.0.1:5000 --access-logfile - 'modern:create_app()'
 [3]: https://docs.sqlalchemy.org/en/14/core/engines.html#configuring-logging
 [4]: https://flask.palletsprojects.com/en/2.1.x/patterns/appfactories/
 [5]: https://werkzeug.palletsprojects.com/
+[6]: https://flask-sqlalchemy.palletsprojects.com/en/2.x/config/
+[7]: https://github.com/jizhang/blog-demo/tree/master/modern-flask
