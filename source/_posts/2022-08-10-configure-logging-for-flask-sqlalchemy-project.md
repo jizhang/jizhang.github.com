@@ -1,8 +1,14 @@
 ---
 title: Configure Logging for Flask SQLAlchemy Project
-categories: [Programming]
-tags: [flask, sqlalchemy, python]
+tags:
+  - flask
+  - sqlalchemy
+  - python
+categories:
+  - Programming
+date: 2022-08-10 10:56:07
 ---
+
 
 In Python, the built-in [`logging`][1] module is the standard way of doing application logs, and most third-party libraries integrate well with it. For instance, [Flask][2] creates a default `app.logger` with a `StreamHandler` that writes to standard error. [SQLAlchemy][3] uses a logger named `sqlalchemy` and allow us to further customize its behaviour. This article shows how to configure logging for Flask and SQLAlchemy, both in debug mode and production mode.
 
@@ -37,7 +43,7 @@ In production, the root logger is set to `WARNING` level by default, so only war
 
 There are several things we can improve in application logging:
 
-* Print the full module name in logs, i.e. INFO in modern.views.user. This also enable us to configure logging for parent modules.
+* Use the full module name as the logger name, and print it in logs like `INFO in modern.views.user`. This also allows us to configure logging for parent modules.
 * Change the log level to INFO in production, so that we may print some useful information for debugging.
 * Simplify the use of logger when applying the Flask [Application Factories][4] pattern.
 
@@ -58,7 +64,7 @@ def configure_logging(app: Flask):
         logging.getLogger().setLevel(logging.DEBUG)
 ```
 
-Here we use the Flask app factory pattern, and configure logging right after we create the app instance. This is necessary because once `app.logger` is accessed, default behaviour will be set up. The log format is similar to the default, except we use `%(name)s` instead of `%(module)s`. Then we set the root logger level to `INFO`, and if we are in debug mode, `DEBUG` level is used. Besides, `basicConfig` adds a default handler that logs into standard error.
+Here we use the Flask app factory pattern, and configure logging right after we create the app instance. This is necessary because once `app.logger` is accessed, default behaviour will be set up. The log format is similar to the default, except we use `%(name)s` instead of `%(module)s`. Then we set the root logger level to `INFO`, and if we are in debug mode, `DEBUG` level is used. Besides, `basicConfig` adds a default handler that logs into standard error. This is sufficient for applications running in containers.
 
 To use logger in modules:
 
@@ -82,7 +88,7 @@ Output:
 [2022-08-09 18:12:12,420] INFO modern.views.user: Get user list in view.
 ```
 
-Without this logger, we need to use `current_app.logger.info()` and it is a bit verbose.
+With app factory pattern, we need to replace `app.logger` with `current_app.logger`, and it is a little bit verbose. Dedicated logger for each module sovles this problem, too.
 
 ### Fix Werkzeug logging
 
@@ -112,13 +118,13 @@ gunicorn -b 127.0.0.1:5000 --access-logfile - 'modern:create_app()'
 
 ## Log SQLAlchemy queries in debug mode
 
-To log queries, SQLAlchemy gives us two options: create engine with `echo=True`, or configure the logger ourselves. Only use one approach or we will get duplicate logs. For [Flask-SQLAlchemy][6] users, use the following config:
+To log queries, SQLAlchemy gives us two options: create engine with `echo=True`, or configure the logger ourselves. Only use one approach or you will get duplicate logs. For [Flask-SQLAlchemy][6] users, use the following config:
 
 ```python
 SQLALCHEMY_ECHO = True
 ```
 
-I prefer using the standard logging module. All SQLAlchmey loggers are under the name `sqlalchemy`, and they are by default in `WARNING` level. To enable query logs, change the level of `sqlalchemy.engine` logger to `INFO`. If you also want to get the result printed, set to `DEBUG`.
+I prefer using the standard logging module. All SQLAlchmey loggers are under the name `sqlalchemy`, and they are by default in `WARNING` level. To enable query logs, change the level of `sqlalchemy.engine` logger to `INFO`. If you also want to get the query result printed, set to `DEBUG`.
 
 ```python
 if app.debug:
@@ -137,7 +143,7 @@ Output:
 
 ## Conclusion
 
-Flask's built-in `app.logger` is easy to use. But instead, we create our own loggers to fine-tune the configs, with Python standard logging module. It is also true for SQLAlchemy logs. The loggers are well defined in `sqlalchmey.engine`, `sqlalchmey.orm`, so that we can change the configs easily. Demo code can be found on [GitHub][7].
+Flask's built-in `app.logger` is easy to use. But instead, we create our own loggers to fine-tune the configs, with Python standard logging module. It is also true for SQLAlchemy logs. The loggers are well defined in `sqlalchmey.engine`, `sqlalchmey.orm`, etc., so that we can change the configs easily. Demo code can be found on [GitHub][7].
 
 
 [1]: https://docs.python.org/3/library/logging.html
