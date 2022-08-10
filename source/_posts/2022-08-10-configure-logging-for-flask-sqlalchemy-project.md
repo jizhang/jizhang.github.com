@@ -124,7 +124,7 @@ To log queries, SQLAlchemy gives us two options: create engine with `echo=True`,
 SQLALCHEMY_ECHO = True
 ```
 
-I prefer using the standard logging module. All SQLAlchmey loggers are under the name `sqlalchemy`, and they are by default in `WARNING` level. To enable query logs, change the level of `sqlalchemy.engine` logger to `INFO`. If you also want to get the query result printed, set to `DEBUG`.
+I prefer using the standard logging module. All SQLAlchemy loggers are under the name `sqlalchemy`, and they are by default in `WARNING` level. To enable query logs, change the level of `sqlalchemy.engine` logger to `INFO`. If you also want to get the query result printed, set to `DEBUG`.
 
 ```python
 if app.debug:
@@ -143,7 +143,7 @@ Output:
 
 ## Conclusion
 
-Flask's built-in `app.logger` is easy to use. But instead, we create our own loggers to fine-tune the configs, with Python standard logging module. It is also true for SQLAlchemy logs. The loggers are well defined in `sqlalchmey.engine`, `sqlalchmey.orm`, etc., so that we can change the configs easily. Demo code can be found on [GitHub][7].
+Flask's built-in `app.logger` is easy to use. But instead, we create our own loggers to fine-tune the configs, with Python standard logging module. It is also true for SQLAlchemy logs. The loggers are well defined in `sqlalchemy.engine`, `sqlalchemy.orm`, etc., so that we can change the configs easily. Demo code can be found on [GitHub][7].
 
 
 [1]: https://docs.python.org/3/library/logging.html
