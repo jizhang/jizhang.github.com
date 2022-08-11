@@ -88,7 +88,7 @@ Output:
 [2022-08-09 18:12:12,420] INFO modern.views.user: Get user list in view.
 ```
 
-With app factory pattern, we need to replace `app.logger` with `current_app.logger`, and it is a little bit verbose. Dedicated logger for each module sovles this problem, too.
+With app factory pattern, we need to replace `app.logger` with `current_app.logger`, and it is a little bit verbose. Dedicated logger for each module solves this problem, too.
 
 ### Fix Werkzeug logging
 
