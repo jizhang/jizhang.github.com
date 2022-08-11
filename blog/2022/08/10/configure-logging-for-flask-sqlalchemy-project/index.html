@@ -150,7 +150,7 @@
 <p>Output:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[2022-08-09 18:12:12,420] INFO modern.views.user: Get user list in view.</span><br></pre></td></tr></table></figure>
 
-<p>With app factory pattern, we need to replace <code>app.logger</code> with <code>current_app.logger</code>, and it is a little bit verbose. Dedicated logger for each module sovles this problem, too.</p>
+<p>With app factory pattern, we need to replace <code>app.logger</code> with <code>current_app.logger</code>, and it is a little bit verbose. Dedicated logger for each module solves this problem, too.</p>
 <h3 id="Fix-Werkzeug-logging"><a href="#Fix-Werkzeug-logging" class="headerlink" title="Fix Werkzeug logging"></a>Fix Werkzeug logging</h3><p>In debug mode, <a target="_blank" rel="noopener" href="https://werkzeug.palletsprojects.com/">Werkzeug</a> will output access logs twice:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[2022-08-09 18:17:28,530] INFO werkzeug:  * Restarting with stat</span><br><span class="line"> * Debugger is active!</span><br><span class="line"></span><br><span class="line">127.0.0.1 - - [09/Aug/2022 18:17:30] &quot;GET /api/user/list HTTP/1.1&quot; 200 -</span><br><span class="line">[2022-08-09 18:17:30,355] INFO werkzeug: 127.0.0.1 - - [09/Aug/2022 18:17:30] &quot;GET /api/user/list HTTP/1.1&quot; 200 -</span><br></pre></td></tr></table></figure>
 
@@ -174,7 +174,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/" data-id="cl6n1ceri00309znceojzd6xb" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/" data-id="cl6opsjny00839yosd046cs5h" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/#disqus_thread" class="article-comment-link">Comments</a>
       
