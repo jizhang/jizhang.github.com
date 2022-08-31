@@ -1,8 +1,11 @@
 ---
 title: Configure Git Line Endings Across OSes
-tags: [git]
+tags:
+  - git
 categories: Programming
+date: 2022-08-31 15:23:43
 ---
+
 
 In Linux, lines end with LF (Line Feed, `\n`), while in Windows, CRLF (Carriage Return + Line Feed, `\r\n`). When developers using different operating systems contribute to the same Git project, line endings must be handled correctly, or `diff` and `merge` may break unexpectedly. Git provides several solutions to this problem, including configuration options and file attributes.
 
@@ -28,7 +31,7 @@ Create `.gitattributes` under the project root, and add the following line:
 
 ## Use consistent line endings
 
-I suggest using LR in all OSes. Modern editors are capable of recoganizing and handling line endings across platforms. Even [Notepad in Windows 10][1] can display text files with LRs correctly. Usually we have an [`.editorconfig`][2] file in the project, so that various editors with plugin installed will behave the same when handling line endings, as well as charset and indent.
+I suggest using LF in all OSes. Modern editors are capable of recoganizing and handling line endings across platforms. Even [Notepad in Windows 10][1] can display text files with LFs correctly. Usually we have an [`.editorconfig`][2] file in the project, so that various editors with plugin installed will behave the same when handling line endings, as well as charset and indent.
 
 ```
 root = true
@@ -50,7 +53,7 @@ This consistency also lies in Git itself. When you enable Git to handle line end
 [`core.autocrlf`][3] has three options:
 
 * `false` The default value, meaning Git will not touch the files when checking in or out of the repository. Check-in means committing files to the repository; check-out means writing to the working directory.
-* `true` Git will convert LR to CRLF when checking out of the repository, and convert them back to LF when checking in.
+* `true` Git will convert LF to CRLF when checking out of the repository, and convert them back to LF when checking in.
 * `input` Git checks out the files *as-is*, and converts CRLF to LF when checking in.
 
 When `core.autocrlf` is set to `input`, Git will give you a warning when adding text files with CRLF endings:
