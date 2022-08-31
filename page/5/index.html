@@ -90,6 +90,59 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-use-webjars-in-scalatra-project" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/05/27/use-webjars-in-scalatra-project/" class="article-date">
+  <time datetime="2014-05-27T09:44:00.000Z" itemprop="datePublished">2014-05-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Use WebJars in Scalatra Project</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>As I’m working with my first <a target="_blank" rel="noopener" href="http://www.scalatra.org/">Scalatra</a> project, I automatically think of using <a target="_blank" rel="noopener" href="http://www.webjars.org/">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a target="_blank" rel="noopener" href="http://www.webjars.org/documentation">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
+<h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a target="_blank" rel="noopener" href="http://dojotoolkit.org/">Dojo</a> for example.</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">DwExplorerBuild</span> <span class="keyword">extends</span> <span class="title">Build</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">lazy</span> <span class="keyword">val</span> project = <span class="type">Project</span> (</span><br><span class="line">    ...</span><br><span class="line">    settings = <span class="type">Defaults</span>.defaultSettings ++ <span class="type">ScalatraPlugin</span>.scalatraWithJRebel ++ scalateSettings ++ <span class="type">Seq</span>(</span><br><span class="line">      ...</span><br><span class="line">      libraryDependencies ++= <span class="type">Seq</span>(</span><br><span class="line">        ...</span><br><span class="line">        <span class="string">&quot;org.webjars&quot;</span> % <span class="string">&quot;dojo&quot;</span> % <span class="string">&quot;1.9.3&quot;</span></span><br><span class="line">      ),</span><br><span class="line">      ...</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>To view this dependency in Eclipse, you need to run <code>sbt eclipse</code> again. In the <em>Referenced Libraries</em> section, you can see a <code>dojo-1.9.3.jar</code>, and the library lies in <code>META-INF/resources/webjars/</code>.</p>
+        
+          <p class="article-more-link">
+            <a href="/blog/2014/05/27/use-webjars-in-scalatra-project/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="cl7hazbh80004azos1rqq19ps" class="article-share-link">Share</a>
+      
+        <a href="https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scala/" rel="tag">scala</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scalatra/" rel="tag">scalatra</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webjars/" rel="tag">webjars</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-generate-auto-increment-id-in-map-reduce-job" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" class="article-date">
@@ -135,7 +188,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="cl6opsjla00019yos92yyb07q" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="cl7hazbh40001azosh86m46c6" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -187,7 +240,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="cl6opsjl600009yos05b767u8" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="cl7hazbh00000azoscvfnbmvw" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -214,7 +267,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 12.86px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 10px;">spring boot</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 12.86px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 10px;">spring boot</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -236,6 +289,10 @@
       <ul>
         
           <li>
+            <a href="/blog/2022/08/31/configure-git-line-endings-across-oses/">Configure Git Line Endings Across OSes</a>
+          </li>
+        
+          <li>
             <a href="/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/">Configure Logging for Flask SQLAlchemy Project</a>
           </li>
         
@@ -249,10 +306,6 @@
         
           <li>
             <a href="/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/">Manage Multiple CommandLineRunner in Spring Boot</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/">Store Custom Data in Spring MVC Request Context</a>
           </li>
         
       </ul>
