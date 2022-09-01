@@ -279,9 +279,9 @@
     
     <category term="vue" scheme="https://shzhangji.com/tags/vue/"/>
     
-    <category term="flask" scheme="https://shzhangji.com/tags/flask/"/>
-    
     <category term="openapi" scheme="https://shzhangji.com/tags/openapi/"/>
+    
+    <category term="flask" scheme="https://shzhangji.com/tags/flask/"/>
     
     <category term="typescript" scheme="https://shzhangji.com/tags/typescript/"/>
     
