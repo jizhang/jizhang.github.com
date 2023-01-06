@@ -87,6 +87,8 @@ https://shzhangji.com/tags/spring/
 https://shzhangji.com/tags/eclipse/
 https://shzhangji.com/tags/hdfs/
 https://shzhangji.com/tags/flink/
+https://shzhangji.com/tags/hadoop/
+https://shzhangji.com/tags/kubernetes/
 https://shzhangji.com/tags/hexo/
 https://shzhangji.com/tags/github/
 https://shzhangji.com/tags/bootstrap/
@@ -95,13 +97,11 @@ https://shzhangji.com/tags/openapi/
 https://shzhangji.com/tags/flask/
 https://shzhangji.com/tags/typescript/
 https://shzhangji.com/tags/sqlalchemy/
-https://shzhangji.com/tags/kubernetes/
 https://shzhangji.com/tags/prometheus/
 https://shzhangji.com/tags/devops/
 https://shzhangji.com/tags/spring-boot/
 https://shzhangji.com/tags/webpack/
 https://shzhangji.com/tags/pinia/
 https://shzhangji.com/tags/git/
-https://shzhangji.com/tags/hadoop/
 https://shzhangji.com/categories/Programming/
 https://shzhangji.com/categories/Big-Data/
