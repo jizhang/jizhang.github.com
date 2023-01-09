@@ -1,8 +1,13 @@
 ---
 title: Mock API in Parcel Project
+tags:
+  - frontend
+  - parcel
+  - connect
 categories: Programming
-tags: [frontend, parcel, connect]
+date: 2023-01-09 14:53:40
 ---
+
 
 When developing a frontend application, usually we create mocks for backend API, so that after the API contract is settled down, front and backend engineers can work independently. There are several ways to accomplish this task, such as start a dedicated server and let the build tool serve as a proxy, or we can add middleware directly into the build tool's dev server, if applicable. Some tools can monkey patch the network calls to replace the response with mock data, and various unit testing tools provide their own way of mocking. In this article, I will focus on how to add middleware into [Parcel][1]'s dev server to respond with mock data for API calls.
 
