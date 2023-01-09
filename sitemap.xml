@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/</loc>
+    
+    <lastmod>2023-01-09</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/</loc>
     
     <lastmod>2022-08-31</lastmod>
@@ -398,13 +407,6 @@
 
   
   <url>
-    <loc>https://shzhangji.com/tags/frontend/</loc>
-    <lastmod>2023-01-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://shzhangji.com/tags/clojure/</loc>
     <lastmod>2023-01-09</lastmod>
     <changefreq>weekly</changefreq>
@@ -462,6 +464,13 @@
   
   <url>
     <loc>https://shzhangji.com/tags/javascript/</loc>
+    <lastmod>2023-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/frontend/</loc>
     <lastmod>2023-01-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -819,6 +828,20 @@
   
   <url>
     <loc>https://shzhangji.com/tags/git/</loc>
+    <lastmod>2023-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/parcel/</loc>
+    <lastmod>2023-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/connect/</loc>
     <lastmod>2023-01-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>

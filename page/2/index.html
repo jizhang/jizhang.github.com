@@ -90,6 +90,68 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-use-bootstrap-v5-in-vue3-project" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/" class="article-date">
+  <time datetime="2022-06-11T12:06:26.000Z" itemprop="datePublished">2022-06-11</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/">Use Bootstrap V5 in Vue 3 Project</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Bootstrap V5 and Vue 3.x have been released for a while, but the widely used BootstrapVue library is still based on Bootstrap V4 and Vue 2.x. A <a target="_blank" rel="noopener" href="https://github.com/bootstrap-vue/bootstrap-vue/issues/5196">new version</a> of BootstrapVue is under development, and there is an alternative project <a target="_blank" rel="noopener" href="https://cdmoro.github.io/bootstrap-vue-3/">BootstrapVue 3</a> in alpha version. However, since Bootstrap is mainly a CSS framework, and it has dropped jQuery dependency in V5, it is not that difficult to integrate into a Vue 3.x project on your own. In this article, we will go through the steps of creating such a project.</p>
+<h2 id="Create-Vite-project"><a href="#Create-Vite-project" class="headerlink" title="Create Vite project"></a>Create Vite project</h2><p>The recommended way of using Vue 3.x is with Vite. Install <code>yarn</code> and create from the <code>vue-ts</code> template:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yarn create vite bootstrap-vue3 --template vue-ts</span><br><span class="line">cd bootstrap-vue3</span><br><span class="line">yarn install</span><br><span class="line">yarn dev</span><br></pre></td></tr></table></figure>
+
+<h2 id="Add-Bootstrap-dependencies"><a href="#Add-Bootstrap-dependencies" class="headerlink" title="Add Bootstrap dependencies"></a>Add Bootstrap dependencies</h2><p>Bootstrap is published on npm, and it has an extra dependency Popper, so let’s install them both:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add bootstrap @popperjs/core</span><br></pre></td></tr></table></figure>
+
+<p>You may also need the type definitions:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add -D @types/bootstrap</span><br></pre></td></tr></table></figure>
+
+<h2 id="Use-Bootstrap-CSS"><a href="#Use-Bootstrap-CSS" class="headerlink" title="Use Bootstrap CSS"></a>Use Bootstrap CSS</h2><p>Just add a line to your <code>App.vue</code> file and you are free to use Bootstrap CSS:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">setup</span> <span class="attr">lang</span>=<span class="string">&quot;ts&quot;</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"><span class="keyword">import</span> <span class="string">&#x27;bootstrap/dist/css/bootstrap.min.css&#x27;</span></span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">template</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">&quot;button&quot;</span> <span class="attr">class</span>=<span class="string">&quot;btn btn-primary&quot;</span>&gt;</span>Primary<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>You can also use Sass for further <a target="_blank" rel="noopener" href="https://getbootstrap.com/docs/5.2/customize/sass/">customization</a>.</p>
+        
+          <p class="article-more-link">
+            <a href="/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/" data-id="clcogcex8002lfxow5wh183c7" class="article-share-link">Share</a>
+      
+        <a href="https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bootstrap/" rel="tag">bootstrap</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vite/" rel="tag">vite</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/" rel="tag">vue</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-migrate-from-hexo-deployer-git-to-github-actions" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/" class="article-date">
@@ -129,7 +191,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/" data-id="clcog8i4k002medoqadws7rph" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/" data-id="clcogcex7002hfxow1rhhen57" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -189,7 +251,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/" data-id="clcog8i4h002iedoqggka8tru" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/" data-id="clcogcex6002efxow6ctb2w7d" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -249,7 +311,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/" data-id="clcog8i4g002fedoq6f4r5a05" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/" data-id="clcogcex4002afxowcig79ycg" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -304,7 +366,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="clcog8i4d002bedoq61qc5w2n" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="clcogcex30027fxowcf6r55ot" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -357,7 +419,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="clcog8i4c0029edoqcrcucvbg" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="clcogcex20023fxow8tpt4zqv" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -408,7 +470,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="clcog8i4b0026edoq1tsegbvw" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="clcogcex10020fxow4duf0mln" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -470,7 +532,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="clcog8i4a0023edoq20nd49r6" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="clcogcex0001xfxow8t1ycjp7" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -523,7 +585,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="clcog8i490020edoq0zi11n5t" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="clcogcewz001vfxowcmnsb27k" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -575,67 +637,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="clcog8i48001yedoqgo9agvxg" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="clcogcewv001sfxow98o89mta" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/machine-learning/" rel="tag">machine learning</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tensorflow/" rel="tag">tensorflow</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-connect-hbase-with-python-and-thrift" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2018/04/22/connect-hbase-with-python-and-thrift/" class="article-date">
-  <time datetime="2018-04-22T08:44:12.000Z" itemprop="datePublished">2018-04-22</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2018/04/22/connect-hbase-with-python-and-thrift/">Connect HBase with Python and Thrift</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a target="_blank" rel="noopener" href="https://hbase.apache.org/">Apache HBase</a> is a key-value store in Hadoop ecosystem. It is based on HDFS, and can provide high performance data access on large amount of volume. HBase is written in Java, and has native support for Java clients. But with the help of Thrift and various language bindings, we can access HBase in web services quite easily. This article will describe how to read and write HBase table with Python and Thrift.</p>
-<p><img src="/images/hbase.png"></p>
-<h2 id="Generate-Thrift-Class"><a href="#Generate-Thrift-Class" class="headerlink" title="Generate Thrift Class"></a>Generate Thrift Class</h2><p>For anyone who is new to <a target="_blank" rel="noopener" href="https://thrift.apache.org/">Apache Thrift</a>, it provides an IDL (Interface Description Language) to let you describe your service methods and data types and then transform them into different languages. For instance, a Thrift type definition like this:</p>
-<figure class="highlight thrift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TColumn</span> </span>&#123;</span><br><span class="line">  <span class="number">1</span>: <span class="keyword">required</span> <span class="type">binary</span> family,</span><br><span class="line">  <span class="number">2</span>: <span class="keyword">optional</span> <span class="type">binary</span> qualifier,</span><br><span class="line">  <span class="number">3</span>: <span class="keyword">optional</span> <span class="type">i64</span> timestamp</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Will be transformed into the following Python code:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TColumn</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, family=<span class="literal">None</span>, qualifier=<span class="literal">None</span>, timestamp=<span class="literal">None</span>,</span>):</span><br><span class="line">        self.family = family</span><br><span class="line">        self.qualifier = qualifier</span><br><span class="line">        self.timestamp = timestamp</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">read</span>(<span class="params">self, iprot</span>):</span><br><span class="line">        iprot.readStructBegin()</span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            (fname, ftype, fid) = iprot.readFieldBegin()</span><br><span class="line">            <span class="comment"># ...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">write</span>(<span class="params">self, oprot</span>):</span><br><span class="line">        oprot.writeStructBegin(<span class="string">&#x27;TColumn&#x27;</span>)</span><br><span class="line">        <span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
-        
-          <p class="article-more-link">
-            <a href="/blog/2018/04/22/connect-hbase-with-python-and-thrift/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="clcog8i46001uedoq8qbw9sw6" class="article-share-link">Share</a>
-      
-        <a href="https://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hbase/" rel="tag">hbase</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/thrift/" rel="tag">thrift</a></li></ul>
 
     </footer>
   </div>
@@ -657,7 +664,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 12.86px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 10px;">spring boot</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/connect/" style="font-size: 10px;">connect</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 12.86px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/parcel/" style="font-size: 10px;">parcel</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 10px;">spring boot</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -666,7 +673,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
     </div>
   </div>
 
@@ -677,6 +684,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/blog/2023/01/09/mock-api-in-parcel-project/">Mock API in Parcel Project</a>
+          </li>
         
           <li>
             <a href="/blog/2022/08/31/configure-git-line-endings-across-oses/">Configure Git Line Endings Across OSes</a>
@@ -692,10 +703,6 @@
         
           <li>
             <a href="/blog/2022/07/24/add-typescript-support-to-vue-2-project/">Add TypeScript Support to Vue 2 Project</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/">Manage Multiple CommandLineRunner in Spring Boot</a>
           </li>
         
       </ul>

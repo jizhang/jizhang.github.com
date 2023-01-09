@@ -1,3 +1,4 @@
+https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/
 https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/
 https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/
 https://shzhangji.com/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/
@@ -42,7 +43,6 @@ https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/
 https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/
 https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/
 https://shzhangji.com/
-https://shzhangji.com/tags/frontend/
 https://shzhangji.com/tags/clojure/
 https://shzhangji.com/tags/scala/
 https://shzhangji.com/tags/scalatra/
@@ -52,6 +52,7 @@ https://shzhangji.com/tags/spark/
 https://shzhangji.com/tags/python/
 https://shzhangji.com/tags/lodash/
 https://shzhangji.com/tags/javascript/
+https://shzhangji.com/tags/frontend/
 https://shzhangji.com/tags/functional-programming/
 https://shzhangji.com/tags/es6/
 https://shzhangji.com/tags/crossfilter/
@@ -103,5 +104,7 @@ https://shzhangji.com/tags/spring-boot/
 https://shzhangji.com/tags/webpack/
 https://shzhangji.com/tags/pinia/
 https://shzhangji.com/tags/git/
+https://shzhangji.com/tags/parcel/
+https://shzhangji.com/tags/connect/
 https://shzhangji.com/categories/Programming/
 https://shzhangji.com/categories/Big-Data/

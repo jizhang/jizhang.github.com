@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Mock API in Parcel Project | Ji ZHANG&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="When developing a frontend application, usually we create mocks for backend API, so that after the API contract is settled down, front and backend engineers can work independently. There are several w">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mock API in Parcel Project">
+<meta property="og:url" content="https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/index.html">
+<meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
+<meta property="og:description" content="When developing a frontend application, usually we create mocks for backend API, so that after the API contract is settled down, front and backend engineers can work independently. There are several w">
+<meta property="og:locale">
+<meta property="og:image" content="https://shzhangji.com/images/parcel.png">
+<meta property="article:published_time" content="2023-01-09T06:53:40.000Z">
+<meta property="article:modified_time" content="2023-01-09T06:53:40.000Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="frontend">
+<meta property="article:tag" content="parcel">
+<meta property="article:tag" content="connect">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shzhangji.com/images/parcel.png">
+<meta name="twitter:creator" content="@zjerryj">
+<link rel="publisher" href="zhangji87@gmail.com">
+  
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XGPVRTV36D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XGPVRTV36D');
+  </script>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">If I rest, I rust.</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/categories/Big-Data">Big Data</a>
+        
+          <a class="main-nav-link" href="/categories/Programming">Programming</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="https://shzhangji.com/cnblogs/">中文</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <a id="nav-github" class="nav-icon" target="_blank" rel="noopener" href="https://github.com/jizhang" title="GitHub"></a>
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-mock-api-in-parcel-project" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2023/01/09/mock-api-in-parcel-project/" class="article-date">
+  <time datetime="2023-01-09T06:53:40.000Z" itemprop="datePublished">2023-01-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Mock API in Parcel Project
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>When developing a frontend application, usually we create mocks for backend API, so that after the API contract is settled down, front and backend engineers can work independently. There are several ways to accomplish this task, such as start a dedicated server and let the build tool serve as a proxy, or we can add middleware directly into the build tool’s dev server, if applicable. Some tools can monkey patch the network calls to replace the response with mock data, and various unit testing tools provide their own way of mocking. In this article, I will focus on how to add middleware into <a target="_blank" rel="noopener" href="https://parceljs.org/">Parcel</a>‘s dev server to respond with mock data for API calls.</p>
+<p><img src="/images/parcel.png" alt="Parcel"></p>
+<h2 id="API-Proxy-in-Parcel’s-development-server"><a href="#API-Proxy-in-Parcel’s-development-server" class="headerlink" title="API Proxy in Parcel’s development server"></a>API Proxy in Parcel’s development server</h2><p>Parcel provides a dev server and supports <a target="_blank" rel="noopener" href="https://parceljs.org/features/development/#api-proxy">API proxy</a> out of the box. Under the hood, it uses <a target="_blank" rel="noopener" href="https://github.com/senchalabs/connect">connect</a> and <a target="_blank" rel="noopener" href="https://github.com/chimurai/http-proxy-middleware">http-proxy-middleware</a> to redirect API calls to a different server. It also provides the ability to customize the proxy behavior. For instance, by creating a file named <code>.proxyrc.js</code> in project’s root, we can manually redirect all API calls to a mock server listening on <code>localhost:8080</code>.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; createProxyMiddleware &#125; = <span class="built_in">require</span>(<span class="string">&#x27;http-proxy-middleware&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="keyword">function</span> (<span class="params">app</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> proxy = <span class="title function_">createProxyMiddleware</span>(<span class="string">&#x27;/api&#x27;</span>, &#123;</span><br><span class="line">    <span class="attr">target</span>: <span class="string">&#x27;http://localhost:8080/&#x27;</span>,</span><br><span class="line">  &#125;)</span><br><span class="line">  app.<span class="title function_">use</span>(proxy)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>In order to serve API calls directly in Parcel’s dev server, we just need to write our own middleware and wire it into the <code>connect</code> instance. Let’s name it <code>mock-middleware</code>, and it has the following functions:</p>
+<ul>
+<li>Read source files from the <code>/mock</code> folder, and serve API calls with mock data.</li>
+<li>When the files are updated, refresh the APIs as well.</li>
+</ul>
+<span id="more"></span>
+
+<h3 id="Define-mock-files"><a href="#Define-mock-files" class="headerlink" title="Define mock files"></a>Define mock files</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// /mock/user.js</span></span><br><span class="line"><span class="keyword">const</span> sendJson = <span class="built_in">require</span>(<span class="string">&#x27;send-data/json&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">login</span>(<span class="params">req, res</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; username, password &#125; = req.<span class="property">body</span></span><br><span class="line">  <span class="title function_">sendJson</span>(req, res, &#123;</span><br><span class="line">    <span class="attr">id</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">nickname</span>: <span class="string">&#x27;Jerry&#x27;</span>,</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="string">&#x27;POST /api/login&#x27;</span>: login,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Mock API are simple functions that accept standard Node.js request&#x2F;response objects as parameters and receive and send data via them. The function is associated with a route string that will be used to match the incoming requests. To ease the processing of request and response data, we use <a target="_blank" rel="noopener" href="https://github.com/expressjs/body-parser">body-parser</a> to parse incoming JSON string into <code>req.body</code> object, and use <a target="_blank" rel="noopener" href="https://github.com/Raynos/send-data">send-data</a> utility to send out JSON response, that helps setup the <code>Content-Type</code> header for us. Since <code>body-parser</code> is a middleware, we need to wire it into the <code>connect</code> app, before the <code>mock-middleware</code> we are about to implement.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// /.proxyrc.js</span></span><br><span class="line"><span class="keyword">const</span> bodyParser = <span class="built_in">require</span>(<span class="string">&#x27;body-parser&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> &#123; createMockMiddleware &#125; = <span class="built_in">require</span>(<span class="string">&#x27;./mock-middleware&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="keyword">function</span> (<span class="params">app</span>) &#123;</span><br><span class="line">  app.<span class="title function_">use</span>(bodyParser.<span class="title function_">json</span>())</span><br><span class="line">  app.<span class="title function_">use</span>(<span class="title function_">createMockMiddleware</span>(<span class="string">&#x27;./mock&#x27;</span>)) <span class="comment">// TODO</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Create-router"><a href="#Create-router" class="headerlink" title="Create router"></a>Create router</h3><p>To match the requests into different route functions, we use <a target="_blank" rel="noopener" href="https://github.com/aaronblohowiak/routes.js">route.js</a>.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Create router and add rules.</span></span><br><span class="line"><span class="keyword">const</span> router = <span class="keyword">new</span> <span class="title class_">Router</span>()</span><br><span class="line">router.<span class="title function_">addRoute</span>(<span class="string">&#x27;POST /api/login&#x27;</span>, login)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Use it in a connect app middleware.</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">middleware</span>(<span class="params">req, res, next</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; pathname &#125; = url.<span class="title function_">parse</span>(req.<span class="property">url</span>)</span><br><span class="line">  <span class="keyword">const</span> m = router.<span class="title function_">match</span>(req.<span class="property">method</span> + <span class="string">&#x27; &#x27;</span> + pathname)</span><br><span class="line">  <span class="keyword">if</span> (m) m.<span class="title function_">fn</span>(req, res, m.<span class="property">param</span>)</span><br><span class="line">  <span class="keyword">else</span> <span class="title function_">next</span>()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">use</span>(middleware)</span><br></pre></td></tr></table></figure>
+
+<p><code>route.js</code> supports parameters in URL path, but for query string we need to parse them on our own.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="comment">// Access /user/get?id=1</span></span><br><span class="line">  <span class="string">&#x27;GET /:controller/:action&#x27;</span>: <span class="function">(<span class="params">req, res, params</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; query &#125; = url.<span class="title function_">parse</span>(req.<span class="property">url</span>)</span><br><span class="line">    <span class="comment">// Prints &#123; controller: &#x27;user&#x27;, action: &#x27;get&#x27; &#125; &#123; id: &#x27;1&#x27; &#125;</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(params, qs.<span class="title function_">parse</span>(query))</span><br><span class="line">    res.<span class="title function_">end</span>()</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Combined with <a target="_blank" rel="noopener" href="https://github.com/isaacs/node-glob">glob</a>, we scan files under <code>/mock</code> folder and add all of them to the router.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">glob.<span class="title function_">sync</span>(<span class="string">&#x27;./mock/**/*.js&#x27;</span>).<span class="title function_">forEach</span>(<span class="function">(<span class="params">file</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> routes = <span class="built_in">require</span>(path.<span class="title function_">resolve</span>(file))</span><br><span class="line">  <span class="title class_">Object</span>.<span class="title function_">keys</span>(routes).<span class="title function_">forEach</span>(<span class="function">(<span class="params">path</span>) =&gt;</span> &#123;</span><br><span class="line">    router.<span class="title function_">addRoute</span>(path, routes[path])</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Watch-and-reload"><a href="#Watch-and-reload" class="headerlink" title="Watch and reload"></a>Watch and reload</h3><p>The next feature we need to implement is watch file changes under <code>/mock</code> folder and reload them. The popular <a target="_blank" rel="noopener" href="https://github.com/paulmillr/chokidar">chokidar</a> package does the watch for us, and to tell Node.js reload these files, we simply clear the <code>require</code> cache.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> watcher = chokidar.<span class="title function_">watch</span>(<span class="string">&#x27;./mock&#x27;</span>, &#123; <span class="attr">ignoreInitial</span>: <span class="literal">true</span> &#125;)</span><br><span class="line"><span class="keyword">const</span> ptrn = <span class="keyword">new</span> <span class="title class_">RegExp</span>(<span class="string">&#x27;[/\\\\]mock[/\\\\]&#x27;</span>)</span><br><span class="line">watcher.<span class="title function_">on</span>(<span class="string">&#x27;all&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title class_">Object</span>.<span class="title function_">keys</span>(<span class="built_in">require</span>.<span class="property">cache</span>)</span><br><span class="line">    .<span class="title function_">filter</span>(<span class="function">(<span class="params">id</span>) =&gt;</span> ptrn.<span class="title function_">test</span>(id))</span><br><span class="line">    .<span class="title function_">forEach</span>(<span class="function">(<span class="params">id</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">delete</span> <span class="built_in">require</span>.<span class="property">cache</span>[id]</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Rebuild the router.</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>Now that we have all the pieces we need to create the <code>mock-middleware</code>, we wrap them into a class and provide a <code>createMockMiddleware</code> function for it. The structure is borrowed from <a target="_blank" rel="noopener" href="https://github.com/chimurai/http-proxy-middleware/blob/v2.0.6/src/http-proxy-middleware.ts#L11">HttpProxyMiddleware</a>. Full code can be found on <a target="_blank" rel="noopener" href="https://github.com/jizhang/blog-demo/tree/master/parcel-mock">GitHub</a>.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// /mock-middleware/index.js</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MockMiddleware</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">mockPath</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">mockPath</span> = mockPath</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">createRouter</span>()</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setupWatcher</span>()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">createRouter</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">router</span> = <span class="keyword">new</span> <span class="title class_">Router</span>()</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">setupWatcher</span>(<span class="params"></span>) &#123;</span><br><span class="line">    watcher.<span class="title function_">on</span>(<span class="string">&#x27;all&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">createRouter</span>()</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  middleware = <span class="function">(<span class="params">req, res, next</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">createMockMiddleware</span>(<span class="params">mockPath</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; middleware &#125; = <span class="keyword">new</span> <span class="title class_">MockMiddleware</span>(mockPath)</span><br><span class="line">  <span class="keyword">return</span> middleware</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  createMockMiddleware,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Standalone-mock-server"><a href="#Standalone-mock-server" class="headerlink" title="Standalone mock server"></a>Standalone mock server</h2><p>If you prefer setting up a dedicated server for mock API, either with <a target="_blank" rel="noopener" href="https://github.com/expressjs/express">Express.js</a> or <a target="_blank" rel="noopener" href="https://github.com/typicode/json-server">JSON Server</a>, it is easy to integrate with Parcel. Let’s create a simple Express.js application first.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// /mock-server/index.js</span></span><br><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">express</span>()</span><br><span class="line">app.<span class="title function_">use</span>(express.<span class="title function_">json</span>())</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/api/login&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; username, password &#125; = req.<span class="property">body</span></span><br><span class="line">  res.<span class="title function_">json</span>(&#123;</span><br><span class="line">    <span class="attr">id</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">nickname</span>: <span class="string">&#x27;Jerry&#x27;</span>,</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = app.<span class="title function_">listen</span>(<span class="number">8080</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Mock server listening on port &#x27;</span> + server.<span class="title function_">address</span>().<span class="property">port</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>To start the server while watching the file changes, use <a target="_blank" rel="noopener" href="https://github.com/remy/nodemon">nodemon</a>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yarn add -D nodemon</span><br><span class="line">yarn nodemon --watch mock-server mock-server/index.js</span><br></pre></td></tr></table></figure>
+
+<p>Now configure Parcel to redirect API calls to the mock server.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// /.proxyrc.json</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;/api&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;target&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://127.0.0.1:8080/&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>Use <a target="_blank" rel="noopener" href="https://github.com/open-cli-tools/concurrently">concurrently</a> to start up Parcel <em>and</em> mock server at the same time. In fact, it is more convenient to create a npm script for that. Add the following to <code>package.json</code>:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;start&quot;</span><span class="punctuation">:</span> <span class="string">&quot;concurrently yarn:dev yarn:mock&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;dev&quot;</span><span class="punctuation">:</span> <span class="string">&quot;parcel&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;mock&quot;</span><span class="punctuation">:</span> <span class="string">&quot;nodemon --watch mock-server mock-server/index.js&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://codeburst.io/dont-use-nodemon-there-are-better-ways-fc016b50b45e">https://codeburst.io/dont-use-nodemon-there-are-better-ways-fc016b50b45e</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Raynos/http-framework/wiki/Modules">https://github.com/Raynos/http-framework/wiki/Modules</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/aaronblohowiak/routes.js#http-method-example">https://github.com/aaronblohowiak/routes.js#http-method-example</a></li>
+<li><a target="_blank" rel="noopener" href="https://mswjs.io/docs/comparison">https://mswjs.io/docs/comparison</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/" data-id="clcogcexi003dfxowfzof1yqf" class="article-share-link">Share</a>
+      
+        <a href="https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/connect/" rel="tag">connect</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/" rel="tag">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/parcel/" rel="tag">parcel</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/blog/2022/08/31/configure-git-line-endings-across-oses/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Configure Git Line Endings Across OSes</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/connect/" style="font-size: 10px;">connect</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 12.86px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/parcel/" style="font-size: 10px;">parcel</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 10px;">spring boot</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2023/01/09/mock-api-in-parcel-project/">Mock API in Parcel Project</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2022/08/31/configure-git-line-endings-across-oses/">Configure Git Line Endings Across OSes</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/">Configure Logging for Flask SQLAlchemy Project</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/">Use Composition API and Pinia in Vue 2 Project</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2022/07/24/add-typescript-support-to-vue-2-project/">Add TypeScript Support to Vue 2 Project</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <br>
+      &copy; 2023 Ji ZHANG<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/categories/Big-Data" class="mobile-nav-link">Big Data</a>
+  
+    <a href="/categories/Programming" class="mobile-nav-link">Programming</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="https://shzhangji.com/cnblogs/" class="mobile-nav-link">中文</a>
+  
+</nav>
+
+    
+<script>
+  var disqus_shortname = 'jizhang';
+  
+  var disqus_url = 'https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

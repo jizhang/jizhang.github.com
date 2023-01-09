@@ -90,6 +90,64 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-mock-api-in-parcel-project" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2023/01/09/mock-api-in-parcel-project/" class="article-date">
+  <time datetime="2023-01-09T06:53:40.000Z" itemprop="datePublished">2023-01-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2023/01/09/mock-api-in-parcel-project/">Mock API in Parcel Project</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>When developing a frontend application, usually we create mocks for backend API, so that after the API contract is settled down, front and backend engineers can work independently. There are several ways to accomplish this task, such as start a dedicated server and let the build tool serve as a proxy, or we can add middleware directly into the build tool’s dev server, if applicable. Some tools can monkey patch the network calls to replace the response with mock data, and various unit testing tools provide their own way of mocking. In this article, I will focus on how to add middleware into <a target="_blank" rel="noopener" href="https://parceljs.org/">Parcel</a>‘s dev server to respond with mock data for API calls.</p>
+<p><img src="/images/parcel.png" alt="Parcel"></p>
+<h2 id="API-Proxy-in-Parcel’s-development-server"><a href="#API-Proxy-in-Parcel’s-development-server" class="headerlink" title="API Proxy in Parcel’s development server"></a>API Proxy in Parcel’s development server</h2><p>Parcel provides a dev server and supports <a target="_blank" rel="noopener" href="https://parceljs.org/features/development/#api-proxy">API proxy</a> out of the box. Under the hood, it uses <a target="_blank" rel="noopener" href="https://github.com/senchalabs/connect">connect</a> and <a target="_blank" rel="noopener" href="https://github.com/chimurai/http-proxy-middleware">http-proxy-middleware</a> to redirect API calls to a different server. It also provides the ability to customize the proxy behavior. For instance, by creating a file named <code>.proxyrc.js</code> in project’s root, we can manually redirect all API calls to a mock server listening on <code>localhost:8080</code>.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; createProxyMiddleware &#125; = <span class="built_in">require</span>(<span class="string">&#x27;http-proxy-middleware&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="keyword">function</span> (<span class="params">app</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> proxy = <span class="title function_">createProxyMiddleware</span>(<span class="string">&#x27;/api&#x27;</span>, &#123;</span><br><span class="line">    <span class="attr">target</span>: <span class="string">&#x27;http://localhost:8080/&#x27;</span>,</span><br><span class="line">  &#125;)</span><br><span class="line">  app.<span class="title function_">use</span>(proxy)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>In order to serve API calls directly in Parcel’s dev server, we just need to write our own middleware and wire it into the <code>connect</code> instance. Let’s name it <code>mock-middleware</code>, and it has the following functions:</p>
+<ul>
+<li>Read source files from the <code>/mock</code> folder, and serve API calls with mock data.</li>
+<li>When the files are updated, refresh the APIs as well.</li>
+</ul>
+        
+          <p class="article-more-link">
+            <a href="/blog/2023/01/09/mock-api-in-parcel-project/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/" data-id="clcogcexi003dfxowfzof1yqf" class="article-share-link">Share</a>
+      
+        <a href="https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/connect/" rel="tag">connect</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/" rel="tag">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/parcel/" rel="tag">parcel</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-configure-git-line-endings-across-oses" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2022/08/31/configure-git-line-endings-across-oses/" class="article-date">
@@ -130,7 +188,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/" data-id="clcog8i4z003eedoq168f68kj" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/" data-id="clcogcexh003afxow97yj7fe6" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -189,7 +247,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/" data-id="clcog8i4y003bedoq7bjud9az" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/" data-id="clcogcexg0036fxowgz140i4w" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -240,7 +298,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/" data-id="clcog8i4v0038edoqhv17gxul" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/" data-id="clcogcexf0033fxow5q88gkjb" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -291,7 +349,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/" data-id="clcog8i4s0036edoq8osiexhj" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/" data-id="clcogcexe0030fxow5ppx7bit" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -348,7 +406,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/" data-id="clcog8i4r0033edoq69qxahhl" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/" data-id="clcogcexd002xfxow87q177g7" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -402,7 +460,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/" data-id="clcog8i4q0031edoq6a0ihnqn" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/" data-id="clcogcexc002vfxow99xk3noo" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -456,7 +514,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/01/monitor-kubernetes-volume-storage/" data-id="clcog8i4o002yedoq4j7q0s0a" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/07/01/monitor-kubernetes-volume-storage/" data-id="clcogcexb002sfxowf9mt3n32" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/07/01/monitor-kubernetes-volume-storage/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -507,7 +565,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/" data-id="clcog8i4n002vedoqdeoy9039" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/" data-id="clcogcexa002qfxowgiy5cj2v" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -559,74 +617,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/" data-id="clcog8i4m002redoqa427b391" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/" data-id="clcogcex9002nfxow33a9c9we" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flask/" rel="tag">flask</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/openapi/" rel="tag">openapi</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/typescript/" rel="tag">typescript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/" rel="tag">vue</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-use-bootstrap-v5-in-vue3-project" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/" class="article-date">
-  <time datetime="2022-06-11T12:06:26.000Z" itemprop="datePublished">2022-06-11</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Programming/">Programming</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/">Use Bootstrap V5 in Vue 3 Project</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Bootstrap V5 and Vue 3.x have been released for a while, but the widely used BootstrapVue library is still based on Bootstrap V4 and Vue 2.x. A <a target="_blank" rel="noopener" href="https://github.com/bootstrap-vue/bootstrap-vue/issues/5196">new version</a> of BootstrapVue is under development, and there is an alternative project <a target="_blank" rel="noopener" href="https://cdmoro.github.io/bootstrap-vue-3/">BootstrapVue 3</a> in alpha version. However, since Bootstrap is mainly a CSS framework, and it has dropped jQuery dependency in V5, it is not that difficult to integrate into a Vue 3.x project on your own. In this article, we will go through the steps of creating such a project.</p>
-<h2 id="Create-Vite-project"><a href="#Create-Vite-project" class="headerlink" title="Create Vite project"></a>Create Vite project</h2><p>The recommended way of using Vue 3.x is with Vite. Install <code>yarn</code> and create from the <code>vue-ts</code> template:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yarn create vite bootstrap-vue3 --template vue-ts</span><br><span class="line">cd bootstrap-vue3</span><br><span class="line">yarn install</span><br><span class="line">yarn dev</span><br></pre></td></tr></table></figure>
-
-<h2 id="Add-Bootstrap-dependencies"><a href="#Add-Bootstrap-dependencies" class="headerlink" title="Add Bootstrap dependencies"></a>Add Bootstrap dependencies</h2><p>Bootstrap is published on npm, and it has an extra dependency Popper, so let’s install them both:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add bootstrap @popperjs/core</span><br></pre></td></tr></table></figure>
-
-<p>You may also need the type definitions:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add -D @types/bootstrap</span><br></pre></td></tr></table></figure>
-
-<h2 id="Use-Bootstrap-CSS"><a href="#Use-Bootstrap-CSS" class="headerlink" title="Use Bootstrap CSS"></a>Use Bootstrap CSS</h2><p>Just add a line to your <code>App.vue</code> file and you are free to use Bootstrap CSS:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">setup</span> <span class="attr">lang</span>=<span class="string">&quot;ts&quot;</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"><span class="keyword">import</span> <span class="string">&#x27;bootstrap/dist/css/bootstrap.min.css&#x27;</span></span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">template</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">&quot;button&quot;</span> <span class="attr">class</span>=<span class="string">&quot;btn btn-primary&quot;</span>&gt;</span>Primary<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>You can also use Sass for further <a target="_blank" rel="noopener" href="https://getbootstrap.com/docs/5.2/customize/sass/">customization</a>.</p>
-        
-          <p class="article-more-link">
-            <a href="/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/" data-id="clcog8i4l002pedoq28d792dk" class="article-share-link">Share</a>
-      
-        <a href="https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bootstrap/" rel="tag">bootstrap</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vite/" rel="tag">vite</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/" rel="tag">vue</a></li></ul>
 
     </footer>
   </div>
@@ -648,7 +644,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 12.86px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 10px;">spring boot</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/connect/" style="font-size: 10px;">connect</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 12.86px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/parcel/" style="font-size: 10px;">parcel</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 10px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 10px;">spring boot</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -657,7 +653,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
     </div>
   </div>
 
@@ -668,6 +664,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/blog/2023/01/09/mock-api-in-parcel-project/">Mock API in Parcel Project</a>
+          </li>
         
           <li>
             <a href="/blog/2022/08/31/configure-git-line-endings-across-oses/">Configure Git Line Endings Across OSes</a>
@@ -683,10 +683,6 @@
         
           <li>
             <a href="/blog/2022/07/24/add-typescript-support-to-vue-2-project/">Add TypeScript Support to Vue 2 Project</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/">Manage Multiple CommandLineRunner in Spring Boot</a>
           </li>
         
       </ul>
