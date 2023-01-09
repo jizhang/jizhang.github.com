@@ -25,14 +25,86 @@ module.exports = function (app) {
 
 In order to serve API calls directly in Parcel's dev server, we just need to write our own middleware and wire it into the `connect` instance. Let's name it `mock-middleware`, and it has the following functions:
 
-* Read source files from the `./mock` folder, and serve API calls with mock data.
+* Read source files from the `/mock` folder, and serve API calls with mock data.
 * When the files are updated, refresh the APIs as well.
 
 <!-- more -->
 
 ### Define mock files
 
+```js
+// /mock/user.js
+const sendJson = require('send-data/json')
+
+function login(req, res) {
+  const { username, password } = req.body
+  sendJson(req, res, {
+    id: 1,
+    nickname: 'Jerry',
+  })
+}
+
+module.exports = {
+  'POST /api/login': login,
+}
+```
+
+Mock API are simple functions that accept standard Node.js request/response objects and receive and send data via them. The function is associated with a route string that will be used to match the incoming requests. To ease the processing of request and response data, we use [body-parser][5] to parse incoming JSON string into `req.body` object, and use [send-data][6] utility to send out JSON response, that helps setup the `Content-Type` header for us. Since `body-parser` is a middleware, we need to wire it into the `connect` app, before the `mock-middleware` we are about to implement.
+
+```js
+// /.proxyrc.js
+const bodyParser = require('body-parser')
+
+module.exports = function (app) {
+  app.use(bodyParser.json())
+  app.use(createMockMiddleware('./mock')) // TODO
+}
+```
+
 ### Create router
+
+To match the requests into different route functions, we use [route.js][7].
+
+```js
+// Create router and add rules.
+const router = new Router()
+router.addRoute('POST /api/login', login)
+
+// Use it in a connect app middleware.
+function middleware(req, res, next) {
+  const { pathname } = url.parse(req.url)
+  const m = router.match(req.method + ' ' + pathname)
+  if (m) m.fn(req, res, m.param)
+  else next()
+}
+
+app.use(middleware)
+```
+
+`route.js` supports parameters in URL path, but for query string we need to parse them on our own.
+
+```js
+// Access /user/get?id=1
+module.exports = {
+  'GET /:controller/:action': (req, res, params) => {
+    const { query } = url.parse(req.url)
+    // Prints { controller: 'user', action: 'get' } { id: '1' }
+    console.log(params, qs.parse(query))
+    res.end()
+  },
+}
+```
+
+Combined with [glob][8], we scan files under `/mock` folder and add them all to the router.
+
+```js
+glob.sync('./mock/**/*.js').forEach((file) => {
+  const routes = require(path.resolve(file))
+  Object.keys(routes).forEach((path) => {
+    router.addRoute(path, routes[path])
+  })
+})
+```
 
 ### Watch and reload
 
@@ -45,9 +117,13 @@ In order to serve API calls directly in Parcel's dev server, we just need to wri
 * https://codeburst.io/dont-use-nodemon-there-are-better-ways-fc016b50b45e
 * https://github.com/chimurai/http-proxy-middleware/blob/master/src/http-proxy-middleware.ts
 * https://github.com/Raynos/http-framework/wiki/Modules
-
+* https://github.com/aaronblohowiak/routes.js#http-method-example
 
 [1]: https://parceljs.org/
 [2]: https://parceljs.org/features/development/#api-proxy
 [3]: https://github.com/senchalabs/connect
 [4]: https://github.com/chimurai/http-proxy-middleware
+[5]: https://github.com/expressjs/body-parser
+[6]: https://github.com/Raynos/send-data
+[7]: https://github.com/aaronblohowiak/routes.js
+[8]: https://github.com/isaacs/node-glob
