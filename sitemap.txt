@@ -42,6 +42,7 @@ https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/
 https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/
 https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/
 https://shzhangji.com/
+https://shzhangji.com/tags/frontend/
 https://shzhangji.com/tags/clojure/
 https://shzhangji.com/tags/scala/
 https://shzhangji.com/tags/scalatra/
@@ -51,7 +52,6 @@ https://shzhangji.com/tags/spark/
 https://shzhangji.com/tags/python/
 https://shzhangji.com/tags/lodash/
 https://shzhangji.com/tags/javascript/
-https://shzhangji.com/tags/frontend/
 https://shzhangji.com/tags/functional-programming/
 https://shzhangji.com/tags/es6/
 https://shzhangji.com/tags/crossfilter/
