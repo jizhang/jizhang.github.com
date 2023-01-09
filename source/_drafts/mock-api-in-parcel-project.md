@@ -54,6 +54,7 @@ Mock API are simple functions that accept standard Node.js request/response obje
 ```js
 // /.proxyrc.js
 const bodyParser = require('body-parser')
+const { createMockMiddleware } = require('./mock-middleware')
 
 module.exports = function (app) {
   app.use(bodyParser.json())
@@ -84,8 +85,8 @@ app.use(middleware)
 `route.js` supports parameters in URL path, but for query string we need to parse them on our own.
 
 ```js
-// Access /user/get?id=1
 module.exports = {
+  // Access /user/get?id=1
   'GET /:controller/:action': (req, res, params) => {
     const { query } = url.parse(req.url)
     // Prints { controller: 'user', action: 'get' } { id: '1' }
@@ -108,6 +109,60 @@ glob.sync('./mock/**/*.js').forEach((file) => {
 
 ### Watch and reload
 
+The next feature we need to implement is watch file changes under `/mock` folder and reload them. The popular [chokidar][9] package does the watch for us, and to tell Node.js reload these files, we simply clear the `require` cache.
+
+```js
+const watcher = chokidar.watch('./mock', { ignoreInitial: true })
+const ptrn = new RegExp('[/\\\\]mock[/\\\\]')
+watcher.on('all', () => {
+  Object.keys(require.cache)
+    .filter((id) => ptrn.test(id))
+    .forEach((id) => {
+      delete require.cache[id]
+    })
+
+  // Rebuild the router.
+})
+```
+
+Now that we have all the pieces we need to create the `mock-middleware`, we wrap them into a class and provide a `createMockMiddleware` for it. The structure is borrowed from [HttpProxyMiddleware][10]. Full code can be found on [GitHub][11].
+
+```js
+// /mock-middleware/index.js
+class MockMiddleware {
+  constructor(mockPath) {
+    this.mockPath = mockPath
+    this.createRouter()
+    this.setupWatcher()
+  }
+
+  createRouter() {
+    this.router = new Router()
+    // ...
+  }
+
+  setupWatcher() {
+    watcher.on('all', () => {
+      // ...
+      this.createRouter()
+    })
+  }
+
+  middleware = (req, res, next) => {
+    // ...
+  }
+}
+
+function createMockMiddleware(mockPath) {
+  const { middleware } = new MockMiddleware(mockPath)
+  return middleware
+}
+
+module.exports = {
+  createMockMiddleware,
+}
+```
+
 ## Other options
 * express + nodemon + concurrently
 * json-server, mockjs
@@ -115,7 +170,6 @@ glob.sync('./mock/**/*.js').forEach((file) => {
 
 ## References
 * https://codeburst.io/dont-use-nodemon-there-are-better-ways-fc016b50b45e
-* https://github.com/chimurai/http-proxy-middleware/blob/master/src/http-proxy-middleware.ts
 * https://github.com/Raynos/http-framework/wiki/Modules
 * https://github.com/aaronblohowiak/routes.js#http-method-example
 
@@ -127,3 +181,6 @@ glob.sync('./mock/**/*.js').forEach((file) => {
 [6]: https://github.com/Raynos/send-data
 [7]: https://github.com/aaronblohowiak/routes.js
 [8]: https://github.com/isaacs/node-glob
+[9]: https://github.com/paulmillr/chokidar
+[10]: https://github.com/chimurai/http-proxy-middleware/blob/v2.0.6/src/http-proxy-middleware.ts#L11
+[11]: https://github.com/jizhang/blog-demo/tree/master/parcel-mock
