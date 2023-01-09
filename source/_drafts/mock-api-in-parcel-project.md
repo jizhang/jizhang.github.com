@@ -49,7 +49,7 @@ module.exports = {
 }
 ```
 
-Mock API are simple functions that accept standard Node.js request/response objects and receive and send data via them. The function is associated with a route string that will be used to match the incoming requests. To ease the processing of request and response data, we use [body-parser][5] to parse incoming JSON string into `req.body` object, and use [send-data][6] utility to send out JSON response, that helps setup the `Content-Type` header for us. Since `body-parser` is a middleware, we need to wire it into the `connect` app, before the `mock-middleware` we are about to implement.
+Mock API are simple functions that accept standard Node.js request/response objects as parameters and receive and send data via them. The function is associated with a route string that will be used to match the incoming requests. To ease the processing of request and response data, we use [body-parser][5] to parse incoming JSON string into `req.body` object, and use [send-data][6] utility to send out JSON response, that helps setup the `Content-Type` header for us. Since `body-parser` is a middleware, we need to wire it into the `connect` app, before the `mock-middleware` we are about to implement.
 
 ```js
 // /.proxyrc.js
@@ -96,7 +96,7 @@ module.exports = {
 }
 ```
 
-Combined with [glob][8], we scan files under `/mock` folder and add them all to the router.
+Combined with [glob][8], we scan files under `/mock` folder and add all of them to the router.
 
 ```js
 glob.sync('./mock/**/*.js').forEach((file) => {
@@ -125,7 +125,7 @@ watcher.on('all', () => {
 })
 ```
 
-Now that we have all the pieces we need to create the `mock-middleware`, we wrap them into a class and provide a `createMockMiddleware` for it. The structure is borrowed from [HttpProxyMiddleware][10]. Full code can be found on [GitHub][11].
+Now that we have all the pieces we need to create the `mock-middleware`, we wrap them into a class and provide a `createMockMiddleware` function for it. The structure is borrowed from [HttpProxyMiddleware][10]. Full code can be found on [GitHub][11].
 
 ```js
 // /mock-middleware/index.js
@@ -163,15 +163,67 @@ module.exports = {
 }
 ```
 
-## Other options
-* express + nodemon + concurrently
-* json-server, mockjs
-* fetch-mock, axios-mock-adapter, msw
+## Standalone mock server
+
+If you prefer setting up a dedicated server for mock API, either with [Express.js][12] or [JSON Server][13], it is easy to integrate with Parcel. Let's create a simple Express.js application first.
+
+```js
+// /mock-server/index.js
+const express = require('express')
+
+const app = express()
+app.use(express.json())
+
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body
+  res.json({
+    id: 1,
+    nickname: 'Jerry',
+  })
+})
+
+const server = app.listen(8080, () => {
+  console.log('Mock server listening on port ' + server.address().port)
+})
+```
+
+To start the server while watching the file changes, use [nodemon][14].
+
+```
+yarn add -D nodemon
+yarn nodemon --watch mock-server mock-server/index.js
+```
+
+Now configure Parcel to redirect API calls to the mock server.
+
+```json
+// /.proxyrc.json
+{
+  "/api": {
+    "target": "http://127.0.0.1:8080/"
+  }
+}
+```
+
+Use [concurrently][15] to start up Parcel *and* mock server at the same time. In fact, it is more convenient to create a npm script for that. Add the following to `package.json`:
+
+```json
+{
+  "scripts": {
+    "start": "concurrently yarn:dev yarn:mock",
+    "dev": "parcel",
+    "mock": "nodemon --watch mock-server mock-server/index.js",
+  }
+}
+```
 
 ## References
+
 * https://codeburst.io/dont-use-nodemon-there-are-better-ways-fc016b50b45e
 * https://github.com/Raynos/http-framework/wiki/Modules
 * https://github.com/aaronblohowiak/routes.js#http-method-example
+* https://mswjs.io/docs/comparison
+
 
 [1]: https://parceljs.org/
 [2]: https://parceljs.org/features/development/#api-proxy
@@ -184,3 +236,7 @@ module.exports = {
 [9]: https://github.com/paulmillr/chokidar
 [10]: https://github.com/chimurai/http-proxy-middleware/blob/v2.0.6/src/http-proxy-middleware.ts#L11
 [11]: https://github.com/jizhang/blog-demo/tree/master/parcel-mock
+[12]: https://github.com/expressjs/express
+[13]: https://github.com/typicode/json-server
+[14]: https://github.com/remy/nodemon
+[15]: https://github.com/open-cli-tools/concurrently
