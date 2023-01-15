@@ -317,22 +317,111 @@ async function login(username, password) {
 }
 ```
 
-* Functions
-    * ~~Login with POST JSON~~
-    * ~~Logout~~
-    * ~~Remember me~~
-    * ~~Session persistence~~
-    * ~~User schema~~
-    * RBAC
-    * ~~Get current user~~
-    * ~~401 redirect~~
-    * ~~CSRF~~
-    * JWT
-    * Form validation
-    * Error response
-    * Other options
-        * Built-in form login, http basic, jdbc dao
-        * Custom filter
+## Remember-me authentication
+
+When implementing this demo, the most tricky part is to utilize the built-in Spring Security remember-me authentication, in that Spring Security basically functions as a series of Filters, so when I decide to authenticate user in Controller instead of Filter, there'll be some extra work to do. Normally, with form login or filter-based auth, remember-me can be switched on by the following config:
+
+```java
+http.rememberMe(customizer -> customizer.alwaysRemember(true).key("demo"))
+```
+
+Under the hood, when user has loged in successfully, `RememberMeServices#loginSuccess` is invoked to generate and save a `remember-me` Cookie to the client. Next time the user can login without providing username and password.
+
+```
+% http localhost:8080/api/login username=admin password=888888 \
+    Cookie:SESSION=YTI3ODMzZDctMjJlOC00MzNhLWIxYjItMTJkYzlhZDE2ZmM3 \
+    X-CSRF-TOKEN:7NABU1UXxYeZH3GQf0G4NB0qGEiZwc0yIPR95Cte7jBWnYDc2-EzZTRzpuG0e0eoSWyMVi4YNSmo96wfQ8NE3Bg92QZhq7Pt
+
+HTTP/1.1 200
+Content-Type: application/json
+Date: Sun, 15 Jan 2023 05:59:41 GMT
+Set-Cookie: remember-me=YWRtaW46MTY3NDk3MTk4MTAwNDpTSEEyNTY6YmY3NjAwMmU0ODg3ZTFiMzgxMDBhNWEyMzM1NDgxOWYzODgwYmIxM2JlMzhmNjM2MjA1MGM0MWNkMjA1YWY1Yg; Max-Age=1209600; Expires=Sun, 29 Jan 2023 05:59:41 GMT; Path=/; HttpOnly
+{
+    "id": 1,
+    "nickname": "Jerry"
+}
+
+
+% http localhost:8080/api/current-user \
+    Cookie:remember-me=YWRtaW46MTY3NDk3MTk4MTAwNDpTSEEyNTY6YmY3NjAwMmU0ODg3ZTFiMzgxMDBhNWEyMzM1NDgxOWYzODgwYmIxM2JlMzhmNjM2MjA1MGM0MWNkMjA1YWY1Yg
+
+HTTP/1.1 200
+Content-Type: application/json
+Date: Sun, 15 Jan 2023 05:59:59 GMT
+Set-Cookie: SESSION=NDA4NjEwM2ItNTY2YS00ZDFlLWFiNjEtOTJjNGI2MGE4MTlj; Path=/; HttpOnly; SameSite=Lax
+{
+    "id": 1,
+    "nickname": "Jerry"
+}
+```
+
+Unfortunately, `HttpServletRequest#login` does not call `RememberMeServices#loginSuccess` for us, so we need to invoke the method by ourselves. Worse still, the `RememberMeServices` instance, in this case `TokenBasedRememberMeServices`, is only available within the Filter chain, meaning it is not registered in the Spring IoC container. After some digging in the source code, I managed to expose this instance to other Spring components.
+
+```java
+@SpringBootApplication
+public class DemoApplication {
+  @Autowired
+  private ConfigurableBeanFactory beanFactory;
+
+  @Bean("securityFilterChain")
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    var chain = http
+        .authorizeHttpRequests(customizer -> customizer)
+        .rememberMe(customizer -> customizer.alwaysRemember(true).key("demo"))
+        .build();
+
+    var rememberMeServices = http.getSharedObject(RememberMeServices.class);
+    beanFactory.registerSingleton("rememberMeServices", rememberMeServices);
+
+    return chain;
+  }
+}
+
+@RestController
+@RequiredArgsConstructor
+@DependsOn("securityFilterChain")
+public class AuthController {
+  private final RememberMeServices rememberMeServices;
+}
+```
+
+A `RememberMeServices` instance is created in the configuration phase by Spring Security, and we save it into the IoC container, making it available in the `AuthController`. Then, the `loginSuccess` method can be invoked like this:
+
+```java
+@PostMapping("/login")
+public CurrentUser login(@Valid @RequestBody LoginForm form, BindingResult bindingResult,
+                         HttpServletRequest request, HttpServletResponse response) {
+  request.login(form.getUsername(), form.getPassword());
+  var auth = (Authentication) request.getUserPrincipal();
+  var user = (User) auth.getPrincipal();
+  rememberMeServices.loginSuccess(request, response, auth);
+  return new CurrentUser(user.getId(), user.getNickname());
+}
+```
+
+## Session persistence
+
+Login state and CSRF token are stored in HTTP Session, and by default Session data are kept in Java process memory, so when the server restarts or there're multiple backends, users may need to login several times. The solution is simple, use Spring Session to store data in a third-party persistent storage. Take Redis for an example.
+
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+<dependency>
+  <groupId>org.springframework.session</groupId>
+  <artifactId>spring-session-data-redis</artifactId>
+</dependency>
+```
+
+Due to Spring Boot's auto-configuration feature, adding the dependencies will suffice to use Redis as the Session storage. To specify the Redis instance in production, add the following configs in `application.properties`.
+
+```
+spring.redis.host=localhost
+spring.redis.port=6379
+```
+
+The demo project can be found on [GitHub][10].
 
 ## References
 * https://docs.spring.io/spring-security/reference/index.html
@@ -349,3 +438,4 @@ async function login(username, password) {
 [7]: https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html
 [8]: https://docs.spring.io/spring-security/reference/servlet/integrations/servlet-api.html#servletapi-3
 [9]: https://httpie.io/
+[10]: https://github.com/jizhang/java-blog-demo/tree/master/api-auth
