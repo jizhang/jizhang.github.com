@@ -1,8 +1,13 @@
 ---
 title: RESTful API Authentication with Spring Security
+tags:
+  - spring boot
+  - spring security
+  - restful
 categories: Programming
-tags: [spring boot, spring security, restful]
+date: 2023-01-15 14:51:51
 ---
+
 
 When it comes to implementing user authentication in RESTful API server, there're several options like [Spring Security][1], [Apache Shiro][2], or writing our own version of Filters and Servlets. If the server already uses [Spring Boot][3], then Spring Security is really a good fit, for it integrates quite well with Spring Boot project, thanks to all those automatic configurations. However, Spring Security's login facility is originally built for web forms or basic HTTP authentication, while modern apps usually lean on RESTful API. We can either adapt the frontend client to utilizing the built-in login methods as in this tutorial [Spring Security and Angular JS][4], or write custom Filter to [extract user credentials from input JSON][5].
 
