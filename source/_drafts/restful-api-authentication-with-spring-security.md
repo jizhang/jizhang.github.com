@@ -8,7 +8,7 @@ When it comes to implementing user authentication in RESTful API server, there'r
 
 ![Spring Security](images/spring-security.png)
 
-Having said that, personally I still prefer to maintain a consistent API style in user authentication, and I don't want to write awkward logics with raw Servlet request/response in Filter, instead of using what Spring MVC provides, i.e. `@RestController`, `@RequestBody`, form validation, etc. Luckily, Spring Security provides integration for Servlet API, so that we can login/logout user within the Controller. In this article, I will demonstrate how to use Spring Security to guard your RESTful API server, with the following functions:
+Having said that, personally I still prefer to maintain a consistent API style in user authentication, and I don't want to write awkward logics with raw Servlet request/response objects in Filter, instead of using what Spring MVC provides, i.e. `@RestController`, `@RequestBody`, form validation, etc. Luckily, Spring Security provides integration for Servlet API, so that we can login/logout user within the Controller. In this article, I will demonstrate how to use Spring Security to guard your RESTful API server, with the following functions:
 
 * Login/logout with JSON API.
 * Return 401 for unauthenticated requests.
@@ -84,7 +84,7 @@ Add the Spring Security dependency into the project, along with the JDBC related
 </dependency>
 ```
 
-It's not that Spring Security doesn't come with good default to table schema, but we probably want to have more control over them or we already have a set of user tables. If you're interested, here's the link to the default [User Schema][6]. Instead, I'm using the following schema in this demo.
+It's not that Spring Security doesn't come with good defaults for table schema, but we probably want to have more control over them or we already have a set of user tables. If you're interested, here's the link to the default [User Schema][6]. Instead, I'm using the following schema in this demo.
 
 ```sql
 CREATE TABLE user (
@@ -108,7 +108,7 @@ var password = encoder.encode("888888");
 System.out.println("{bcrypt}" + password);
 ```
 
-By default, Spring Security will guard all API endpoints including `/api/login`, so we first need to tell it back down at certain requests, by configuring the `SecurityFilterChain`:
+By default, Spring Security will guard all API endpoints including `/api/login`, so we first need to tell it to back down at certain requests, by configuring the `SecurityFilterChain`:
 
 ```java
 @SpringBootApplication
@@ -129,7 +129,7 @@ public class DemoApplication {
 
 In addition, we tell Spring Security that when an unauthenticated user tries to access the restricted routes, it'll respond with 401 Unauthorized, so that the client, usually a single page application, can redirect to its login page. This facility is called authentication entry point. In the old days, it was the server's job to redirect to a login page, so the default entry point is an HTML page resided in the `/login` URL.
 
-## Retrieve user credentials
+## Retrieve user credentials from database
 
 Again, with Spring Boot, this task is much simplified. Let's create the `User` entity and its corresponding repository.
 
@@ -161,7 +161,7 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 }
 ```
 
-Note the `User` class implements the `UserDetails` interface, which tells Spring Security that this class can be used for authentication. To wire it to the mechanism, we need another class that implements `UserDetailsService` interface, mainly for retrieving the `User` class from wherever we store them.
+Note the `User` class implements the `UserDetails` interface, which tells Spring Security that this class can be used for authentication. To wire it into the mechanism, we need another class that implements `UserDetailsService` interface, mainly for retrieving the `User` instances from wherever we store them.
 
 ```java
 @Service @RequiredArgsConstructor
@@ -180,7 +180,7 @@ It'll find the table row by username, and use the aforementioned password encode
 
 ## User login in Controller methods
 
-Form Servlet 3+, `HttpServletRequest` adds `login`/`logout` methods to help authenticate user credential programmatically, and Spring Security [integrates with this function][8]. So in our `/api/login` handler, we simply invoke this method:
+From Servlet 3+, `HttpServletRequest` adds `login`/`logout` methods to help authenticate user credential programmatically, and Spring Security [integrates with this function][8]. So in our `/api/login` handler, we simply invoke this method:
 
 ```java
 @PostMapping("/login")
@@ -231,7 +231,7 @@ Content-Length: 0
 Date: Sun, 15 Jan 2023 04:12:50 GMT
 ```
 
-Unfortunately, the server denies us agian even if we provide the correct credential. The reason is Spring Security, by default, enables CSRF protection for all non-idempotent request, such as POST, DELETE, etc. This can be disabled by configuration, and next section I'll show you how to use it properly to protect the API.
+Unfortunately, the server denies us agian even if we provide the correct credential. The reason is Spring Security, by default, enables CSRF protection for all non-idempotent requests, such as POST, DELETE, etc. This can be disabled by configuration, and next section I'll show you how to use it properly to protect the API.
 
 ```java
 @Bean
@@ -277,7 +277,7 @@ CSRF protection prevents malicious site from tricking user to submit a form unwi
   th:value="${_csrf.token}" />
 ```
 
-But with SPA (Single Page Application), we need another way to retrived the token. One approach is mentioned in the Angular tutorial I mentioned earlier, in which the CSRF token is saved in Cookie, and every Ajax POST request is equipped with a header containing this token. Here I take a different approach, that is creating a dedicated endpoint for token retrieval.
+But with SPA (Single Page Application), we need another way to retrieve the token. One approach is mentioned in the Angular tutorial I linked to earlier, in which the CSRF token is saved in Cookie, and every Ajax POST request is equipped with a header containing this token. Here I take a different approach, that is creating a dedicated endpoint for token retrieval:
 
 ```java
 @GetMapping("/csrf")
@@ -319,13 +319,13 @@ async function login(username, password) {
 
 ## Remember-me authentication
 
-When implementing this demo, the most tricky part is to utilize the built-in Spring Security remember-me authentication, in that Spring Security basically functions as a series of Filters, so when I decide to authenticate user in Controller instead of Filter, there'll be some extra work to do. Normally, with form login or filter-based auth, remember-me can be switched on by the following config:
+When implementing this demo, the most tricky part is to utilize Spring Security's built-in remember-me authentication, in that Spring Security basically functions as a series of Filters, so when I decide to authenticate user in Controller instead of Filter, there'll be some extra work to do. Normally, with form login or filter-based auth, remember-me can be switched on by the following config:
 
 ```java
 http.rememberMe(customizer -> customizer.alwaysRemember(true).key("demo"))
 ```
 
-Under the hood, when user has loged in successfully, `RememberMeServices#loginSuccess` is invoked to generate and save a `remember-me` Cookie to the client. Next time the user can login without providing username and password.
+Under the hood, when user has logged in successfully, `RememberMeServices#loginSuccess` is invoked to generate and save a `remember-me` Cookie to the client. Next time the user can login without providing username and password.
 
 ```
 % http localhost:8080/api/login username=admin password=888888 \
@@ -385,7 +385,7 @@ public class AuthController {
 }
 ```
 
-A `RememberMeServices` instance is created in the configuration phase by Spring Security, and we save it into the IoC container, making it available in the `AuthController`. Then, the `loginSuccess` method can be invoked like this:
+A `RememberMeServices` instance is created in the configuration phase by Spring Security, and we save it into the IoC container, making it available in the `AuthController`. The `@DependsOn` annotation ensures that `RememberMeServices` is registered before the `AuthController` is created. Next, the `loginSuccess` method can be invoked like this:
 
 ```java
 @PostMapping("/login")
