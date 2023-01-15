@@ -13,8 +13,8 @@ Having said that, personally I still prefer to maintain a consistent API style i
 * Login/logout with JSON API.
 * Return 401 for unauthenticated requests.
 * Custom table for user data.
-* Remember me.
 * CSRF protection.
+* Remember me.
 * Session persistence.
 
 <!-- more -->
@@ -129,7 +129,7 @@ public class DemoApplication {
 
 In addition, we tell Spring Security that when an unauthenticated user tries to access the restricted routes, it'll respond with 401 Unauthorized, so that the client, usually a single page application, can redirect to its login page. This facility is called authentication entry point. In the old days, it was the server's job to redirect to a login page, so the default entry point is an HTML page resided in the `/login` URL.
 
-## Retrieve user credentials and attempt logging in
+## Retrieve user credentials
 
 Again, with Spring Boot, this task is much simplified. Let's create the `User` entity and its corresponding repository.
 
@@ -207,10 +207,114 @@ public CurrentUser login(@Valid @RequestBody LoginForm form, BindingResult bindi
 `request.logout` can be used accordingly, and for `/api/current-user`, the `@AuthenticationPrincipal` annotation can be used on parameter to access the currently logged-in user:
 
 ```java
- @GetMapping("/current-user")
- public CurrentUser getCurrentUser(@AuthenticationPrincipal User user) {
-   return new CurrentUser(user.getId(), user.getNickname());
- }
+@GetMapping("/current-user")
+public CurrentUser getCurrentUser(@AuthenticationPrincipal User user) {
+  return new CurrentUser(user.getId(), user.getNickname());
+}
+```
+
+Now we can test these APIs with [httpie][9], a commandline HTTP client:
+
+```
+% http localhost:8080/api/current-user
+HTTP/1.1 401
+Content-Length: 0
+Date: Sun, 15 Jan 2023 04:10:51 GMT
+```
+
+As expected, since we're not logged in, the server responds with 401. Then let's try authenticate with username and password:
+
+```
+% http localhost:8080/api/login username=admin password=888888
+HTTP/1.1 401
+Content-Length: 0
+Date: Sun, 15 Jan 2023 04:12:50 GMT
+```
+
+Unfortunately, the server denies us agian even if we provide the correct credential. The reason is Spring Security, by default, enables CSRF protection for all non-idempotent request, such as POST, DELETE, etc. This can be disabled by configuration, and next section I'll show you how to use it properly to protect the API.
+
+```java
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  return http
+      .authorizeHttpRequests(customizer -> customizer)
+      .csrf().disable()
+      .build();
+}
+```
+
+Now test the API again. Note that in the second request, we pass the Session ID as Cookie. You may notice the key `SESSION` is different from the default `JSESSIONID`, that is because I'm using Spring Session for session persistence, which I'll cover in the last section.
+
+```
+% http localhost:8080/api/login username=admin password=888888
+HTTP/1.1 200
+Content-Type: application/json
+Date: Sun, 15 Jan 2023 04:20:45 GMT
+Set-Cookie: SESSION=ZDZkOGQ5NTEtYmI4My00YjI2LTg3YzYtNDMzZTlkOWRmZDYz; Path=/; HttpOnly; SameSite=Lax
+{
+    "id": 1,
+    "nickname": "Jerry"
+}
+
+% http localhost:8080/api/current-user Cookie:SESSION=ZDZkOGQ5NTEtYmI4My00YjI2LTg3YzYtNDMzZTlkOWRmZDYz
+HTTP/1.1 200
+Content-Type: application/json
+Date: Sun, 15 Jan 2023 04:21:03 GMT
+{
+    "id": 1,
+    "nickname": "Jerry"
+}
+```
+
+## Enable CSRF protection
+
+CSRF protection prevents malicious site from tricking user to submit a form unwillingly. Every form will be embedded with a server-generated token known as the CSRF token. Since the token cannot be attained by third-party, and it is validated in every submission, thus making the request safe. In the old days, again, web forms are generated on server side, while the token is saved in a hidden `<input>` and got submitted together with the form data. For instance, in Thymeleaf the token can be retrieved by a request attribute named `_csrf`:
+
+```html
+<input
+  type="hidden"
+  th:name="${_csrf.parameterName}"
+  th:value="${_csrf.token}" />
+```
+
+But with SPA (Single Page Application), we need another way to retrived the token. One approach is mentioned in the Angular tutorial I mentioned earlier, in which the CSRF token is saved in Cookie, and every Ajax POST request is equipped with a header containing this token. Here I take a different approach, that is creating a dedicated endpoint for token retrieval.
+
+```java
+@GetMapping("/csrf")
+public CsrfResponse csrf(HttpServletRequest request) {
+  var csrf = (CsrfToken) request.getAttribute("_csrf");
+  return new CsrfResponse(csrf.getToken());
+}
+
+public record CsrfResponse(String token) {}
+```
+
+This API should also be excluded from Spring Security:
+
+```java
+requestMatchers("/api/csrf").permitAll()
+```
+
+The client could fetch the CSRF token when it needs to do a POST/DELETE request. This token can also be cached in `localStorage` for further use, as long as the session is not timed out. Don't forget to clear the cache when user logs out.
+
+```js
+async function getCsrfToken() {
+  const response = await fetch('/api/csrf')
+  const payload = await response.json()
+  return payload.token
+}
+
+async function login(username, password) {
+  const response = await fetch('/api/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': await getCsrfToken(),
+    },
+    body: JSON.stringify({ username, password }),
+  })
+  return await response.json()
+}
 ```
 
 * Functions
@@ -244,3 +348,4 @@ public CurrentUser login(@Valid @RequestBody LoginForm form, BindingResult bindi
 [6]: https://docs.spring.io/spring-security/reference/servlet/appendix/database-schema.html#_user_schema
 [7]: https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html
 [8]: https://docs.spring.io/spring-security/reference/servlet/integrations/servlet-api.html#servletapi-3
+[9]: https://httpie.io/
