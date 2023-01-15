@@ -1,3 +1,4 @@
+https://shzhangji.com/blog/2023/01/15/restful-api-authentication-with-spring-security/
 https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/
 https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/
 https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/
@@ -106,5 +107,6 @@ https://shzhangji.com/tags/pinia/
 https://shzhangji.com/tags/git/
 https://shzhangji.com/tags/parcel/
 https://shzhangji.com/tags/connect/
+https://shzhangji.com/tags/spring-security/
 https://shzhangji.com/categories/Programming/
 https://shzhangji.com/categories/Big-Data/
