@@ -38,6 +38,64 @@ jobs:
 * [actions/checkout][4] merely checks out the code into workspace for further use. It only checks out the one commit that triggers this workflow. It's also a good practice to pin the version of an action.
 * [actions/setup-java][5] creates the specific JDK environment for us. `cache: maven` is important here because it utilizes the [actions/cache][6] to upload Maven dependencies to GitHub's cache server, so that they don't need to be downloaded from the central repository again. The cache key is based on the content of `pom.xml`, and there're several rules of [cache sharing between branches][7].
 
+## Initialize service containers for testing
+
+During the test phase, we oftentimes need a local database service to run the unit tests, integration tests, etc., and GitHub Actions comes with a ready-made solution for this purpose, viz. [Containerized services][8]. Here is a minimum example of spinning up a Redis instance within a job:
+
+```yaml
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+```
+
+Before running the `verify` job, the runner, with Docker already installed, starts up a Redis container and maps its port to the host, in this case `6379`. Then any process in the runner can access Redis via `localhost:6379`. Mind that containers take time to start, and sometimes the starting process is long, so GitHub Actions uses `docker inspect` to ensure container has entered the `healthy` state before it makes headway to the next steps. So we need to set [`--health-cmd`][9] for our services:
+
+```yaml
+redis:
+  image: redis:6
+  ports:
+    - 6379:6379
+  options: >-
+    --health-cmd "redis-cli ping"
+    --health-interval 10s
+    --health-timeout 5s
+    --health-retries 5
+```
+
+This is especially important for the MySQL service we are about to setup, because it usually takes more time to start up:
+
+```yaml
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_DATABASE: project_test
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+```
+
+## Share artifacts between jobs
+
+## Build Docker image for deployment
+
+## Setup CI for Node.js project
+
+## Setup CI for Python project
+
 * ~~Java & node project~~.
 * ~~Lint in feature branches~~.
     * ~~Cache~~
@@ -69,3 +127,6 @@ jobs:
 [5]: https://github.com/actions/setup-java
 [6]: https://github.com/actions/cache
 [7]: https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows
+[8]: https://docs.github.com/en/actions/using-containerized-services/about-service-containers
+[9]: https://docs.docker.com/engine/reference/commandline/run/
+[10]: https://hub.docker.com/_/mysql
