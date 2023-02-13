@@ -1,8 +1,14 @@
 ---
 title: Setup CI with GitHub Actions (Java/Node/Python)
-tags: [github, ci, docker, java]
+tags:
+  - github
+  - ci
+  - docker
+  - java
 categories: Programming
+date: 2023-02-13 18:36:12
 ---
+
 
 Continuous integration, or CI, is a great tool to maintain a healthy code base. As in [lint-staged][1]'s motto, "don't let 💩 slip into your code base", CI can run various checks to prevent compilation error, unit test failure, or violation of code style from being merged into the main branch. Besides, CI can also do the packaging work, making artifacts that are ready to be deployed to production. In this article, I'll demonstrate how to use [GitHub Actions][2] to define CI workflow that checks and packages Java/Node/Python applications.
 
@@ -10,9 +16,9 @@ Continuous integration, or CI, is a great tool to maintain a healthy code base. 
 
 ## Run Maven verify on push
 
-CI typically has two phases, one is during development and before merging into the master, the other is right after the feature branch is merged. Former only requires checking the code, say build the newly pushed code in a branch, and see if there's any violation or bug. After it's merged, CI will run checking *and* packaging altogether, to produce a deployable artifact, a Docker image for example.
+CI typically has two phases, one is during development and before merging into the master, the other is right after the feature branch is merged. Former only requires checking the code, i.e. build the newly pushed code in a branch, and see if there's any violation or bug. After it's merged, CI will run checking *and* packaging altogether, to produce a deployable artifact, usually a Docker image.
 
-For Java project, we use JUnit, Checkstyle and SpotBugs as Maven plugins to run various checks whenever someone pushes to a feature branch. To do that with GitHub Actions, we need to create a workflow that includes setting up Java environment and run `mvn verify`. Here's a minimum workflow definition in `project-root/.github/workflows/build.yml`:
+For Java project, we use JUnit, Checkstyle and SpotBugs as Maven plugins to run various checks whenever someone pushes to a feature branch. To do that with GitHub Actions, we need to create a workflow that includes setting up Java environment and running `mvn verify`. Here's a minimum workflow definition in `project-root/.github/workflows/build.yml`:
 
 ```yaml
 name: Build
@@ -35,7 +41,7 @@ jobs:
 * `on: push` defines the [trigger][3] of the workflow. Whenever there's a new commit pushed to any branch, the workflow will run. You can limit the branches that trigger this workflow, or use some other events like `pull_request`.
 * `verify` is the name of a job we define in this workflow. A workflow can have multiple jobs, we'll add another one named `build` very soon. Jobs are executed in parallel by default, that's why `jobs` is a mapping instead of a sequence. But we can add dependencies between jobs, as well as conditions that may prevent a job from running.
 * A job consists of severl `steps`, here we've defined three. A step can either be a command, indicated by `run`; or use of a predefined set of code, named "action", indicated by `uses`. There're tons of official and third-party actions we can use to build up a workflow. We can also build our own actions to share in a corporation.
-* [actions/checkout][4] merely checks out the code into workspace for further use. It only checks out the one commit that triggers this workflow. It's also a good practice to pin the version of an action.
+* [actions/checkout][4] merely checks out the code into workspace for further use. It only checks out the one commit that triggers this workflow. It's also a good practice to pin the version of an action, as in `actions/checkout@v3`.
 * [actions/setup-java][5] creates the specific JDK environment for us. `cache: maven` is important here because it utilizes the [actions/cache][6] to upload Maven dependencies to GitHub's cache server, so that they don't need to be downloaded from the central repository again. The cache key is based on the content of `pom.xml`, and there're several rules of [cache sharing between branches][7].
 
 ## Initialize service containers for testing
@@ -175,7 +181,7 @@ jobs:
     * `metadata-action` will generate a list of tags based on the `images` and `tags` parameters. The above configuration will generate something like `ghcr.io/jizhang/proton:sha-729b875`. Other options can be found in this [link][17].
     * We give this step an `id`, which is `meta`, and then access its output via `steps.meta.outputs.tags`.
     * The parameter `images`, `tags`, and `tags` in `build-push-action` all support multi-line string so that multiple tags can be published.
-* `docker/build-push-action` does the build-and-push job. The Dockerfile should be in the project root, and we pass the `JAR_FILE` argument which points to the artifact that we downloaded from the previous job.
+* `docker/build-push-action` does the build-and-push job. The Dockerfile should be in the project root, and we pass the `JAR_FILE` argument which points to the artifact that we've downloaded from the previous job.
 
 If built successfully, the Docker image can be found in your Profile - Packages. Here's the [full example][18] of using GitHub Actions with a Java project. The final pipeline looks like this:
 
@@ -252,7 +258,7 @@ jobs:
             POETRY_VERSION=${{ env.POETRY_VERSION }}
 ```
 
-But for the `build` job, Python is different from the aforementioned projects in that it doesn't produce bundle files like JAR or minified JS. So we have to invoke Poetry inside the Dockerfile to install the project dependencies, which makes the Dockerfile a bit more complicated.
+But for the `build` job, Python is different from the aforementioned projects in that it doesn't produce bundle files like JAR or minified JS. So we have to invoke Poetry inside the Dockerfile to install the project dependencies, which makes the Dockerfile a bit more complicated:
 
 ```Dockerfile
 ARG PYTHON_VERSION
