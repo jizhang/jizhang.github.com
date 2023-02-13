@@ -1,3 +1,4 @@
+https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/
 https://shzhangji.com/blog/2023/01/15/restful-api-authentication-with-spring-security/
 https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/
 https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/
@@ -44,13 +45,13 @@ https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/
 https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/
 https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/
 https://shzhangji.com/
+https://shzhangji.com/tags/python/
 https://shzhangji.com/tags/clojure/
 https://shzhangji.com/tags/scala/
 https://shzhangji.com/tags/scalatra/
 https://shzhangji.com/tags/webjars/
 https://shzhangji.com/tags/elasticsearch/
 https://shzhangji.com/tags/spark/
-https://shzhangji.com/tags/python/
 https://shzhangji.com/tags/lodash/
 https://shzhangji.com/tags/javascript/
 https://shzhangji.com/tags/frontend/
@@ -108,5 +109,7 @@ https://shzhangji.com/tags/git/
 https://shzhangji.com/tags/parcel/
 https://shzhangji.com/tags/connect/
 https://shzhangji.com/tags/spring-security/
+https://shzhangji.com/tags/ci/
+https://shzhangji.com/tags/docker/
 https://shzhangji.com/categories/Programming/
 https://shzhangji.com/categories/Big-Data/

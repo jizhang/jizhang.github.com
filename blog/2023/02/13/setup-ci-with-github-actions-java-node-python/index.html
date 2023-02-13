@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Setup CI with GitHub Actions (Java/Node/Python) | Ji ZHANG&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Continuous integration, or CI, is a great tool to maintain a healthy code base. As in lint-staged‘s motto, “don’t let 💩 slip into your code base”, CI can run various checks to prevent compilation err">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Setup CI with GitHub Actions (Java&#x2F;Node&#x2F;Python)">
+<meta property="og:url" content="https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/index.html">
+<meta property="og:site_name" content="Ji ZHANG&#39;s Blog">
+<meta property="og:description" content="Continuous integration, or CI, is a great tool to maintain a healthy code base. As in lint-staged‘s motto, “don’t let 💩 slip into your code base”, CI can run various checks to prevent compilation err">
+<meta property="og:locale">
+<meta property="og:image" content="https://shzhangji.com/images/ci-with-github-actions.png">
+<meta property="og:image" content="https://shzhangji.com/images/github-actions-java.png">
+<meta property="article:published_time" content="2023-02-13T10:36:12.000Z">
+<meta property="article:modified_time" content="2023-02-13T10:36:12.000Z">
+<meta property="article:author" content="Ji ZHANG">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="github">
+<meta property="article:tag" content="ci">
+<meta property="article:tag" content="docker">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shzhangji.com/images/ci-with-github-actions.png">
+<meta name="twitter:creator" content="@zjerryj">
+<link rel="publisher" href="zhangji87@gmail.com">
+  
+    <link rel="alternate" href="/atom.xml" title="Ji ZHANG&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="/css/source-code-pro.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XGPVRTV36D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XGPVRTV36D');
+  </script>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Ji ZHANG&#39;s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">If I rest, I rust.</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/categories/Big-Data">Big Data</a>
+        
+          <a class="main-nav-link" href="/categories/Programming">Programming</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="https://shzhangji.com/cnblogs/">中文</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <a id="nav-github" class="nav-icon" target="_blank" rel="noopener" href="https://github.com/jizhang" title="GitHub"></a>
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-setup-ci-with-github-actions-java-node-python" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/" class="article-date">
+  <time datetime="2023-02-13T10:36:12.000Z" itemprop="datePublished">2023-02-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Setup CI with GitHub Actions (Java/Node/Python)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Continuous integration, or CI, is a great tool to maintain a healthy code base. As in <a target="_blank" rel="noopener" href="https://github.com/okonet/lint-staged">lint-staged</a>‘s motto, “don’t let 💩 slip into your code base”, CI can run various checks to prevent compilation error, unit test failure, or violation of code style from being merged into the main branch. Besides, CI can also do the packaging work, making artifacts that are ready to be deployed to production. In this article, I’ll demonstrate how to use <a target="_blank" rel="noopener" href="https://docs.github.com/en/actions">GitHub Actions</a> to define CI workflow that checks and packages Java&#x2F;Node&#x2F;Python applications.</p>
+<p><img src="/images/ci-with-github-actions.png" alt="CI with GitHub Actions"></p>
+<h2 id="Run-Maven-verify-on-push"><a href="#Run-Maven-verify-on-push" class="headerlink" title="Run Maven verify on push"></a>Run Maven verify on push</h2><p>CI typically has two phases, one is during development and before merging into the master, the other is right after the feature branch is merged. Former only requires checking the code, i.e. build the newly pushed code in a branch, and see if there’s any violation or bug. After it’s merged, CI will run checking <em>and</em> packaging altogether, to produce a deployable artifact, usually a Docker image.</p>
+<p>For Java project, we use JUnit, Checkstyle and SpotBugs as Maven plugins to run various checks whenever someone pushes to a feature branch. To do that with GitHub Actions, we need to create a workflow that includes setting up Java environment and running <code>mvn verify</code>. Here’s a minimum workflow definition in <code>project-root/.github/workflows/build.yml</code>:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">Build</span></span><br><span class="line"><span class="attr">on:</span> <span class="string">push</span></span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">verify:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/checkout@v3</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/setup-java@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">java-version:</span> <span class="string">&#x27;17&#x27;</span></span><br><span class="line">          <span class="attr">distribution:</span> <span class="string">temurin</span></span><br><span class="line">          <span class="attr">cache:</span> <span class="string">maven</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">mvn</span> <span class="string">--batch-mode</span> <span class="string">verify</span></span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<ul>
+<li><code>on: push</code> defines the <a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/using-workflows/triggering-a-workflow">trigger</a> of the workflow. Whenever there’s a new commit pushed to any branch, the workflow will run. You can limit the branches that trigger this workflow, or use some other events like <code>pull_request</code>.</li>
+<li><code>verify</code> is the name of a job we define in this workflow. A workflow can have multiple jobs, we’ll add another one named <code>build</code> very soon. Jobs are executed in parallel by default, that’s why <code>jobs</code> is a mapping instead of a sequence. But we can add dependencies between jobs, as well as conditions that may prevent a job from running.</li>
+<li>A job consists of severl <code>steps</code>, here we’ve defined three. A step can either be a command, indicated by <code>run</code>; or use of a predefined set of code, named “action”, indicated by <code>uses</code>. There’re tons of official and third-party actions we can use to build up a workflow. We can also build our own actions to share in a corporation.</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/actions/checkout">actions&#x2F;checkout</a> merely checks out the code into workspace for further use. It only checks out the one commit that triggers this workflow. It’s also a good practice to pin the version of an action, as in <code>actions/checkout@v3</code>.</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/actions/setup-java">actions&#x2F;setup-java</a> creates the specific JDK environment for us. <code>cache: maven</code> is important here because it utilizes the <a target="_blank" rel="noopener" href="https://github.com/actions/cache">actions&#x2F;cache</a> to upload Maven dependencies to GitHub’s cache server, so that they don’t need to be downloaded from the central repository again. The cache key is based on the content of <code>pom.xml</code>, and there’re several rules of <a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows">cache sharing between branches</a>.</li>
+</ul>
+<h2 id="Initialize-service-containers-for-testing"><a href="#Initialize-service-containers-for-testing" class="headerlink" title="Initialize service containers for testing"></a>Initialize service containers for testing</h2><p>During the test phase, we oftentimes need a local database service to run the unit tests, integration tests, etc., and GitHub Actions comes with a ready-made solution for this purpose, viz. <a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/using-containerized-services/about-service-containers">Containerized services</a>. Here is a minimum example of spinning up a Redis instance within a job:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">verify:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">services:</span></span><br><span class="line">      <span class="attr">redis:</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">redis:6</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="number">6379</span><span class="string">:6379</span></span><br></pre></td></tr></table></figure>
+
+<p>Before running the <code>verify</code> job, the runner, with Docker already installed, starts up a Redis container and maps its port to the host, in this case <code>6379</code>. Then any process in the runner can access Redis via <code>localhost:6379</code>. Mind that containers take time to start, and sometimes the starting process is long, so GitHub Actions uses <code>docker inspect</code> to ensure container has entered the <code>healthy</code> state before it makes headway to the next step. So we need to set <a target="_blank" rel="noopener" href="https://docs.docker.com/engine/reference/commandline/run/"><code>--health-cmd</code></a> for our services:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">redis:</span></span><br><span class="line">  <span class="attr">image:</span> <span class="string">redis:6</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="number">6379</span><span class="string">:6379</span></span><br><span class="line">  <span class="attr">options:</span> <span class="string">&gt;-</span></span><br><span class="line"><span class="string">    --health-cmd &quot;redis-cli ping&quot;</span></span><br><span class="line"><span class="string">    --health-interval 10s</span></span><br><span class="line"><span class="string">    --health-timeout 5s</span></span><br><span class="line"><span class="string">    --health-retries 5</span></span><br></pre></td></tr></table></figure>
+
+<p>This is especially important for the MySQL service we are about to setup, because it usually takes more time to start up:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">verify:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">services:</span></span><br><span class="line">      <span class="attr">mysql:</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">mysql:5.7</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="number">3306</span><span class="string">:3306</span></span><br><span class="line">        <span class="attr">env:</span></span><br><span class="line">          <span class="attr">MYSQL_DATABASE:</span> <span class="string">project_test</span></span><br><span class="line">          <span class="attr">MYSQL_ALLOW_EMPTY_PASSWORD:</span> <span class="literal">yes</span></span><br><span class="line">        <span class="attr">options:</span> <span class="string">&gt;-</span></span><br><span class="line"><span class="string">          --health-cmd=&quot;mysqladmin ping&quot;</span></span><br><span class="line"><span class="string">          --health-interval=10s</span></span><br><span class="line"><span class="string">          --health-timeout=5s</span></span><br><span class="line"><span class="string">          --health-retries=5</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Share-artifacts-between-jobs"><a href="#Share-artifacts-between-jobs" class="headerlink" title="Share artifacts between jobs"></a>Share artifacts between jobs</h2><p>After <code>mvn verify</code>, there’ll be an uber JAR in <code>target/project-1.0-SNAPSHOT.jar</code>, and we want to build it into a Docker image for deployment. We’re going to create a separate job for this task, but the first thing we need to do is to transfer the JAR file from the <code>verify</code> job <em>to</em> the new <code>build</code> job, because jobs in a workflow are executed independently and in parallel, so we also need to tell the runner that <code>build</code> is dependent on <code>verify</code>.</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">env:</span></span><br><span class="line">  <span class="attr">JAR_FILE:</span> <span class="string">project-1.0-SNAPSHOT.jar</span></span><br><span class="line"></span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">verify:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">mvn</span> <span class="string">--batch-mode</span> <span class="string">verify</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/upload-artifact@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">jar</span></span><br><span class="line">          <span class="attr">path:</span> <span class="string">target/$&#123;&#123;</span> <span class="string">env.JAR_FILE</span> <span class="string">&#125;&#125;</span></span><br><span class="line">          <span class="attr">retention-days:</span> <span class="number">5</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">build:</span></span><br><span class="line">    <span class="attr">needs:</span> <span class="string">verify</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/download-artifact@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">jar</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>env</code> is a place to set common variables within workflow. Here we use it for the filename of the JAR. We’ll see more use of it in the <code>build</code> job.</li>
+<li><code>actions/upload-artifact</code> and its counterpart <code>download-artifact</code> are used to share files between jobs, aka., artifact. It can be a single file or a directory, identified by the <code>name</code>. Artifacts can only be shared within the same <em>workflow run</em>. Once uploaded, they are accessible through GitHub UI as well. There’re more examples in the <a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts">documentation</a>.</li>
+<li><code>needs</code> creates a dependency between <code>verify</code> and <code>build</code>, so that they are executed sequentially.</li>
+</ul>
+<h2 id="Build-Docker-image-for-deployment"><a href="#Build-Docker-image-for-deployment" class="headerlink" title="Build Docker image for deployment"></a>Build Docker image for deployment</h2><p>Let’s take Spring Boot project for an example. There’re some <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/current/reference/html/container-images.html">guidelines</a> on how to efficiently build the packaged JAR into a layered Docker image, with the built-in tool provided by Spring Boot. The full Dockerfile can be found in the above link. One thing we care about is the <code>JAR_FILE</code> argument:</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> eclipse-temurin:<span class="number">17</span>-jre as builder</span><br><span class="line"><span class="keyword">WORKDIR</span><span class="language-bash"> application</span></span><br><span class="line"><span class="keyword">ARG</span> JAR_FILE=target/*.jar</span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> <span class="variable">$&#123;JAR_FILE&#125;</span> application.jar</span></span><br><span class="line"><span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
+
+<p>For the <code>build</code> job, the <code>docker</code> CLI is already installed in the runner, but we still need to take care of something like logging into Docker repository, tagging the image, etc. Fortunately there’re some <code>actions</code> for these purposes. Besides, we’re not going to push our image into Docker hub. Instead, we use the <a target="_blank" rel="noopener" href="https://docs.github.com/en/packages">GitHub Packages</a> service. Here’s the full definition of the <code>build</code> job:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">env:</span></span><br><span class="line">  <span class="attr">REGISTRY:</span> <span class="string">ghcr.io</span></span><br><span class="line">  <span class="attr">IMAGE_NAME:</span> <span class="string">$&#123;&#123;</span> <span class="string">github.repository</span> <span class="string">&#125;&#125;</span></span><br><span class="line">  <span class="attr">JAR_FILE:</span> <span class="string">project-1.0-SNAPSHOT.jar</span></span><br><span class="line"></span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">build:</span></span><br><span class="line">    <span class="attr">if:</span> <span class="string">github.ref</span> <span class="string">==</span> <span class="string">&#x27;refs/heads/master&#x27;</span></span><br><span class="line">    <span class="attr">needs:</span> <span class="string">verify</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/checkout@v3</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/download-artifact@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">jar</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">docker/login-action@v2</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">registry:</span> <span class="string">$&#123;&#123;</span> <span class="string">env.REGISTRY</span> <span class="string">&#125;&#125;</span></span><br><span class="line">          <span class="attr">username:</span> <span class="string">$&#123;&#123;</span> <span class="string">github.actor</span> <span class="string">&#125;&#125;</span></span><br><span class="line">          <span class="attr">password:</span> <span class="string">$&#123;&#123;</span> <span class="string">secrets.GITHUB_TOKEN</span> <span class="string">&#125;&#125;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">docker/metadata-action@v4</span></span><br><span class="line">        <span class="attr">id:</span> <span class="string">meta</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">images:</span> <span class="string">$&#123;&#123;</span> <span class="string">env.REGISTRY</span> <span class="string">&#125;&#125;/$&#123;&#123;</span> <span class="string">env.IMAGE_NAME</span> <span class="string">&#125;&#125;</span></span><br><span class="line">          <span class="attr">tags:</span> <span class="string">type=sha</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">docker/build-push-action@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">context:</span> <span class="string">.</span></span><br><span class="line">          <span class="attr">push:</span> <span class="literal">true</span></span><br><span class="line">          <span class="attr">tags:</span> <span class="string">$&#123;&#123;</span> <span class="string">steps.meta.outputs.tags</span> <span class="string">&#125;&#125;</span></span><br><span class="line">          <span class="attr">build-args:</span> <span class="string">|</span></span><br><span class="line">            <span class="string">JAR_FILE=$&#123;&#123;</span> <span class="string">env.JAR_FILE</span> <span class="string">&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>if</code> statement indicates this job is only executed under certain circumstances. In this case, only run on <code>master</code> branch. There’re other <a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/learn-github-actions/contexts">conditions</a> you can use, and <code>if</code> can also be added in <code>step</code>. Say only upload artifact when the <code>verify</code> job is executed on <code>master</code> branch.</li>
+<li><code>docker/login-action</code> setups the credentials for logging into GitHub Packages. The <code>GITHUB_TOKEN</code> is automatically generated and its permissions can be controlled in the <a target="_blank" rel="noopener" href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#setting-the-permissions-of-the-github_token-for-your-repository">Settings</a>.</li>
+<li><code>docker/metadata-action</code> is used to extract meta data from the repository. In this example, I’m using the Git short commit as the Docker image tag, i.e. <code>sha-729b875</code>, and this action helps me to extract this information from the Git repository and exposes it as the <a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs">output</a>, which is another feature that GitHub Actions provides for sharing information between steps and jobs. To be more specific:<ul>
+<li><code>metadata-action</code> will generate a list of tags based on the <code>images</code> and <code>tags</code> parameters. The above configuration will generate something like <code>ghcr.io/jizhang/proton:sha-729b875</code>. Other options can be found in this <a target="_blank" rel="noopener" href="https://github.com/docker/metadata-action">link</a>.</li>
+<li>We give this step an <code>id</code>, which is <code>meta</code>, and then access its output via <code>steps.meta.outputs.tags</code>.</li>
+<li>The parameter <code>images</code>, <code>tags</code>, and <code>tags</code> in <code>build-push-action</code> all support multi-line string so that multiple tags can be published.</li>
+</ul>
+</li>
+<li><code>docker/build-push-action</code> does the build-and-push job. The Dockerfile should be in the project root, and we pass the <code>JAR_FILE</code> argument which points to the artifact that we’ve downloaded from the previous job.</li>
+</ul>
+<p>If built successfully, the Docker image can be found in your Profile - Packages. Here’s the <a target="_blank" rel="noopener" href="https://github.com/jizhang/proton-server/blob/32b5a28f5c7227d74557a1e80dc6579b345487a1/.github/workflows/build.yml">full example</a> of using GitHub Actions with a Java project. The final pipeline looks like this:</p>
+<p><img src="/images/github-actions-java.png" alt="GitHub Actions with Java project"></p>
+<h2 id="Setup-CI-for-Node-js-project"><a href="#Setup-CI-for-Node-js-project" class="headerlink" title="Setup CI for Node.js project"></a>Setup CI for Node.js project</h2><p>Similarly, we create two jobs for testing and building. In the <code>test</code> job, we use the official <code>setup-node</code> action to install specific Node.js version. It also privodes cache facility for <code>yarn</code>, <code>npm</code> package managers.</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">test:</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/setup-node@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">node-version:</span> <span class="string">&#x27;18&#x27;</span></span><br><span class="line">          <span class="attr">cache:</span> <span class="string">yarn</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">yarn</span> <span class="string">install</span> <span class="string">--frozen-lockfile</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">yarn</span> <span class="string">lint:ci</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">build:</span></span><br><span class="line">    <span class="attr">if:</span> <span class="string">github.ref</span> <span class="string">==</span> <span class="string">&#x27;refs/heads/master&#x27;</span></span><br><span class="line">    <span class="attr">needs:</span> <span class="string">test</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">yarn</span> <span class="string">build</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">docker/build-push-action@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">context:</span> <span class="string">.</span></span><br><span class="line">          <span class="attr">file:</span> <span class="string">build/Dockerfile</span></span><br><span class="line">          <span class="attr">push:</span> <span class="literal">true</span></span><br><span class="line">          <span class="attr">tags:</span> <span class="string">$&#123;&#123;</span> <span class="string">steps.meta.outputs.tags</span> <span class="string">&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>The build output is generaly in the <code>dist</code> directory, so we just copy it onto an Nginx image and publish to GitHub Packages. I also have a <a target="_blank" rel="noopener" href="https://github.com/jizhang/proton/blob/2da93e759861236099983955ef4964958a70248d/.github/workflows/build.yml">project</a> for demonstration.</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> nginx:<span class="number">1.17</span>-alpine</span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> build/nginx/default.conf /etc/nginx/conf.d/default.conf</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> dist/ /app/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Setup-CI-for-Python-project"><a href="#Setup-CI-for-Python-project" class="headerlink" title="Setup CI for Python project"></a>Setup CI for Python project</h2><p>For Python project, one of the popular dependency management tools is <a target="_blank" rel="noopener" href="https://python-poetry.org/">Poetry</a>, and the official <code>setup-python</code> action provides out-of-the-box caching for Poetry-managed virtual environment. Here’s the abridged <code>build.yml</code>, full file can be found in this <a target="_blank" rel="noopener" href="https://github.com/jizhang/timetable/blob/63a77df1a2f0df4d1e816e60211f1e960441029b/.github/workflows/build.yml">link</a>.</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">env:</span></span><br><span class="line">  <span class="attr">PYTHON_VERSION:</span> <span class="string">&#x27;3.10&#x27;</span></span><br><span class="line">  <span class="attr">POETRY_VERSION:</span> <span class="string">&#x27;1.3.2&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">test:</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">pipx</span> <span class="string">install</span> <span class="string">poetry==$&#123;&#123;</span> <span class="string">env.POETRY_VERSION</span> <span class="string">&#125;&#125;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/setup-python@v4</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">python-version:</span> <span class="string">$&#123;&#123;</span> <span class="string">env.PYTHON_VERSION</span> <span class="string">&#125;&#125;</span></span><br><span class="line">          <span class="attr">cache:</span> <span class="string">poetry</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">poetry</span> <span class="string">install</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">poetry</span> <span class="string">run</span> <span class="string">ruff</span> <span class="string">timetable</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">poetry</span> <span class="string">run</span> <span class="string">mypy</span> <span class="string">timetable</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">build:</span></span><br><span class="line">    <span class="attr">if:</span> <span class="string">github.ref</span> <span class="string">==</span> <span class="string">&#x27;refs/heads/master&#x27;</span></span><br><span class="line">    <span class="attr">needs:</span> <span class="string">test</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">docker/build-push-action@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">context:</span> <span class="string">.</span></span><br><span class="line">          <span class="attr">push:</span> <span class="literal">true</span></span><br><span class="line">          <span class="attr">tags:</span> <span class="string">$&#123;&#123;</span> <span class="string">steps.meta.outputs.tags</span> <span class="string">&#125;&#125;</span></span><br><span class="line">          <span class="attr">build-args:</span> <span class="string">|</span></span><br><span class="line"><span class="string">            PYTHON_VERSION=$&#123;&#123; env.PYTHON_VERSION &#125;&#125;</span></span><br><span class="line"><span class="string">            POETRY_VERSION=$&#123;&#123; env.POETRY_VERSION &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>But for the <code>build</code> job, Python is different from the aforementioned projects in that it doesn’t produce bundle files like JAR or minified JS. So we have to invoke Poetry inside the Dockerfile to install the project dependencies, which makes the Dockerfile a bit more complicated:</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ARG</span> PYTHON_VERSION</span><br><span class="line"><span class="keyword">FROM</span> python:$&#123;PYTHON_VERSION&#125;-slim</span><br><span class="line"></span><br><span class="line"><span class="keyword">ARG</span> POETRY_VERSION</span><br><span class="line"><span class="keyword">ENV</span> POETRY_HOME=/opt/poetry</span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> python3 -m venv <span class="variable">$POETRY_HOME</span> &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    <span class="variable">$POETRY_HOME</span>/bin/pip install poetry==<span class="variable">$&#123;POETRY_VERSION&#125;</span> &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    <span class="variable">$POETRY_HOME</span>/bin/poetry config virtualenvs.create <span class="literal">false</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="language-bash"> /app</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> pyproject.toml poetry.lock ./</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> <span class="variable">$POETRY_HOME</span>/bin/poetry install --extras gunicorn --without dev</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> timetable/ ./timetable/</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>According to the guidelines, Poetry should be installed in a separate virtual environment. Using <code>pipx</code> also works.</li>
+<li>For project dependencies however, we install them directly into the system level Python, because this container is only used by one application. Setting <code>virtualenvs.create</code> to <code>false</code> tells Poetry to skip creating new environment for us.</li>
+<li>When installing dependencies, we skip the ones for development and include the <code>gunicorn</code> WSGI server. Check out the documentation of Poetry and the sample project’s <a target="_blank" rel="noopener" href="https://github.com/jizhang/timetable/blob/63a77df1a2f0df4d1e816e60211f1e960441029b/pyproject.toml">pyproject.toml</a> file for more information.</li>
+</ul>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven">https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/publishing-packages/publishing-docker-images">https://docs.github.com/en/actions/publishing-packages/publishing-docker-images</a></li>
+<li><a target="_blank" rel="noopener" href="https://endjin.com/blog/2022/09/continuous-integration-with-github-actions">https://endjin.com/blog/2022/09/continuous-integration-with-github-actions</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vuejs/vue/blob/v2.7.14/.github/workflows/ci.yml">https://github.com/vuejs/vue/blob/v2.7.14/.github/workflows/ci.yml</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/" data-id="cle2p9c0e003pc4oia6t5gg4z" class="article-share-link">Share</a>
+      
+        <a href="https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ci/" rel="tag">ci</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/github/" rel="tag">github</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/blog/2023/01/15/restful-api-authentication-with-spring-security/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">RESTful API Authentication with Spring Security</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/ci/" style="font-size: 10px;">ci</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/connect/" style="font-size: 10px;">connect</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 12.86px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 11.43px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/parcel/" style="font-size: 10px;">parcel</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 11.43px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 11.43px;">spring boot</a> <a href="/tags/spring-security/" style="font-size: 10px;">spring security</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/">Setup CI with GitHub Actions (Java/Node/Python)</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2023/01/15/restful-api-authentication-with-spring-security/">RESTful API Authentication with Spring Security</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2023/01/09/mock-api-in-parcel-project/">Mock API in Parcel Project</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2022/08/31/configure-git-line-endings-across-oses/">Configure Git Line Endings Across OSes</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/">Configure Logging for Flask SQLAlchemy Project</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
+      <br>
+      &copy; 2023 Ji ZHANG<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/categories/Big-Data" class="mobile-nav-link">Big Data</a>
+  
+    <a href="/categories/Programming" class="mobile-nav-link">Programming</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="https://shzhangji.com/cnblogs/" class="mobile-nav-link">中文</a>
+  
+</nav>
+
+    
+<script>
+  var disqus_shortname = 'jizhang';
+  
+  var disqus_url = 'https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>
