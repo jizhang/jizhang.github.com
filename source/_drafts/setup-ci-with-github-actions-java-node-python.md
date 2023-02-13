@@ -1,6 +1,6 @@
 ---
 title: Setup CI with GitHub Actions (Java/Node/Python)
-tags: [github, ci, java, spring boot, docker]
+tags: [github, ci, docker, java]
 categories: Programming
 ---
 
@@ -53,7 +53,7 @@ jobs:
           - 6379:6379
 ```
 
-Before running the `verify` job, the runner, with Docker already installed, starts up a Redis container and maps its port to the host, in this case `6379`. Then any process in the runner can access Redis via `localhost:6379`. Mind that containers take time to start, and sometimes the starting process is long, so GitHub Actions uses `docker inspect` to ensure container has entered the `healthy` state before it makes headway to the next steps. So we need to set [`--health-cmd`][9] for our services:
+Before running the `verify` job, the runner, with Docker already installed, starts up a Redis container and maps its port to the host, in this case `6379`. Then any process in the runner can access Redis via `localhost:6379`. Mind that containers take time to start, and sometimes the starting process is long, so GitHub Actions uses `docker inspect` to ensure container has entered the `healthy` state before it makes headway to the next step. So we need to set [`--health-cmd`][9] for our services:
 
 ```yaml
 redis:
@@ -90,7 +90,96 @@ jobs:
 
 ## Share artifacts between jobs
 
+After `mvn verify`, there'll be an uber JAR in `target/project-1.0-SNAPSHOT.jar`, and we want to build it into a Docker image for deployment. We're going to create a separate job for this task, but the first thing we need to do is to transfer the JAR file from the `verify` job *to* the new `build` job, because jobs in a workflow are executed independently and in parallel, so we also need to tell the runner that `build` is dependent on `verify`.
+
+```yaml
+env:
+  JAR_FILE: project-1.0-SNAPSHOT.jar
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - run: mvn --batch-mode verify
+      - uses: actions/upload-artifact@v3
+        with:
+          name: jar
+          path: target/${{ env.JAR_FILE }}
+          retention-days: 5
+
+  build:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: jar
+```
+
+* `env` is a place to set common variables within workflow. Here we use it for the filename of the JAR. We'll see more use of it in the `build` job.
+* `actions/upload-artifact` and its counterpart `download-artifact` are used to share files between jobs, aka., artifact. It can be a single file or a directory, identified by the `name`. Artifacts can only be shared within the same *workflow run*. Once uploaded, they are accessible through GitHub UI as well. There're more examples in the [documentation][11].
+* `needs` creates a dependency between `verify` and `build`, so that they are executed sequentially.
+
 ## Build Docker image for deployment
+
+Let's take Spring Boot project for an example. There're some [guidelines][12] on how to efficiently build the packaged JAR into a layered Docker image, with the built-in tool provided by Spring Boot. The full Dockerfile can be found in the above link. One thing we care about is the `JAR_FILE` argument:
+
+```Dockerfile
+FROM eclipse-temurin:17-jre as builder
+WORKDIR application
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} application.jar
+# ...
+```
+
+For the `build` job, the `docker` CLI is already installed in the runner, but we still need to take care of something like logging into Docker repository, tagging the image, etc. Fortunately there're some `actions` for these purposes. Besides, we're not going to push our image into Docker hub. Instead, we use the [GitHub Packages][13] service. Here's the full definition of the `build` job:
+
+```yaml
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  JAR_FILE: project-1.0-SNAPSHOT.jar
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/master'
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: jar
+      - uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/metadata-action@v4
+        id: meta
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: type=sha
+      - uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            JAR_FILE=${{ env.JAR_FILE }}
+```
+
+* `if` statement indicates this job is only executed under certain circumstances. In this case, only run on `master` branch. There're other [conditions][14] you can use, and `if` can also be added in `step`. Say only upload artifact when the `verify` job is executed on `master` branch.
+* `docker/login-action` setups the credentials for logging into GitHub Packages. The `GITHUB_TOKEN` is automatically generated and its permissions can be controlled in the [Settings][15].
+* `docker/metadata-action` is used to extract meta data from the repository. In this example, I'm using the Git short commit as the Docker image tag, i.e. `sha-729b875`, and this action helps me to extract this information from the Git repository and exposes it as the [output][16], which is another feature that GitHub Actions provides for sharing information between steps and jobs. To be more specific:
+    * `metadata-action` will generate a list of tags based on the `images` and `tags` parameters. The above configuration will generate something like `ghcr.io/jizhang/proton:sha-729b875`. Other options can be found in this [link][17].
+    * We give this step an `id`, which is `meta`, and then access its output via `steps.meta.outputs.tags`.
+    * The parameter `images`, `tags`, and `tags` in `build-push-action` all support multi-line string so that multiple tags can be published.
+* `docker/build-push-action` does the build-and-push job. The Dockerfile should be in the project root, and we pass the `JAR_FILE` argument which points to the artifact that we downloaded from the previous job.
+
+If built successfully, the Docker image can be found in your Profile - Packages. Here's the [full example][18] of using GitHub Actions with a Java project. The final pipeline looks like this:
+
+![GitHub Actions with Java project](images/github-actions-java.png)
 
 ## Setup CI for Node.js project
 
@@ -130,3 +219,11 @@ jobs:
 [8]: https://docs.github.com/en/actions/using-containerized-services/about-service-containers
 [9]: https://docs.docker.com/engine/reference/commandline/run/
 [10]: https://hub.docker.com/_/mysql
+[11]: https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
+[12]: https://docs.spring.io/spring-boot/docs/current/reference/html/container-images.html
+[13]: https://docs.github.com/en/packages
+[14]: https://docs.github.com/en/actions/learn-github-actions/contexts
+[15]: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#setting-the-permissions-of-the-github_token-for-your-repository
+[16]: https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
+[17]: https://github.com/docker/metadata-action
+[18]: https://github.com/jizhang/proton-server/blob/32b5a28f5c7227d74557a1e80dc6579b345487a1/.github/workflows/build.yml
