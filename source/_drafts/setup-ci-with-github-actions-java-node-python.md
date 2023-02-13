@@ -183,30 +183,104 @@ If built successfully, the Docker image can be found in your Profile - Packages.
 
 ## Setup CI for Node.js project
 
+Similarly, we create two jobs for testing and building. In the `test` job, we use the official `setup-node` action to install specific Node.js version. It also privodes cache facility for `yarn`, `npm` package managers.
+
+```yaml
+jobs:
+  test:
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint:ci
+
+  build:
+    if: github.ref == 'refs/heads/master'
+    needs: test
+    steps:
+      - run: yarn build
+      - uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: build/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+```
+
+The build output is generaly in the `dist` directory, so we just copy it onto an Nginx image and publish to GitHub Packages. I also have a [project][19] for demonstration.
+
+```Dockerfile
+FROM nginx:1.17-alpine
+COPY build/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY dist/ /app/
+```
+
 ## Setup CI for Python project
 
-* ~~Java & node project~~.
-* ~~Lint in feature branches~~.
-    * ~~Cache~~
-* Forbid pull request from being merged if lint doesn't pass.
-* ~~Test with mysql & redis~~.
-* ~~Build docker to GitHub Packages~~.
-    * Cache.
-    * Clean up old versions.
-* ~~GitHub Actions billing~~.
+For Python project, one of the popular dependency management tools is [Poetry][20], and the official `setup-python` action provides out-of-the-box caching for Poetry-managed virtual environment. Here's the abridged `build.yml`, full file can be found in this [link][21].
+
+```yaml
+env:
+  PYTHON_VERSION: '3.10'
+  POETRY_VERSION: '1.3.2'
+
+jobs:
+  test:
+    steps:
+      - run: pipx install poetry==${{ env.POETRY_VERSION }}
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: poetry
+      - run: poetry install
+      - run: poetry run ruff timetable
+      - run: poetry run mypy timetable
+
+  build:
+    if: github.ref == 'refs/heads/master'
+    needs: test
+    steps:
+      - uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
+            POETRY_VERSION=${{ env.POETRY_VERSION }}
+```
+
+But for the `build` job, Python is different from the aforementioned projects in that it doesn't produce bundle files like JAR or minified JS. So we have to invoke Poetry inside the Dockerfile to install the project dependencies, which makes the Dockerfile a bit more complicated.
+
+```Dockerfile
+ARG PYTHON_VERSION
+FROM python:${PYTHON_VERSION}-slim
+
+ARG POETRY_VERSION
+ENV POETRY_HOME=/opt/poetry
+RUN python3 -m venv $POETRY_HOME && \
+    $POETRY_HOME/bin/pip install poetry==${POETRY_VERSION} && \
+    $POETRY_HOME/bin/poetry config virtualenvs.create false
+
+WORKDIR /app
+COPY pyproject.toml poetry.lock ./
+RUN $POETRY_HOME/bin/poetry install --extras gunicorn --without dev
+
+COPY timetable/ ./timetable/
+```
+
+* According to the guidelines, Poetry should be installed in a separate virtual environment. Using `pipx` also works.
+* For project dependencies however, we install them directly into the system level Python, because this container is only used by one application. Setting `virtualenvs.create` to `false` tells Poetry to skip creating new environment for us.
+* When installing dependencies, we skip the ones for development and include the `gunicorn` WSGI server. Check out the documentation of Poetry and the sample project's [pyproject.toml][22] file for more information.
 
 ## References
-* https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+* https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
 * https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
-* https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
-* https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions
-
-* https://github.com/actions/starter-workflows/blob/main/ci/node.js.yml
-* https://github.com/actions/setup-node
-
-* https://github.com/vuejs/vue/blob/main/.github/workflows/ci.yml
-
 * https://endjin.com/blog/2022/09/continuous-integration-with-github-actions
+* https://github.com/vuejs/vue/blob/v2.7.14/.github/workflows/ci.yml
 
 
 [1]: https://github.com/okonet/lint-staged
@@ -227,3 +301,7 @@ If built successfully, the Docker image can be found in your Profile - Packages.
 [16]: https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
 [17]: https://github.com/docker/metadata-action
 [18]: https://github.com/jizhang/proton-server/blob/32b5a28f5c7227d74557a1e80dc6579b345487a1/.github/workflows/build.yml
+[19]: https://github.com/jizhang/proton/blob/2da93e759861236099983955ef4964958a70248d/.github/workflows/build.yml
+[20]: https://python-poetry.org/
+[21]: https://github.com/jizhang/timetable/blob/63a77df1a2f0df4d1e816e60211f1e960441029b/.github/workflows/build.yml
+[22]: https://github.com/jizhang/timetable/blob/63a77df1a2f0df4d1e816e60211f1e960441029b/pyproject.toml
