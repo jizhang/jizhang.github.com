@@ -36,6 +36,10 @@ Different ways to use poetry with docker
     * .venv vs system
 * docker/build-push-action, cache
 * mimic kiwi
+* https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/#Setup-CI-for-Python-project
+
 
 ## References
 * https://unbiased-coder.com/python-poetry-vs-pip/
+* https://kennethreitz.org/essays/2016/02/25/a-better-pip-workflow
+* https://github.com/pdm-project/pdm#comparisons-to-other-alternatives
