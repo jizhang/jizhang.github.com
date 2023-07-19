@@ -12,7 +12,7 @@ date: 2018-04-17 14:13:40
 
 ![](/images/vue.png)
 
-When handling form inputs in Vue, we usually use `v-model` to achieve two-way binding. But if we want to put form data into Vuex store, two-way binding becomes a problem, since in **strict mode**, Vuex doesn't allow state change outside mutation handlers. Take the following snippet for instance, while full code can be found on GitHub ([link](https://github.com/jizhang/vuex-form)).
+When handling form inputs in Vue, we usually use `v-model` to achieve two-way binding. But if we want to put form data into Vuex store, two-way binding becomes a problem, since in **strict mode**, Vuex doesn't allow state change outside mutation handlers. Take the following snippet for instance, while full code can be found on GitHub ([link](https://github.com/jizhang/blog-demo/tree/master/vuex-form)).
 
 `src/store/table.js`
 

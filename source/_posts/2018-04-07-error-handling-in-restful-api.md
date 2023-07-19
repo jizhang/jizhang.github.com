@@ -113,7 +113,7 @@ Sometimes it is ideal to return all validation errors in one response, and we ca
 
 ## Fetch API
 
-For AJAX request, [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) becomes the standard library. We can wrap it into a function that does proper error handling. Full code can be found in GitHub ([link](https://github.com/jizhang/rest-error/blob/master/src/request.js)).
+For AJAX request, [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) becomes the standard library. We can wrap it into a function that does proper error handling. Full code can be found in GitHub ([link](https://github.com/jizhang/blog-demo/blob/master/rest-error/src/request.js)).
 
 ```javascript
 function request(url, args, form) {
