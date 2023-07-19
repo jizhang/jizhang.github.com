@@ -182,12 +182,12 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">NonSplitableSequence</span> <span class="keyword">extends</span> <span class="title class_">SequenceFileInputFormat</span>&lt;NullWritable, Text&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">isSplitable</span><span class="params">(JobContext context, Path filename)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// use it</span></span><br><span class="line">job.setInputFormatClass(NonSplitableSequence.class);</span><br></pre></td></tr></table></figure>
 
 <p>And that’s it, we are able to generate a unique, auto-increment id for a sorted collection, with Hadoop’s parallel computing capability. The process is rather complicated, which requires several techniques about Hadoop. It’s worthwhile to dig.</p>
-<p>A workable example can be found in my <a target="_blank" rel="noopener" href="https://github.com/jizhang/mapred-sandbox/blob/master/src/main/java/com/shzhangji/mapredsandbox/AutoIncrementId2Job.java">Github repository</a>. If you have some more straight-forward approach, please do let me know.</p>
+<p>A workable example can be found in my <a target="_blank" rel="noopener" href="https://github.com/jizhang/java-sandbox/blob/master/mapred/src/main/java/mapred/AutoIncrementId2Job.java">Github repository</a>. If you have some more straight-forward approach, please do let me know.</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="clk97kw4i0004e1p790x91b9p" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="clk9dvm150004flow9ljfhxf6" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/#disqus_thread" class="article-comment-link">Comments</a>
       
