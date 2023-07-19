@@ -125,7 +125,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p><img src="/images/vue.png"></p>
-<p>When handling form inputs in Vue, we usually use <code>v-model</code> to achieve two-way binding. But if we want to put form data into Vuex store, two-way binding becomes a problem, since in <strong>strict mode</strong>, Vuex doesn’t allow state change outside mutation handlers. Take the following snippet for instance, while full code can be found on GitHub (<a target="_blank" rel="noopener" href="https://github.com/jizhang/vuex-form">link</a>).</p>
+<p>When handling form inputs in Vue, we usually use <code>v-model</code> to achieve two-way binding. But if we want to put form data into Vuex store, two-way binding becomes a problem, since in <strong>strict mode</strong>, Vuex doesn’t allow state change outside mutation handlers. Take the following snippet for instance, while full code can be found on GitHub (<a target="_blank" rel="noopener" href="https://github.com/jizhang/blog-demo/tree/master/vuex-form">link</a>).</p>
 <p><code>src/store/table.js</code></p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">state</span>: &#123;</span><br><span class="line">    <span class="attr">namespaced</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="attr">table</span>: &#123;</span><br><span class="line">      <span class="attr">table_name</span>: <span class="string">&#x27;&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -181,7 +181,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="clk0itrkr001temorc9tb258w" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="clk97kw5a001te1p7bh9w1qv3" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/#disqus_thread" class="article-comment-link">Comments</a>
       
