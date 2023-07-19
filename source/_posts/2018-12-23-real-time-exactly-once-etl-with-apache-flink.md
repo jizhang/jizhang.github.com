@@ -119,7 +119,7 @@ Checkpoint is Flink's solution to fault tolerance, which we will cover later. He
 Flink application can be directly run in IDE, or you can setup a local [standalone cluster][4] and submit jobs with Flink CLI:
 
 ```
-bin/flink run -c com.shzhangji.flinksandbox.kafka.KafkaLoader target/flink-sandbox-0.1.0.jar
+bin/flink run -c flink.kafka.KafkaLoader target/sandbox-flink-0.0.1-SNAPSHOT.jar
 ```
 
 We can check out the job information in Flink dashboard:
@@ -138,7 +138,7 @@ Cancelled job 1253cc85e5c702dbe963dd7d8d279038. Savepoint stored in file:/tmp/fl
 For our ETL application, savepoint will include current Kafka offsets, in-progress output file names, etc. To resume from a savepoint, pass `-s` to `run` sub-command. The application will start from the savepoint, i.e. consume messages right after the saved offsets, without losing or duplicating data.
 
 ```
-flink run -s /tmp/flink/savepoints/savepoint-1253cc-0df030f4f2ee -c com.shzhangji.flinksandbox.kafka.KafkaLoader target/flink-sandbox-0.1.0.jar
+flink run -s /tmp/flink/savepoints/savepoint-1253cc-0df030f4f2ee -c flink.kafka.KafkaLoader target/sandbox-flink-0.0.1-SNAPSHOT.jar
 ```
 
 #### YARN Support
@@ -147,7 +147,7 @@ Running Flink jobs on YARN also uses `flink run`. Replace the file paths with HD
 
 ```
 $ export HADOOP_CONF_DIR=/path/to/hadoop/conf
-$ bin/flink run -m yarn-cluster -c com.shzhangji.flinksandbox.kafka.KafkaLoader target/flink-sandbox-0.1.0.jar
+$ bin/flink run -m yarn-cluster -c flink.kafka.KafkaLoader target/sandbox-flink-0.0.1-SNAPSHOT.jar
 Submitted application application_1545534487726_0001
 ```
 
@@ -228,7 +228,7 @@ Apache Flink builds upon stream processing, state management is considered from 
 
 [1]: https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/connectors/kafka.html
 [2]: https://kafka.apache.org/quickstart
-[3]: https://github.com/jizhang/flink-sandbox/blob/blog-etl/src/main/java/com/shzhangji/flinksandbox/kafka/EventTimeBucketAssigner.java
+[3]: https://github.com/jizhang/java-sandbox/blob/blog-flink-etl/flink/src/main/java/flink/kafka/EventTimeBucketAssigner.java
 [4]: https://ci.apache.org/projects/flink/flink-docs-release-1.7/ops/deployment/cluster_setup.html
 [5]: https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/connectors/guarantees.html
 [6]: https://ci.apache.org/projects/flink/flink-docs-release-1.7/internals/stream_checkpointing.html
