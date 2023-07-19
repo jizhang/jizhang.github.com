@@ -157,12 +157,12 @@
 <p>When we pass <code>--job=JobDispatcherA</code> on the command line, the dispatcher will try to locate the job class, and initialize it with beans defined in context.</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@RequiredArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JobDispatcherA</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> ApplicationContext context;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">    log.info(<span class="string">&quot;Run JobDispatcherA in application context &#123;&#125;&quot;</span>, context);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>Example code can be found on <a target="_blank" rel="noopener" href="https://github.com/jizhang/java-blog-demo/tree/master/command-line">GitHub</a>.</p>
+<p>Example code can be found on <a target="_blank" rel="noopener" href="https://github.com/jizhang/blog-demo/tree/master/command-line">GitHub</a>.</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/" data-id="clk9gg2h60033deor9wj9e09g" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/" data-id="clk9hk9ms0033e3ofbw9ocx9f" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/#disqus_thread" class="article-comment-link">Comments</a>
       
