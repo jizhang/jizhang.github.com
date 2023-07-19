@@ -9,7 +9,7 @@ date: 2017-07-15 19:21:03
 ---
 
 
-Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and `tail -f`, it would be nice if we can tail a log file in the browser. With WebSocket, this can be done easily. In this article, I'll walk you through a simple **logviewer** ([source](http://github.com/jizhang/logviewer)) utility that is written in Python.
+Tailing a log file is a common task when we deploy or maintain some software in production. Instead of logging into the server and `tail -f`, it would be nice if we can tail a log file in the browser. With WebSocket, this can be done easily. In this article, I'll walk you through a simple **logviewer** ([source](https://github.com/jizhang/blog-demo/tree/master/logviewer)) utility that is written in Python.
 
 ![Logviewer with WebSocket](/images/logviewer-websocket.png)
 
@@ -75,7 +75,7 @@ We'll take the following steps to implement a log viewer:
 * Server parses the file path, along with a flag that indicates whether this is a view once or tail request;
 * Open file and start sending contents within a for loop.
 
-Full code can be found on [GitHub](https://github.com/jizhang/logviewer), so here I'll select some important parts:
+Full code can be found on [GitHub](https://github.com/jizhang/blog-demo/tree/master/logviewer), so here I'll select some important parts:
 
 ```python
 @asyncio.coroutine

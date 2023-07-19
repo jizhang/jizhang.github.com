@@ -192,4 +192,4 @@ Example code can be found on [GitHub][3].
 
 [1]: https://projectlombok.org/
 [2]: https://docs.spring.io/spring-framework/docs/5.3.x/reference/html/core.html#beans-factory-scopes
-[3]: https://github.com/jizhang/java-blog-demo/tree/master/request-context
+[3]: https://github.com/jizhang/blog-demo/tree/master/request-context

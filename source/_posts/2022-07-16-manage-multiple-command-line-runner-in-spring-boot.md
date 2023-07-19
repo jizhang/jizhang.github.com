@@ -161,4 +161,4 @@ Example code can be found on [GitHub][6].
 [3]: https://docs.spring.io/spring-boot/docs/2.7.x/reference/htmlsingle/#features.developing-auto-configuration.understanding-auto-configured-beans
 [4]: https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/autoconfigure/condition/ConditionalOnProperty.html
 [5]: https://docs.spring.io/spring-boot/docs/2.7.x/reference/htmlsingle/#features.profiles
-[6]: https://github.com/jizhang/java-blog-demo/tree/master/command-line
+[6]: https://github.com/jizhang/blog-demo/tree/master/command-line

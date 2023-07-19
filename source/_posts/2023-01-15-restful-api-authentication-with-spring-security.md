@@ -443,4 +443,4 @@ The demo project can be found on [GitHub][10].
 [7]: https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html
 [8]: https://docs.spring.io/spring-security/reference/servlet/integrations/servlet-api.html#servletapi-3
 [9]: https://httpie.io/
-[10]: https://github.com/jizhang/java-blog-demo/tree/master/api-auth
+[10]: https://github.com/jizhang/blog-demo/tree/master/api-auth
