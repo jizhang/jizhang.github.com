@@ -287,4 +287,4 @@ A workable example can be found in my [Github repository][7]. If you have some m
 [4]: http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapred/lib/TotalOrderPartitioner.html
 [5]: http://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapreduce/lib/output/MultipleOutputs.html
 [6]: https://hadoop.apache.org/docs/r1.0.4/api/org/apache/hadoop/mapreduce/lib/partition/InputSampler.RandomSampler.html
-[7]: https://github.com/jizhang/mapred-sandbox/blob/master/src/main/java/com/shzhangji/mapredsandbox/AutoIncrementId2Job.java
+[7]: https://github.com/jizhang/java-sandbox/blob/master/mapred/src/main/java/mapred/AutoIncrementId2Job.java
