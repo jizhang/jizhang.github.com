@@ -23,9 +23,9 @@ logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
 In application, we can invoke the logging methods on `app.logger`:
 
 ```python
-from modern import app  # modern is the project name
+from flask_logging import app  # flask_logging is the project name
 
-# Invoke in modern.views.user module.
+# Invoke in flask_logging.views.user module.
 app.logger.info('Get user list')
 ```
 
@@ -43,7 +43,7 @@ In production, the root logger is set to `WARNING` level by default, so only war
 
 There are several things we can improve in application logging:
 
-* Use the full module name as the logger name, and print it in logs like `INFO in modern.views.user`. This also allows us to configure logging for parent modules.
+* Use the full module name as the logger name, and print it in logs like `INFO in flask_logging.views.user`. This also allows us to configure logging for parent modules.
 * Change the log level to INFO in production, so that we may print some useful information for debugging.
 * Simplify the use of logger when applying the Flask [Application Factories][4] pattern.
 
@@ -85,7 +85,7 @@ def get_user_list() -> Response:
 Output:
 
 ```
-[2022-08-09 18:12:12,420] INFO modern.views.user: Get user list in view.
+[2022-08-09 18:12:12,420] INFO flask_logging.views.user: Get user list in view.
 ```
 
 With app factory pattern, we need to replace `app.logger` with `current_app.logger`, and it is a little bit verbose. Dedicated logger for each module solves this problem, too.
@@ -113,7 +113,7 @@ if app.debug:
 In production mode, the access log is controlled by WSGI server:
 
 ```
-gunicorn -b 127.0.0.1:5000 --access-logfile - 'modern:create_app()'
+gunicorn -b 127.0.0.1:5000 --access-logfile - 'flask_logging:create_app()'
 ```
 
 ## Log SQLAlchemy queries in debug mode
@@ -152,4 +152,4 @@ Flask's built-in `app.logger` is easy to use. But instead, we create our own log
 [4]: https://flask.palletsprojects.com/en/2.1.x/patterns/appfactories/
 [5]: https://werkzeug.palletsprojects.com/
 [6]: https://flask-sqlalchemy.palletsprojects.com/en/2.x/config/
-[7]: https://github.com/jizhang/blog-demo/tree/master/modern-flask
+[7]: https://github.com/jizhang/blog-demo/tree/master/flask-logging
