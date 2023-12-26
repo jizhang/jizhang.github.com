@@ -599,9 +599,9 @@
     <category term="Big Data" scheme="https://shzhangji.com/categories/Big-Data/"/>
     
     
-    <category term="flume" scheme="https://shzhangji.com/tags/flume/"/>
-    
     <category term="java" scheme="https://shzhangji.com/tags/java/"/>
+    
+    <category term="flume" scheme="https://shzhangji.com/tags/flume/"/>
     
     <category term="hdfs" scheme="https://shzhangji.com/tags/hdfs/"/>
     
