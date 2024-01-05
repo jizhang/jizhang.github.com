@@ -567,27 +567,6 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/flume/</loc>
-    <lastmod>2024-01-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://shzhangji.com/tags/etl/</loc>
-    <lastmod>2024-01-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://shzhangji.com/tags/java/</loc>
-    <lastmod>2024-01-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://shzhangji.com/tags/spark-streaming/</loc>
     <lastmod>2024-01-05</lastmod>
     <changefreq>weekly</changefreq>
@@ -609,7 +588,21 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/algorithm/</loc>
+    <loc>https://shzhangji.com/tags/flume/</loc>
+    <lastmod>2024-01-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/etl/</loc>
+    <lastmod>2024-01-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/java/</loc>
     <lastmod>2024-01-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -624,6 +617,13 @@
   
   <url>
     <loc>https://shzhangji.com/tags/canal/</loc>
+    <lastmod>2024-01-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/algorithm/</loc>
     <lastmod>2024-01-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -693,20 +693,6 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/react/</loc>
-    <lastmod>2024-01-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://shzhangji.com/tags/eslint/</loc>
-    <lastmod>2024-01-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://shzhangji.com/tags/tensorflow/</loc>
     <lastmod>2024-01-05</lastmod>
     <changefreq>weekly</changefreq>
@@ -715,6 +701,20 @@
   
   <url>
     <loc>https://shzhangji.com/tags/machine-learning/</loc>
+    <lastmod>2024-01-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/react/</loc>
+    <lastmod>2024-01-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/eslint/</loc>
     <lastmod>2024-01-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -854,6 +854,13 @@
   </url>
   
   <url>
+    <loc>https://shzhangji.com/tags/git/</loc>
+    <lastmod>2024-01-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://shzhangji.com/tags/parcel/</loc>
     <lastmod>2024-01-05</lastmod>
     <changefreq>weekly</changefreq>
@@ -868,28 +875,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/git/</loc>
-    <lastmod>2024-01-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://shzhangji.com/tags/spring-security/</loc>
-    <lastmod>2024-01-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://shzhangji.com/tags/ci/</loc>
-    <lastmod>2024-01-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://shzhangji.com/tags/docker/</loc>
     <lastmod>2024-01-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -904,6 +890,20 @@
   
   <url>
     <loc>https://shzhangji.com/tags/pip/</loc>
+    <lastmod>2024-01-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/ci/</loc>
+    <lastmod>2024-01-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shzhangji.com/tags/docker/</loc>
     <lastmod>2024-01-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>

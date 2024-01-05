@@ -177,7 +177,7 @@
 
 <ul>
 <li>It is advised to <a target="_blank" rel="noopener" href="https://python-poetry.org/docs/#installation">install Poetry in a dedicated virtual environment</a>, so we create one and install Poetry via <code>pip</code>.</li>
-<li>Since the container only have one application, it is safe to install project’s dependencies into the system environment. Simply set <code>virtualenvs.create</code> to <code>false</code>. Or you can let Poetry create a dedicated one for the project.</li>
+<li>Since the container only has one application, it is safe to install project’s dependencies into the system environment. Simply set <code>virtualenvs.create</code> to <code>false</code>. Or you can let Poetry create a dedicated one for the project.</li>
 <li>Project code resides in <code>/app</code>, and it is set as the working directory. So when <code>gunicorn</code> is called, which is available at system level, it can find <code>poetrydemo</code> package without problem.</li>
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">% docker build -t poetrydemo .</span><br><span class="line">% docker run -p 8000:8000 poetrydemo gunicorn -b 0.0.0.0:8000 poetrydemo:app</span><br></pre></td></tr></table></figure>
@@ -196,7 +196,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/" data-id="clr0hvvtk003leyox1ljl40nb" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/" data-id="clr0idgms0096ebpy32id1v6i" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/#disqus_thread" class="article-comment-link">Comments</a>
       
