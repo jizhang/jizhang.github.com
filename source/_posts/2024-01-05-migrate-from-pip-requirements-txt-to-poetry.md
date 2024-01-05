@@ -164,7 +164,7 @@ COPY poetrydemo/ ./poetrydemo/
 ```
 
 * It is advised to [install Poetry in a dedicated virtual environment][3], so we create one and install Poetry via `pip`.
-* Since the container only have one application, it is safe to install project's dependencies into the system environment. Simply set `virtualenvs.create` to `false`. Or you can let Poetry create a dedicated one for the project.
+* Since the container only has one application, it is safe to install project's dependencies into the system environment. Simply set `virtualenvs.create` to `false`. Or you can let Poetry create a dedicated one for the project.
 * Project code resides in `/app`, and it is set as the working directory. So when `gunicorn` is called, which is available at system level, it can find `poetrydemo` package without problem.
 
 ```
