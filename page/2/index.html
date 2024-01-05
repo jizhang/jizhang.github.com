@@ -88,6 +88,60 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-monitor-kubernetes-volume-storage" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2022/07/01/monitor-kubernetes-volume-storage/" class="article-date">
+  <time datetime="2022-07-01T00:21:39.000Z" itemprop="datePublished">2022-07-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2022/07/01/monitor-kubernetes-volume-storage/">Monitor Kubernetes Volume Storage</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Pods running on Kubernetes may claim a Persistent Volume to store data that last between pod restarts. This volume is usually of limited size, so we need to monitor its storage and alert for low free space. For stateless pods, it is also necessary to monitor its disk usage, since the application within may write logs or other contents directly onto the Docker writable layer. In Kubernetes terms, this space is called ephemeral storage. Another way to prevent ephemeral storge from filling up is to monitor the nodes’ disk space directly. This article will demonstrate how to monitor volume storage with Prometheus.</p>
+<h2 id="Monitor-Persistent-Volume"><a href="#Monitor-Persistent-Volume" class="headerlink" title="Monitor Persistent Volume"></a>Monitor Persistent Volume</h2><p><code>kubelet</code> exposes the following metrics for Persistent Volumes:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ curl http://10.0.0.1:10255/metrics</span><br><span class="line"># HELP kubelet_volume_stats_capacity_bytes [ALPHA] Capacity in bytes of the volume</span><br><span class="line"># TYPE kubelet_volume_stats_capacity_bytes gauge</span><br><span class="line">kubelet_volume_stats_capacity_bytes&#123;namespace=&quot;airflow&quot;,persistentvolumeclaim=&quot;data-airflow2-postgresql-0&quot;&#125; 4.214145024e+10</span><br><span class="line">kubelet_volume_stats_capacity_bytes&#123;namespace=&quot;default&quot;,persistentvolumeclaim=&quot;grafana&quot;&#125; 2.1003583488e+10</span><br><span class="line"></span><br><span class="line"># HELP kubelet_volume_stats_used_bytes [ALPHA] Number of used bytes in the volume</span><br><span class="line"># TYPE kubelet_volume_stats_used_bytes gauge</span><br><span class="line">kubelet_volume_stats_used_bytes&#123;namespace=&quot;airflow&quot;,persistentvolumeclaim=&quot;data-airflow2-postgresql-0&quot;&#125; 4.086779904e+09</span><br><span class="line">kubelet_volume_stats_used_bytes&#123;namespace=&quot;default&quot;,persistentvolumeclaim=&quot;grafana&quot;&#125; 4.9381376e+07</span><br></pre></td></tr></table></figure>
+
+<p>After you setup the <a target="_blank" rel="noopener" href="https://github.com/prometheus-operator/kube-prometheus">Prometheus Stack</a> with <a target="_blank" rel="noopener" href="https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack">Helm chart</a>, you will get a Service and ServiceMonitor that help scraping these metrics. Then they can be queried in Prometheus UI:</p>
+<p><img src="/images/k8s-volume/prometheus-ui.png" alt="Prometheus UI"></p>
+        
+          <p class="article-more-link">
+            <a href="/blog/2022/07/01/monitor-kubernetes-volume-storage/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://shzhangji.com/blog/2022/07/01/monitor-kubernetes-volume-storage/" data-id="clr0hvvtd002seyoxbevgfwnu" class="article-share-link">Share</a>
+      
+        <a href="https://shzhangji.com/blog/2022/07/01/monitor-kubernetes-volume-storage/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-write-your-own-flask-sqlalchemy-extension" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/" class="article-date">
@@ -125,7 +179,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/" data-id="clqlt92ac002vehooe482a5vg" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/" data-id="clr0hvvtd002qeyox4hd6bayi" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -177,7 +231,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/" data-id="clqlt92ab002rehoogm7rem1l" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/" data-id="clr0hvvtc002neyoxd05x88w8" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -239,7 +293,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/" data-id="clqlt92ab002oehoo4bb8clbe" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/" data-id="clr0hvvtb002leyoxawxcbz9u" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -292,7 +346,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/" data-id="clqlt92aa002kehoodqux729x" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/" data-id="clr0hvvtb002heyox0l2m784o" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -352,7 +406,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/" data-id="clqlt92aa002hehooce2za7rn" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/" data-id="clr0hvvta002eeyox897vf38o" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -412,7 +466,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/" data-id="clqlt92a9002eehoo6ch01zy5" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/" data-id="clr0hvvt9002aeyox708ye5a7" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -467,7 +521,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="clqlt92a8002aehooawfld9j2" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="clr0hvvt90027eyoxh8t3difd" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -520,7 +574,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="clqlt92a80028ehooc7kgfcum" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="clr0hvvt80023eyoxh1elgmam" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -571,74 +625,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="clqlt92a70025ehoo4a7i51hu" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="clr0hvvt70020eyoxhii14njz" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flume/" rel="tag">flume</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hdfs/" rel="tag">hdfs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-how-to-avoid-null-pointer-exception" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2018/09/20/how-to-avoid-null-pointer-exception/" class="article-date">
-  <time datetime="2018-09-20T03:25:16.000Z" itemprop="datePublished">2018-09-20</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Programming/">Programming</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2018/09/20/how-to-avoid-null-pointer-exception/">How to Avoid NullPointerException</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><code>NullPointerException</code> happens when you dereference a possible <code>null</code> object without checking it. It’s a common exception that every Java programmer may encounter in daily work. There’re several strategies that can help us avoid this exception, making our codes more robust. In this article, I will list both traditional ways and those with tools and new features introduced by recent version of Java.</p>
-<h2 id="Runtime-Check"><a href="#Runtime-Check" class="headerlink" title="Runtime Check"></a>Runtime Check</h2><p>The most obvious way is to use <code>if (obj == null)</code> to check every variable you need to use, either from function argument, return value, or instance field. When you receive a <code>null</code> object, you can throw a different, more informative exception like <code>IllegalArgumentException</code>. There are some library functions that can make this process easier, like <a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/7/docs/api/java/util/Objects.html"><code>Objects#requireNonNull</code></a>:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testObjects</span><span class="params">(Object arg)</span> &#123;</span><br><span class="line">  <span class="type">Object</span> <span class="variable">checked</span> <span class="operator">=</span> Objects.requireNonNull(arg, <span class="string">&quot;arg must not be null&quot;</span>);</span><br><span class="line">  checked.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Or use Guava’s <a target="_blank" rel="noopener" href="https://github.com/google/guava/wiki/PreconditionsExplained"><code>Preconditions</code></a> package, which provides all kinds of arguments checking facilities:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testGuava</span><span class="params">(Object arg)</span> &#123;</span><br><span class="line">  <span class="type">Object</span> <span class="variable">checked</span> <span class="operator">=</span> Preconditions.checkNotNull(arg, <span class="string">&quot;%s must not be null&quot;</span>, <span class="string">&quot;arg&quot;</span>);</span><br><span class="line">  checked.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>We can also let <a target="_blank" rel="noopener" href="https://projectlombok.org/features/NonNull">Lombok</a> generate the check for us, which will throw a more meaningful <code>NullPointerException</code>:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testLombok</span><span class="params">(<span class="meta">@NonNull</span> Object arg)</span> &#123;</span><br><span class="line">  arg.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>The generated code and exception message are as follows:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testLombokGenerated</span><span class="params">(Object arg)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (arg == <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>(<span class="string">&quot;arg is marked @NonNull but is null&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  arg.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>This annotation can also be added to a class field, and Lombok will check nullness for every assignment.</p>
-        
-          <p class="article-more-link">
-            <a href="/blog/2018/09/20/how-to-avoid-null-pointer-exception/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="clqlt92a70023ehoo4l0c694p" class="article-share-link">Share</a>
-      
-        <a href="https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/eclipse/" rel="tag">eclipse</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/" rel="tag">spring</a></li></ul>
 
     </footer>
   </div>
@@ -660,7 +652,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/ci/" style="font-size: 10px;">ci</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/connect/" style="font-size: 10px;">connect</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 12.86px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 11.43px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/parcel/" style="font-size: 10px;">parcel</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 11.43px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 11.43px;">spring boot</a> <a href="/tags/spring-security/" style="font-size: 10px;">spring security</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/ci/" style="font-size: 10px;">ci</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/connect/" style="font-size: 10px;">connect</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 12.86px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 11.43px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/parcel/" style="font-size: 10px;">parcel</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/pip/" style="font-size: 10px;">pip</a> <a href="/tags/poetry/" style="font-size: 10px;">poetry</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 11.43px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 11.43px;">spring boot</a> <a href="/tags/spring-security/" style="font-size: 10px;">spring security</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -669,7 +661,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/01/">January 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/04/">April 2013</a></li></ul>
     </div>
   </div>
 
@@ -680,6 +672,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/">Migrate from Pip requirements.txt to Poetry</a>
+          </li>
         
           <li>
             <a href="/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/">Setup CI with GitHub Actions (Java/Node/Python)</a>
@@ -697,10 +693,6 @@
             <a href="/blog/2022/08/31/configure-git-line-endings-across-oses/">Configure Git Line Endings Across OSes</a>
           </li>
         
-          <li>
-            <a href="/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/">Configure Logging for Flask SQLAlchemy Project</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -715,7 +707,7 @@
     <div id="footer-info" class="inner">
       <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
       <br>
-      &copy; 2023 Ji ZHANG<br>
+      &copy; 2024 Ji ZHANG<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
