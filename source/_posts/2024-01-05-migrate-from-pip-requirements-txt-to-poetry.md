@@ -107,7 +107,7 @@ timetable-i_YWx-to-py3.11
 
 When you have `python3.11` and `python3.12` in the `PATH`, you can use `poetry env use 3.12` to switch versions. Poetry also works with [pyenv][5], or even [custom-built Python binary][6].
 
-If you prefer creating virtual environment under the project's directory, set `virtualenvs.in-project` to `true`. It also works when there is already a `.venv` folder in the project.
+If you prefer creating the virtual environment under the project's directory, set `virtualenvs.in-project` to `true`. Configurations are by default set globally. Add `--local` to set it [locally in the project][9]. Another option is to create virtualenv on your own. Make sure the folder is named `.venv` and Poetry will automatically pick it up.
 
 ```
 % poetry env remove --all
@@ -200,3 +200,4 @@ priority = "default"
 [6]: https://python-poetry.org/docs/managing-environments/#switching-between-environments
 [7]: https://yarnpkg.com/
 [8]: https://github.com/python-poetry/poetry/issues/1554#issuecomment-553113626
+[9]: https://python-poetry.org/docs/configuration/#local-configuration
