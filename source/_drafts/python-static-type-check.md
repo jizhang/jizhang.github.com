@@ -11,7 +11,7 @@ Python is by design a dynamically typed programming language. It is flexible and
 * Python type hints in detail.
 * Other advanced features.
 
-![Mypy](/images/mypy.png)
+![Mypy](/images/python-typing/mypy.png)
 
 ## Quick start
 
@@ -94,7 +94,7 @@ quickstart.py:7: error: Incompatible types in assignment (expression has type "s
 Found 3 errors in 1 file (checked 1 source file)
 ```
 
-The check works as expected: `items` is a `list`, so it cannot be assigned otherwise; `nums` is a list of numbers, no string is allowed; the value of `ages` is also restricted. Look carefully at the first error message, we can see `list` is equivalent to `list[Any]`, where `Any` is also defined in `typing` module, which means literally any type. For instance, if a function argument is not given a type hint, it is defined as `Any` and can accepts any type of value.
+The check works as expected: `items` is a `list`, so it cannot be assigned otherwise; `nums` is a list of numbers, no string is allowed; the value of `ages` is also restricted. Look carefully at the first error message, we can see `list` is equivalent to `list[Any]`, where `Any` is also defined in `typing` module, which means literally any type. For instance, if a function argument is not given a type hint, it is defined as `Any` and can accept any type of value.
 
 Please remember, these checks do not happen at runtime. Python remains to be a dynamically typed language. If you need runtime validation, extra tools are required. We will discuss it in a later section.
 
@@ -124,6 +124,85 @@ Found 2 errors in 1 file (checked 1 source file)
 
 ## Why do we need static typing?
 
+From the code above we can see that it does take some effort to write Python with type hints, so why is it peferrable anyway? Actually the merits can be drawn from many other statically typed languages like Go and Java:
+
+* Errors can be found at compile time, or even earlier if you are coding in an IDE.
+* [Studies][2] show that TypeScript or Flow can reduce the number of bugs by 15%.
+* Static typing can improve the readability and maintainability of program.
+* Type hints may have a positive impact on performance.
+
+Before we dive into details, let's differentiate between strong/weak typing and static/dynamic typing.
+
+![Categories of typing](/images/python-typing/categories.png)
+
+Static/dynamic typing is easier to tell apart. Static typing validates variable types at compile time, such as Go, Java and C, while dynamic typing checks at runtime, like Python, JavaScript and PHP. Strong/weak typing, on the other hand, depends on the extent of implicit conversion. For instance, JavaScript is the least weakly typed language because all types of values can be added to each other. It is the language interpreter than does the implict conversion, so that number can be added to array, string to object, etc. PHP is another example of weakly typed language, in that string can be added to number, but a warning will be reported. Python, on the contrary, is strongly typed because this operation will immediately raise a `TypeError`.
+
+Back to the advantages of static typing. For Python, type hints can improve the readability of code. The following snippet defines the function arguments with explict types, so that the checker would instantly warn your about a wrong call. Besides, type hints are also used by editor to provide informative and accurate autocomplete for invoking methods on an object. Python standard library is fully augmented with type hints, so you can input `some_str.` and choose from a list of methods of `str` object.
+
+```python
+from typing import Any, Optional, NewType
+
+UserId = NewType('UserId', int)
+
+
+def send_request(request_data: Any,
+                 headers: Optional[dict[str, str]],
+                 user_id: Optional[UserId] = None,
+                 as_json: bool = True):
+    ...
+```
+
+For some languages, type hints also boost the performance. Take Clojure for an example:
+
+```clojure
+(defn len [x]
+  (.length x))
+
+(defn len2 [^String x]
+  (.length x))
+
+user=> (time (reduce + (map len (repeat 1000000 "asdf"))))
+"Elapsed time: 3007.198 msecs"
+4000000
+user=> (time (reduce + (map len2 (repeat 1000000 "asdf"))))
+"Elapsed time: 308.045 msecs"
+4000000
+```
+
+The untyped version of `len` costs about ten times longer. Because Clojure is designed as a dynamically typed language too, and uses reflection to determine the type of variable. This process is rather slow, so type hint works well in performance critical scenarios. But this is not true for Python, because type hints are completely ignored at runtime.
+
+Some other languages also start to adopt static typing. TypeScript, a superset of JavaScript with syntax for types:
+
+```typescript
+const isDone: boolean = false
+const decimal: number = 6
+const color: string = 'blue'
+
+const listA: number[] = [1, 2, 3]
+const listB: Array<number> = [1, 2, 3]
+
+function add(x: number, y: number): number {
+  return x + y
+}
+```
+
+And the Hack programming language, which is PHP with static typing and a lot of new features:
+
+```php
+<?hh
+class MyClass {
+  const int MyConst = 0;
+  private string $x = '';
+
+  public function increment(int $x): int {
+    $y = $x + 1;
+    return $y;
+  }
+}
+```
+
+That being said, whether to adopt static typing for Python depends on the size of your project, or how formal it is. Luckily Python provides a gradual way of adopting static typing, so you do not need to add all type hints in one go. This approach will be dicussed in the next section.
+
 
 ## References
 * https://docs.python.org/3.10/library/typing.html
@@ -135,3 +214,4 @@ Found 2 errors in 1 file (checked 1 source file)
 
 
 [1]: https://mypy-lang.org/
+[2]: https://softwareengineering.stackexchange.com/questions/59606/is-static-typing-worth-the-trade-offs/371369#371369
