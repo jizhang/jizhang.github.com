@@ -72,7 +72,7 @@ quickstart.py:4: error: Incompatible return value type (got "int", expected "str
 Found 2 errors in 1 file (checked 1 source file)
 ```
 
-There are basic types like `str`, `int`, `float`, `bool`, `bytes`. There are also collection types like `tuple`, `list`, `dict`, `set`, and we can even define the type of their elements.
+There are basic types like `str`, `int`, and collection types like `list`, `dict`. We can even define the type of their elements.
 
 ```python
 items: list = 0
@@ -204,9 +204,56 @@ class MyClass {
 That being said, whether to adopt static typing for Python depends on the size of your project, or how formal it is. Luckily Python provides a gradual way of adopting static typing, so you do not need to add all type hints in one go. This approach will be dicussed in the next section.
 
 
+## Python static typing in details
+
+### PEP
+
+Every new feature in Python comes with a PEP. The PEPs related to static typing can be found in [this link][3]. Some of the important ones are:
+
+* PEP 3107 Function Annotation (Python 3.0)
+* PEP 484 Type Hints (Python 3.5)
+* PEP 526 Syntax for Variable Annotations (Python 3.6)
+* PEP 563 Postponed Evaluation of Annotations (Python 3.7)
+* PEP 589 TypedDict (Python 3.8)
+* PEP 585 Type Hinting Generics In Standard Collections (Python 3.9)
+* PEP 604 Allow writing union types as X | Y (Python 3.10)
+
+Python 3.0 introduces the annotation syntax for function arguments and return value, but it was not solely designed for type checking. From Python 3.5, a complete syntax for static typing is defined, `typing` module is added, and `mypy` is made the reference implementation for type checking. In later versions, more features are added like protocols, literal types, new callable syntax, etc., making static typing more powerful and delightful to use.
+
+### Gradual typing
+
+One that that never changes is that static typing is an opt-in, meaning you can apply it to the whole project or only some of the modules. As a result, you can progressively add type hints to certain parts of the program, even just a single function. Because in the default setting, mypy will only check functions that has at least one type hint in its signature:
+
+```python
+# Check
+def greeting(name, age: int): ...
+def greeting(name, age) -> str: ...
+
+# Not check
+def greeting(name, age): ...
+```
+
+For untyped argument, like `name` in the first `greeting`, it is considered as `Any` type, which means you can pass any value as `name`, and use it for any operations. It is different from `object` type though. Say you define an argument as `item: object` and try to invoke `item.foo()`, mypy will complain that `object` has no attribute `foo`. So if you are not sure what the type of a variable is, give it `Any` or simply leave it blank.
+
+```python
+# Check
+def greeting() -> None: ...
+
+# Not check
+def greeting(): ...
+```
+
+Another common mistake is for functions without arguments and return value. We have to add `None` as the return type, otherwise mypy will silently skip it.
+
+
+### Type hints
+
+There are three ways to compose type hints.
+
+
 ## References
 * https://docs.python.org/3.10/library/typing.html
-* https://peps.python.org/topic/typing/
+*
 * https://realpython.com/python-type-checking/
 * https://typing.readthedocs.io/en/latest/
 * https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
@@ -215,3 +262,4 @@ That being said, whether to adopt static typing for Python depends on the size o
 
 [1]: https://mypy-lang.org/
 [2]: https://softwareengineering.stackexchange.com/questions/59606/is-static-typing-worth-the-trade-offs/371369#371369
+[3]: https://peps.python.org/topic/typing/
