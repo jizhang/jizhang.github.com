@@ -248,12 +248,37 @@ Another common mistake is for functions without arguments and return value. We h
 
 ### Type hints
 
-There are three ways to compose type hints.
+There are two ways to compose type hints: annotation and stub file.
+
+```python
+# Annotation
+class DummyList:
+    def __init__(self) -> None:
+        self.elements: list[int] = []
+
+    def add(self, element: int) -> None:
+        self.elements.append(element)
+
+# Code without type hints, filename: dummy_list.py
+class DummyList:
+    def __init__(self):
+        self.elements = []
+
+    def add(self, element):
+        self.elements.append(element)
+
+# Add type hints with stub file, filename: dummy_list.pyi
+class DummyList:
+    elements: list[int]
+    def __init__(self) -> None: ...
+    def add(self, element: int): ...
+```
+
+Stub files are used to add type hints to existing codebase without changing its source. For instance, Python standard library is fully typed with stub files, hosted in a repository called [typeshed][4]. There are other third-party libraries in this repo too, and they are all released as separate packages in PyPI, prefixed with `types-`, like `types-requests`. They need to be installed explicitly, otherwise mypy would complain that it cannot find type definitions for these libraries. Fortunately, a lot of popular libraries have embraced static typing and do not require external stub files.
 
 
 ## References
 * https://docs.python.org/3.10/library/typing.html
-*
 * https://realpython.com/python-type-checking/
 * https://typing.readthedocs.io/en/latest/
 * https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
@@ -263,3 +288,4 @@ There are three ways to compose type hints.
 [1]: https://mypy-lang.org/
 [2]: https://softwareengineering.stackexchange.com/questions/59606/is-static-typing-worth-the-trade-offs/371369#371369
 [3]: https://peps.python.org/topic/typing/
+[4]: https://github.com/python/typeshed
