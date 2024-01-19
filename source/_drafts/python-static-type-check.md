@@ -148,7 +148,7 @@ def send_request(request_data: Any,
                  headers: Optional[dict[str, str]],
                  user_id: Optional[UserId] = None,
                  as_json: bool = True):
-    pass
+    ...
 ```
 
 For some languages, type hints also boost the performance. Take Clojure for an example:
@@ -357,14 +357,79 @@ p2 = Point(x=1, y=2)
 `TypedDict` is like a regular `dict` at runtime, only the type checker would see the difference. Another option is to use Python [dataclass][9] to define DTO (Data Transfer Object). Mypy has [full support][10] for it, too.
 
 
+## Advanced features
+
+### Generics
+
+`list` is a generic class, and the `str` in `list[str]` is called a type parameter. So generics are useful when the class is a kind of container, and does not care about the type of elements it contains. We can easily write a generic class on our own. Say we want to wrap a variable of arbitary type and log a message when its value is changed.
+
+```python
+from typing import TypeVar, Generic
+
+T = TypeVar('T')
+
+class LoggedVar(Generic[T]):
+    def __init__(self, value: T):
+        self.value = value
+
+    def set(self, new: T):
+        print(f'Set value to {new}, previous value is {self.value}')
+        self.value = new
+
+v = LoggedVar[int](1)
+v.set(2)
+```
+
+We can define functions that deal with generic classes. For instance, to return the first element of any sequence-like data structure:
+
+```python
+from typing import TypeVar
+from collections.abc import Sequence
+
+T = TypeVar('T')
+
+def first(seq: Sequence[T]) -> T:
+    return seq[0]
+
+print(first([1, 2, 3]))
+print(first('abc'))
+```
+
+`Sequence` is an abstract base class, which we will discuss in the next section. `list` and `str` are both subclasses of `Sequence`, so they can be accepted by the function `first`.
+
+Type parameter can also have a bound, meaning it must be a sublcass of a particular type:
+
+```python
+from typing import TypeVar, Sized
+
+T = TypeVar('T', bound=Sized)
+
+def longer(x: T, y: T) -> T:
+    if len(x) > len(y):
+        return x
+    return y
+
+print(longer([1], [1, 2]))
+print(longer([1], {1, 2}))
+print(longer([1], 'ab'))
+```
+
+`list`, `set`, and `str` are all subclasses of `Sized`, in that they all have a `__len__` method, so they can be passed to `longer` and `len` without problem.
+
+### Abstract base class
+
+### Duck typing
+
+### Runtime validation
+
+
+
 ## References
-* https://realpython.com/python-type-checking/
+* https://docs.python.org/3.10/library/typing.html
+* https://mypy.readthedocs.io/en/stable/index.html
 * https://typing.readthedocs.io/en/latest/
-* https://mypy.readthedocs.io/en/stable/builtin_types.html
-* https://www.bernat.tech/the-state-of-type-hints-in-python/
+* https://wphomes.soic.indiana.edu/jsiek/what-is-gradual-typing/
 * https://blog.zulip.com/2016/10/13/static-types-in-python-oh-mypy/
-* https://www.python.org/dev/peps/pep-0483/
-* https://mypy.readthedocs.io/en/latest/index.html#overview-type-system-reference
 
 
 [1]: https://mypy-lang.org/
