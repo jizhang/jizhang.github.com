@@ -400,7 +400,8 @@ print(first('abc'))
 Type parameter can also have a bound, meaning it must be a sublcass of a particular type:
 
 ```python
-from typing import TypeVar, Sized
+from typing import TypeVar
+from collections.abc import Sized
 
 T = TypeVar('T', bound=Sized)
 
@@ -418,7 +419,71 @@ print(longer([1], 'ab'))
 
 ### Abstract base class
 
+`Sequence` and `Sized` are both abstract base classes, or ABC. As the name indicates, the class contains abstract methods and is supposed to be inherited from. There are plenty of predefined collection ABCs in [collections.abc][11] module, and they form a hierarchy of collection types in Python:
+
+![Python collection types](/images/python-typing/collection-types.png)
+
+Mypy understands ABC, so it is a good practice to declare function arguments with a more general type like `Iterable[int]`, so that both `list[int]` and `set[int]` are acceptable. To write a custom class that behaves like `Iterable`, subclass it and provide the required methods.
+
+```python
+from collections.abc import Sized, Iterable, Iterator
+
+class Bucket(Sized, Iterable[int]):
+    def __len__(self) -> int:
+        return 0
+
+    def __iter__(self) -> Iterator[int]:
+        return iter([])
+
+bucket: Iterable[int] = Bucket()
+```
+
 ### Duck typing
+
+In the previous code listing, what if I remove the base class:
+
+```python
+class Bucket:
+    def __iter__(self) -> Iterator[int]:
+        return iter([])
+
+bucket: Iterable[int] = Bucket()  # Error?
+```
+
+Is the class instance still assignable to `Iterable[int]`? The answer is yes, because `Bucket` class would behave like an `Iterable[int]`, in that it contains a method `__iter__` and its return value is of correct type. It is called duck typing: If it walks like a duck and quacks like a duck, then it must be a duck. Duck typing only works for simple ABCs, like `Iterable`, `Collection`. In Python, there is a dedicated name for this feautre, [Protocol][12]. Simply put, if the class defines required methods, mypy would consider it as the corresponding type.
+
+```python
+# Sized
+def __len__(self) -> int: ...
+
+# Container[T]
+def __contains__(self, x: object) -> bool: ...
+
+# Collection[T]
+def __len__(self) -> int: ...
+def __iter__(self) -> Iterator[T]: ...
+def __contains__(self, x: object) -> bool: ...
+```
+
+It is also possible to define your own Protocol:
+
+```python
+from typing import Protocol
+from collections.abc import Iterable
+
+class Closeable(Protocol):
+    def close(self) -> None: ...
+
+class Resource:
+    def close(self):
+        self.file.close()
+
+def close_all(resources: Iterable[Closeable]):
+    for r in resources:
+        r.close()
+
+close_all([Resource()])  # OK
+```
 
 ### Runtime validation
 
@@ -442,3 +507,5 @@ print(longer([1], 'ab'))
 [8]: https://docs.python.org/3/library/constants.html#Ellipsis
 [9]: https://docs.python.org/3.10/library/dataclasses.html
 [10]: https://mypy.readthedocs.io/en/stable/additional_features.html#dataclasses
+[11]: https://docs.python.org/3.10/library/collections.abc.html
+[12]: https://docs.python.org/3.10/library/typing.html#typing.Protocol
