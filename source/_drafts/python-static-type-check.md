@@ -4,7 +4,7 @@ categories: [Programming]
 tags: [python, mypy]
 ---
 
-Python is by design a dynamically typed programming language. It is flexible and easy to write. But as the project size grows, there will be more interactions between functions, classes and modules, and we often make mistakes like passing wrong types of arguments or assuming different return types from function calls. Worse still, these mistakes can only be spotted in runtime, and are likely to cause production bugs. Is it possible for Python to support static typing like Java and Go, checking errors in compile time, while remaining to be easy to use? Fortunately, from Python 3.5 on, it supports an optional syntax, or type hints, for static type check, and many tools are built around this feature. This article covers the following topics:
+Python is by design a dynamically typed programming language. It is flexible and easy to write. But as the project size grows, there will be more interactions between functions, classes and modules, and we often make mistakes like passing wrong types of arguments or assuming different return types from function calls. Worse still, these mistakes can only be spotted in runtime, and are likely to cause production bugs. Is it possible for Python to support static typing like Java and Go, checking errors at compile time, while remaining to be easy to use? Fortunately, from Python 3.5 on, it supports an optional syntax, or type hints, for static type check, and many tools are built around this feature. This article covers the following topics:
 
 * A quick start to do static type check in Python.
 * Why do we need static typing.
@@ -487,6 +487,35 @@ close_all([Resource()])  # OK
 
 ### Runtime validation
 
+Type hints are mostly used in static type checking, and do not work at runtime. To check variable types at runtime, we can either write code on our own, i.e. `isinstance`, or use third-party libraries. Two popular choices are [typeguard][13]:
+
+```python
+from typeguard import typechecked
+
+class Animal: ...
+class Cat(Animal): ...
+
+@typechecked
+def some_function(animals: Sequence[Animal]):
+    pass
+
+some_function([1])
+# TypeCheckError: item 0 of argument "animals" (list) is not an instance of Animal
+```
+
+And [pydantic][14]:
+
+```python
+from pydantic import BaseModel
+
+class Point(BaseModel):
+    x: float
+    y: float
+
+p = Point(x='1.23', y='abc')
+# ValidationError: 1 validation error for Point y
+# Input should be a valid number, unable to parse string as a number
+```
 
 
 ## References
@@ -509,3 +538,5 @@ close_all([Resource()])  # OK
 [10]: https://mypy.readthedocs.io/en/stable/additional_features.html#dataclasses
 [11]: https://docs.python.org/3.10/library/collections.abc.html
 [12]: https://docs.python.org/3.10/library/typing.html#typing.Protocol
+[13]: https://github.com/agronholm/typeguard
+[14]: https://github.com/pydantic/pydantic
