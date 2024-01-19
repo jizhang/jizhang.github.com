@@ -1,8 +1,13 @@
 ---
 title: Python Static Type Check
-categories: [Programming]
-tags: [python, mypy]
+tags:
+  - python
+  - mypy
+categories:
+  - Programming
+date: 2024-01-19 20:27:56
 ---
+
 
 Python is by design a dynamically typed programming language. It is flexible and easy to write. But as the project size grows, there will be more interactions between functions, classes and modules, and we often make mistakes like passing wrong types of arguments or assuming different return types from function calls. Worse still, these mistakes can only be spotted at runtime, and are likely to cause production bugs. Is it possible for Python to support static typing like Java and Go, checking errors at compile time, while remaining to be easy to use? Fortunately, from Python 3.5 on, it supports an optional syntax, or type hints, for static type check, and many tools are built around this feature. This article covers the following topics:
 
