@@ -4,10 +4,10 @@ categories: [Programming]
 tags: [python, mypy]
 ---
 
-Python is by design a dynamically typed programming language. It is flexible and easy to write. But as the project size grows, there will be more interactions between functions, classes and modules, and we often make mistakes like passing wrong types of arguments or assuming different return types from function calls. Worse still, these mistakes can only be spotted in runtime, and are likely to cause production bugs. Is it possible for Python to support static typing like Java and Go, checking errors at compile time, while remaining to be easy to use? Fortunately, from Python 3.5 on, it supports an optional syntax, or type hints, for static type check, and many tools are built around this feature. This article covers the following topics:
+Python is by design a dynamically typed programming language. It is flexible and easy to write. But as the project size grows, there will be more interactions between functions, classes and modules, and we often make mistakes like passing wrong types of arguments or assuming different return types from function calls. Worse still, these mistakes can only be spotted at runtime, and are likely to cause production bugs. Is it possible for Python to support static typing like Java and Go, checking errors at compile time, while remaining to be easy to use? Fortunately, from Python 3.5 on, it supports an optional syntax, or type hints, for static type check, and many tools are built around this feature. This article covers the following topics:
 
 * A quick start to do static type check in Python.
-* Why do we need static typing.
+* Why do we need static typing?
 * Python type hints in detail.
 * Other advanced features.
 
@@ -50,7 +50,7 @@ quickstart.py:6: error: Unsupported operand types for + ("str" and "int")  [oper
 Found 3 errors in 1 file (checked 1 source file)
 ```
 
-The error messages are pretty clear. Usually we use pre-commit hook and CI to ensure everything checked in Git or merged in `master` passes `mypy`.
+The error messages are pretty clear. Usually we use pre-commit hook and CI to ensure everything checked into Git or merged into `master` passes `mypy`.
 
 <!-- more -->
 
@@ -72,7 +72,7 @@ quickstart.py:4: error: Incompatible return value type (got "int", expected "str
 Found 2 errors in 1 file (checked 1 source file)
 ```
 
-There are basic types like `str`, `int`, and collection types like `list`, `dict`. We can even define the type of their elements.
+There are basic types like `str`, `int`, and collection types like `list`, `dict`. We can even define the type of their elements:
 
 ```python
 items: list = 0
@@ -124,20 +124,20 @@ Found 2 errors in 1 file (checked 1 source file)
 
 ## Why do we need static typing?
 
-From the code above we can see that it does take some effort to write Python with type hints, so why is it peferrable anyway? Actually the merits can be drawn from many other statically typed languages like Go and Java:
+From the code above we can see that it does take some effort to write Python with type hints, so why is it preferable anyway? Actually the merits can be drawn from many other statically typed languages like Go and Java:
 
 * Errors can be found at compile time, or even earlier if you are coding in an IDE.
 * [Studies][2] show that TypeScript or Flow can reduce the number of bugs by 15%.
-* Static typing can improve the readability and maintainability of program.
+* Static typing can improve the readability and maintainability of the program.
 * Type hints may have a positive impact on performance.
 
 Before we dive into details, let's differentiate between strong/weak typing and static/dynamic typing.
 
 ![Categories of typing](/images/python-typing/categories.png)
 
-Static/dynamic typing is easier to tell apart. Static typing validates variable types at compile time, such as Go, Java and C, while dynamic typing checks at runtime, like Python, JavaScript and PHP. Strong/weak typing, on the other hand, depends on the extent of implicit conversion. For instance, JavaScript is the least weakly typed language because all types of values can be added to each other. It is the language interpreter than does the implict conversion, so that number can be added to array, string to object, etc. PHP is another example of weakly typed language, in that string can be added to number, but a warning will be reported. Python, on the contrary, is strongly typed because this operation will immediately raise a `TypeError`.
+Static/dynamic typing is easier to tell apart. Static typing validates variable types at compile time, such as Go, Java and C, while dynamic typing checks at runtime, like Python, JavaScript and PHP. Strong/weak typing, on the other hand, depends on the extent of implicit conversion. For instance, JavaScript is the least weakly typed language because all types of values can be added to each other. It is the language interpreter that does the implicit conversion, so that number can be added to array, string to object, etc. PHP is another example of weakly typed language, in that string can be added to number, but a warning will be reported. Python, on the contrary, is strongly typed because this operation will immediately raise a `TypeError`.
 
-Back to the advantages of static typing. For Python, type hints can improve the readability of code. The following snippet defines the function arguments with explict types, so that the checker would instantly warn your about a wrong call. Besides, type hints are also used by editor to provide informative and accurate autocomplete for invoking methods on an object. Python standard library is fully augmented with type hints, so you can input `some_str.` and choose from a list of methods of `str` object.
+Back to the advantages of static typing. For Python, type hints can improve the readability of code. The following snippet defines the function arguments with explicit types, so that the checker would instantly warn you about a wrong call. Besides, type hints are also used by editor to provide informative and accurate autocomplete for invoking methods on an object. Python standard library is fully augmented with type hints, so you can input `some_str.` and choose from a list of methods of `str` object.
 
 ```python
 from typing import Any, Optional, NewType
@@ -200,7 +200,7 @@ class MyClass {
 }
 ```
 
-That being said, whether to adopt static typing for Python depends on the size of your project, or how formal it is. Luckily Python provides a gradual way of adopting static typing, so you do not need to add all type hints in one go. This approach will be dicussed in the next section.
+That being said, whether to adopt static typing for Python depends on the size of your project, or how formal it is. Luckily Python provides a gradual way of adopting static typing, so you do not need to add all type hints in one go. This approach will be discussed in the next section.
 
 
 ## Python static typing in details
@@ -221,7 +221,7 @@ Python 3.0 introduces the annotation syntax for function arguments and return va
 
 ### Gradual typing
 
-One that that never changes is that static typing is an opt-in, meaning you can apply it to the whole project or only some of the modules. As a result, you can progressively add type hints to certain parts of the program, even just a single function. Because in the default setting, mypy will only check functions that has at least one type hint in its signature:
+One thing that never changes is that static typing is an opt-in, meaning you can apply it to the whole project or only some of the modules. As a result, you can progressively add type hints to certain parts of the program, even just a single function. Because in the default setting, mypy will only check functions that have at least one type hint in its signature:
 
 ```python
 # Check
@@ -232,7 +232,7 @@ def greeting(name, age) -> str: ...
 def greeting(name, age): ...
 ```
 
-For untyped argument, like `name` in the first `greeting`, it is considered as `Any` type, which means you can pass any value as `name`, and use it for any operations. It is different from `object` type though. Say you define an argument as `item: object` and try to invoke `item.foo()`, mypy will complain that `object` has no attribute `foo`. So if you are not sure what the type of a variable is, give it `Any` or simply leave it blank.
+For untyped argument, like `name` in the first `greeting`, it is considered as `Any` type, which means you can pass any value as `name`, and use it for any operations. It is different from `object` type though. Say you define an argument as `item: object` and try to invoke `item.foo()`, mypy will complain that `object` has no attribute `foo`. So if you are not sure what type of a variable is, give it `Any` or simply leave it blank.
 
 ```python
 # Check
@@ -273,9 +273,9 @@ class DummyList:
     def add(self, element: int): ...
 ```
 
-`...` or [Ellipsis][8] is a valid Python expression, and a conventional way to leave out implementation. Stub files are used to add type hints to existing codebase without changing its source. For instance, Python standard library is fully typed with stub files, hosted in a repository called [typeshed][4]. There are other third-party libraries in this repo too, and they are all released as separate packages in PyPI, prefixed with `types-`, like `types-requests`. They need to be installed explicitly, otherwise mypy would complain that it cannot find type definitions for these libraries. Fortunately, a lot of popular libraries have embraced static typing and do not require external stub files.
+`...` or [Ellipsis][8] is a valid Python expression, and a conventional way to leave out implementation. Stub files are used to add type hints to an existing codebase without changing its source. For instance, Python standard library is fully typed with stub files, hosted in a repository called [typeshed][4]. There are other third-party libraries in this repo too, and they are all released as separate packages in PyPI, prefixed with `types-`, like `types-requests`. They need to be installed explicitly, otherwise mypy would complain that it cannot find type definitions for these libraries. Fortunately, a lot of popular libraries have embraced static typing and do not require external stub files.
 
-Mypy provides a nice [cheat sheet][5] for basic usage of type hints, and Python [documentation][6] contains the full description. Here're the entries that I find most helpful:
+Mypy provides a nice [cheat sheet][5] for basic usage of type hints, and Python [documentation][6] contains the full description. Here are the entries that I find most helpful:
 
 ```python
 # Basic types
@@ -291,13 +291,13 @@ x: list[int] = [1, 2, 3]
 x: set[int] = {6, 7}
 x: dict[str, float] = {'field', 2.0}
 
-# Sepcial types
+# Special types
 from typing import Any, Union, Optional, Callable
 
 x: Any = 1
 x = 'test'
 
-x: int | str = 1  # Equavalent to x: Union[int, str]
+x: int | str = 1  # Equivalent to x: Union[int, str]
 x = 'test'
 
 x: Optional[str] = some_function()
@@ -310,7 +310,7 @@ def f(num1: int, my_float: float = 3.5) -> float:
 x: Callable[[int, float], float] = f
 ```
 
-One of my favorite types is `Optional`, since it solves the problem of `None`. Mypy will raise error if you fail to guard against a nullable variable. `if x is not None` is also a way of [type narrowing][7], meaning mypy will consider `x` as `str` in the `if` block. Another useful type narrowing technique is `isinstance`.
+One of my favorite types is `Optional`, since it solves the problem of `None`. Mypy will raise an error if you fail to guard against a nullable variable. `if x is not None` is also a way of [type narrowing][7], meaning mypy will consider `x` as `str` in the `if` block. Another useful type narrowing technique is `isinstance`.
 
 Python classes are also types. Mypy understands inheritance, and class types can be used in collections, too.
 
@@ -339,7 +339,7 @@ class Dog(Animal):
         return []
 ```
 
-Type alias is useful for shortening the type definition. And notice the quotes around `Dog`. It is called forward reference, that allows you to refer to a type that has not yet been fully defined. In a future version, possible Python 3.12, the quotes may be omitted.
+Type alias is useful for shortening the type definition. And notice the quotes around `Dog`. It is called forward reference, that allows you to refer to a type that has not yet been fully defined. In a future version, possibly Python 3.12, the quotes may be omitted.
 
 Another useful utility from `typing` module is `TypedDict`. `dict` is a frequently used data structure in Python, so it would be nice to explicitly define the fields and types in it.
 
@@ -361,7 +361,7 @@ p2 = Point(x=1, y=2)
 
 ### Generics
 
-`list` is a generic class, and the `str` in `list[str]` is called a type parameter. So generics are useful when the class is a kind of container, and does not care about the type of elements it contains. We can easily write a generic class on our own. Say we want to wrap a variable of arbitary type and log a message when its value is changed.
+`list` is a generic class, and the `str` in `list[str]` is called a type parameter. So generics are useful when the class is a kind of container, and does not care about the type of elements it contains. We can easily write a generic class on our own. Say we want to wrap a variable of arbitrary type and log a message when its value is changed.
 
 ```python
 from typing import TypeVar, Generic
@@ -397,7 +397,7 @@ print(first('abc'))
 
 `Sequence` is an abstract base class, which we will discuss in the next section. `list` and `str` are both subclasses of `Sequence`, so they can be accepted by the function `first`.
 
-Type parameter can also have a bound, meaning it must be a sublcass of a particular type:
+Type parameter can also have a bound, meaning it must be a subclass of a particular type:
 
 ```python
 from typing import TypeVar
@@ -450,7 +450,7 @@ class Bucket:
 bucket: Iterable[int] = Bucket()  # Error?
 ```
 
-Is the class instance still assignable to `Iterable[int]`? The answer is yes, because `Bucket` class would behave like an `Iterable[int]`, in that it contains a method `__iter__` and its return value is of correct type. It is called duck typing: If it walks like a duck and quacks like a duck, then it must be a duck. Duck typing only works for simple ABCs, like `Iterable`, `Collection`. In Python, there is a dedicated name for this feautre, [Protocol][12]. Simply put, if the class defines required methods, mypy would consider it as the corresponding type.
+Is the class instance still assignable to `Iterable[int]`? The answer is yes, because `Bucket` class would behave like an `Iterable[int]`, in that it contains a method `__iter__` and its return value is of correct type. It is called duck typing: If it walks like a duck and quacks like a duck, then it must be a duck. Duck typing only works for simple ABCs, like `Iterable`, `Collection`. In Python, there is a dedicated name for this feature, [Protocol][12]. Simply put, if the class defines required methods, mypy would consider it as the corresponding type.
 
 ```python
 # Sized
@@ -487,7 +487,7 @@ close_all([Resource()])  # OK
 
 ### Runtime validation
 
-Type hints are mostly used in static type checking, and do not work at runtime. To check variable types at runtime, we can either write code on our own, i.e. `isinstance`, or use third-party libraries. Two popular choices are [typeguard][13]:
+Type hints are mostly used in static type check, and do not work at runtime. To check variable types at runtime, we can either write code on our own, i.e. `isinstance`, or use third-party libraries. Two popular choices are [typeguard][13]:
 
 ```python
 from typeguard import typechecked
