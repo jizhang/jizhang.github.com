@@ -144,12 +144,11 @@ from typing import Any, Optional, NewType
 
 UserId = NewType('UserId', int)
 
-
 def send_request(request_data: Any,
                  headers: Optional[dict[str, str]],
                  user_id: Optional[UserId] = None,
                  as_json: bool = True):
-    ...
+    pass
 ```
 
 For some languages, type hints also boost the performance. Take Clojure for an example:
@@ -274,18 +273,107 @@ class DummyList:
     def add(self, element: int): ...
 ```
 
-Stub files are used to add type hints to existing codebase without changing its source. For instance, Python standard library is fully typed with stub files, hosted in a repository called [typeshed][4]. There are other third-party libraries in this repo too, and they are all released as separate packages in PyPI, prefixed with `types-`, like `types-requests`. They need to be installed explicitly, otherwise mypy would complain that it cannot find type definitions for these libraries. Fortunately, a lot of popular libraries have embraced static typing and do not require external stub files.
+`...` or [Ellipsis][8] is a valid Python expression, and a conventional way to leave out implementation. Stub files are used to add type hints to existing codebase without changing its source. For instance, Python standard library is fully typed with stub files, hosted in a repository called [typeshed][4]. There are other third-party libraries in this repo too, and they are all released as separate packages in PyPI, prefixed with `types-`, like `types-requests`. They need to be installed explicitly, otherwise mypy would complain that it cannot find type definitions for these libraries. Fortunately, a lot of popular libraries have embraced static typing and do not require external stub files.
+
+Mypy provides a nice [cheat sheet][5] for basic usage of type hints, and Python [documentation][6] contains the full description. Here're the entries that I find most helpful:
+
+```python
+# Basic types
+x: int = 1
+x: float = 1.0
+x: bool = True
+x: str = 'test'
+x: bytes = b'test'
+
+# Collection types
+x: tuple[int, str, float] = (3, 'yes', 7.5)
+x: list[int] = [1, 2, 3]
+x: set[int] = {6, 7}
+x: dict[str, float] = {'field', 2.0}
+
+# Sepcial types
+from typing import Any, Union, Optional, Callable
+
+x: Any = 1
+x = 'test'
+
+x: int | str = 1  # Equavalent to x: Union[int, str]
+x = 'test'
+
+x: Optional[str] = some_function()
+x.lower()  # Error: Optional[str] has no attribute lower
+if x is not None:
+    x.lower()  # OK
+
+def f(num1: int, my_float: float = 3.5) -> float:
+    return num1 + my_float
+x: Callable[[int, float], float] = f
+```
+
+One of my favorite types is `Optional`, since it solves the problem of `None`. Mypy will raise error if you fail to guard against a nullable variable. `if x is not None` is also a way of [type narrowing][7], meaning mypy will consider `x` as `str` in the `if` block. Another useful type narrowing technique is `isinstance`.
+
+Python classes are also types. Mypy understands inheritance, and class types can be used in collections, too.
+
+```python
+class Animal:
+    pass
+
+class Cat(Animal):
+    pass
+
+animal: Animal = Cat()
+cats: list[Cat] = []
+
+# Type alias
+CatList = list[Cat]
+cats: CatList = []
+
+# Forward reference
+class Dog(Animal):
+    @staticmethod
+    def create() -> 'Dog':
+        return Dog()
+
+    @staticmethod
+    def get_list() -> list['Dog']:
+        return []
+```
+
+Type alias is useful for shortening the type definition. And notice the quotes around `Dog`. It is called forward reference, that allows you to refer to a type that has not yet been fully defined. In a future version, possible Python 3.12, the quotes may be omitted.
+
+Another useful utility from `typing` module is `TypedDict`. `dict` is a frequently used data structure in Python, so it would be nice to explicitly define the fields and types in it.
+
+```python
+from typing import TypedDict
+
+class Point(TypedDict):
+    x: int
+    y: int
+
+p1: Point = {'x': 1, 'y': 2}
+p2 = Point(x=1, y=2)
+```
+
+`TypedDict` is like a regular `dict` at runtime, only the type checker would see the difference. Another option is to use Python [dataclass][9] to define DTO (Data Transfer Object). Mypy has [full support][10] for it, too.
 
 
 ## References
-* https://docs.python.org/3.10/library/typing.html
 * https://realpython.com/python-type-checking/
 * https://typing.readthedocs.io/en/latest/
-* https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 * https://mypy.readthedocs.io/en/stable/builtin_types.html
+* https://www.bernat.tech/the-state-of-type-hints-in-python/
+* https://blog.zulip.com/2016/10/13/static-types-in-python-oh-mypy/
+* https://www.python.org/dev/peps/pep-0483/
+* https://mypy.readthedocs.io/en/latest/index.html#overview-type-system-reference
 
 
 [1]: https://mypy-lang.org/
 [2]: https://softwareengineering.stackexchange.com/questions/59606/is-static-typing-worth-the-trade-offs/371369#371369
 [3]: https://peps.python.org/topic/typing/
 [4]: https://github.com/python/typeshed
+[5]: https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
+[6]: https://docs.python.org/3.10/library/typing.html
+[7]: https://mypy.readthedocs.io/en/stable/type_narrowing.html
+[8]: https://docs.python.org/3/library/constants.html#Ellipsis
+[9]: https://docs.python.org/3.10/library/dataclasses.html
+[10]: https://mypy.readthedocs.io/en/stable/additional_features.html#dataclasses
