@@ -1,15 +1,21 @@
 ---
 title: Define API Data Models with Pydantic
 categories: [Programming]
-tags: [python, pydantic, openapi]
+tags: [python, pydantic, flask, openapi]
 ---
 
 <!-- more -->
 
 * Define response model
     * Installation, mypy plugin
-    * Pythong typing
-    * Dataclasses
+    * Python typing
+    * From sqlalchemy
+    * Custom serializer, e.g. datetime
+    * Computed fields
+    * Alias
+    * Nested
+    * Include, exclude
+    * TypedDict, dataclass
 * Define request model
     * Modeling query string
     * Model validation
