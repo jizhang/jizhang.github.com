@@ -12,15 +12,26 @@ tags: [python, pydantic, flask, openapi]
     * From sqlalchemy
     * Custom serializer, e.g. datetime
     * Computed fields
-    * Alias
+    * Alias, snake_case to camelCase
     * Nested
-    * Include, exclude
+    * Exclude
     * TypedDict, dataclass
+    * Context?
 * Define request model
     * Modeling query string
-    * Model validation
-        * Validation error
-        * Versus wtform, marshmallow
+    * Validate route variables
+    * Custom deserializer
+    * Default value, default factory
+    * Required fields
+    * Alias
+    * Type conversion, datetime
+    * Constraints
+        * String, number, decimal
+        * Choices
+        * Annotation, Field, Gt
+    * Custom validator
+    * Validation error
+    * Versus wtform, marshmallow
 * Integrate with SQLAlchemy
     * SQLModel
 * OpenAPI
@@ -29,3 +40,4 @@ tags: [python, pydantic, flask, openapi]
     * FastAPI
 
 ## References
+* https://docs.pydantic.dev/latest/concepts/models/
