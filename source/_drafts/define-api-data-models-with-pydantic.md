@@ -9,35 +9,33 @@ tags: [python, pydantic, flask, openapi]
 * Define response model
     * Installation, mypy plugin
     * Python typing
-    * From sqlalchemy
+    * From sqlalchemy, sqlmodel
     * Custom serializer, e.g. datetime
     * Computed fields
     * Alias, snake_case to camelCase
     * Nested
     * Exclude
     * TypedDict, dataclass
-    * Context?
+    * Context: excluded field
 * Define request model
     * Modeling query string
-    * Validate route variables
-    * Custom deserializer
+    * Custom deserializer, return a different object like @post_load
     * Default value, default factory
     * Required fields
     * Alias
     * Type conversion, datetime
-    * Constraints
-        * String, number, decimal
-        * Choices
-        * Annotation, Field, Gt
+* Validation
+    * Validate route variables
+    * String, number, decimal
+    * Choices: enum, literal
+    * Annotation, Field, Gt
+    * Pydantic types
     * Custom validator
     * Validation error
-    * Versus wtform, marshmallow
-* Integrate with SQLAlchemy
-    * SQLModel
 * OpenAPI
-    * JSON Schema
-    * Example data
-    * FastAPI
+    * JSON Schema, example data
+    * Manually reference
+    * openapi-pydantic, spectree, fastapi
 
 ## References
 * https://docs.pydantic.dev/latest/concepts/models/
