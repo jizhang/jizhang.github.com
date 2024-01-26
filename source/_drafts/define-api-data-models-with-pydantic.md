@@ -8,6 +8,7 @@ In modern architecutre, frontend and backend are separated and maintained by dif
 
 ![Pydantic](/images/pydantic.png)
 
+
 ## Define response model
 
 After `pip install pydantic`, let's define a simple response model to return the currently logged-in user:
@@ -47,6 +48,7 @@ Content-Type: application/json
 * `mode="json"` tells Pydantic to serialize field values into JSON representable types. For instance, `datetime` and `Decimal` will be converted to string. Flask can also do this conversion, but we prefer keeping serialization in Pydantic model for clarity and ease of change.
 
 <!-- more -->
+
 
 ### Create from SQLAlchemy model
 
@@ -96,7 +98,150 @@ user_orm = db.session.get_one(UserOrm, 1)
 user = User.model_validate(user_orm)
 ```
 
-SQLModel
+Would it be nice if our model is both Pydantic model *and* SQLAlchemy model? [SQLModel][3] is exactly designed for this purpose:
+
+```python
+from sqlmodel import SQLModel, Field
+
+class User(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    username: str
+    last_login: datetime
+
+# Read from database
+user = db.session.get_one(User, 1)
+user.model_dump(mode='json')
+
+# Create from request data
+user = User.model_validate(request.get_json())
+db.session.add(user)
+```
+
+But personally I am not in favor of this approach, for it mixes classes from two layers, domain layer and presentation layer. Now the class has two reasons to change, thus violating the single responsibility principle. Use it judiciously.
+
+
+### Nested models
+
+To return a list of users, we can either create a dedicated response model:
+
+```python
+class UserListResponse(BaseModel):
+    users: list[User]
+
+user_orms = user_svc.get_list()
+response = UserListResponse(users=user_orms)
+response.model_dump(mode='json')
+```
+
+Or, if you prefer to return a list, we can create a custom with `TypeAdapter`:
+
+```python
+from pydantic import TypeAdapter
+
+UserList = TypeAdapter(list[User])
+
+user_orms = user_svc.get_list()
+user_list = UserList.validate_python(user_orms)
+UserList.dump_python(user_list, mode='json')
+```
+
+I recommend the first approach, since it would be easier to add model attributes in the future.
+
+
+### Custom serialization
+
+By default, `datetime` object is serialized into ISO 8601 string. If you prefer a different representation, custom serializers can be added. There are several ways to accomplish this task. Decorate a class method with `field_serializer`:
+
+```python
+from pydantic import field_serializer
+
+class User(BaseModel):
+    last_login: datetime
+
+    @field_serializer('last_login')
+    def serialize_last_login(self, value: datetime) -> str:
+        return value.strftime('%Y-%m-%d %H:%M:%S')
+```
+
+Create a new type with custom serializer:
+
+```python
+from typing import Annotated
+from pydantic import PlainSerializer
+
+def format_datetime(dt: datetime):
+    return dt.strftime('%Y-%m-%d %H:%M:%S')
+
+CustomDatetime = Annotated[datetime, PlainSerializer(format_datetime)]
+
+class User(BaseModel):
+    last_login: CustomDatetime
+```
+
+`Annotated` is widely used in Pydantic, to attach extra information like custom serialization and validation to an existing type. In this example, we use a `PlainSerializer`, which takes a function or lambda to serialize the field. There is also a `WrapSerializer`, that can be used to apply transformation before and after the default serializer.
+
+Finally, there is the `model_serializer` decorator that can be used to transform the whole model, as well as individual fields.
+
+```python
+from pydantic import model_serializer
+
+class User(BaseModel):
+    id: int
+    last_login: datetime
+
+    @model_serializer
+    def serialize_model(self) -> dict[str, Any]:
+        return {
+            'id': self.id,
+            'last_login': self.last_login.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+
+class UserListResponse(BaseModel):
+    users: list[User]
+
+    @model_serializer
+    def serialize_model(self) -> list:
+        return self.users
+```
+
+Now `UserListResponse` will be dumped into a list, instead of a dictionary.
+
+
+### Field alias
+
+Sometimes we want to change the key name in serialized data. For instance, change `users` to `userList`:
+
+```python
+from pydantic import Field
+
+class UserListResponse(BaseModel):
+    users: list[User] = Field(serialization_alias='userList')
+
+response = UserListResponse(users=user_orms)
+response.model_dump(mode='json', by_alias=True)
+# {"userList": []}
+```
+
+`serialization_alias` indicates that the alias is only used for serialization. When creating models, we still use `users` as the key. To change both keys to `userList`, use `Field(alias='userList')`. If this conversion is universal, say you want all your request and response data to use camelCase for keys, add two configurations to your model:
+
+```python
+from pydantic.alias_generators import to_camel
+
+class UserListResponse(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    user_list: list[User]
+
+# Create from request data
+UserListResponse.model_validate({'userList': []})
+# This still works
+UserListResponse(user_list=[])
+
+# Dump to response data
+response.model_dump(mode='json', by_alias=True)
+# {"userList": []}
+```
+
 
 * Define response model
     * Installation, mypy plugin
@@ -134,3 +279,4 @@ SQLModel
 
 [1]: https://pydantic.dev/
 [2]: https://shzhangji.com/blog/2024/01/19/python-static-type-check/
+[3]: https://sqlmodel.tiangolo.com/
