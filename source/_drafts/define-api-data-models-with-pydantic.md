@@ -92,6 +92,7 @@ class UserOrm(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str]
+    password: Mapped[str]
     last_login: Mapped[datetime]
 
 user_orm = db.session.get_one(UserOrm, 1)
@@ -222,7 +223,7 @@ response.model_dump(mode='json', by_alias=True)
 # {"userList": []}
 ```
 
-`serialization_alias` indicates that the alias is only used for serialization. When creating models, we still use `users` as the key. To change both keys to `userList`, use `Field(alias='userList')`. If this conversion is universal, say you want all your request and response data to use camelCase for keys, add two configurations to your model:
+`serialization_alias` indicates that the alias is only used for serialization. When creating models, we still use `users` as the key. To change both keys to `userList`, use `Field(alias='userList')`. If this conversion is universal, say you want all your request and response data to use camelCase for keys, add these configurations to your model:
 
 ```python
 from pydantic.alias_generators import to_camel
@@ -243,6 +244,327 @@ response.model_dump(mode='json', by_alias=True)
 ```
 
 
+### Computed fields
+
+Fields may derive from other fields:
+
+```python
+from flask import url_for
+from pydantic import computed_field
+
+class Article(BaseModel):
+    id: int
+    title: str
+
+    @computed_field  # type: ignore[misc]
+    @property
+    def link(self) -> str:
+        return url_for('article', id=self.id)
+```
+
+If the field requires extra information, we can add a private attribute to the model. The attribute's name starts with an underscore, and Pydantic will ingore it in serialization and validation.
+
+```python
+from pydantic import PrivateAttr
+
+class Article(BaseModel):
+    category_id: int
+    _categories: dict[int, str] = PrivateAttr(default_factory=dict)
+
+    @computed_field  # type: ignore[misc]
+    @property
+    def category_name(self) -> str:
+        return self._categories.get(self.category_id, 'N/A')
+
+article = Article(category_id=1)
+article._categories = {1: 'Big Data'}
+article.model_dump(mode='json')
+# {"category_id": 1, "category_name": "Big Data"}
+```
+
+
+## Define request model
+
+```python
+from pydantic import Field
+
+class UserForm(BaseModel):
+    username: str
+    password: str = Field(exclude=True)
+
+class CreateUserResponse(BaseModel):
+    id: int
+
+@app.post('/create-user')
+def create_user() -> dict:
+    form = UserForm.model_validate(request.get_json())
+    user_orm = UserOrm(**dict(form), last_login=datetime.now())
+    db.session.add(user_orm)
+    db.session.commit()
+
+    response = CreateUserResponse(id=user_orm.id)
+    return response.model_dump(mode='json')
+```
+
+* `model_validate` takes the dictionary returned by `get_json`, validates it, and constructs a model instance. There is also a `model_validate_json` method that accepts JSON string.
+* The validated form data is then passed to an ORM model. Usually this is done by manual assignments, because fields like `password` need to be properly encrypted.
+* `Field(exclude=True)` indicates that this field will be excluded in serialization. This is helpful when you do not want some information leaking to the client.
+
+```
+% http localhost:5000/create-user username=jizhang password=password
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": 3
+}
+```
+
+Query parameters can be modeled in a similar way:
+
+```python
+class SearchForm(BaseModel):
+    tags: str
+    keyword: str
+
+@app.get('/article/search')
+def article_search() -> dict:
+    form = SearchForm.model_validate(request.args.to_dict())
+    return form.model_dump(mode='json')
+```
+
+Use `==` to tell httpie to use GET method:
+
+```
+% http localhost:5000/article/search tags==a,b,c keyword==test
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "keyword": "test",
+    "tags": "a,b,c"
+}
+```
+
+
+### Custom deserialization
+
+Let's see how to parse `tags` string to a list of tags:
+
+```python
+class SearchForm(BaseModel):
+    tags: list[str]
+    keyword: str
+
+    @field_validator('tags', mode='before')
+    @classmethod
+    def validate_tags(cls, value: str) -> list[str]:
+        return value.split(',')
+
+form = SearchForm.model_validate(request.args.to_dict())
+print(form.tags)
+# ['a', 'b', 'c']
+```
+
+`field_validator` is used to compose custom validation rules, which will be discussed in a later section. Normally it executes after Pydantic has done the default validation. In this case, `tags` is declared as `list[str]` and Pydantic would raise an error when a string is passed to it. So we use `mode='before'` to apply this function on the raw input data, and transform it into a list of tags.
+
+There are also annotated validator and `model_validator`:
+
+```python
+from pydantic import BeforeValidator
+
+def parse_tags(tags: str) -> list[str]:
+    return tags.split(',')
+
+TagList = Annotated[list[str], BeforeValidator(parse_tags)]
+
+class SearchForm(BaseModel):
+    tags: TagList
+    keyword: Optional[str]
+
+    @model_validator(mode='before')
+    @classmethod
+    def validate_model(cls, data: dict[str, Any]) -> dict[str, Any]:
+        if not data['keyword'].strip():
+            data['keyword'] = None
+        return data
+```
+
+
+### Required field and default value
+
+By default, all model attributes are required. Though `keyword` is defined as `Optional`, Pydantic will still raise an error if `keyword` is missing in the input data.
+
+```python
+SearchForm.model_validate_json('{"tags": "a,b,c"}')
+# ValidationError keyword Field required
+
+form = SearchForm.model_validate_json('{"tags": "a,b,c", "keyword": null}')
+print(form.keyword)
+# None
+```
+
+There are several ways to provide a default value for missing keys:
+
+```python
+from typing import Optional, Annotated
+from datetime import datetime
+from uuid import uuid4
+from pydantic import Field
+
+class SearchForm(BaseModel):
+    keyword_1: Optional[str] = None
+    keyword_2: Optional[str] = Field(default=None)
+    keyword_3: Annotated[Optional[str], Field(default=None)]
+
+    tags: list[str] = Field(default_factory=list)
+    create_time: datetime = Field(default_factory=datetime.now)
+    uuid: str = Field(default_factory=lambda: uuid4().hex)
+
+    tag_list: list[str] = []  # This is OK
+```
+
+`default_factory` is useful when the default value is dynamically generated. For `list` and `dict`, it is okay to use literals `[]` and `{}`, because Pydantic will make a deep copy of it.
+
+
+### Type conversion
+
+For GET requests, input data are always of type `dict[str, str]`. For POST requests, though the client could send different types of values via JSON, like boolean and number, there are some types that are not representable in JSON, datetime for example. When creating models, Pydantic will do proper type conversion. It is actually a part of validation, to ensure client provides the correct data.
+
+```python
+class ConversionForm(BaseModel):
+    int_value: int
+    decimal_value: Decimal
+    bool_value: bool
+    datetime_value: datetime
+    array_value: list[int]
+    object_value: dict[str, int]
+
+# Validate data returned by request.get_json()
+ConversionForm.model_validate({
+    'int_value': '10',
+    'decimal_value': '10.24',
+    'bool_value': 'true',
+    'datetime_value': '2024-01-27 17:02:00',
+    'array_value': [1, '2'],
+    'object_value': {'key': '10'},
+})
+```
+
+As a side note, if you are to create model with constructor, and pass a data type that does not match the model definition, mypy will raise an error:
+
+```python
+ConversionForm(int_value='10')
+# error: Argument "int_value" to "ConversionForm" has incompatible type "str"; expected "int"
+```
+
+To fix this, you need to enable Pydantic's mypy plugin in `pyproject.toml`:
+
+```toml
+[tool.mypy]
+plugins = [
+    'pydantic.mypy',
+]
+```
+
+
+## Data validation
+
+Type conversion works as the first step of data validation. Pydantic makes sure the model it creates contains attributes with the correct type. For further validation, Pydantic provides some builtin validators, and users are free to create new ones.
+
+
+### Builtin validators
+
+Here are three ways to ensure `username` contains 3 to 10 characters, with builtin validators:
+
+```python
+# Field definition
+from pydantic import BaseModel, Field
+
+class UserForm(BaseModel):
+    username: str = Field(min_length=3, max_length=10)
+
+# Annotated type
+from typing import Annotated
+
+ValidName = Annotated[str, Field(min_length=3, max_length=10)]
+
+class UserForm(BaseModel):
+    username: ValidName
+
+# Use annotated-types package, auto-installed by Pydantic
+from annotated_types import MinLen, MaxLen, Len
+
+ValidName = Annotated[str, MinLen(3), MaxLen(10)]
+# Or
+ValidName = Annotated[str, Len(3, 10)]
+```
+
+Some usefull builtin validators are listed below. For annotated-types package, please check its [repository][4] for more.
+
+* String constraints
+    * `min_length`
+    * `max_length`
+    * `pattern`: Regular expression, e.g. `r'^\d*$'`
+* Numeric constraints
+    * `gt`: Greater than
+    * `lt`: Less than
+    * `ge`: Greater than or equal to
+    * `le`: Less than or equal to
+* Decimal constraints
+    * `max_digits`
+    * `decimal_places`
+
+In addition, Pydantic defines several types for validation. To name a few:
+
+```python
+
+```
+
+### Choices
+
+
+### Custom validator
+
+```python
+# Field decorator
+from pydantic import field_validator
+
+class UserForm(BaseModel):
+    username: str
+
+    @field_validator('username')
+    @classmethod
+    def validate_username(cls, value: str) -> str:
+        if len(value) < 3 or len(value) > 10:
+            raise ValueError('invalid username')
+        return value
+
+# Annotated type
+from pydantic import AfterValidator
+
+def validate_name(value: str) -> str:
+    if len(value) < 3 or len(value) > 10:
+        raise ValueError('invalid name')
+    return value
+
+class UserForm(BaseModel):
+    username: Annotated[str, AfterValidator(validate_name)]
+
+# Model validator
+from pydantic import model_validator
+
+class UserForm(BaseModel):
+    username: str
+
+    @model_validator(mode='after')
+    def validate_model(self) -> 'UserForm':
+        if len(self.username) < 3 or len(self.username) > 10:
+            raise ValueError('invalid username')
+        return self
+```
+
+
 * Define response model
     * Installation, mypy plugin
     * Python typing
@@ -252,13 +574,11 @@ response.model_dump(mode='json', by_alias=True)
     * Alias, snake_case to camelCase
     * Nested
     * Exclude
-    * Context: excluded field, model_validate context param
+    * Context: private attribute, contextvar
 * Define request model
     * Modeling query string
     * Custom deserializer, return a different object like @post_load
-    * Default value, default factory
-    * Required fields
-    * Alias
+    * Required fields, default value, default factory
     * Type conversion, datetime
 * Validation
     * Validate route variables
@@ -268,6 +588,7 @@ response.model_dump(mode='json', by_alias=True)
     * Pydantic types
     * Custom validator
     * Validation error
+    * Validation context
 * OpenAPI
     * JSON Schema, example data
     * Manually reference
@@ -280,3 +601,4 @@ response.model_dump(mode='json', by_alias=True)
 [1]: https://pydantic.dev/
 [2]: https://shzhangji.com/blog/2024/01/19/python-static-type-check/
 [3]: https://sqlmodel.tiangolo.com/
+[4]: https://github.com/annotated-types/annotated-types
