@@ -88,6 +88,63 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-manage-multiple-command-line-runner-in-spring-boot" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/" class="article-date">
+  <time datetime="2022-07-16T10:17:30.000Z" itemprop="datePublished">2022-07-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/">Manage Multiple CommandLineRunner in Spring Boot</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>In Spring Boot, the <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/2.7.x/reference/htmlsingle/#features.spring-application.command-line-runner"><code>CommandLineRunner</code></a> and <code>ApplicationRunner</code> are two utility interfaces that we can use to execute code when application is started. However, all beans that implement these interfaces will be invoked by Spring Boot, and it takes some effort to execute only a portion of them. This is especially important when you are developing a console application with multiple entry points. In this article, we will use several techniques to achieve this goal.</p>
+<h2 id="Put-CommandLineRunner-in-different-packages"><a href="#Put-CommandLineRunner-in-different-packages" class="headerlink" title="Put CommandLineRunner in different packages"></a>Put CommandLineRunner in different packages</h2><p>By default, <code>@SpringBootApplication</code> will scan components (or beans) in current and descendant packages. When multiple <code>CommandLineRunner</code>s are discovered, Spring will execute them all. So the first approach will be separating those runners into different packages.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.shzhangji.package_a;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JobA</span> <span class="keyword">implements</span> <span class="title class_">CommandLineRunner</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    SpringApplication.run(JobA.class, args);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">(String... args)</span> &#123;</span><br><span class="line">    log.info(<span class="string">&quot;Run package_a.JobA&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>If there is a <code>JobB</code> in <code>package_b</code>, these two jobs will not affect each other. But one problem is, when executing <code>JobA</code>, only components defined under <code>package_a</code> will be scanned. So if <code>JobA</code> wants to use a service in <code>com.shzhangji.common</code> package, we have to import this class explicitly:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.shzhangji.package_a;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.shzhangji.common.UserService;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@Import(UserService.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JobA</span> <span class="keyword">implements</span> <span class="title class_">CommandLineRunner</span> &#123;</span><br><span class="line">  <span class="meta">@Autowired</span></span><br><span class="line">  <span class="keyword">private</span> UserService userService;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>If there are multiple classes or packages that you want to import, you may as well change the base packages property:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication(scanBasePackages = &#123;</span></span><br><span class="line"><span class="meta">    &quot;com.shzhangji.common&quot;,</span></span><br><span class="line"><span class="meta">    &quot;com.shzhangji.package_a&quot;,</span></span><br><span class="line"><span class="meta">&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JobA</span> <span class="keyword">implements</span> <span class="title class_">CommandLineRunner</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://shzhangji.com/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/" data-id="clrxd7dcu002xenq1bhbmf1vn" class="article-share-link">Share</a>
+      
+        <a href="https://shzhangji.com/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-boot/" rel="tag">spring boot</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-store-custom-data-in-spring-mvc-request-context" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/" class="article-date">
@@ -128,7 +185,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/" data-id="clrkmevb0002uevoo0zevf52l" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/" data-id="clrxd7dct002venq143tcdk9x" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -182,7 +239,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/01/monitor-kubernetes-volume-storage/" data-id="clrkmevb0002sevoodsgxez5l" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/07/01/monitor-kubernetes-volume-storage/" data-id="clrxd7dcs002senq1cufk095c" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/07/01/monitor-kubernetes-volume-storage/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -233,7 +290,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/" data-id="clrkmevaz002pevoo79y90lqo" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/" data-id="clrxd7dcr002qenq179paad0o" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -285,7 +342,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/" data-id="clrkmevay002nevooh767gcx0" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/" data-id="clrxd7dcq002nenq1b47e2bvp" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -347,7 +404,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/" data-id="clrkmevay002levooc1iygxs9" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/" data-id="clrxd7dcp002lenq11ig20u8r" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -400,7 +457,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/" data-id="clrkmevax002eevoo2z2pfbh7" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/" data-id="clrxd7dco002eenq123bv6jyw" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -460,7 +517,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/" data-id="clrkmevax002hevooeorpbrm3" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/" data-id="clrxd7dcp002henq1bg5r4sbf" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -520,7 +577,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/" data-id="clrkmevaw002aevooajbi0rgr" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/" data-id="clrxd7dcn002benq14a48f56e" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -575,65 +632,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="clrkmevav0027evooggw749qe" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="clrxd7dcn0028enq1c0rahow9" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/etl/" rel="tag">etl</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flink/" rel="tag">flink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hdfs/" rel="tag">hdfs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-spark-datasource-api-v2" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2018/12/08/spark-datasource-api-v2/" class="article-date">
-  <time datetime="2018-12-08T10:23:11.000Z" itemprop="datePublished">2018-12-08</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Big-Data/">Big Data</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2018/12/08/spark-datasource-api-v2/">Spark DataSource API V2</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>From Spark 1.3, the team introduced a data source API to help quickly integrating various input formats with Spark SQL. But eventually this version of API became insufficient and the team needed to add a lot of internal codes to provide more efficient solutions for Spark SQL data sources. So in Spark 2.3, the second version of data source API is out, which is supposed to overcome the limitations of the previous version. In this article, I will demonstrate how to implement custom data source for Spark SQL in both V1 and V2 API, to help understanding their differences and the new API’s advantages.</p>
-<h2 id="DataSource-V1-API"><a href="#DataSource-V1-API" class="headerlink" title="DataSource V1 API"></a>DataSource V1 API</h2><p>V1 API provides a set of abstract classes and traits. They are located in <a target="_blank" rel="noopener" href="https://github.com/apache/spark/blob/v2.3.2/sql/core/src/main/scala/org/apache/spark/sql/sources/interfaces.scala">spark&#x2F;sql&#x2F;sources&#x2F;interfaces.scala</a>. Some basic APIs are:</p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">RelationProvider</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">createRelation</span></span>(sqlContext: <span class="type">SQLContext</span>, parameters: <span class="type">Map</span>[<span class="type">String</span>, <span class="type">String</span>]): <span class="type">BaseRelation</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseRelation</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">sqlContext</span></span>: <span class="type">SQLContext</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">schema</span></span>: <span class="type">StructType</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">TableScan</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">buildScan</span></span>(): <span class="type">RDD</span>[<span class="type">Row</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>A <code>RelationProvider</code> defines a class that can create a relational data source for Spark SQL to manipulate with. It can initialize itself with provided options, such as file path or authentication. <code>BaseRelation</code> is used to define the data schema, which can be loaded from database, Parquet file, or specified by the user. This class also needs to mix-in one of the <code>Scan</code> traits, implements the <code>buildScan</code> method, and returns an RDD.</p>
-        
-          <p class="article-more-link">
-            <a href="/blog/2018/12/08/spark-datasource-api-v2/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="clrkmevav0023evoo17srd5no" class="article-share-link">Share</a>
-      
-        <a href="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/" rel="tag">spark</a></li></ul>
 
     </footer>
   </div>
@@ -655,7 +659,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/ci/" style="font-size: 10px;">ci</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/connect/" style="font-size: 10px;">connect</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 12.86px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 11.43px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mypy/" style="font-size: 10px;">mypy</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/parcel/" style="font-size: 10px;">parcel</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/pip/" style="font-size: 10px;">pip</a> <a href="/tags/poetry/" style="font-size: 10px;">poetry</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 11.43px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 11.43px;">spring boot</a> <a href="/tags/spring-security/" style="font-size: 10px;">spring security</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/ci/" style="font-size: 10px;">ci</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/connect/" style="font-size: 10px;">connect</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 14.29px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 11.43px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mypy/" style="font-size: 10px;">mypy</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 11.43px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/parcel/" style="font-size: 10px;">parcel</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/pip/" style="font-size: 10px;">pip</a> <a href="/tags/poetry/" style="font-size: 10px;">poetry</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/pydantic/" style="font-size: 10px;">pydantic</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 11.43px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 11.43px;">spring boot</a> <a href="/tags/spring-security/" style="font-size: 10px;">spring security</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -677,6 +681,10 @@
       <ul>
         
           <li>
+            <a href="/blog/2024/01/28/define-api-data-models-with-pydantic/">Define API Data Models with Pydantic</a>
+          </li>
+        
+          <li>
             <a href="/blog/2024/01/19/python-static-type-check/">Python Static Type Check</a>
           </li>
         
@@ -690,10 +698,6 @@
         
           <li>
             <a href="/blog/2023/01/15/restful-api-authentication-with-spring-security/">RESTful API Authentication with Spring Security</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2023/01/09/mock-api-in-parcel-project/">Mock API in Parcel Project</a>
           </li>
         
       </ul>

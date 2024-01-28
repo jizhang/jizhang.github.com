@@ -88,6 +88,69 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-define-api-data-models-with-pydantic" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2024/01/28/define-api-data-models-with-pydantic/" class="article-date">
+  <time datetime="2024-01-28T09:53:28.000Z" itemprop="datePublished">2024-01-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2024/01/28/define-api-data-models-with-pydantic/">Define API Data Models with Pydantic</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>In modern architecture, frontend and backend are separated and maintained by different teams. To cooperate, backend exposes services as API endpoints with carefully designed data models, for both request and response. In Python, there are numerous ways to complete this task, such as WTForms, marshmallow. There are also frameworks that are designed to build API server, like FastAPI, Connexion, both are built around OpenAPI specification. In this article, I will introduce <a target="_blank" rel="noopener" href="https://pydantic.dev/">Pydantic</a>, a validation and serialization library for Python, to build and enforce API request and response models. The web framework I choose is Flask, but Pydantic is framework-agnostic and can also be used in non-web applications.</p>
+<p><img src="/images/api-pydantic/pydantic.png" alt="Pydantic"></p>
+<h2 id="Define-response-model"><a href="#Define-response-model" class="headerlink" title="Define response model"></a>Define response model</h2><p>After <code>pip install pydantic</code>, let’s define a simple response model to return the currently logged-in user:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">User</span>(<span class="title class_ inherited__">BaseModel</span>):</span><br><span class="line">    <span class="built_in">id</span>: <span class="built_in">int</span></span><br><span class="line">    username: <span class="built_in">str</span></span><br><span class="line">    last_login: datetime</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&#x27;/current-user&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">current_user</span>() -&gt; <span class="built_in">dict</span>:</span><br><span class="line">    user = User(<span class="built_in">id</span>=<span class="number">1</span>, username=<span class="string">&#x27;jizhang&#x27;</span>, last_login=datetime.now())</span><br><span class="line">    <span class="keyword">return</span> user.model_dump(mode=<span class="string">&#x27;json&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>Then use httpie to test the API:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">% http localhost:5000/current-user</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: application/json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    &quot;id&quot;: 1,</span><br><span class="line">    &quot;username&quot;: &quot;jizhang&quot;,</span><br><span class="line">    &quot;last_login&quot;: &quot;2024-01-25T10:25:23.670431&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>We create Pydantic model by extending <code>BaseModel</code>, which is the basic approach. There are others ways like <code>dataclass</code>, <code>TypeAdapter</code>, or dynamic creation of models.</li>
+<li>Model fields are simply defined by class attributes and type annotations. Unlike other SerDe libraries, Pydantic is natively built with Python type hints. If you are not familiar with it, please check out my previous <a href="https://shzhangji.com/blog/2024/01/19/python-static-type-check/">blog post</a>.</li>
+<li>In the API, we manually create a model instance <code>user</code>. Usually we create them from request body or database models, which will be demonstrated later.</li>
+<li>Then we serialize, or “dump” the model into a Python dict, that in turn is transformed by Flask into a JSON string. We can also use <code>user.model_dump_json()</code>, which returns the JSON string directly, but then the response header needs to be manually set to <code>application/json</code>, so we would rather let Flask do the job.</li>
+<li><code>mode=&quot;json&quot;</code> tells Pydantic to serialize field values into JSON representable types. For instance, <code>datetime</code> and <code>Decimal</code> will be converted to string. Flask can also do this conversion, but we prefer keeping serialization in Pydantic model for clarity and ease of change.</li>
+</ul>
+        
+          <p class="article-more-link">
+            <a href="/blog/2024/01/28/define-api-data-models-with-pydantic/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://shzhangji.com/blog/2024/01/28/define-api-data-models-with-pydantic/" data-id="clrxd7dd4003senq15o4pe7ae" class="article-share-link">Share</a>
+      
+        <a href="https://shzhangji.com/blog/2024/01/28/define-api-data-models-with-pydantic/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flask/" rel="tag">flask</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/openapi/" rel="tag">openapi</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pydantic/" rel="tag">pydantic</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-python-static-type-check" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2024/01/19/python-static-type-check/" class="article-date">
@@ -143,7 +206,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2024/01/19/python-static-type-check/" data-id="clrkmevcg009tevooh68z633i" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2024/01/19/python-static-type-check/" data-id="clrxd7dd3003oenq19ml07z86" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2024/01/19/python-static-type-check/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -206,7 +269,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/" data-id="clrkmevb8003ievoo34rg076g" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/" data-id="clrxd7dd2003lenq1eesz50z4" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -259,7 +322,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/" data-id="clrkmevb9003mevoo9uyf47r5" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/" data-id="clrxd7dd1003ienq1bs8gep15" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -318,7 +381,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2023/01/15/restful-api-authentication-with-spring-security/" data-id="clrkmevb7003fevoo4qzbd1go" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2023/01/15/restful-api-authentication-with-spring-security/" data-id="clrxd7dd0003genq1hxh506q8" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2023/01/15/restful-api-authentication-with-spring-security/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -376,7 +439,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/" data-id="clrkmevb6003cevoo4jr06c4j" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/" data-id="clrxd7dcz003denq1c8pbchns" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -430,7 +493,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/" data-id="clrkmevb5003aevoo505m4d7y" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/" data-id="clrxd7dcy003aenq1a65ih10o" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -489,7 +552,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/" data-id="clrkmevb40037evoo7vapfzir" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/" data-id="clrxd7dcx0036enq15wxxfgbo" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -540,7 +603,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/" data-id="clrkmevb30034evooc1m95p1t" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/" data-id="clrxd7dcw0033enq159ptf462" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -591,69 +654,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/" data-id="clrkmevb20030evoohtyqexxp" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/" data-id="clrxd7dcv0030enq1gx2q5wuc" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/eslint/" rel="tag">eslint</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/" rel="tag">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/typescript/" rel="tag">typescript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/" rel="tag">vue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webpack/" rel="tag">webpack</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-manage-multiple-command-line-runner-in-spring-boot" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/" class="article-date">
-  <time datetime="2022-07-16T10:17:30.000Z" itemprop="datePublished">2022-07-16</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Programming/">Programming</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/">Manage Multiple CommandLineRunner in Spring Boot</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>In Spring Boot, the <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/2.7.x/reference/htmlsingle/#features.spring-application.command-line-runner"><code>CommandLineRunner</code></a> and <code>ApplicationRunner</code> are two utility interfaces that we can use to execute code when application is started. However, all beans that implement these interfaces will be invoked by Spring Boot, and it takes some effort to execute only a portion of them. This is especially important when you are developing a console application with multiple entry points. In this article, we will use several techniques to achieve this goal.</p>
-<h2 id="Put-CommandLineRunner-in-different-packages"><a href="#Put-CommandLineRunner-in-different-packages" class="headerlink" title="Put CommandLineRunner in different packages"></a>Put CommandLineRunner in different packages</h2><p>By default, <code>@SpringBootApplication</code> will scan components (or beans) in current and descendant packages. When multiple <code>CommandLineRunner</code>s are discovered, Spring will execute them all. So the first approach will be separating those runners into different packages.</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.shzhangji.package_a;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JobA</span> <span class="keyword">implements</span> <span class="title class_">CommandLineRunner</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    SpringApplication.run(JobA.class, args);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">(String... args)</span> &#123;</span><br><span class="line">    log.info(<span class="string">&quot;Run package_a.JobA&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>If there is a <code>JobB</code> in <code>package_b</code>, these two jobs will not affect each other. But one problem is, when executing <code>JobA</code>, only components defined under <code>package_a</code> will be scanned. So if <code>JobA</code> wants to use a service in <code>com.shzhangji.common</code> package, we have to import this class explicitly:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.shzhangji.package_a;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.shzhangji.common.UserService;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@Import(UserService.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JobA</span> <span class="keyword">implements</span> <span class="title class_">CommandLineRunner</span> &#123;</span><br><span class="line">  <span class="meta">@Autowired</span></span><br><span class="line">  <span class="keyword">private</span> UserService userService;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>If there are multiple classes or packages that you want to import, you may as well change the base packages property:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication(scanBasePackages = &#123;</span></span><br><span class="line"><span class="meta">    &quot;com.shzhangji.common&quot;,</span></span><br><span class="line"><span class="meta">    &quot;com.shzhangji.package_a&quot;,</span></span><br><span class="line"><span class="meta">&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JobA</span> <span class="keyword">implements</span> <span class="title class_">CommandLineRunner</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-        
-          <p class="article-more-link">
-            <a href="/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/" data-id="clrkmevb1002xevooc2hm7l3b" class="article-share-link">Share</a>
-      
-        <a href="https://shzhangji.com/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-boot/" rel="tag">spring boot</a></li></ul>
 
     </footer>
   </div>
@@ -675,7 +681,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/ci/" style="font-size: 10px;">ci</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/connect/" style="font-size: 10px;">connect</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 12.86px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 11.43px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mypy/" style="font-size: 10px;">mypy</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 10px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/parcel/" style="font-size: 10px;">parcel</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/pip/" style="font-size: 10px;">pip</a> <a href="/tags/poetry/" style="font-size: 10px;">poetry</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 11.43px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 11.43px;">spring boot</a> <a href="/tags/spring-security/" style="font-size: 10px;">spring security</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
+      <a href="/tags/algorithm/" style="font-size: 10px;">algorithm</a> <a href="/tags/analytics/" style="font-size: 14.29px;">analytics</a> <a href="/tags/apache-beam/" style="font-size: 10px;">apache beam</a> <a href="/tags/bootstrap/" style="font-size: 10px;">bootstrap</a> <a href="/tags/canal/" style="font-size: 10px;">canal</a> <a href="/tags/ci/" style="font-size: 10px;">ci</a> <a href="/tags/clojure/" style="font-size: 10px;">clojure</a> <a href="/tags/connect/" style="font-size: 10px;">connect</a> <a href="/tags/crossfilter/" style="font-size: 10px;">crossfilter</a> <a href="/tags/dc-js/" style="font-size: 10px;">dc.js</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/eclipse/" style="font-size: 10px;">eclipse</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/es6/" style="font-size: 10px;">es6</a> <a href="/tags/eslint/" style="font-size: 11.43px;">eslint</a> <a href="/tags/etl/" style="font-size: 12.86px;">etl</a> <a href="/tags/flask/" style="font-size: 14.29px;">flask</a> <a href="/tags/flink/" style="font-size: 11.43px;">flink</a> <a href="/tags/flume/" style="font-size: 12.86px;">flume</a> <a href="/tags/frontend/" style="font-size: 17.14px;">frontend</a> <a href="/tags/functional-programming/" style="font-size: 10px;">functional programming</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 11.43px;">github</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 10px;">hbase</a> <a href="/tags/hdfs/" style="font-size: 11.43px;">hdfs</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/hive/" style="font-size: 11.43px;">hive</a> <a href="/tags/java/" style="font-size: 18.57px;">java</a> <a href="/tags/javascript/" style="font-size: 15.71px;">javascript</a> <a href="/tags/kafka/" style="font-size: 11.43px;">kafka</a> <a href="/tags/kubernetes/" style="font-size: 11.43px;">kubernetes</a> <a href="/tags/lodash/" style="font-size: 11.43px;">lodash</a> <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/mapreduce/" style="font-size: 10px;">mapreduce</a> <a href="/tags/mypy/" style="font-size: 10px;">mypy</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/openapi/" style="font-size: 11.43px;">openapi</a> <a href="/tags/ops/" style="font-size: 10px;">ops</a> <a href="/tags/pandas/" style="font-size: 11.43px;">pandas</a> <a href="/tags/parcel/" style="font-size: 10px;">parcel</a> <a href="/tags/pinia/" style="font-size: 10px;">pinia</a> <a href="/tags/pip/" style="font-size: 10px;">pip</a> <a href="/tags/poetry/" style="font-size: 10px;">poetry</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/pydantic/" style="font-size: 10px;">pydantic</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/restful/" style="font-size: 11.43px;">restful</a> <a href="/tags/scala/" style="font-size: 11.43px;">scala</a> <a href="/tags/scalatra/" style="font-size: 10px;">scalatra</a> <a href="/tags/source-code/" style="font-size: 10px;">source code</a> <a href="/tags/spark/" style="font-size: 14.29px;">spark</a> <a href="/tags/spark-streaming/" style="font-size: 10px;">spark streaming</a> <a href="/tags/spring/" style="font-size: 12.86px;">spring</a> <a href="/tags/spring-boot/" style="font-size: 11.43px;">spring boot</a> <a href="/tags/spring-security/" style="font-size: 10px;">spring security</a> <a href="/tags/sql/" style="font-size: 11.43px;">sql</a> <a href="/tags/sqlalchemy/" style="font-size: 11.43px;">sqlalchemy</a> <a href="/tags/stream-processing/" style="font-size: 12.86px;">stream processing</a> <a href="/tags/tensorflow/" style="font-size: 10px;">tensorflow</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/typescript/" style="font-size: 12.86px;">typescript</a> <a href="/tags/vite/" style="font-size: 10px;">vite</a> <a href="/tags/vue/" style="font-size: 15.71px;">vue</a> <a href="/tags/vuex/" style="font-size: 10px;">vuex</a> <a href="/tags/webjars/" style="font-size: 10px;">webjars</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/websocket/" style="font-size: 10px;">websocket</a>
     </div>
   </div>
 
@@ -697,6 +703,10 @@
       <ul>
         
           <li>
+            <a href="/blog/2024/01/28/define-api-data-models-with-pydantic/">Define API Data Models with Pydantic</a>
+          </li>
+        
+          <li>
             <a href="/blog/2024/01/19/python-static-type-check/">Python Static Type Check</a>
           </li>
         
@@ -710,10 +720,6 @@
         
           <li>
             <a href="/blog/2023/01/15/restful-api-authentication-with-spring-security/">RESTful API Authentication with Spring Security</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2023/01/09/mock-api-in-parcel-project/">Mock API in Parcel Project</a>
           </li>
         
       </ul>
