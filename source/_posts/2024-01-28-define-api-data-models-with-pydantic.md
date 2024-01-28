@@ -1,10 +1,17 @@
 ---
 title: Define API Data Models with Pydantic
-categories: [Programming]
-tags: [python, pydantic, flask, openapi]
+tags:
+  - python
+  - pydantic
+  - flask
+  - openapi
+categories:
+  - Programming
+date: 2024-01-28 17:53:28
 ---
 
-In modern architecutre, frontend and backend are separated and maintained by different teams. To cooperate, backend exposes services as API endpoints with carefully designed data models, for both request and response. In Python, there are numerous ways to complete this task, such as WTForms, marshmallow. There are also frameworks that are designed to build API server, like FastAPI, Connexion, both are built around OpenAPI specification. In this artile, I will introduce [Pydantic][1], a validation and serialization library for Python, to build and enforce API request and response models. The web framework I choose is Flask, but Pydantic is framework agnostic and can also be used in non-web applications.
+
+In modern architecture, frontend and backend are separated and maintained by different teams. To cooperate, backend exposes services as API endpoints with carefully designed data models, for both request and response. In Python, there are numerous ways to complete this task, such as WTForms, marshmallow. There are also frameworks that are designed to build API server, like FastAPI, Connexion, both are built around OpenAPI specification. In this article, I will introduce [Pydantic][1], a validation and serialization library for Python, to build and enforce API request and response models. The web framework I choose is Flask, but Pydantic is framework-agnostic and can also be used in non-web applications.
 
 ![Pydantic](/images/api-pydantic/pydantic.png)
 
@@ -52,7 +59,7 @@ Content-Type: application/json
 
 ### Create from SQLAlchemy model
 
-Using model contructor to create instance is one way. We can also create from a Python dictionary:
+Using model constructor to create instance is one way. We can also create from a Python dictionary:
 
 ```python
 user = User.model_validate({'id': 1, 'username': 'jizhang', 'last_login': datetime.now()})
@@ -70,7 +77,7 @@ class UserDto:
 user = User.model_validate(UserDto(1, 'jizhang', datetime.now()), from_attributes=True)
 ```
 
-`UserDTO` can also be a Python dataclass. You may notice the `from_attributes` parameter, which means field values are extracted from object's attributes, instead of dictionary key value pairs. If the model is always created from objects, we can add this configuration to the model:
+`UserDto` can also be a Python dataclass. You may notice the `from_attributes` parameter, which means field values are extracted from object's attributes, instead of dictionary key value pairs. If the model is always created from objects, we can add this configuration to the model:
 
 ```python
 class User(BaseModel):
@@ -134,7 +141,7 @@ response = UserListResponse(users=user_orms)
 response.model_dump(mode='json')
 ```
 
-Or, if you prefer to return a list, we can create a custom with `TypeAdapter`:
+Or, if you prefer to return a list, we can create a custom type with `TypeAdapter`:
 
 ```python
 from pydantic import TypeAdapter
@@ -262,7 +269,7 @@ class Article(BaseModel):
         return url_for('article', id=self.id)
 ```
 
-If the field requires extra information, we can add a private attribute to the model. The attribute's name starts with an underscore, and Pydantic will ingore it in serialization and validation.
+If the field requires extra information, we can add a private attribute to the model. The attribute's name starts with an underscore, and Pydantic will ignore it in serialization and validation.
 
 ```python
 from pydantic import PrivateAttr
@@ -429,7 +436,7 @@ class SearchForm(BaseModel):
 
 ### Type conversion
 
-For GET requests, input data are always of type `dict[str, str]`. For POST requests, though the client could send different types of values via JSON, like boolean and number, there are some types that are not representable in JSON, datetime for an example. When creating models, Pydantic will do proper type conversion. It is actually a part of validation, to ensure client provides the correct data.
+For GET requests, input data are always of type `dict[str, str]`. For POST requests, though the client could send different types of values via JSON, like boolean and number, there are some types that are not representable in JSON, datetime for an example. When creating models, Pydantic will do proper type conversion. It is actually a part of validation, to ensure the client provides the correct data.
 
 ```python
 class ConversionForm(BaseModel):
@@ -500,7 +507,7 @@ ValidName = Annotated[str, MinLen(3), MaxLen(10)]
 ValidName = Annotated[str, Len(3, 10)]
 ```
 
-Some usefull builtin validators are listed below. For annotated-types package, please check its [repository][4] for more.
+Some useful builtin validators are listed below. For annotated-types package, please check its [repository][4] for more.
 
 * String constraints
     * `min_length`
@@ -584,7 +591,7 @@ assert form.category == Category.PROGRAMMING
 
 ### Custom validator
 
-As shown in the previous section, there are three ways to define a validator. But this time we want to apply custom logics after the default validation.
+As shown in the previous section, there are three ways to define a validator. But this time we want to apply custom logics *after* the default validation.
 
 ```python
 # Field decorator
@@ -627,7 +634,7 @@ class UserForm(BaseModel):
 
 ## Handle validation error
 
-All validation errors, including the `ValueError` we raise in custom validator, is wrapped in Pydantic's `ValidationError`. So a common practice is to setup a global error handler for it. Take Flask for an instance:
+All validation errors, including the `ValueError` we raise in custom validator, are wrapped in Pydantic's `ValidationError`. So a common practice is to setup a global error handler for it. Take Flask for an instance:
 
 ```python
 from flask import Response, jsonfiy
@@ -661,7 +668,7 @@ Content-Type: application/json
 }
 ```
 
-To further customize validation error, one can construct a `PydanticCustomError`:
+To further customize the validation error, one can construct a `PydanticCustomError`:
 
 ```python
 # In field validator
@@ -705,7 +712,7 @@ Content-Type: application/json
 
 ## Integrate with OpenAPI
 
-The quickest way is to use a framework that builds with Pydantic and OpenAPI, a.k.a [FastAPI][6]. But if you are using a different framework, or maintaining an existing project, there are several options.
+The quickest way is to use a framework that builds with Pydantic and OpenAPI, a.k.a. [FastAPI][6]. But if you are using a different framework, or maintaining an existing project, there are several options.
 
 
 ### Export model to JSON schema
