@@ -6,7 +6,7 @@ tags: [python, pydantic, flask, openapi]
 
 In modern architecutre, frontend and backend are separated and maintained by different teams. To cooperate, backend exposes services as API endpoints with carefully designed data models, for both request and response. In Python, there are numerous ways to complete this task, such as WTForms, marshmallow. There are also frameworks that are designed to build API server, like FastAPI, Connexion, both are built around OpenAPI specification. In this artile, I will introduce [Pydantic][1], a validation and serialization library for Python, to build and enforce API request and response models. The web framework I choose is Flask, but Pydantic is framework agnostic and can also be used in non-web applications.
 
-![Pydantic](/images/pydantic.png)
+![Pydantic](/images/api-pydantic/pydantic.png)
 
 
 ## Define response model
@@ -429,7 +429,7 @@ class SearchForm(BaseModel):
 
 ### Type conversion
 
-For GET requests, input data are always of type `dict[str, str]`. For POST requests, though the client could send different types of values via JSON, like boolean and number, there are some types that are not representable in JSON, datetime for example. When creating models, Pydantic will do proper type conversion. It is actually a part of validation, to ensure client provides the correct data.
+For GET requests, input data are always of type `dict[str, str]`. For POST requests, though the client could send different types of values via JSON, like boolean and number, there are some types that are not representable in JSON, datetime for an example. When creating models, Pydantic will do proper type conversion. It is actually a part of validation, to ensure client provides the correct data.
 
 ```python
 class ConversionForm(BaseModel):
@@ -505,7 +505,7 @@ Some usefull builtin validators are listed below. For annotated-types package, p
 * String constraints
     * `min_length`
     * `max_length`
-    * `pattern`: Regular expression, e.g. `r'^\d*$'`
+    * `pattern`: Regular expression, e.g. `r'^[0-9]+$'`
 * Numeric constraints
     * `gt`: Greater than
     * `lt`: Less than
@@ -515,16 +515,76 @@ Some usefull builtin validators are listed below. For annotated-types package, p
     * `max_digits`
     * `decimal_places`
 
-In addition, Pydantic defines several types for validation. To name a few:
+In addition, Pydantic defines several special types for validation. For instance:
 
 ```python
+from pydantic import PostiveInt
 
+class Model(BaseModel):
+    int_1: PositiveInt
+    int_2: Annotated[int, Field(gt=0)]
+```
+
+`int_1` and `int_2` are equivalent, they both accept integer that is greater than 0. Other useful predefined types are:
+
+* `NegativeInt`, `NonPositiveInt`, `NonNegativeFloat`, etc.
+* `StrictInt`: Only accept integer value like `10`, `-20`. Raise error for string `"10"` or float `10.0`. [Strict mode][5] can be enabled on field level, model level, or per validation.
+* `AwareDatetime`: Datetime must contain timezone information, e.g. `2024-01-28T07:58:00+08:00`
+* `AnyUrl`: Accept a valid URL, and user can access properties like `scheme`, `host`, `path`, etc.
+* `Emailstr`: Accept a valid email address. This requires an extra package, i.e. `pip intall "pydantic[email]"`
+* `IPvAnyAddress`: Accept a valid IPv4 or IPv6 address.
+* `Json`: Accept a JSON string and convert it to Python object. For example:
+
+```python
+from pydantic import Json
+
+class SearchForm(BaseModel):
+    tags: Json[list[str]]
+
+form = SearchForm(tags='["a", "b", "c"]')
+form.model_dump(mode='json')
+# {"tags": ["a", "b", "c"]}
 ```
 
 ### Choices
 
+Another common use case for validation is to only accept certain values for a field. This can be done with `Literal` type:
+
+```python
+from typing import Literal
+
+class SearchForm(BaseModel):
+    order_by: Literal['asc', 'desc'] = 'asc'
+
+SearchForm(order_by='natural')
+# ValidationError order_by Input should be 'asc' or 'desc'
+```
+
+Or `Enum`:
+
+```python
+from enum import Enum
+
+class OrderBy(str, Enum):
+    ASC = 'asc'
+    DESC = 'desc'
+
+class Category(IntEnum):
+    BIG_DATA = 1
+    PROGRAMMING = 2
+
+class SearchForm(BaseModel):
+    order_by: OrderBy
+    category: Category
+
+form = SearchForm(order_by='asc', category='2')
+assert form.order_by == OrderBy.ASC
+assert form.category == Category.PROGRAMMING
+```
 
 ### Custom validator
+
+As shown in the previous section, there are three ways to define a validator. But this time we want to apply custom logics after the default validation.
 
 ```python
 # Field decorator
@@ -537,7 +597,7 @@ class UserForm(BaseModel):
     @classmethod
     def validate_username(cls, value: str) -> str:
         if len(value) < 3 or len(value) > 10:
-            raise ValueError('invalid username')
+            raise ValueError('should have 3 to 10 characters')
         return value
 
 # Annotated type
@@ -545,7 +605,7 @@ from pydantic import AfterValidator
 
 def validate_name(value: str) -> str:
     if len(value) < 3 or len(value) > 10:
-        raise ValueError('invalid name')
+        raise ValueError('should have 3 to 10 characters')
     return value
 
 class UserForm(BaseModel):
@@ -560,45 +620,225 @@ class UserForm(BaseModel):
     @model_validator(mode='after')
     def validate_model(self) -> 'UserForm':
         if len(self.username) < 3 or len(self.username) > 10:
-            raise ValueError('invalid username')
+            raise ValueError('username should have 3 to 10 characters')
         return self
 ```
 
 
-* Define response model
-    * Installation, mypy plugin
-    * Python typing
-    * From sqlalchemy, sqlmodel
-    * Custom serializer, e.g. datetime
-    * Computed fields
-    * Alias, snake_case to camelCase
-    * Nested
-    * Exclude
-    * Context: private attribute, contextvar
-* Define request model
-    * Modeling query string
-    * Custom deserializer, return a different object like @post_load
-    * Required fields, default value, default factory
-    * Type conversion, datetime
-* Validation
-    * Validate route variables
-    * String, number, decimal
-    * Choices: enum, literal
-    * Annotation, Field, Gt
-    * Pydantic types
-    * Custom validator
-    * Validation error
-    * Validation context
-* OpenAPI
-    * JSON Schema, example data
-    * Manually reference
-    * openapi-pydantic, spectree, fastapi
+## Handle validation error
+
+All validation errors, including the `ValueError` we raise in custom validator, is wrapped in Pydantic's `ValidationError`. So a common practice is to setup a global error handler for it. Take Flask for an instance:
+
+```python
+from flask import Response, jsonfiy
+from pydantic import ValidationError
+
+@app.errorhandler(ValidationError)
+def handle_validation_error(error: ValidationError) -> tuple[Response, int]:
+    detail = error.errors()[0]
+    if detail['loc']:
+        message = f'{detail["loc"][0]}: {detail["msg"]}'
+    else:
+        message = detail['msg']
+
+    payload = {
+        'code': 400,
+        'message': message,
+    }
+    return jsonify(payload), 400
+```
+
+`ValidationError` provides full description of all errors. Here we only take the first error and return the field name and error message:
+
+```
+% http localhost:5000/create-user username=a password=password
+HTTP/1.1 400 BAD REQUEST
+Content-Type: application/json
+
+{
+    "code": 400,
+    "message": "username: Value error, should have 3 to 10 characters"
+}
+```
+
+To further customize validation error, one can construct a `PydanticCustomError`:
+
+```python
+# In field validator
+raise PydanticCustomError('bad_request', 'Invalid username', {'code': 40001})
+
+# In error handler
+if detail['type'] == 'bad_request':
+    payload = {
+        'code': detail['ctx']['code'],
+        'message': detail['msg'],
+    }
+```
+
+
+### Validate routing variables
+
+Pydantic provides a decorator to validate function calls. This can be used to validate Flask's routing variables as well. For instance, Flask accepts non-negative integer, but Pydantic requires it to be greater than 0.
+
+```python
+from pydantic import validate_call, PositiveInt
+
+@app.get('/user/<int:user_id>')
+@validate_call
+def get_user_by_id(user_id: PositiveInt) -> dict:
+    return {'id': user_id}
+```
+
+Validation result:
+
+```
+% http localhost:5000/user/0
+HTTP/1.1 400 BAD REQUEST
+Content-Type: application/json
+
+{
+    "code": 400,
+    "message": "user_id: Input should be greater than 0"
+}
+```
+
+
+## Integrate with OpenAPI
+
+The quickest way is to use a framework that builds with Pydantic and OpenAPI, a.k.a [FastAPI][6]. But if you are using a different framework, or maintaining an existing project, there are several options.
+
+
+### Export model to JSON schema
+
+Pydantic provides the facility to export models as JSON schema. We can write a Flask command to save them into a file:
+
+```python
+from pydantic.json_schema import models_json_schema
+
+@app.cli.command()
+def export_schema():
+    _, schema = models_json_schema([
+        (UserForm, 'validation'),
+        (CreateUserResponse, 'serialization'),
+    ])
+    with open('schemas.json', 'w') as f:
+        f.write(json.dumps(schema, indent=2))
+```
+
+The generated `schemas.json` would be:
+
+```json
+{
+  "$defs": {
+    "UserForm": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "maxLength": 10,
+          "minLength": 3
+        },
+        ...
+      },
+    },
+    ...
+  }
+}
+```
+
+Then we create an `openapi.yaml` file to use these schemas:
+
+```yaml
+openapi: 3.0.2
+info:
+  title: Pydantic Demo
+  version: 0.1.0
+paths:
+  /create-user:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas.json#/$defs/UserForm'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas.json#/$defs/CreateUserResponse'
+```
+
+Open it in some OpenAPI viewer, e.g. OpenAPI extension for VS Code:
+
+![OpenAPI](/images/api-pydantic/openapi.png)
+
+
+### Create OpenAPI specification in Python
+
+Install [openapi-pydantic][7], and define OpenAPI like a Pydantic model:
+
+```python
+from openapi_pydantic import OpenAPI
+from openapi_pydantic.util import PydanticSchema, construct_open_api_with_schema_class
+
+api = OpenAPI.model_validate({
+    'info': {'title': 'Pydantic Demo', 'version': '0.1.0'},
+    'paths': {
+        '/create-user': {
+            'post': {
+                'requestBody': {'content': {'application/json': {
+                    'schema': PydanticSchema(schema_class=UserForm),
+                }}},
+                'responses': {'200': {
+                    'description': 'OK',
+                    'content': {'application/json': {
+                        'schema': PydanticSchema(schema_class=CreateUserResponse),
+                    }},
+                }},
+            },
+        },
+    },
+})
+api = construct_open_api_with_schema_class(api)
+print(api.model_dump_json(by_alias=True, exclude_none=True, indent=2))
+```
+
+The generated file is similar to the previous one, except that it is written in JSON and schemas are embedded in the `components` section.
+
+
+### Decorate API endpoints
+
+[SpecTree][8] provides facilities to decorate Flask view methods with Pydantic models. It generates OpenAPI docs in http://localhost:5000/apidoc/swagger.
+
+```python
+app = Flask(__name__)
+spec = SpecTree('flask', annotations=True)
+spec.register(app)
+
+@app.post('/create-user')
+@spec.validate(resp=Response(HTTP_200=CreateUserResponse))
+def create_user(json: UserForm) -> CreateUserResponse:
+    user_orm = UserOrm(username=json.username, password=json.username)
+    return CreateUserResponse(id=user_orm.id)
+```
+
+* Pydantic `BaseModel` needs to be imported from `pydantic.v1`, for compatibility reason.
+* Validation error is returned to client as HTTP 422 UNPROCESSABLE ENTITY, with detailed information.
+
 
 ## References
 * https://docs.pydantic.dev/latest/concepts/models/
+* https://fastapi.tiangolo.com/tutorial/
+* https://swagger.io/docs/specification/data-models/
 
 
 [1]: https://pydantic.dev/
 [2]: https://shzhangji.com/blog/2024/01/19/python-static-type-check/
 [3]: https://sqlmodel.tiangolo.com/
 [4]: https://github.com/annotated-types/annotated-types
+[5]: https://docs.pydantic.dev/latest/concepts/strict_mode/
+[6]: https://fastapi.tiangolo.com/
+[7]: https://github.com/mike-oakley/openapi-pydantic
+[8]: https://github.com/0b01001001/spectree
