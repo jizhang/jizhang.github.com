@@ -34,7 +34,7 @@ def current_user() -> dict:
     return user.model_dump(mode='json')
 ```
 
-Then use httpie to test the API:
+Then use [httpie][9] to test the API:
 
 ```
 % http localhost:5000/current-user
@@ -832,8 +832,26 @@ def create_user(json: UserForm) -> CreateUserResponse:
 ```
 
 * Pydantic `BaseModel` needs to be imported from `pydantic.v1`, for compatibility reason.
-* Validation error is returned to client as HTTP 422 UNPROCESSABLE ENTITY, with detailed information.
+* Validation error is returned to client with HTTP status 422 and detailed information:
 
+```
+% http localhost:5000/create-user username=a password=password
+HTTP/1.1 422 UNPROCESSABLE ENTITY
+Content-Type: application/json
+
+[
+    {
+        "ctx": {
+            "limit_value": 3
+        },
+        "loc": [
+            "username"
+        ],
+        "msg": "ensure this value has at least 3 characters",
+        "type": "value_error.any_str.min_length"
+    }
+]
+```
 
 ## References
 * https://docs.pydantic.dev/latest/concepts/models/
@@ -849,3 +867,4 @@ def create_user(json: UserForm) -> CreateUserResponse:
 [6]: https://fastapi.tiangolo.com/
 [7]: https://github.com/mike-oakley/openapi-pydantic
 [8]: https://github.com/0b01001001/spectree
+[9]: https://httpie.io/
