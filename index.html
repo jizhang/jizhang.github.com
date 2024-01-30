@@ -119,7 +119,7 @@
 <h2 id="Define-response-model"><a href="#Define-response-model" class="headerlink" title="Define response model"></a>Define response model</h2><p>After <code>pip install pydantic</code>, let’s define a simple response model to return the currently logged-in user:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">User</span>(<span class="title class_ inherited__">BaseModel</span>):</span><br><span class="line">    <span class="built_in">id</span>: <span class="built_in">int</span></span><br><span class="line">    username: <span class="built_in">str</span></span><br><span class="line">    last_login: datetime</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&#x27;/current-user&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">current_user</span>() -&gt; <span class="built_in">dict</span>:</span><br><span class="line">    user = User(<span class="built_in">id</span>=<span class="number">1</span>, username=<span class="string">&#x27;jizhang&#x27;</span>, last_login=datetime.now())</span><br><span class="line">    <span class="keyword">return</span> user.model_dump(mode=<span class="string">&#x27;json&#x27;</span>)</span><br></pre></td></tr></table></figure>
 
-<p>Then use httpie to test the API:</p>
+<p>Then use <a target="_blank" rel="noopener" href="https://httpie.io/">httpie</a> to test the API:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">% http localhost:5000/current-user</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: application/json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    &quot;id&quot;: 1,</span><br><span class="line">    &quot;username&quot;: &quot;jizhang&quot;,</span><br><span class="line">    &quot;last_login&quot;: &quot;2024-01-25T10:25:23.670431&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ul>
@@ -137,7 +137,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2024/01/28/define-api-data-models-with-pydantic/" data-id="clrxd7dd4003senq15o4pe7ae" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2024/01/28/define-api-data-models-with-pydantic/" data-id="clrzm724c009vggpu7tsa1fqw" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2024/01/28/define-api-data-models-with-pydantic/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -206,7 +206,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2024/01/19/python-static-type-check/" data-id="clrxd7dd3003oenq19ml07z86" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2024/01/19/python-static-type-check/" data-id="clrzm724c009uggpu9aon7tul" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2024/01/19/python-static-type-check/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -269,7 +269,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/" data-id="clrxd7dd2003lenq1eesz50z4" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/" data-id="clrzm723d003lggpudk57hsvu" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -322,7 +322,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/" data-id="clrxd7dd1003ienq1bs8gep15" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/" data-id="clrzm723c003iggpuazr3fkwu" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -381,7 +381,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2023/01/15/restful-api-authentication-with-spring-security/" data-id="clrxd7dd0003genq1hxh506q8" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2023/01/15/restful-api-authentication-with-spring-security/" data-id="clrzm723b003gggpuc37c2wsh" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2023/01/15/restful-api-authentication-with-spring-security/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -439,7 +439,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/" data-id="clrxd7dcz003denq1c8pbchns" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/" data-id="clrzm723a003dggpufkse2ko2" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -493,7 +493,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/" data-id="clrxd7dcy003aenq1a65ih10o" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/" data-id="clrzm7239003aggpubli4ew4a" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -552,7 +552,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/" data-id="clrxd7dcx0036enq15wxxfgbo" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/" data-id="clrzm72370036ggpufgby0aym" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -603,7 +603,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/" data-id="clrxd7dcw0033enq159ptf462" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/" data-id="clrzm72360033ggpuglaxhpci" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -654,7 +654,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/" data-id="clrxd7dcv0030enq1gx2q5wuc" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/" data-id="clrzm72350030ggpu6tzx1cyk" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/#disqus_thread" class="article-comment-link">Comments</a>
       
