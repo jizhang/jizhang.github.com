@@ -4,19 +4,28 @@ categories: [Big Data]
 tags: [flink, guice, java]
 ---
 
-TL;DR
+## TL;DR
 
-* Injector singleton (enum)
+* Injector singleton
 * Use in open
 
 <!-- more -->
 
-* Flink functions, serialzation mechanism
+* Motivation
+    * Separation of concerns
+    * Singleton, connection limit, share in slots
+    * Testing
+* Flink functions, serialization mechanism
 * Guice quick start
+    * Define modules, compose modules
+    * Provide, Named
+    * Scope, Singleton
 * Datasource example
     * No DI, static member, lazy initialization
     * Serialize object, or config only
 * Inject configurations, vs. ParameterTool
+* Complex demo: properties, repository, service, guava cache, redis
+* Testability, flink specifit testing
 * DI in flink source
 
 
