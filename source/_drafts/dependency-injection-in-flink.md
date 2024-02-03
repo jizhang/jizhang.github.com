@@ -30,6 +30,8 @@ public class AppInjector {
     static final Injector INJECTOR = Guice.createInjector(new DatabaseModule());
   }
 
+  private AppInjector() {}
+
   public static void injectMembers(Object instance) {
     Holder.INJECTOR.injectMembers(instance);
   }
@@ -59,8 +61,16 @@ public class UserMapper extends RichMapFunction<Long, User> {
 
 ## Motivation
 
+Dependency injection, or DI, is a common practice in Java programming, especially when you have a Spring background. The most direct benefit is testability, meaning you can replace class implementation with test stub. Other benefits are separation of concerns, better class hierarchy, inversion of control, etc. Component defines its dependencies via class constructor or annotated members, and the DI framework creates a container, or context, to wire these components properly. This context is usually created at startup and lives through the application lifecycle. Some examples are Spring `ApplicationContext`, Guice `Injector`.
+
+Flink is a distributed computing framework, and it is favorable to decouple business logic from it by dependency injection. However, Flink application is composed of functional classes, that are instantiated in driver class, or `main` method, serialized and sent to distributed task managers. We cannot inject dependencies into these classes unless all our components are serializable. Fortunately, Flink provides a lifecycle hook `open` that is called when the job starts. Combined with another common pattern, Singleton, we can make DI framework play well with Flink.
 
 <!-- more -->
+
+
+## Guice crash course
+
+
 
 * Motivation
     * Separation of concerns
