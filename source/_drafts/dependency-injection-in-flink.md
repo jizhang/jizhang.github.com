@@ -70,6 +70,143 @@ Flink is a distributed computing framework, and it is favorable to decouple busi
 
 ## Guice crash course
 
+The dependency injection framework I choose is Guice, because it is simple, light-weight, and effective. Usually we declare class dependencies with constructor, add all components to a module, and let Guice do the rest.
+
+
+### Declare dependencies
+
+There are three ways to declare dependencies for a class. The constructor approach is preferable.
+
+```java
+import com.google.inject.Inject;
+// Or import jakarta.inject.Inject;
+
+// 1. Constructor
+public class UserRepositoryImpl implements UserRepository {
+  private DataSource dataSource;
+
+  @Inject
+  public UserRepositoryImpl(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
+}
+
+// 2. Member
+class UserRepositoryImpl implements UserRepository {
+  @Inject
+  private DataSource dataSource;
+}
+
+// 3. Setter
+public class UserRepositoryImpl implements UserRepository {
+  private DataSource dataSource;
+
+  @Inject
+  public void setDataSource(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
+}
+```
+
+
+### Add components to module
+
+Module is a mechanism of Guice to configure the components. How to initialize them, which concrete class implements the interface, what to do when there are multiple implementations, etc. Components are grouped into modules, and modules can be grouped together themselves. There are plenty of topics here, one can refer to its [documentation][2], and I will cover some basic usage.
+
+First, components can be created implicitly, as long as Guice can figure out the dependency graph solely by class type and annotation. For instance:
+
+```java
+@ImplementedBy(UserRepositoryImpl.class)
+public interface UserRepository {}
+
+public class UserRepositoryImpl implements UserRespository {
+  @Inject
+  private HikariDataSource dataSource;
+}
+
+var injector = Guice.createInjector();
+injector.getInstance(UserRepository.class);
+```
+
+`dataSource` is typed `HikariDataSource`, which is a concrete class, so Guice knows how to create it. If it is `DataSource`, Guice would raise a missing implementation error. For `UserRepository`, however, Guice knows the implementation because we declare it by `ImplementedBy` annotation. Otherwise, we need to declare this relationship in a module:
+
+```java
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+
+// 1. Override configure method
+public class DatabaseModule extends AbstractModule {
+  @Override
+  protected void configure() {
+    bind(UserRepository.class).to(UserRepositoryImpl.class);
+  }
+}
+
+// 2. Use provider method
+public class DatabaseModule extends AbstractModule {
+  @Provides
+  public UserRepository provideUserRepository(UserRepositoryImpl impl) {
+    return impl;
+  }
+}
+
+var injector = Guice.createInjector(new DatabaseModule());
+injector.getInstance(UserRepository.class);
+```
+
+These two methods are equivalent. The second approach can be interpreted in this way:
+
+* User requests for a `UserRepository` instance.
+* Guice sees the `provideUserRepository` method, due to its annotation and return type.
+* The method requires a `UserRepositoryImpl` parameter.
+* Guice creates the implementation instance implicitly, because it is a concrete class.
+* The method gets the instance, possibly modifies it, and returns it to the user.
+
+The second approach is a little different from what we use before, where the parameter is `DataSource`, and we create `UserRepositoryImpl` manually:
+
+```java
+@Provides
+public UserRepository provideUserRepository(DataSource dataSource) {
+  return new UserRepositoryImpl(dataSource);
+}
+```
+
+In this case, the `Inject` annotation in `UserRepositoryImpl` can be omitted, because Guice is not responsible for creating the instance, unless you deliberately try to get a `UserRepositoryImpl` instance from it.
+
+In provider method, we can configure the instance we return:
+
+```java
+@Provides @Singleton
+public DataSource provideDataSource() {
+  var config = new HikariConfig();
+  config.setJdbcUrl("jdbc:mysql://localhost:3306/flink_di");
+  config.setUsername("root");
+  config.setPassword("");
+  return new HikariDataSource(config);
+}
+```
+
+Lastly, modules can be grouped together:
+
+```java
+public class EtlModule extends AbstractModule {
+  @Override
+  protected void configure() {
+    install(new ConfigModule());
+    install(new DatabaseModule());
+    install(new RedisModule());
+  }
+}
+
+var injector = Guice.createInjector(new EtlModule());
+```
+
+
+### Named components
+
+
+
+### Component scope
 
 
 * Motivation
@@ -102,3 +239,4 @@ Flink is a distributed computing framework, and it is favorable to decouple busi
 
 
 [1]: https://github.com/google/guice
+[2]: https://github.com/google/guice/wiki/Bindings
