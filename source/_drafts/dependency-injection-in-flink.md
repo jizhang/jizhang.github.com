@@ -134,7 +134,7 @@ injector.getInstance(UserRepository.class);
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
-// 1. Override configure method
+// 1. Add bindings
 public class DatabaseModule extends AbstractModule {
   @Override
   protected void configure() {
@@ -202,11 +202,48 @@ var injector = Guice.createInjector(new EtlModule());
 ```
 
 
-### Named components
+### Named and scoped components
+
+When there are multiple instances for a type with different configuration, use `Named` annotation to tell them apart. It is also possible to create [custom annotations][3], or use bindings in `AbstractModule#configure` instead of provider method.
+
+```java
+public class DatabaseModule extends AbstractModule {
+  @Provides @Named("customer") @Singleton
+  public DataSource provideCustomerDataSource() {
+    return new HikariDataSource();
+  }
+
+  @Provides @Named("product") @Singleton
+  public DataSource provideProductDataSource() {
+    return new HikariDataSource();
+  }
+}
+
+@Singleton
+public class UserRepositoryImpl extends UserRepository {
+  @Inject @Named("customer")
+  private DataSource dataSource;
+}
+```
+
+Both data sources and the implementation instance are annotated with `Singleton`, meaning Guice will return the same instance when it is requested. Otherwise it works like the [prototype scope][4] in Spring.
 
 
+## Flink pipeline serialization
 
-### Component scope
+Consider this simple pineline that transforms a stream of ID to user models and print to the console.
+
+```java
+var env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+DataStreamSource<Long> source = env.fromElements(1L);
+DataStream<User> users = source.map(new UserMapper());
+users.print();
+
+env.execute();
+```
+
+Under the hood, Flink will build this pipeline into a job graph, serialize it, and send to remote task managers. The `map` operator takes a `MapFunction` implementation, in this case a `UserMapper` instance. This instance is wrapped in
 
 
 * Motivation
@@ -240,3 +277,5 @@ var injector = Guice.createInjector(new EtlModule());
 
 [1]: https://github.com/google/guice
 [2]: https://github.com/google/guice/wiki/Bindings
+[3]: https://github.com/google/guice/wiki/BindingAnnotations
+[4]: https://docs.spring.io/spring-framework/reference/core/beans/factory-scopes.html#beans-factory-scopes-prototype
