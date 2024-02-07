@@ -1,8 +1,14 @@
 ---
 title: Dependency Injection in Flink
-categories: [Big Data]
-tags: [flink, guice, java]
+tags:
+  - flink
+  - guice
+  - java
+categories:
+  - Big Data
+date: 2024-02-07 13:28:41
 ---
+
 
 ## TL;DR
 
@@ -61,7 +67,7 @@ public class UserMapper extends RichMapFunction<Long, User> {
 
 ## Motivation
 
-Dependency injection, or DI, is a common practice in Java programming, especially when you have a Spring background. The most direct benefit is testability, meaning you can replace class implementation with test stub. Other benefits are separation of concerns, better class hierarchy, inversion of control, etc. Component defines its dependencies via class constructor or annotated members, and the DI framework creates a container, or context, to wire these components properly. This context is usually created at startup and lives through the application lifecycle. Some examples are Spring `ApplicationContext`, Guice `Injector`.
+Dependency injection, or DI, is a common practice in Java programming, especially when you come from a Spring background. The most direct benefit is testability, meaning you can replace class implementation with test stub. Other benefits are separation of concerns, better class hierarchy, inversion of control, etc. Component defines its dependencies via class constructor or annotated members, and the DI framework creates a container, or context, to wire these components properly. This context is usually created at startup and lives through the application lifecycle. Some examples are Spring `ApplicationContext`, Guice `Injector`.
 
 Flink is a distributed computing framework, and it is favorable to decouple business logic from it by dependency injection. However, Flink application is composed of functional classes, that are instantiated in driver class, or `main` method, serialized and sent to distributed task managers. We cannot inject dependencies into these classes unless all our components are serializable. Fortunately, Flink provides a lifecycle hook `open` that is called when the job starts. Combined with another common pattern, Singleton, we can make DI framework play well with Flink.
 
@@ -226,12 +232,12 @@ public class UserRepositoryImpl extends UserRepository {
 }
 ```
 
-Both data sources and the implementation instance are annotated with `Singleton`, meaning Guice will return the same instance when it is requested. Otherwise it works like the [prototype scope][4] in Spring.
+Both data sources and the implementation instance are annotated with `Singleton`, meaning Guice will return the same instance when it is requested. Otherwise, it works like the [prototype scope][4] in Spring.
 
 
 ## Flink pipeline serialization
 
-Consider this simple pineline that transforms a stream of ID to user models and print to the console.
+Consider this simple pipeline that transforms a stream of ID to user models and print to the console.
 
 ```java
 var env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -301,7 +307,7 @@ In `AppInjector`, we use the Singleton pattern to ensure there is only one Guice
 
 ## Unit testing
 
-As mentioned earlier, dependency injection improves testability. To test the `UserMapper`, we can mock the dependnecy and test it like a plain function. Other testing thecniques can be found in the [documentation][5].
+As mentioned earlier, dependency injection improves testability. To test the `UserMapper`, we can mock the dependency and test it like a plain function. Other testing techniques can be found in the [documentation][5].
 
 ```java
 import static org.junit.jupiter.api.Assertions.*;
