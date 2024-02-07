@@ -243,30 +243,83 @@ users.print();
 env.execute();
 ```
 
-Under the hood, Flink will build this pipeline into a job graph, serialize it, and send to remote task managers. The `map` operator takes a `MapFunction` implementation, in this case a `UserMapper` instance. This instance is wrapped in
+Under the hood, Flink will build this pipeline into a job graph, serialize it, and send to remote task managers. The `map` operator takes a `MapFunction` implementation, in this case a `UserMapper` instance. This instance is wrapped in `SimpleUdfStreamOperatorFactory` and gets serialized with Java object serialization mechanism.
+
+```java
+// org.apache.flink.util.InstantiationUtil
+public static byte[] serializeObject(Object o) throws IOException {
+  try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+    oos.writeObject(o);
+    oos.flush();
+    return baos.toByteArray();
+  }
+}
+```
+
+Pipeline operators become a series of configuration hash maps and are sent to the job manager by a remote call.
+
+```
+org.apache.flink.configuration.Configuration {
+  operatorName=Map,
+  serializedUdfClassName=org.apache.flink.streaming.api.operators.SimpleUdfStreamOperatorFactory,
+  serializedUDF=[B@6c67e137,
+}
+```
+
+For `ObjectOutputStream` to work, every class in the pipeline must implement the `Serializable` interface, as well as their member fields. For `UserMapper`, it extends `RichMapFunction` which implements the `Serializable` interface. However, if we add a dependency and that object is not serializable, an error would occur:
+
+```java
+public class UserMapper extends RichMapFunction<Long, User> {
+  @Inject
+  UserRepository userRepository;
+}
+
+// main
+var injector = Guice.createInjector(new DatabaseModule());
+var userMapper = injector.getInstance(UserMapper.class);
+DataStream<User> users = source.map(userMapper);
+// java.io.NotSerializableException: com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator
+```
+
+This is because `HikariDataSource` is not serializable. As a result, it is not possible to carry `userRepository` through serialization, but set it after `UserMapper` is restored and opened, as is demonstrated at the beginning of this article. We add `transient` keyword to inform Java to not include this field when serializing.
+
+```java
+public class UserMapper extends RichMapFunction<Long, User> {
+  @Inject
+  transient UserRepository userRepository;
+
+  @Override
+  public void open(Configuration parameters) throws Exception {
+    AppInjector.injectMembers(this);
+  }
+}
+```
+
+In `AppInjector`, we use the Singleton pattern to ensure there is only one Guice injector, and Guice itself works in a thread-safe manner so heavy resources like connection pool can be shared among different user defined functions.
 
 
-* Motivation
-    * Separation of concerns
-    * Singleton, connection limit, share in slots
-    * Testing
-* Flink functions, serialization mechanism
-    * Datastream, table api, sql
-* Guice quick start
-    * Define modules, compose modules
-    * Provide, Named
-    * Scope, Singleton
-    * Implicit creation
-* Datasource example
-    * No DI, static member, lazy initialization
-    * Serialize object, or config only
-* Inject configurations, vs. ParameterTool
-    * https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/datastream/application_parameters/
-* Complex demo: properties, repository, service, guava cache, redis
-* Testability, flink specifit testing
-    * https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/datastream/testing/
-* DI in flink source
-    * Custom table source
+## Unit testing
+
+As mentioned earlier, dependency injection improves testability. To test the `UserMapper`, we can mock the dependnecy and test it like a plain function. Other testing thecniques can be found in the [documentation][5].
+
+```java
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class UserMapperTest {
+  @Test
+  public void testMap() throws Exception {
+    var userRepository = mock(UserRepository.class);
+    when(userRepository.getById(1L))
+        .thenReturn(Optional.of(new User(1L, "jizhang", new Date())));
+
+    var userMapper = new UserMapper();
+    userMapper.userRepository = userRepository;
+    assertEquals("jizhang", userMapper.map(1L).getUsername());
+  }
+}
+```
 
 
 ## References
@@ -279,3 +332,4 @@ Under the hood, Flink will build this pipeline into a job graph, serialize it, a
 [2]: https://github.com/google/guice/wiki/Bindings
 [3]: https://github.com/google/guice/wiki/BindingAnnotations
 [4]: https://docs.spring.io/spring-framework/reference/core/beans/factory-scopes.html#beans-factory-scopes-prototype
+[5]: https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/datastream/testing/
