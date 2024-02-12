@@ -81,7 +81,7 @@ dev:
 
 ## Lock dependency versions with `poetry.lock`
 
-Though `requirements.txt` has some problems, we have been using this approach in production for years. And thanks to the opensource community, we now have a better option, [Poetry][2]. I would like to call it [Yarn][7] for Python, because I maintain several frontend projects and always hope there would a tool that is as effective and easy-to-use as Yarn. With Poetry, we can simply use `poetry install` to lock dependency versions. And it does much more than that.
+Though `requirements.txt` has some problems, we have been using this approach in production for years. And thanks to the opensource community, we now have a better option, [Poetry][2]. I would like to call it [Yarn][7] for Python, because I maintain several frontend projects and always hope there would be a tool that is as effective and easy-to-use as Yarn. With Poetry, we can simply use `poetry install` to lock dependency versions. And it does much more than that.
 
 ![Poetry](/images/poetry.png)
 
