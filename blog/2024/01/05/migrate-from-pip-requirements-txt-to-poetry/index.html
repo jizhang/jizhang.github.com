@@ -148,7 +148,7 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">install:</span><br><span class="line">        venv/bin/pip install -r requirements.txt</span><br><span class="line"></span><br><span class="line">dev:</span><br><span class="line">        venv/bin/pip install -r requirements.txt -r requirements-dev.txt</span><br></pre></td></tr></table></figure>
 
 
-<h2 id="Lock-dependency-versions-with-poetry-lock"><a href="#Lock-dependency-versions-with-poetry-lock" class="headerlink" title="Lock dependency versions with poetry.lock"></a>Lock dependency versions with <code>poetry.lock</code></h2><p>Though <code>requirements.txt</code> has some problems, we have been using this approach in production for years. And thanks to the opensource community, we now have a better option, <a target="_blank" rel="noopener" href="https://python-poetry.org/">Poetry</a>. I would like to call it <a target="_blank" rel="noopener" href="https://yarnpkg.com/">Yarn</a> for Python, because I maintain several frontend projects and always hope there would a tool that is as effective and easy-to-use as Yarn. With Poetry, we can simply use <code>poetry install</code> to lock dependency versions. And it does much more than that.</p>
+<h2 id="Lock-dependency-versions-with-poetry-lock"><a href="#Lock-dependency-versions-with-poetry-lock" class="headerlink" title="Lock dependency versions with poetry.lock"></a>Lock dependency versions with <code>poetry.lock</code></h2><p>Though <code>requirements.txt</code> has some problems, we have been using this approach in production for years. And thanks to the opensource community, we now have a better option, <a target="_blank" rel="noopener" href="https://python-poetry.org/">Poetry</a>. I would like to call it <a target="_blank" rel="noopener" href="https://yarnpkg.com/">Yarn</a> for Python, because I maintain several frontend projects and always hope there would be a tool that is as effective and easy-to-use as Yarn. With Poetry, we can simply use <code>poetry install</code> to lock dependency versions. And it does much more than that.</p>
 <p><img src="/images/poetry.png" alt="Poetry"></p>
 <p>There are several ways to install Poetry. One can follow the instructions on its <a target="_blank" rel="noopener" href="https://python-poetry.org/docs/#installation">official documentation</a>. For Homebrew users, simply use <code>brew install poetry</code>. Later in this article I will discuss how to use Poetry when deploying application with Docker. Here are some frequently used commands:</p>
 <ul>
@@ -196,7 +196,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/" data-id="clsbd99oy003lecq609sogr08" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/" data-id="clsiu4vqg003ldyof8fspcig5" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/#disqus_thread" class="article-comment-link">Comments</a>
       
