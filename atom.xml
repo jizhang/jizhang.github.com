@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Ji ZHANG&#39;s Blog</title>
+  <title>Ji Zhang&#39;s Blog</title>
   
   <subtitle>If I rest, I rust.</subtitle>
   <link href="https://shzhangji.com/atom.xml" rel="self"/>
@@ -10,7 +10,7 @@
   <id>https://shzhangji.com/</id>
   
   <author>
-    <name>Ji ZHANG</name>
+    <name>Ji Zhang (Jerry)</name>
     
   </author>
   
