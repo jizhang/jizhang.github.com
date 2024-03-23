@@ -18,7 +18,6 @@
 <meta property="article:tag" content="clojure">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:creator" content="@zjerryj">
-<link rel="publisher" href="zhangji87@gmail.com">
   
     <link rel="alternate" href="/atom.xml" title="Ji Zhang&#39;s Blog" type="application/atom+xml">
   
@@ -45,7 +44,7 @@
 
     gtag('config', 'G-XGPVRTV36D');
   </script>
-<meta name="generator" content="Hexo 6.2.0"></head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 <body>
   <div id="container">
@@ -136,7 +135,7 @@
 
 <p>The <code>.clj</code> files simply contains a <code>map</code> object, and we use <code>read-string</code> facility to parse the map. Since the latter map is merged into the former one, we can include some default settings without worrying about whether they’ll be available.</p>
 <h2 id="Places-to-Put-‘Outter-Configuration’"><a href="#Places-to-Put-‘Outter-Configuration’" class="headerlink" title="Places to Put ‘Outter Configuration’"></a>Places to Put ‘Outter Configuration’</h2><p>Here I use the word ‘outter’, which means those configs are related to environments, and will override the default settings. In this section, I’ll introduce some typical places to put these outter configs and how to use them.</p>
-<h3 id="A-‘resources-x2F-override-x2F-‘-Directory"><a href="#A-‘resources-x2F-override-x2F-‘-Directory" class="headerlink" title="A ‘resources&#x2F;override&#x2F;‘ Directory"></a>A ‘resources&#x2F;override&#x2F;‘ Directory</h3><p>First of all, this directory should be removed from version control, such as <code>.gitignore</code>:</p>
+<h3 id="A-‘resources-override-‘-Directory"><a href="#A-‘resources-override-‘-Directory" class="headerlink" title="A ‘resources&#x2F;override&#x2F;‘ Directory"></a>A ‘resources&#x2F;override&#x2F;‘ Directory</h3><p>First of all, this directory should be removed from version control, such as <code>.gitignore</code>:</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/.project</span><br><span class="line">/.settings</span><br><span class="line"></span><br><span class="line">/resources/override</span><br></pre></td></tr></table></figure>
 
 <p>And then, developers can put production or local configuration files in this directory.</p>
@@ -151,7 +150,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="cltawotea0005i5osf20p637q" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="clu3ez0bw0000fbq8dbqa592j" class="article-share-link">Share</a>
       
         <a href="https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/#disqus_thread" class="article-comment-link">Comments</a>
       
