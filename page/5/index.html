@@ -3,42 +3,52 @@
 <head>
   <meta charset="utf-8">
   
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XGPVRTV36D"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-XGPVRTV36D');
+</script>
+<!-- End Google Analytics -->
+
+  
   <title>Ji Zhang&#39;s Blog</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta property="og:type" content="website">
 <meta property="og:title" content="Ji Zhang&#39;s Blog">
 <meta property="og:url" content="https://shzhangji.com/page/5/index.html">
 <meta property="og:site_name" content="Ji Zhang&#39;s Blog">
-<meta property="og:locale">
+<meta property="og:locale" content="en_US">
 <meta property="article:author" content="Ji Zhang (Jerry)">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:creator" content="@zjerryj">
   
-    <link rel="alternate" href="/atom.xml" title="Ji Zhang&#39;s Blog" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Ji Zhang's Blog" type="application/atom+xml">
   
   
-    <link rel="icon" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.png">
   
   
     
-<link rel="stylesheet" href="/css/source-code-pro.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
 
   
   
 <link rel="stylesheet" href="/css/style.css">
 
   
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
 
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.1.7/css/fork-awesome.min.css">
 
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XGPVRTV36D"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-XGPVRTV36D');
-  </script>
+  
 <meta name="generator" content="Hexo 7.1.1"></head>
 
 <body>
@@ -59,23 +69,29 @@
     </div>
     <div id="header-inner" class="inner">
       <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
         
           <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
         
           <a class="main-nav-link" href="/categories/Big-Data">Big Data</a>
         
           <a class="main-nav-link" href="/categories/Programming">Programming</a>
         
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
       </nav>
       <nav id="sub-nav">
-        <a id="nav-github" class="nav-icon" target="_blank" rel="noopener" href="https://github.com/jizhang" title="GitHub"></a>
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+          
+            <a class="nav-icon" target="_blank" rel="noopener" href="https://github.com/jizhang"><span class="fa fa-github"></span></a>
+          
+            <a class="nav-icon" target="_blank" rel="noopener" href="https://twitter.com/zjerryj"><span class="fa fa-twitter"></span></a>
+          
         
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
@@ -87,10 +103,10 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-why-use-lodash-when-es6-is-available" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-why-use-lodash-when-es6-is-available" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/blog/2017/03/13/why-use-lodash-when-es6-is-available/" class="article-date">
-  <time datetime="2017-03-13T14:39:01.000Z" itemprop="datePublished">2017-03-13</time>
+  <time class="dt-published" datetime="2017-03-13T14:39:01.000Z" itemprop="datePublished">2017-03-13</time>
 </a>
     
   <div class="article-category">
@@ -105,13 +121,13 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blog/2017/03/13/why-use-lodash-when-es6-is-available/">Why Use Lodash When ES6 Is Available</a>
+      <a class="p-name article-title" href="/blog/2017/03/13/why-use-lodash-when-es6-is-available/">Why Use Lodash When ES6 Is Available</a>
     </h1>
   
 
       </header>
     
-    <div class="article-entry" itemprop="articleBody">
+    <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://lodash.com/">Lodash</a> is a well-known JavaScript utility library that makes it easy to manipulate arrays and objects, as well as functions, strings, etc. I myself enjoys its functional way to process collections, especially chaining and lazy evaluation. But as <a target="_blank" rel="noopener" href="http://www.ecma-international.org/ecma-262/6.0/">ECMAScript 2015 Standard</a> (ES6) becomes widely supported by major browsers, and <a target="_blank" rel="noopener" href="https://babeljs.io/">Babel</a>, the JavaScript compiler that transforms ES6 codes to ES5, plays a major role in today’s frontend development, it seems that most Lodash utilities can be replaced by ES6. But should we? In my opinion, Lodash will remain popular, for it still has lots of useful features that could improve the way of programming.</p>
 <h2 id="map-and-Array-map-Are-Different"><a href="#map-and-Array-map-Are-Different" class="headerlink" title="_.map and Array#map Are Different"></a><code>_.map</code> and <code>Array#map</code> Are Different</h2><p><code>_.map</code>, <code>_.reduce</code>, <code>_.filter</code> and <code>_.forEach</code> are frequently used functions when processing collections, and ES6 provides direct support for them:</p>
@@ -126,9 +142,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="clu3ez0ce000kfbq86u1i77ci" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/" data-id="clu4x9mfi000jimqagw6k3igt" data-title="Why Use Lodash When ES6 Is Available" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+      
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/es6/" rel="tag">es6</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/" rel="tag">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/" rel="tag">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lodash/" rel="tag">lodash</a></li></ul>
@@ -139,11 +156,12 @@
 </article>
 
 
+
   
-    <article id="post-process-python-collections-with-functional-programming" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-process-python-collections-with-functional-programming" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/blog/2017/03/04/process-python-collections-with-functional-programming/" class="article-date">
-  <time datetime="2017-03-04T14:32:17.000Z" itemprop="datePublished">2017-03-04</time>
+  <time class="dt-published" datetime="2017-03-04T14:32:17.000Z" itemprop="datePublished">2017-03-04</time>
 </a>
     
   <div class="article-category">
@@ -158,13 +176,13 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blog/2017/03/04/process-python-collections-with-functional-programming/">Process Python Collections with Functional Programming</a>
+      <a class="p-name article-title" href="/blog/2017/03/04/process-python-collections-with-functional-programming/">Process Python Collections with Functional Programming</a>
     </h1>
   
 
       </header>
     
-    <div class="article-entry" itemprop="articleBody">
+    <div class="e-content article-entry" itemprop="articleBody">
       
         <p>I develop Spark applications with Scala, and it has a very powerful <a target="_blank" rel="noopener" href="http://docs.scala-lang.org/overviews/collections/introduction">collection system</a>, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In JavaScript, there is a <a target="_blank" rel="noopener" href="https://lodash.com/">Lodash</a> library that provides powerful tools to process arrays and objects. When my primary work language changes to Python, I am wondering if it’s possible to manipulate collections in a FP way, and fortunately Python already provides syntax and tools for functional programming. Though list comprehension is the pythonic way to deal with collections, but the idea and concepts of FP is definitely worth learning.</p>
 <h2 id="Wordcount-Example"><a href="#Wordcount-Example" class="headerlink" title="Wordcount Example"></a>Wordcount Example</h2><p>Let’s first write a snippet to count the word occurences from a paragraph, in of course a functional way.</p>
@@ -182,9 +200,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="clu3ez0cd000gfbq89pwi326s" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="clu4x9mfh000gimqa7vsnf93p" data-title="Process Python Collections with Functional Programming" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+      
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/functional-programming/" rel="tag">functional programming</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
@@ -195,11 +214,12 @@
 </article>
 
 
+
   
-    <article id="post-difference-between-lodash-assign-and-assignin" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-difference-between-lodash-assign-and-assignin" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" class="article-date">
-  <time datetime="2017-01-29T06:18:29.000Z" itemprop="datePublished">2017-01-29</time>
+  <time class="dt-published" datetime="2017-01-29T06:18:29.000Z" itemprop="datePublished">2017-01-29</time>
 </a>
     
   <div class="article-category">
@@ -214,13 +234,13 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blog/2017/01/29/difference-between-lodash-assign-and-assignin/">Difference Between Lodash _.assign and _.assignIn</a>
+      <a class="p-name article-title" href="/blog/2017/01/29/difference-between-lodash-assign-and-assignin/">Difference Between Lodash _.assign and _.assignIn</a>
     </h1>
   
 
       </header>
     
-    <div class="article-entry" itemprop="articleBody">
+    <div class="e-content article-entry" itemprop="articleBody">
       
         <p>In Lodash, both <code>_.assign</code> and <code>_.assignIn</code> are ways to copy source objects’ properties into target object. According the <a target="_blank" rel="noopener" href="https://lodash.com/docs/">documentation</a>, <code>_.assign</code> processes <strong>own enumerable string keyed properties</strong>, while <code>_.assignIn</code> processes both <strong>own and inherited source properties</strong>. There’re also other companion functions like <code>_.forOwn</code> and <code>_.forIn</code>, <code>_.has</code> and <code>_.hasIn</code>. So what’s the difference between them?</p>
 <p>In brief, the <code>In</code> in latter methods implies the way <code>for...in</code> loop behaves, which <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in">iterates all enumerable properties of the object itself and those the object inherits from its constructor’s prototype</a>. JavaScript has an inheritance mechanism called prototype chain. When iterating an object’s properties with <code>for...in</code> or <code>_.forIn</code>, all properties appeared in the object and its prototype are processed, until the prototype resolves to <code>null</code>. Here’s the example code taken from Lodash’s doc:</p>
@@ -233,9 +253,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" data-id="clu3ez0cc000ffbq813vd5oy2" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/" data-id="clu4x9mfg000dimqa00df2fzi" data-title="Difference Between Lodash _.assign and _.assignIn" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+      
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/frontend/" rel="tag">frontend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/" rel="tag">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lodash/" rel="tag">lodash</a></li></ul>
@@ -246,11 +267,12 @@
 </article>
 
 
+
   
-    <article id="post-python-2-to-3-quick-guide" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-python-2-to-3-quick-guide" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/blog/2017/01/08/python-2-to-3-quick-guide/" class="article-date">
-  <time datetime="2017-01-08T04:26:54.000Z" itemprop="datePublished">2017-01-08</time>
+  <time class="dt-published" datetime="2017-01-08T04:26:54.000Z" itemprop="datePublished">2017-01-08</time>
 </a>
     
   <div class="article-category">
@@ -265,13 +287,13 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blog/2017/01/08/python-2-to-3-quick-guide/">Python 2 to 3 Quick Guide</a>
+      <a class="p-name article-title" href="/blog/2017/01/08/python-2-to-3-quick-guide/">Python 2 to 3 Quick Guide</a>
     </h1>
   
 
       </header>
     
-    <div class="article-entry" itemprop="articleBody">
+    <div class="e-content article-entry" itemprop="articleBody">
       
         <p>Few years ago I was programming Python 2.7, when 3.x was still not an option, because of its backward-incompatibiliy and lack of popular third-party libraries support. But now it’s safe to say Python 3 is <a target="_blank" rel="noopener" href="http://py3readiness.org/">totally ready</a>, and here’s a list of references for those (including me) who are adopting Python 3 with a 2.x background.</p>
 <ol>
@@ -305,9 +327,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="clu3ez0ca000bfbq8b6k096t2" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/" data-id="clu4x9mfe000aimqa11fccrzl" data-title="Python 2 to 3 Quick Guide" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+      
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
@@ -318,11 +341,12 @@
 </article>
 
 
+
   
-    <article id="post-view-spark-source-in-eclipse" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-view-spark-source-in-eclipse" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/blog/2015/09/01/view-spark-source-in-eclipse/" class="article-date">
-  <time datetime="2015-09-01T10:38:00.000Z" itemprop="datePublished">2015-09-01</time>
+  <time class="dt-published" datetime="2015-09-01T10:38:00.000Z" itemprop="datePublished">2015-09-01</time>
 </a>
     
   <div class="article-category">
@@ -337,13 +361,13 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
+      <a class="p-name article-title" href="/blog/2015/09/01/view-spark-source-in-eclipse/">View Spark Source in Eclipse</a>
     </h1>
   
 
       </header>
     
-    <div class="article-entry" itemprop="articleBody">
+    <div class="e-content article-entry" itemprop="articleBody">
       
         <p>Reading source code is a great way to learn opensource projects. I used to read Java projects’ source code on <a target="_blank" rel="noopener" href="http://grepcode.com/">GrepCode</a> for it is online and has very nice cross reference features. As for Scala projects such as <a target="_blank" rel="noopener" href="http://spark.apache.org/">Apache Spark</a>, though its source code can be found on <a target="_blank" rel="noopener" href="https://github.com/apache/spark/">GitHub</a>, it’s quite necessary to setup an IDE to view the code more efficiently. Here’s a howto of viewing Spark source code in Eclipse.</p>
 <h2 id="Install-Eclipse-and-Scala-IDE-Plugin"><a href="#Install-Eclipse-and-Scala-IDE-Plugin" class="headerlink" title="Install Eclipse and Scala IDE Plugin"></a>Install Eclipse and Scala IDE Plugin</h2><p>One can download Eclipse from <a target="_blank" rel="noopener" href="http://www.eclipse.org/downloads/">here</a>. I recommend the “Eclipse IDE for Java EE Developers”, which contains a lot of daily-used features.</p>
@@ -359,9 +383,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="clu3ez0c9000afbq8cvdh9sdj" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/" data-id="clu4x9mfd0008imqagpui8dxc" data-title="View Spark Source in Eclipse" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+      
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/" rel="tag">spark</a></li></ul>
@@ -372,11 +397,12 @@
 </article>
 
 
+
   
-    <article id="post-spark-streaming-logging-configuration" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-spark-streaming-logging-configuration" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/blog/2015/05/31/spark-streaming-logging-configuration/" class="article-date">
-  <time datetime="2015-05-31T10:18:00.000Z" itemprop="datePublished">2015-05-31</time>
+  <time class="dt-published" datetime="2015-05-31T10:18:00.000Z" itemprop="datePublished">2015-05-31</time>
 </a>
     
   <div class="article-category">
@@ -391,13 +417,13 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
+      <a class="p-name article-title" href="/blog/2015/05/31/spark-streaming-logging-configuration/">Spark Streaming Logging Configuration</a>
     </h1>
   
 
       </header>
     
-    <div class="article-entry" itemprop="articleBody">
+    <div class="e-content article-entry" itemprop="articleBody">
       
         <p>Spark Streaming applications tend to run forever, so their log files should be properly handled, to avoid exploding server hard drives. This article will give some practical advices of dealing with these log files, on both Spark on YARN and standalone mode.</p>
 <h2 id="Log4j’s-RollingFileAppender"><a href="#Log4j’s-RollingFileAppender" class="headerlink" title="Log4j’s RollingFileAppender"></a>Log4j’s RollingFileAppender</h2><p>Spark uses log4j as logging facility. The default configuraiton is to write all logs into standard error, which is fine for batch jobs. But for streaming jobs, we’d better use rolling-file appender, to cut log files by size and keep only several recent files. Here’s an example:</p>
@@ -412,9 +438,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="clu3ez0c80006fbq84hcsdi93" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/" data-id="clu4x9mfc0006imqa2bwy5m9a" data-title="Spark Streaming Logging Configuration" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+      
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/" rel="tag">spark</a></li></ul>
@@ -425,11 +452,12 @@
 </article>
 
 
+
   
-    <article id="post-elasticsearch-performance-tips" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-elasticsearch-performance-tips" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/blog/2015/04/28/elasticsearch-performance-tips/" class="article-date">
-  <time datetime="2015-04-28T15:08:00.000Z" itemprop="datePublished">2015-04-28</time>
+  <time class="dt-published" datetime="2015-04-28T15:08:00.000Z" itemprop="datePublished">2015-04-28</time>
 </a>
     
   <div class="article-category">
@@ -444,13 +472,13 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a>
+      <a class="p-name article-title" href="/blog/2015/04/28/elasticsearch-performance-tips/">ElasticSearch Performance Tips</a>
     </h1>
   
 
       </header>
     
-    <div class="article-entry" itemprop="articleBody">
+    <div class="e-content article-entry" itemprop="articleBody">
       
         <p>Recently we’re using ElasticSearch as a data backend of our recommendation API, to serve both offline and online computed data to users. Thanks to ElasticSearch’s rich and out-of-the-box functionality, it doesn’t take much trouble to setup the cluster. However, we still encounter some misuse and unwise configurations. So here’s a list of ElasticSearch performance tips that we learned from practice.</p>
 <h2 id="Tip-1-Set-Num-of-shards-to-Num-of-nodes"><a href="#Tip-1-Set-Num-of-shards-to-Num-of-nodes" class="headerlink" title="Tip 1 Set Num-of-shards to Num-of-nodes"></a>Tip 1 Set Num-of-shards to Num-of-nodes</h2><p><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-shard">Shard</a> is the foundation of ElasticSearch’s distribution capability. Every index is splitted into several shards (default 5) and are distributed across cluster nodes. But this capability does not come free. Since data being queried reside in all shards (this behaviour can be changed by <a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-routing">routing</a>), ElasticSearch has to run this query on every shard, fetch the result, and merge them, like a map-reduce process. So if there’re too many shards, more than the number of cluter nodes, the query will be executed more than once on the same node, and it’ll also impact the merge phase. On the other hand, too few shards will also reduce the performance, for not all nodes are being utilized.</p>
@@ -472,9 +500,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="clu3ez0c70005fbq81n9b43nn" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/" data-id="clu4x9mfa0003imqa5jneftez" data-title="ElasticSearch Performance Tips" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+      
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li></ul>
@@ -485,11 +514,12 @@
 </article>
 
 
+
   
-    <article id="post-use-webjars-in-scalatra-project" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-use-webjars-in-scalatra-project" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/blog/2014/05/27/use-webjars-in-scalatra-project/" class="article-date">
-  <time datetime="2014-05-27T09:44:00.000Z" itemprop="datePublished">2014-05-27</time>
+  <time class="dt-published" datetime="2014-05-27T09:44:00.000Z" itemprop="datePublished">2014-05-27</time>
 </a>
     
   <div class="article-category">
@@ -504,13 +534,13 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Use WebJars in Scalatra Project</a>
+      <a class="p-name article-title" href="/blog/2014/05/27/use-webjars-in-scalatra-project/">Use WebJars in Scalatra Project</a>
     </h1>
   
 
       </header>
     
-    <div class="article-entry" itemprop="articleBody">
+    <div class="e-content article-entry" itemprop="articleBody">
       
         <p>As I’m working with my first <a target="_blank" rel="noopener" href="http://www.scalatra.org/">Scalatra</a> project, I automatically think of using <a target="_blank" rel="noopener" href="http://www.webjars.org/">WebJars</a> to manage Javascript library dependencies, since it’s more convenient and seems like a good practice. Though there’s no <a target="_blank" rel="noopener" href="http://www.webjars.org/documentation">official support</a> for Scalatra framework, the installation process is not very complex. But this doesn’t mean I didn’t spend much time on this. I’m still a newbie to Scala, and there’s only a few materials on this subject.</p>
 <h2 id="Add-WebJars-Dependency-in-SBT-Build-File"><a href="#Add-WebJars-Dependency-in-SBT-Build-File" class="headerlink" title="Add WebJars Dependency in SBT Build File"></a>Add WebJars Dependency in SBT Build File</h2><p>Scalatra uses <code>.scala</code> configuration file instead of <code>.sbt</code>, so let’s add dependency into <code>project/build.scala</code>. Take <a target="_blank" rel="noopener" href="http://dojotoolkit.org/">Dojo</a> for example.</p>
@@ -525,9 +555,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="clu3ez0c60004fbq84bxu33l0" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/" data-id="clu4x9mf70001imqaf7qhhj0s" data-title="Use WebJars in Scalatra Project" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+      
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scala/" rel="tag">scala</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scalatra/" rel="tag">scalatra</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webjars/" rel="tag">webjars</a></li></ul>
@@ -538,11 +569,12 @@
 </article>
 
 
+
   
-    <article id="post-generate-auto-increment-id-in-map-reduce-job" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-generate-auto-increment-id-in-map-reduce-job" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" class="article-date">
-  <time datetime="2013-10-31T01:35:00.000Z" itemprop="datePublished">2013-10-31</time>
+  <time class="dt-published" datetime="2013-10-31T01:35:00.000Z" itemprop="datePublished">2013-10-31</time>
 </a>
     
   <div class="article-category">
@@ -557,13 +589,13 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/">Generate Auto-increment Id in Map-reduce Job</a>
+      <a class="p-name article-title" href="/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/">Generate Auto-increment Id in Map-reduce Job</a>
     </h1>
   
 
       </header>
     
-    <div class="article-entry" itemprop="articleBody">
+    <div class="e-content article-entry" itemprop="articleBody">
       
         <p>In DBMS world, it’s easy to generate a unique, auto-increment id, using MySQL’s <a target="_blank" rel="noopener" href="http://dev.mysql.com/doc/refman/5.1/en/example-auto-increment.html">AUTO_INCREMENT attribute</a> on a primary key or MongoDB’s <a target="_blank" rel="noopener" href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/">Counters Collection</a> pattern. But when it comes to a distributed, parallel processing framework, like Hadoop Map-reduce, it is not that straight forward. The best solution to identify every record in such framework is to use UUID. But when an integer id is required, it’ll take some steps.</p>
 <h2 id="Solution-A-Single-Reducer"><a href="#Solution-A-Single-Reducer" class="headerlink" title="Solution A: Single Reducer"></a>Solution A: Single Reducer</h2><p>This is the most obvious and simple one, just use the following code to specify reducer numbers to 1:</p>
@@ -584,9 +616,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="clu3ez0c30001fbq81j0ehkz9" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/" data-id="clu4x9mf20000imqacclickbs" data-title="Generate Auto-increment Id in Map-reduce Job" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+      
       
       
     </footer>
@@ -595,11 +628,12 @@
 </article>
 
 
+
   
-    <article id="post-manage-leiningen-project-configuration" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-manage-leiningen-project-configuration" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/blog/2013/04/30/manage-leiningen-project-configuration/" class="article-date">
-  <time datetime="2013-04-30T08:16:00.000Z" itemprop="datePublished">2013-04-30</time>
+  <time class="dt-published" datetime="2013-04-30T08:16:00.000Z" itemprop="datePublished">2013-04-30</time>
 </a>
     
   <div class="article-category">
@@ -614,13 +648,13 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blog/2013/04/30/manage-leiningen-project-configuration/">Manage Leiningen Project Configuration</a>
+      <a class="p-name article-title" href="/blog/2013/04/30/manage-leiningen-project-configuration/">Manage Leiningen Project Configuration</a>
     </h1>
   
 
       </header>
     
-    <div class="article-entry" itemprop="articleBody">
+    <div class="e-content article-entry" itemprop="articleBody">
       
         <p>In Maven projects, we tend to use <code>.properties</code> files to store various configurations, and use Maven profiles to switch between development and production environments. Like the following example:</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># database.properties</span><br><span class="line">mydb.jdbcUrl=$&#123;mydb.jdbcUrl&#125;</span><br></pre></td></tr></table></figure>
@@ -636,9 +670,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="clu3ez0bw0000fbq8dbqa592j" class="article-share-link">Share</a>
+      <a data-url="https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/" data-id="clu4x9mfb0005imqaeh5paeyb" data-title="Manage Leiningen Project Configuration" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+      
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/clojure/" rel="tag">clojure</a></li></ul>
@@ -649,15 +684,38 @@
 </article>
 
 
+
   
 
 
   <nav id="page-nav">
+    
     <a class="extend prev" rel="prev" href="/page/4/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span>
   </nav>
+
 </section>
         
           <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Big-Data/">Big Data</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Programming/">Programming</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/analytics/" rel="tag">analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apache-beam/" rel="tag">apache beam</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bootstrap/" rel="tag">bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canal/" rel="tag">canal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ci/" rel="tag">ci</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/clojure/" rel="tag">clojure</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/connect/" rel="tag">connect</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/crossfilter/" rel="tag">crossfilter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dc-js/" rel="tag">dc.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eclipse/" rel="tag">eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/" rel="tag">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eslint/" rel="tag">eslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/etl/" rel="tag">etl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flask/" rel="tag">flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flink/" rel="tag">flink</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flume/" rel="tag">flume</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/frontend/" rel="tag">frontend</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/functional-programming/" rel="tag">functional programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/" rel="tag">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guice/" rel="tag">guice</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/" rel="tag">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hbase/" rel="tag">hbase</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hdfs/" rel="tag">hdfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hive/" rel="tag">hive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/javascript/" rel="tag">javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lodash/" rel="tag">lodash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/machine-learning/" rel="tag">machine learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mapreduce/" rel="tag">mapreduce</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mypy/" rel="tag">mypy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openapi/" rel="tag">openapi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ops/" rel="tag">ops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/" rel="tag">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/parcel/" rel="tag">parcel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pinia/" rel="tag">pinia</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pip/" rel="tag">pip</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/poetry/" rel="tag">poetry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pydantic/" rel="tag">pydantic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/restful/" rel="tag">restful</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scala/" rel="tag">scala</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scalatra/" rel="tag">scalatra</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/source-code/" rel="tag">source code</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spark/" rel="tag">spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spark-streaming/" rel="tag">spark streaming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-boot/" rel="tag">spring boot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-security/" rel="tag">spring security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql/" rel="tag">sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqlalchemy/" rel="tag">sqlalchemy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream-processing/" rel="tag">stream processing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tensorflow/" rel="tag">tensorflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thrift/" rel="tag">thrift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typescript/" rel="tag">typescript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vite/" rel="tag">vite</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/" rel="tag">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vuex/" rel="tag">vuex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webjars/" rel="tag">webjars</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/" rel="tag">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/websocket/" rel="tag">websocket</a></li></ul>
+    </div>
+  </div>
+
+
   
     
   <div class="widget-wrap">
@@ -716,10 +774,11 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg"></a>
-      <br>
+      
+        <p xmlns:cc="http://creativecommons.org/ns#" >This work is licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1"></a></p>
+      
       &copy; 2024 Ji Zhang (Jerry)<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
@@ -729,43 +788,41 @@
   
     <a href="/" class="mobile-nav-link">Home</a>
   
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
     <a href="/categories/Big-Data" class="mobile-nav-link">Big Data</a>
   
     <a href="/categories/Programming" class="mobile-nav-link">Programming</a>
   
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
 </nav>
-
     
 <script>
   var disqus_shortname = 'jizhang';
   
   (function(){
     var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
     dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    dsq.src = 'https://' + disqus_shortname + '.disqus.com/count.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
   })();
 </script>
 
 
 
-<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery-3.6.4.min.js"></script>
 
 
 
   
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script src="/fancybox/jquery.fancybox.min.js"></script>
 
 
 
 
 <script src="/js/script.js"></script>
+
+
+
 
 
   </div>
