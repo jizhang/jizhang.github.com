@@ -844,10 +844,10 @@ a.article-title:hover {
   color: #999;
   text-shadow: 0 1px #fff;
 }
-.article-share-twitter:before,
-.article-share-facebook:before,
-.article-share-pinterest:before,
-.article-share-linkedin:before {
+.article-share-twitter .fa,
+.article-share-facebook .fa,
+.article-share-pinterest .fa,
+.article-share-linkedin .fa {
   font-size: 20px;
   width: 20px;
   height: 20px;
