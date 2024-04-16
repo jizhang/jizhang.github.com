@@ -64,10 +64,10 @@ https://shzhangji.com/tags/es6/
 https://shzhangji.com/tags/crossfilter/
 https://shzhangji.com/tags/dc-js/
 https://shzhangji.com/tags/analytics/
-https://shzhangji.com/tags/websocket/
-https://shzhangji.com/tags/ops/
 https://shzhangji.com/tags/pandas/
 https://shzhangji.com/tags/sql/
+https://shzhangji.com/tags/websocket/
+https://shzhangji.com/tags/ops/
 https://shzhangji.com/tags/spark-streaming/
 https://shzhangji.com/tags/kafka/
 https://shzhangji.com/tags/stream-processing/
@@ -94,12 +94,12 @@ https://shzhangji.com/tags/spring/
 https://shzhangji.com/tags/eclipse/
 https://shzhangji.com/tags/hdfs/
 https://shzhangji.com/tags/flink/
-https://shzhangji.com/tags/kubernetes/
+https://shzhangji.com/tags/hadoop/
 https://shzhangji.com/tags/hexo/
 https://shzhangji.com/tags/github/
-https://shzhangji.com/tags/hadoop/
 https://shzhangji.com/tags/bootstrap/
 https://shzhangji.com/tags/vite/
+https://shzhangji.com/tags/kubernetes/
 https://shzhangji.com/tags/openapi/
 https://shzhangji.com/tags/flask/
 https://shzhangji.com/tags/typescript/
