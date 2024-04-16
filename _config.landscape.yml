@@ -27,6 +27,7 @@ widgets:
 google_analytics: G-XGPVRTV36D
 favicon: /favicon.png
 twitter: zjerryj
+disqus_shortname: jizhang
 
 # Header links
 # Each name must correspond to the icon name of Fork Awesome
