@@ -105,7 +105,7 @@ from itertools import islice
 list(islice(map(calc, [1, 2, 3]), 2))
 ```
 
-It's worth mentioning that from Python 3.x on a lot of methods returns iterator instead of concrete list, you can refer to [this article](http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#Less-Lists-More-Views).
+It's worth mentioning that from Python 3.x on a lot of methods returns iterator instead of concrete list, you can refer to [this article](https://jizhang.github.io/blog/2017/01/08/python-2-to-3-quick-guide/#Less-Lists-More-Views).
 
 ### Purity
 

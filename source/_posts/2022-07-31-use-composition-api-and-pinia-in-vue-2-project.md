@@ -258,8 +258,8 @@ function login() {
 [3]: https://github.com/vueuse/vue-demi
 [4]: https://blog.vuejs.org/posts/vue-2-7-naruto.html
 [5]: https://vuejs.org/guide/extras/composition-api-faq.html
-[6]: https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/
+[6]: https://jizhang.github.io/blog/2022/07/24/add-typescript-support-to-vue-2-project/
 [7]: https://github.com/vuejs/vue-class-component
 [8]: https://vuejs.org/api/reactivity-core.html
-[9]: https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/
+[9]: https://jizhang.github.io/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/
 [10]: https://pinia.vuejs.org/introduction.html#comparison-with-vuex-3-x-4-x

@@ -190,7 +190,7 @@ Some global functions are (re)moved to reduce duplication and language cruft.
 ```python
 from urllib.request import urlopen, Request
 from urllib.parse import urlencode
-req = Request('http://shzhangji.com?' + urlencode({'t': 1})
+req = Request('https://jizhang.github.io/?' + urlencode({'t': 1})
 with urlopen(req) as f:
   print(f.read())
 ```

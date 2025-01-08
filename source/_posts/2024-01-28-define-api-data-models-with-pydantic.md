@@ -860,7 +860,7 @@ Content-Type: application/json
 
 
 [1]: https://pydantic.dev/
-[2]: https://shzhangji.com/blog/2024/01/19/python-static-type-check/
+[2]: https://jizhang.github.io/blog/2024/01/19/python-static-type-check/
 [3]: https://sqlmodel.tiangolo.com/
 [4]: https://github.com/annotated-types/annotated-types
 [5]: https://docs.pydantic.dev/latest/concepts/strict_mode/

@@ -282,7 +282,7 @@ Some warnings on an existing project:
 [9]: https://vuejs.org/guide/typescript/overview.html#definecomponent
 [10]: https://vuejs.org/guide/typescript/options-api.html
 [11]: https://github.com/axios/axios/blob/v0.27.2/index.d.ts
-[12]: https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/
+[12]: https://jizhang.github.io/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/
 [13]: https://github.com/TypeStrong/fork-ts-checker-webpack-plugin
 [14]: https://github.com/johnsoncodehk/volar/tree/master/packages/vue-tsc
 [15]: https://eslint.vuejs.org/user-guide/#how-to-use-a-custom-parser

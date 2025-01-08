@@ -244,7 +244,7 @@ for (ExecutorService execService : toShutdown) {
 * http://hadoop-hbase.blogspot.com/2012/05/hbase-hdfs-and-durable-sync.html
 
 
-[1]: http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/
+[1]: https://jizhang.github.io/blog/2017/10/23/flume-source-code-component-lifecycle/
 [2]: https://flume.apache.org/FlumeUserGuide.html#flume-sink-processors
 [3]: http://hadoop.apache.org/docs/r2.4.1/api/org/apache/hadoop/fs/FileSystem.html
 [4]: https://hadoop.apache.org/docs/r2.4.1/api/org/apache/hadoop/fs/FSDataOutputStream.html
