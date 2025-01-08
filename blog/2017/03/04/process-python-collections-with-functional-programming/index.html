@@ -20,7 +20,7 @@
   <meta name="description" content="I develop Spark applications with Scala, and it has a very powerful collection system, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In J">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Process Python Collections with Functional Programming">
-<meta property="og:url" content="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/index.html">
+<meta property="og:url" content="https://jizhang.github.io/blog/2017/03/04/process-python-collections-with-functional-programming/index.html">
 <meta property="og:site_name" content="Ji Zhang&#39;s Blog">
 <meta property="og:description" content="I develop Spark applications with Scala, and it has a very powerful collection system, in which functional programming is certainly a key. Java 8 also introduces Lambda Expression and Stream API. In J">
 <meta property="og:locale" content="en_US">
@@ -98,7 +98,7 @@
         <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jizhang.github.io"></form>
       </div>
     </div>
   </div>
@@ -160,7 +160,7 @@
 <p>List comprehension is eager-evaluated, while <code>map</code> (from Python 3.x on) returns an iterator. You can use the <code>next</code> global function to fetch the next element, or take the first two results using:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> islice</span><br><span class="line"><span class="built_in">list</span>(islice(<span class="built_in">map</span>(calc, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]), <span class="number">2</span>))</span><br></pre></td></tr></table></figure>
 
-<p>It’s worth mentioning that from Python 3.x on a lot of methods returns iterator instead of concrete list, you can refer to <a href="http://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/#Less-Lists-More-Views">this article</a>.</p>
+<p>It’s worth mentioning that from Python 3.x on a lot of methods returns iterator instead of concrete list, you can refer to <a href="https://jizhang.github.io/blog/2017/01/08/python-2-to-3-quick-guide/#Less-Lists-More-Views">this article</a>.</p>
 <h3 id="Purity"><a href="#Purity" class="headerlink" title="Purity"></a>Purity</h3><p>A function is pure if its output only depends on its input, and it has no side-effect, i.e. without changing outer&#x2F;global variable space. Here’re some examples of pure&#x2F;non-pure functions:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">inc</span>(<span class="params">a</span>): <span class="comment"># pure</span></span><br><span class="line">    <span class="keyword">return</span> a + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">i = <span class="number">0</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">count</span>(<span class="params">a</span>): <span class="comment"># non-pure</span></span><br><span class="line">    i = <span class="built_in">len</span>(a)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">greet</span>(<span class="params">name</span>): <span class="comment"># non-pure, change the console</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;hi&#x27;</span>, name)</span><br></pre></td></tr></table></figure>
 
@@ -188,9 +188,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="clv30f0vm000gm2p84jm21yyt" data-title="Process Python Collections with Functional Programming" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2017/03/04/process-python-collections-with-functional-programming/" data-id="cm5nbvvfb000gr5oyczk42zfy" data-title="Process Python Collections with Functional Programming" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2017/03/04/process-python-collections-with-functional-programming/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -293,7 +293,7 @@
       
         <p xmlns:cc="http://creativecommons.org/ns#" >This work is licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1"></a></p>
       
-      &copy; 2024 Ji Zhang (Jerry)<br>
+      &copy; 2025 Ji Zhang (Jerry)<br>
       Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
@@ -315,7 +315,7 @@
 <script>
   var disqus_shortname = 'jizhang';
   
-  var disqus_url = 'https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/';
+  var disqus_url = 'https://jizhang.github.io/blog/2017/03/04/process-python-collections-with-functional-programming/';
   
   (function(){
     var dsq = document.createElement('script');

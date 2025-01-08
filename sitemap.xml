@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://shzhangji.com/blog/2024/02/07/dependency-injection-in-flink/</loc>
+    <loc>https://jizhang.github.io/blog/2024/02/07/dependency-injection-in-flink/</loc>
     
     <lastmod>2024-02-07</lastmod>
     
@@ -11,7 +11,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2024/01/28/define-api-data-models-with-pydantic/</loc>
+    <loc>https://jizhang.github.io/blog/2024/01/28/define-api-data-models-with-pydantic/</loc>
     
     <lastmod>2024-01-28</lastmod>
     
@@ -20,7 +20,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2024/01/19/python-static-type-check/</loc>
+    <loc>https://jizhang.github.io/blog/2024/01/19/python-static-type-check/</loc>
     
     <lastmod>2024-01-19</lastmod>
     
@@ -29,7 +29,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/</loc>
+    <loc>https://jizhang.github.io/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/</loc>
     
     <lastmod>2024-01-05</lastmod>
     
@@ -38,7 +38,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/</loc>
+    <loc>https://jizhang.github.io/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/</loc>
     
     <lastmod>2023-02-13</lastmod>
     
@@ -47,7 +47,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2023/01/15/restful-api-authentication-with-spring-security/</loc>
+    <loc>https://jizhang.github.io/blog/2023/01/15/restful-api-authentication-with-spring-security/</loc>
     
     <lastmod>2023-01-15</lastmod>
     
@@ -56,7 +56,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/</loc>
+    <loc>https://jizhang.github.io/blog/2023/01/09/mock-api-in-parcel-project/</loc>
     
     <lastmod>2023-01-09</lastmod>
     
@@ -65,7 +65,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/</loc>
+    <loc>https://jizhang.github.io/blog/2022/08/31/configure-git-line-endings-across-oses/</loc>
     
     <lastmod>2022-08-31</lastmod>
     
@@ -74,7 +74,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/</loc>
+    <loc>https://jizhang.github.io/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/</loc>
     
     <lastmod>2022-08-10</lastmod>
     
@@ -83,7 +83,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/</loc>
+    <loc>https://jizhang.github.io/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/</loc>
     
     <lastmod>2022-07-31</lastmod>
     
@@ -92,7 +92,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2022/07/24/add-typescript-support-to-vue-2-project/</loc>
+    <loc>https://jizhang.github.io/blog/2022/07/24/add-typescript-support-to-vue-2-project/</loc>
     
     <lastmod>2022-07-24</lastmod>
     
@@ -101,7 +101,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/</loc>
+    <loc>https://jizhang.github.io/blog/2022/07/16/manage-multiple-command-line-runner-in-spring-boot/</loc>
     
     <lastmod>2022-07-16</lastmod>
     
@@ -110,7 +110,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/</loc>
+    <loc>https://jizhang.github.io/blog/2022/07/05/store-custom-data-in-spring-mvc-request-context/</loc>
     
     <lastmod>2022-07-05</lastmod>
     
@@ -119,7 +119,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2022/07/01/monitor-kubernetes-volume-storage/</loc>
+    <loc>https://jizhang.github.io/blog/2022/07/01/monitor-kubernetes-volume-storage/</loc>
     
     <lastmod>2022-07-01</lastmod>
     
@@ -128,7 +128,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/</loc>
+    <loc>https://jizhang.github.io/blog/2022/06/26/write-your-own-flask-sqlalchemy-extension/</loc>
     
     <lastmod>2022-06-26</lastmod>
     
@@ -137,7 +137,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/</loc>
+    <loc>https://jizhang.github.io/blog/2022/06/19/openapi-workflow-with-flask-and-typescript/</loc>
     
     <lastmod>2022-06-19</lastmod>
     
@@ -146,7 +146,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/</loc>
+    <loc>https://jizhang.github.io/blog/2022/06/11/use-bootstrap-v5-in-vue3-project/</loc>
     
     <lastmod>2022-06-11</lastmod>
     
@@ -155,7 +155,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/</loc>
+    <loc>https://jizhang.github.io/blog/2022/06/03/migrate-from-hexo-deployer-git-to-github-actions/</loc>
     
     <lastmod>2022-06-03</lastmod>
     
@@ -164,7 +164,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/</loc>
+    <loc>https://jizhang.github.io/blog/2019/08/24/deploy-flink-job-cluster-on-kubernetes/</loc>
     
     <lastmod>2019-08-24</lastmod>
     
@@ -173,7 +173,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2019/06/10/understanding-hive-acid-transactional-table/</loc>
+    <loc>https://jizhang.github.io/blog/2019/06/10/understanding-hive-acid-transactional-table/</loc>
     
     <lastmod>2019-06-10</lastmod>
     
@@ -182,7 +182,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/</loc>
+    <loc>https://jizhang.github.io/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/</loc>
     
     <lastmod>2018-12-23</lastmod>
     
@@ -191,7 +191,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/</loc>
+    <loc>https://jizhang.github.io/blog/2018/12/08/spark-datasource-api-v2/</loc>
     
     <lastmod>2018-12-08</lastmod>
     
@@ -200,7 +200,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/</loc>
+    <loc>https://jizhang.github.io/blog/2018/10/03/flume-source-code-hdfs-sink/</loc>
     
     <lastmod>2018-10-03</lastmod>
     
@@ -209,7 +209,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/</loc>
+    <loc>https://jizhang.github.io/blog/2018/09/20/how-to-avoid-null-pointer-exception/</loc>
     
     <lastmod>2018-09-20</lastmod>
     
@@ -218,7 +218,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/</loc>
+    <loc>https://jizhang.github.io/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/</loc>
     
     <lastmod>2018-09-13</lastmod>
     
@@ -227,7 +227,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/</loc>
+    <loc>https://jizhang.github.io/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/</loc>
     
     <lastmod>2018-05-14</lastmod>
     
@@ -236,7 +236,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/</loc>
+    <loc>https://jizhang.github.io/blog/2018/04/22/connect-hbase-with-python-and-thrift/</loc>
     
     <lastmod>2018-04-22</lastmod>
     
@@ -245,7 +245,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/</loc>
+    <loc>https://jizhang.github.io/blog/2018/04/17/form-handling-in-vuex-strict-mode/</loc>
     
     <lastmod>2018-04-17</lastmod>
     
@@ -254,7 +254,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/</loc>
+    <loc>https://jizhang.github.io/blog/2018/04/07/error-handling-in-restful-api/</loc>
     
     <lastmod>2018-04-07</lastmod>
     
@@ -263,7 +263,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/</loc>
+    <loc>https://jizhang.github.io/blog/2017/10/23/flume-source-code-component-lifecycle/</loc>
     
     <lastmod>2017-10-23</lastmod>
     
@@ -272,7 +272,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/09/30/pandas-and-tidy-data/</loc>
+    <loc>https://jizhang.github.io/blog/2017/09/30/pandas-and-tidy-data/</loc>
     
     <lastmod>2017-09-30</lastmod>
     
@@ -281,7 +281,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/09/12/apache-beam-quick-start-with-python/</loc>
+    <loc>https://jizhang.github.io/blog/2017/09/12/apache-beam-quick-start-with-python/</loc>
     
     <lastmod>2017-09-12</lastmod>
     
@@ -290,7 +290,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/09/04/hive-window-and-analytical-functions/</loc>
+    <loc>https://jizhang.github.io/blog/2017/09/04/hive-window-and-analytical-functions/</loc>
     
     <lastmod>2017-09-04</lastmod>
     
@@ -299,7 +299,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/</loc>
+    <loc>https://jizhang.github.io/blog/2017/08/27/an-introduction-to-stream-lib-the-stream-processing-utilities/</loc>
     
     <lastmod>2017-08-27</lastmod>
     
@@ -308,7 +308,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/</loc>
+    <loc>https://jizhang.github.io/blog/2017/08/12/extract-data-from-mysql-with-binlog-and-canal/</loc>
     
     <lastmod>2017-08-12</lastmod>
     
@@ -317,7 +317,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/</loc>
+    <loc>https://jizhang.github.io/blog/2017/08/05/how-to-extract-event-time-in-apache-flume/</loc>
     
     <lastmod>2017-08-05</lastmod>
     
@@ -326,7 +326,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/</loc>
+    <loc>https://jizhang.github.io/blog/2017/07/31/how-to-achieve-exactly-once-semantics-in-spark-streaming/</loc>
     
     <lastmod>2017-07-31</lastmod>
     
@@ -335,7 +335,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/07/23/learn-pandas-from-a-sql-perspective/</loc>
+    <loc>https://jizhang.github.io/blog/2017/07/23/learn-pandas-from-a-sql-perspective/</loc>
     
     <lastmod>2017-07-23</lastmod>
     
@@ -344,7 +344,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/07/15/log-tailer-with-websocket-and-python/</loc>
+    <loc>https://jizhang.github.io/blog/2017/07/15/log-tailer-with-websocket-and-python/</loc>
     
     <lastmod>2017-07-15</lastmod>
     
@@ -353,7 +353,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/</loc>
+    <loc>https://jizhang.github.io/blog/2017/06/18/build-interactive-report-with-crossfilter-and-dc-js/</loc>
     
     <lastmod>2017-06-18</lastmod>
     
@@ -362,7 +362,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/03/13/why-use-lodash-when-es6-is-available/</loc>
+    <loc>https://jizhang.github.io/blog/2017/03/13/why-use-lodash-when-es6-is-available/</loc>
     
     <lastmod>2017-03-13</lastmod>
     
@@ -371,7 +371,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/03/04/process-python-collections-with-functional-programming/</loc>
+    <loc>https://jizhang.github.io/blog/2017/03/04/process-python-collections-with-functional-programming/</loc>
     
     <lastmod>2017-03-04</lastmod>
     
@@ -380,7 +380,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</loc>
+    <loc>https://jizhang.github.io/blog/2017/01/29/difference-between-lodash-assign-and-assignin/</loc>
     
     <lastmod>2017-01-29</lastmod>
     
@@ -389,7 +389,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2017/01/08/python-2-to-3-quick-guide/</loc>
+    <loc>https://jizhang.github.io/blog/2017/01/08/python-2-to-3-quick-guide/</loc>
     
     <lastmod>2017-01-08</lastmod>
     
@@ -398,7 +398,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2015/09/01/view-spark-source-in-eclipse/</loc>
+    <loc>https://jizhang.github.io/blog/2015/09/01/view-spark-source-in-eclipse/</loc>
     
     <lastmod>2015-09-01</lastmod>
     
@@ -407,7 +407,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2015/05/31/spark-streaming-logging-configuration/</loc>
+    <loc>https://jizhang.github.io/blog/2015/05/31/spark-streaming-logging-configuration/</loc>
     
     <lastmod>2015-05-31</lastmod>
     
@@ -416,7 +416,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2015/04/28/elasticsearch-performance-tips/</loc>
+    <loc>https://jizhang.github.io/blog/2015/04/28/elasticsearch-performance-tips/</loc>
     
     <lastmod>2015-04-28</lastmod>
     
@@ -425,7 +425,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2014/05/27/use-webjars-in-scalatra-project/</loc>
+    <loc>https://jizhang.github.io/blog/2014/05/27/use-webjars-in-scalatra-project/</loc>
     
     <lastmod>2014-05-27</lastmod>
     
@@ -434,7 +434,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</loc>
+    <loc>https://jizhang.github.io/blog/2013/10/31/generate-auto-increment-id-in-map-reduce-job/</loc>
     
     <lastmod>2013-10-31</lastmod>
     
@@ -443,7 +443,7 @@
   </url>
   
   <url>
-    <loc>https://shzhangji.com/blog/2013/04/30/manage-leiningen-project-configuration/</loc>
+    <loc>https://jizhang.github.io/blog/2013/04/30/manage-leiningen-project-configuration/</loc>
     
     <lastmod>2013-04-30</lastmod>
     
@@ -453,506 +453,506 @@
   
 
   <url>
-    <loc>https://shzhangji.com/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   
   <url>
-    <loc>https://shzhangji.com/tags/clojure/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/clojure/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/scala/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/scala/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/scalatra/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/scalatra/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/webjars/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/webjars/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/elasticsearch/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/elasticsearch/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/spark/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/spark/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/python/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/python/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/lodash/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/lodash/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/javascript/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/javascript/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/frontend/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/frontend/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/functional-programming/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/functional-programming/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/es6/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/es6/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/crossfilter/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/crossfilter/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/dc-js/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/dc-js/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/analytics/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/analytics/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/pandas/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/websocket/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/sql/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/ops/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/websocket/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/pandas/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/ops/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/sql/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/spark-streaming/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/spark-streaming/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/kafka/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/kafka/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/stream-processing/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/stream-processing/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/flume/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/flume/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/etl/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/etl/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/java/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/java/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/mysql/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/mysql/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/canal/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/canal/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/algorithm/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/algorithm/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/hive/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/hive/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/apache-beam/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/apache-beam/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/mapreduce/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/mapreduce/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/source-code/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/source-code/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/restful/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/restful/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/vue/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/vue/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/vuex/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/vuex/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/hbase/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/hbase/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/thrift/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/thrift/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/tensorflow/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/tensorflow/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/machine-learning/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/machine-learning/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/react/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/react/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/eslint/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/eslint/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/spring/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/spring/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/eclipse/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/eclipse/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/hdfs/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/hdfs/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/flink/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/flink/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/hadoop/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/hadoop/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/hexo/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/kubernetes/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/github/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/hexo/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/bootstrap/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/github/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/vite/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/bootstrap/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/kubernetes/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/vite/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/openapi/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/openapi/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/flask/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/flask/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/typescript/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/typescript/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/sqlalchemy/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/sqlalchemy/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/prometheus/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/prometheus/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/devops/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/devops/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/spring-boot/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/spring-boot/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/webpack/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/webpack/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/pinia/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/pinia/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/git/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/git/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/parcel/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/parcel/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/connect/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/connect/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/spring-security/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/spring-security/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/ci/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/ci/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/docker/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/docker/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/poetry/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/poetry/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/pip/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/pip/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/mypy/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/mypy/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/pydantic/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/pydantic/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/tags/guice/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/tags/guice/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -960,15 +960,15 @@
 
   
   <url>
-    <loc>https://shzhangji.com/categories/Programming/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/categories/Programming/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shzhangji.com/categories/Big-Data/</loc>
-    <lastmod>2024-04-16</lastmod>
+    <loc>https://jizhang.github.io/categories/Big-Data/</loc>
+    <lastmod>2025-01-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>

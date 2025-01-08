@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta property="og:type" content="website">
 <meta property="og:title" content="Ji Zhang&#39;s Blog">
-<meta property="og:url" content="https://shzhangji.com/page/3/index.html">
+<meta property="og:url" content="https://jizhang.github.io/page/3/index.html">
 <meta property="og:site_name" content="Ji Zhang&#39;s Blog">
 <meta property="og:locale" content="en_US">
 <meta property="article:author" content="Ji Zhang (Jerry)">
@@ -92,7 +92,7 @@
         <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jizhang.github.io"></form>
       </div>
     </div>
   </div>
@@ -142,9 +142,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="clv30f0w20028m2p80wxf0rnm" data-title="Real-time Exactly-once ETL with Apache Flink" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/" data-id="cm5nbvvft0027r5oyb6bk2w55" data-title="Real-time Exactly-once ETL with Apache Flink" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2018/12/23/real-time-exactly-once-etl-with-apache-flink/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -197,9 +197,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/" data-id="clv30f0w10024m2p8508l8ans" data-title="Spark DataSource API V2" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2018/12/08/spark-datasource-api-v2/" data-id="cm5nbvvfs0023r5oy3zx82cm7" data-title="Spark DataSource API V2" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2018/12/08/spark-datasource-api-v2/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2018/12/08/spark-datasource-api-v2/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -240,7 +240,7 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>Sink is the last component of Apache Flume data flow, and it is used to output data into storages like local files, HDFS, ElasticSearch, etc. In this article, I will illustrate how Flume’s HDFS sink works, by analyzing its source code with diagrams.</p>
-<h2 id="Sink-Component-Lifecycle"><a href="#Sink-Component-Lifecycle" class="headerlink" title="Sink Component Lifecycle"></a>Sink Component Lifecycle</h2><p>In the <a href="http://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/">previous article</a>, we learnt that every Flume component implements <code>LifecycleAware</code> interface, and is started and monitored by <code>LifecycleSupervisor</code>. Sink component is not directly invoked by this supervisor, but wrapped in <code>SinkRunner</code> and <code>SinkProcessor</code> classes. Flume supports three different <a target="_blank" rel="noopener" href="https://flume.apache.org/FlumeUserGuide.html#flume-sink-processors">sink processors</a>, to connect channel and sinks in different semantics. But here we only consider the <code>DefaultSinkProcessor</code>, that accepts only one sink, and we will skip the concept of sink group as well.</p>
+<h2 id="Sink-Component-Lifecycle"><a href="#Sink-Component-Lifecycle" class="headerlink" title="Sink Component Lifecycle"></a>Sink Component Lifecycle</h2><p>In the <a href="https://jizhang.github.io/blog/2017/10/23/flume-source-code-component-lifecycle/">previous article</a>, we learnt that every Flume component implements <code>LifecycleAware</code> interface, and is started and monitored by <code>LifecycleSupervisor</code>. Sink component is not directly invoked by this supervisor, but wrapped in <code>SinkRunner</code> and <code>SinkProcessor</code> classes. Flume supports three different <a target="_blank" rel="noopener" href="https://flume.apache.org/FlumeUserGuide.html#flume-sink-processors">sink processors</a>, to connect channel and sinks in different semantics. But here we only consider the <code>DefaultSinkProcessor</code>, that accepts only one sink, and we will skip the concept of sink group as well.</p>
 <p><img src="/images/flume/sink-component-lifecycle.png" alt="Sink Component LifeCycle"></p>
         
           <p class="article-more-link">
@@ -250,9 +250,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="clv30f0w10021m2p83ktrh8p6" data-title="Flume Source Code: HDFS Sink" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2018/10/03/flume-source-code-hdfs-sink/" data-id="cm5nbvvfs0020r5oyc9l3dgkv" data-title="Flume Source Code: HDFS Sink" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2018/10/03/flume-source-code-hdfs-sink/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2018/10/03/flume-source-code-hdfs-sink/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -314,9 +314,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="clv30f0w0001ym2p85mlm1i3t" data-title="How to Avoid NullPointerException" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2018/09/20/how-to-avoid-null-pointer-exception/" data-id="cm5nbvvfr001xr5oy7vb6ftsg" data-title="How to Avoid NullPointerException" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2018/09/20/how-to-avoid-null-pointer-exception/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2018/09/20/how-to-avoid-null-pointer-exception/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -369,9 +369,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="clv30f0vz001wm2p88gqnfsbc" data-title="Is It Necessary to Apply ESLint jsx-no-bind Rule?" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/" data-id="cm5nbvvfq001vr5oy9e8z8s5q" data-title="Is It Necessary to Apply ESLint jsx-no-bind Rule?" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2018/09/13/is-it-necessary-to-apply-eslint-jsx-no-bind-rule/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -423,9 +423,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="clv30f0vz001tm2p85fj53sc5" data-title="Serve TensforFlow Estimator with SavedModel" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/" data-id="cm5nbvvfq001sr5oy48ksfi3u" data-title="Serve TensforFlow Estimator with SavedModel" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2018/05/14/serve-tensorflow-estimator-with-savedmodel/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -480,9 +480,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="clv30f0vy001rm2p83o6lcmy6" data-title="Connect HBase with Python and Thrift" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2018/04/22/connect-hbase-with-python-and-thrift/" data-id="cm5nbvvfp001qr5oyge0c4tqb" data-title="Connect HBase with Python and Thrift" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2018/04/22/connect-hbase-with-python-and-thrift/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2018/04/22/connect-hbase-with-python-and-thrift/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -542,9 +542,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="clv30f0vy001pm2p88uuu4czo" data-title="Form Handling in Vuex Strict Mode" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2018/04/17/form-handling-in-vuex-strict-mode/" data-id="cm5nbvvfp001or5oyay6r9b3t" data-title="Form Handling in Vuex Strict Mode" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2018/04/17/form-handling-in-vuex-strict-mode/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2018/04/17/form-handling-in-vuex-strict-mode/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -598,9 +598,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/" data-id="clv30f0vx001mm2p8gv2rcs0p" data-title="Error Handling in RESTful API" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2018/04/07/error-handling-in-restful-api/" data-id="cm5nbvvfo001lr5oy93vd8c5x" data-title="Error Handling in RESTful API" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2018/04/07/error-handling-in-restful-api/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2018/04/07/error-handling-in-restful-api/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -667,9 +667,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/" data-id="clv30f0vw001jm2p85vctgghk" data-title="Flume Source Code: Component Lifecycle" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2017/10/23/flume-source-code-component-lifecycle/" data-id="cm5nbvvfn001ir5oyaf0tfcr9" data-title="Flume Source Code: Component Lifecycle" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2017/10/23/flume-source-code-component-lifecycle/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2017/10/23/flume-source-code-component-lifecycle/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -754,7 +754,7 @@
       
         <p xmlns:cc="http://creativecommons.org/ns#" >This work is licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1"></a></p>
       
-      &copy; 2024 Ji Zhang (Jerry)<br>
+      &copy; 2025 Ji Zhang (Jerry)<br>
       Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

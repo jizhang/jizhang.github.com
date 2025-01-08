@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta property="og:type" content="website">
 <meta property="og:title" content="Ji Zhang&#39;s Blog">
-<meta property="og:url" content="https://shzhangji.com/index.html">
+<meta property="og:url" content="https://jizhang.github.io/index.html">
 <meta property="og:site_name" content="Ji Zhang&#39;s Blog">
 <meta property="og:locale" content="en_US">
 <meta property="article:author" content="Ji Zhang (Jerry)">
@@ -92,7 +92,7 @@
         <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://shzhangji.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jizhang.github.io"></form>
       </div>
     </div>
   </div>
@@ -147,9 +147,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2024/02/07/dependency-injection-in-flink/" data-id="clv30f0xe00a9m2p81n79e9t3" data-title="Dependency Injection in Flink" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2024/02/07/dependency-injection-in-flink/" data-id="cm5nbvvgb003vr5oy8b903q9r" data-title="Dependency Injection in Flink" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2024/02/07/dependency-injection-in-flink/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2024/02/07/dependency-injection-in-flink/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -199,7 +199,7 @@
 
 <ul>
 <li>We create Pydantic model by extending <code>BaseModel</code>, which is the basic approach. There are others ways like <code>dataclass</code>, <code>TypeAdapter</code>, or dynamic creation of models.</li>
-<li>Model fields are simply defined by class attributes and type annotations. Unlike other SerDe libraries, Pydantic is natively built with Python type hints. If you are not familiar with it, please check out my previous <a href="https://shzhangji.com/blog/2024/01/19/python-static-type-check/">blog post</a>.</li>
+<li>Model fields are simply defined by class attributes and type annotations. Unlike other SerDe libraries, Pydantic is natively built with Python type hints. If you are not familiar with it, please check out my previous <a href="https://jizhang.github.io/blog/2024/01/19/python-static-type-check/">blog post</a>.</li>
 <li>In the API, we manually create a model instance <code>user</code>. Usually we create them from request body or database models, which will be demonstrated later.</li>
 <li>Then we serialize, or “dump” the model into a Python dict, that in turn is transformed by Flask into a JSON string. We can also use <code>user.model_dump_json()</code>, which returns the JSON string directly, but then the response header needs to be manually set to <code>application/json</code>, so we would rather let Flask do the job.</li>
 <li><code>mode=&quot;json&quot;</code> tells Pydantic to serialize field values into JSON representable types. For instance, <code>datetime</code> and <code>Decimal</code> will be converted to string. Flask can also do this conversion, but we prefer keeping serialization in Pydantic model for clarity and ease of change.</li>
@@ -212,9 +212,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2024/01/28/define-api-data-models-with-pydantic/" data-id="clv30f0we003tm2p89k5vb0ch" data-title="Define API Data Models with Pydantic" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2024/01/28/define-api-data-models-with-pydantic/" data-id="cm5nbvvga003sr5oy5gltemxk" data-title="Define API Data Models with Pydantic" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2024/01/28/define-api-data-models-with-pydantic/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2024/01/28/define-api-data-models-with-pydantic/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -283,9 +283,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2024/01/19/python-static-type-check/" data-id="clv30f0wd003pm2p85pyfgcn9" data-title="Python Static Type Check" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2024/01/19/python-static-type-check/" data-id="cm5nbvvg9003or5oy4mqlhbno" data-title="Python Static Type Check" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2024/01/19/python-static-type-check/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2024/01/19/python-static-type-check/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -348,9 +348,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/" data-id="clv30f0wd003mm2p86bfr5a5x" data-title="Migrate from Pip requirements.txt to Poetry" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/" data-id="cm5nbvvg8003lr5oyhybn1nkr" data-title="Migrate from Pip requirements.txt to Poetry" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2024/01/05/migrate-from-pip-requirements-txt-to-poetry/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -403,9 +403,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/" data-id="clv30f0wc003jm2p8hy6acbmm" data-title="Setup CI with GitHub Actions (Java/Node/Python)" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/" data-id="cm5nbvvg7003ir5oyffy01wbm" data-title="Setup CI with GitHub Actions (Java/Node/Python)" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2023/02/13/setup-ci-with-github-actions-java-node-python/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -464,9 +464,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2023/01/15/restful-api-authentication-with-spring-security/" data-id="clv30f0wc003hm2p82v2mfejc" data-title="RESTful API Authentication with Spring Security" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2023/01/15/restful-api-authentication-with-spring-security/" data-id="cm5nbvvg6003gr5oy62d0d6y5" data-title="RESTful API Authentication with Spring Security" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2023/01/15/restful-api-authentication-with-spring-security/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2023/01/15/restful-api-authentication-with-spring-security/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -524,9 +524,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/" data-id="clv30f0wb003em2p83anz5r0f" data-title="Mock API in Parcel Project" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2023/01/09/mock-api-in-parcel-project/" data-id="cm5nbvvg5003dr5oyhs60h9uu" data-title="Mock API in Parcel Project" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2023/01/09/mock-api-in-parcel-project/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2023/01/09/mock-api-in-parcel-project/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -580,9 +580,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/" data-id="clv30f0wa003bm2p8fwww8cqs" data-title="Configure Git Line Endings Across OSes" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2022/08/31/configure-git-line-endings-across-oses/" data-id="cm5nbvvg4003ar5oy88ymeq11" data-title="Configure Git Line Endings Across OSes" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2022/08/31/configure-git-line-endings-across-oses/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2022/08/31/configure-git-line-endings-across-oses/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -641,9 +641,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/" data-id="clv30f0w90037m2p84hxxfutc" data-title="Configure Logging for Flask SQLAlchemy Project" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/" data-id="cm5nbvvg30036r5oy9z2ze165" data-title="Configure Logging for Flask SQLAlchemy Project" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2022/08/10/configure-logging-for-flask-sqlalchemy-project/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -694,9 +694,9 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shzhangji.com/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/" data-id="clv30f0w80034m2p8hqrw0zvn" data-title="Use Composition API and Pinia in Vue 2 Project" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://jizhang.github.io/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/" data-id="cm5nbvvg20033r5oy2s77dise" data-title="Use Composition API and Pinia in Vue 2 Project" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
-        <a href="https://shzhangji.com/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
+        <a href="https://jizhang.github.io/blog/2022/07/31/use-composition-api-and-pinia-in-vue-2-project/#disqus_thread" class="article-comment-link"><span class="fa fa-comment">Comments</span></a>
       
       
       
@@ -781,7 +781,7 @@
       
         <p xmlns:cc="http://creativecommons.org/ns#" >This work is licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1"></a></p>
       
-      &copy; 2024 Ji Zhang (Jerry)<br>
+      &copy; 2025 Ji Zhang (Jerry)<br>
       Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
